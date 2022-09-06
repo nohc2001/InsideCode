@@ -1,0 +1,44 @@
+현재 insideCode의 단점
+1. 변수 하나하나의 메모리 용량이 너무 무거움
+	그 이유 :
+		1. 프로그램이 돌아가는 동안 변수들의 이름 데이터를 유지해야 해서
+		2. ValuePtr의 상속으로 들어가 추가적인 메모리가 필요
+		3. 프로그램이 돌아가는 동안 변수들의 타입을 식별하고, 문자열에서 타입으로 형변환 할 수 있게 해야 해서 타입도 스트링으로 들어감. (struct의 경우)
+			- 추가될 수 있는 enum같은 클래스로 해결을 시도하자.
+		4. valuePtr 에 있는 맴버변수 type_name 이 string 형이라 이것을 바꾸어도 되는지 살펴보자. enum 으로 바꿀 수 있지 않을까?
+			- char 로 enum처럼 처리
+				1. i - int
+				2. b - bool
+				3. f - float
+				4. m - memory
+				5. p - ptr
+				6. a - array
+				7. s - struct
+	ex>
+		int a;
+		valueptr - strlen(3) - 1로 줄일 수 있음
+		int virtual - 4
+		int - 4
+		name - 1
+		10byte 정도
+
+		struct ABC{
+			int a;
+			bool b;
+			float c;
+		};
+		valueptr - strlen(6) -> 1로 줄일 수 있다
+		int, bool, float - 30
+		ABC strlen - 3 -> 4바이트 고정
+		dataid*3 - 12
+		typename*3 - 12 -> 차후 지워야 될것
+		valueptr*3 - 12 -> 차후 지워야 될것
+		81 byte -> 46byte
+
+2. 아직 힙 메모리 관리가 안됨.
+	HeapDebug하자.
+3. 사용할 수 있는 모든 메모리를 힙에서 끌어다 써야한다.
+	힙 뿐 아니라 데이터 메모리도 끌어올 수 있으면 좋겠다. (개발자가 필요에 따라 개선하도록)
+4. int a = 0; 이 안됨 따로따로 써야해서 정말 불편하다.
+5. new, delete 같은 것이 없다.
+	-Standard 함수로 만들자

@@ -1,0 +1,25 @@
+int main(){
+	if(true){
+		int a;
+		a = 10;
+		output("%v \n", a);
+	}
+
+	output("%v \n", a);
+
+	char[50] str;
+
+	str = "I like C Programming";
+	output("string : %v \n", str);
+
+	str[8] = 0;
+	output("string : %v \n", str);
+
+	str[6] = 0;
+	output("string : %v \n", str);
+
+	str[1] = 0;
+	output("string : %v \n", str);
+
+	return 0;
+}
