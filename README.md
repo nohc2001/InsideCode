@@ -63,3 +63,8 @@ int main(){
   abc.a = 10;
   return 0;
 }
+
+//input and output
+int num;
+input(&num);
+output("num : %v \n", num);
