@@ -26,32 +26,32 @@ However, if you want to change the grammar or compiler code, please modify the <
 
 The grammar currently recorded in main.cpp is very similar to language C. But the details can be different.
 
-//Variable declaration
+//Variable declaration : 
 int a;
 float b;
 bool c;
 char d;
 
-//Variable Set
+//Variable Set : 
 a = 1;
 b = 0.4;
 c = false;
 d = 'a';
 
-//if, while, for
+//if, while, for : 
 It's like C language.
 
-//Array declaration
+//Array declaration : 
 int[50] a;
 int[num] b;
 
-//pointer useage
+//pointer useage : 
 int a;
 a = 10;
 int* aptr;
 aptr = &a;
 
-//struct useage
+//struct useage : 
 struct ABC{
   int a;
   float b;
