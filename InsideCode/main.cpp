@@ -4,9 +4,88 @@ string Float::Type_name = "float";
 string Bool::Type_name = "bool";
 string Char::Type_name = "char";
 string MemoryValue::Type_name = "memory";
+int hd::heap_data_num = 0;
+
+//true면 힙을 관리한다. - 더 많은 코드를 실행해 느리다.
+//false면 new, delete만 한다.
+bool hd::isHeapDebug = true;
+
+map<void*, bool> hd::HeapDebug;
 
 //데이터화된 코드가 들어갈 변수
 InsideCode ic;
+
+InsideCode::~InsideCode() {
+	if (isClassPtrDebug && DebugObjMap["InsideCode"]) {
+		--classPtrMap["InsideCode"];
+		printf("\n delete InsideCode :\t %p \t| InsideCode stack : %d", this, classPtrMap["InsideCode"]);
+	}
+
+	for (unsigned int i = 0; i < code.size(); ++i) {
+		if (code[i] != nullptr && hd::HeapDebug[code[i]]) {
+			hd::_delete<CodeBlock>(code[i]);
+		}
+	}
+	if (code.size() > 0) {
+		code.clear();
+	}
+
+	for (unsigned int i = 0; i < typeList.size(); ++i) {
+		if (typeList[i] != nullptr && hd::HeapDebug[typeList[i]]) {
+			hd::_delete(typeList[i]);
+		}
+	}
+	if (typeList.size() > 0) {
+		typeList.clear();
+	}
+
+	for (unsigned int i = 0; i < frontOperatorList.size(); ++i) {
+		if (frontOperatorList[i] != nullptr && hd::HeapDebug[frontOperatorList[i]]) {
+			hd::_delete<FrontOperator>(frontOperatorList[i]);
+		}
+	}
+	if (frontOperatorList.size() > 0) {
+		frontOperatorList.clear();
+	}
+
+	for (unsigned int i = 0; i < operatorList.size(); ++i) {
+		if (operatorList[i] != nullptr && hd::HeapDebug[operatorList[i]]) {
+			hd::_delete<Operator>(operatorList[i]);
+		}
+	}
+	if (operatorList.size() > 0) {
+		operatorList.clear();
+	}
+
+	for (unsigned int i = 0; i < ALLblockdata.size(); ++i) {
+		if (ALLblockdata[i] != nullptr && hd::HeapDebug[ALLblockdata[i]]) {
+			hd::_delete<textblock>(ALLblockdata[i]);
+		}
+	}
+	if (ALLblockdata.size() > 0) {
+		ALLblockdata.clear();
+	}
+
+	for (unsigned int i = 0; i < functions.size(); ++i) {
+		if (functions[i] != nullptr && hd::HeapDebug[functions[i]]) {
+			hd::_delete<Function>(functions[i]);
+		}
+	}
+	if (functions.size() > 0) {
+		functions.clear();
+	}
+
+	if (mem != nullptr && hd::HeapDebug[mem]) {
+		hd::_delete<Memory>(mem);
+	}
+
+	if (process != nullptr && hd::HeapDebug[process]) {
+		hd::_delete<Ptr>(process);
+	}
+
+	hd::MapClear();
+	printf("%d\n", hd::heap_data_num);
+}
 
 //준비 함수
 ValuePtr::ValuePtr()
@@ -20,31 +99,31 @@ ValuePtr::ValuePtr()
 ValuePtr* ValuePtr::AddValue(string Typename, string SubTypename, int arraySiz, Ptr* IC)
 {
 	if (Typename == "any") {
-		ValuePtr* v = new ValuePtr();
+		ValuePtr* v = hd::_new<ValuePtr>();
 		return v;
 	}
 	else if (Typename == "int") {
-		Int* n = new Int();
+		Int* n = hd::_new<Int>();
 		return (ValuePtr*)n;
 	}
 	else if (Typename == "float") {
-		Float* n = new Float();
+		Float* n = hd::_new<Float>();
 		return (ValuePtr*)n;
 	}
 	else if (Typename == "bool") {
-		Bool* b = new Bool();
+		Bool* b = hd::_new<Bool>();
 		return (ValuePtr*)b;
 	}
 	else if (Typename == "char") {
-		Char* c = new Char();
+		Char* c = hd::_new<Char>();
 		return (ValuePtr*)c;
 	}
 	else if (Typename == "memory") {
-		MemoryValue* m = new MemoryValue();
+		MemoryValue* m = hd::_new<MemoryValue>();
 		return (ValuePtr*)m;
 	}
 	else if (Typename == "pointer") {
-		Pointer* p = new Pointer();
+		Pointer* p = hd::_new<Pointer>();
 		p->preTypeName = SubTypename;
 		SubTypename.push_back('*');
 		p->TypeName = SubTypename;
@@ -55,7 +134,7 @@ ValuePtr* ValuePtr::AddValue(string Typename, string SubTypename, int arraySiz, 
 		if (SubTypename != "") {
 			InsideCode* ICptr = (InsideCode*)IC;
 			CodePlayData* cpd = ((Process*)ICptr->process)->PresentPlayData();
-			Array* a = new Array();
+			Array* a = hd::_new<Array>();
 			a->siz = arraySiz;
 			a->p.preTypeName = SubTypename;
 			SubTypename.push_back('*');
@@ -69,14 +148,14 @@ ValuePtr* ValuePtr::AddValue(string Typename, string SubTypename, int arraySiz, 
 		else {
 			InsideCode* ICptr = (InsideCode*)IC;
 			CodePlayData* cpd = ((Process*)ICptr->process)->PresentPlayData();
-			Array* a = new Array();
+			Array* a = hd::_new<Array>();
 			a->siz = arraySiz;
 			a->p.preTypeName = "";
 			return (ValuePtr*)a;
 		}
 	}
 	else {
-		Struct* s = new Struct();
+		Struct* s = hd::_new<Struct>();
 		bool ExistStruct = false;
 		s->structType_Name = Typename;
 		InsideCode* ICptr = (InsideCode*)IC;
@@ -204,7 +283,7 @@ bool ValuePtr::CopyValue(ValuePtr* v1, ValuePtr* v2, Ptr* IC)
 						iv1->memberVnaming.clear();
 						for (int i = 0; i < iv1->values.size(); ++i) {
 							if (iv1->values[i] != nullptr) {
-								delete iv1->values[i];
+								hd::_delete(iv1->values[i]);
 							}
 						}
 						if (iv1->values.size() > 0) {
@@ -225,7 +304,7 @@ bool ValuePtr::CopyValue(ValuePtr* v1, ValuePtr* v2, Ptr* IC)
 					iv1->memberVnaming.clear();
 					for (int i = 0; i < iv1->values.size(); ++i) {
 						if (iv1->values[i] != nullptr) {
-							delete iv1->values[i];
+							hd::_delete(iv1->values[i]);
 						}
 					}
 					if (iv1->values.size() > 0) {
@@ -386,7 +465,7 @@ bool Int::isThisType(string str)
 
 textblock* Int::ValueToString()
 {
-	textblock* t = new textblock();
+	textblock* t = hd::_new<textblock>();
 	*t = to_string(value);
 	return t;
 }
@@ -423,7 +502,7 @@ bool Float::isThisType(string str)
 
 textblock* Float::ValueToString()
 {
-	textblock* t = new textblock();
+	textblock* t = hd::_new<textblock>();
 	*t = to_string(value);
 	return t;
 }
@@ -446,10 +525,12 @@ textblock* Bool::ValueToString()
 {
 	textblock* t;
 	if (value) {
-		t = new string("true");
+		t = hd::_new<string>();
+		*t = "true";
 	}
 	else {
-		t = new string("false");
+		t = hd::_new<string>();
+		*t = "false";
 	}
 	return t;
 }
@@ -472,14 +553,14 @@ bool Char::isThisType(string str)
 
 textblock* Char::ValueToString()
 {
-	textblock* t = new textblock();
+	textblock* t = hd::_new<textblock>();
 	t->push_back(value);
 	return t;
 }
 
 textblock* Pointer::ValueToString()
 {
-	textblock* rt = new textblock();
+	textblock* rt = hd::_new<textblock>();
 	rt->push_back('{'); rt->push_back('p'); rt->push_back('t'); rt->push_back('r');
 	rt->push_back(':');
 	// 이 사이에 값을 넣어라
@@ -504,7 +585,7 @@ void Pointer::getValueToString(string str)
 
 textblock* Pointer::PointerToString(int address)
 {
-	textblock* rt = new textblock();
+	textblock* rt = hd::_new<textblock>();
 	rt->push_back('{'); rt->push_back('p'); rt->push_back('t'); rt->push_back('r');
 	rt->push_back(':');
 	// 이 사이에 값을 넣어라
@@ -523,12 +604,12 @@ void Array::getValueToString(string str)
 		siz = str.size() - 2;
 		
 		for (int i = 1; i < siz + 1; i++) {
-			Char* c = new Char();
+			Char* c = hd::_new<Char>();
 			c->value = str.at(i);
 			values.push_back((ValuePtr*)c);
 		}
 
-		Char* c = new Char();
+		Char* c = hd::_new<Char>();
 		c->value = '\0';
 		values.push_back((ValuePtr*)c);
 	}
@@ -544,7 +625,7 @@ void Array::ArrayInMemory(Ptr* ic)
 	for (int i = 0; i < values.size(); ++i) {
 		if (IC->mem->memory[p.address + i] != (ValuePtr*)values.at(i)) {
 			ValuePtr::CopyValue(IC->mem->memory[p.address + i], (ValuePtr*)values.at(i), IC);
-			delete values[i];
+			hd::_delete(values[i]);
 		}
 	}
 	if (s > 0) {
@@ -558,7 +639,7 @@ void Array::ArrayInMemory(Ptr* ic)
 
 textblock* Array::ValueToString()
 {
-	textblock* rt = new textblock();
+	textblock* rt = hd::_new<textblock>();
 	if (p.preTypeName == "char") {
 		for (int i = 0; i < values.size(); i++) {
 			if (((Char*)values.at(i))->value == 0) {
@@ -651,21 +732,21 @@ void Memory::RemoveData(int id)
 		Int* v = (Int*)memory[id];
 		v->Type_name.clear();
 		memory[id]->type_name = 0;
-		delete v;
+		hd::_delete<Int>(v);
 		memory[id] = nullptr;
 	}
 	else if (typestr == 'f') {
 		Float* v = (Float*)memory[id];
 		v->Type_name.clear();
 		memory[id]->type_name = 0;
-		delete v;
+		hd::_delete<Float>(v);
 		memory[id] = nullptr;
 	}
 	else if (typestr == 'b') {
 		Bool* v = (Bool*)memory[id];
 		v->Type_name.clear();
 		memory[id]->type_name = 0;
-		delete v;
+		hd::_delete<Bool>(v);
 		memory[id] = nullptr;
 	}
 	else if (typestr == 's') {
@@ -715,7 +796,7 @@ int Memory::StringToMemory(string str, Ptr* ICptr)
 
 textblock* Struct::ValueToString()
 {
-	textblock* rt = new textblock();
+	textblock* rt = hd::_new<textblock>();
 	rt->push_back('{');
 	for (int i = 0; i < memberVnaming.size(); i++) {
 		textblock* copyt = values.at(i)->ValueToString();
@@ -756,6 +837,17 @@ Operator::Operator(string Name, string Form, string ParamType1, string ParamType
 	}
 }
 
+Operator* Operator::Init(string Name, string Form, string ParamType1, string ParamType2, string ReturnType, ValuePtr* (*func)(ValuePtr*, ValuePtr*, Ptr*))
+{
+	name = Name;
+	form = Form;
+	paramType[0] = ParamType1;
+	paramType[1] = ParamType2;
+	returnType = ReturnType;
+	Func = func;
+	return this;
+}
+
 Operator::~Operator()
 {
 	if (isClassPtrDebug && DebugObjMap["Operator"]) {
@@ -775,8 +867,8 @@ ValuePtr* IntPercent(ValuePtr* v1, ValuePtr* v2, Ptr* IC)
 	Int* B = (Int*)Casting("int", v2, IC);
 	((Int*)returnV)->value = A->value % B->value;
 
-	delete A;
-	delete B;
+	hd::_delete<Int>(A);
+	hd::_delete<Int>(B);
 	return returnV;
 }
 
@@ -799,8 +891,8 @@ ValuePtr* Mul(ValuePtr* v1, ValuePtr* v2, Ptr* IC)
 		f[0] = A->value;
 		f[1] = B->value;
 		((Float*)returnV)->value = f[0] * f[1];
-		delete A;
-		delete B;
+		hd::_delete<Float>(A);
+		hd::_delete<Float>(B);
 		return returnV;
 	}
 	else {
@@ -808,8 +900,8 @@ ValuePtr* Mul(ValuePtr* v1, ValuePtr* v2, Ptr* IC)
 		Int* A = (Int*)Casting("int", v1, IC);
 		Int* B = (Int*)Casting("int", v2, IC);
 		((Int*)returnV)->value = A->value * B->value;
-		delete A;
-		delete B;
+		hd::_delete<Int>(A);
+		hd::_delete<Int>(B);
 		return returnV;
 	}
 }
@@ -833,8 +925,8 @@ ValuePtr* Div(ValuePtr* v1, ValuePtr* v2, Ptr* IC)
 		f[0] = A->value;
 		f[1] = B->value;
 		((Float*)returnV)->value = f[0] / f[1];
-		delete A;
-		delete B;
+		hd::_delete<Float>(A);
+		hd::_delete<Float>(B);
 		return returnV;
 	}
 	else {
@@ -842,8 +934,8 @@ ValuePtr* Div(ValuePtr* v1, ValuePtr* v2, Ptr* IC)
 		Int* A = (Int*)Casting("int", v1, IC);
 		Int* B = (Int*)Casting("int", v2, IC);
 		((Int*)returnV)->value = A->value / B->value;
-		delete A;
-		delete B;
+		hd::_delete<Int>(A);
+		hd::_delete<Int>(B);
 		return returnV;
 	}
 }
@@ -867,8 +959,8 @@ ValuePtr* Plus(ValuePtr* v1, ValuePtr* v2, Ptr* IC)
 		f[0] = A->value;
 		f[1] = B->value;
 		((Float*)returnV)->value = f[0] + f[1];
-		delete A;
-		delete B;
+		hd::_delete<Float>(A);
+		hd::_delete<Float>(B);
 		return returnV;
 	}
 	else {
@@ -876,8 +968,8 @@ ValuePtr* Plus(ValuePtr* v1, ValuePtr* v2, Ptr* IC)
 		Int* A = (Int*)Casting("int", v1, IC);
 		Int* B = (Int*)Casting("int", v2, IC);
 		((Int*)returnV)->value = A->value + B->value;
-		delete A;
-		delete B;
+		hd::_delete<Int>(A);
+		hd::_delete<Int>(B);
 		return returnV;
 	}
 }
@@ -901,8 +993,8 @@ ValuePtr* Minus(ValuePtr* v1, ValuePtr* v2, Ptr* IC)
 		f[0] = A->value;
 		f[1] = B->value;
 		((Float*)returnV)->value = f[0] - f[1];
-		delete A;
-		delete B;
+		hd::_delete<Float>(A);
+		hd::_delete<Float>(B);
 		return returnV;
 	}
 	else {
@@ -910,8 +1002,8 @@ ValuePtr* Minus(ValuePtr* v1, ValuePtr* v2, Ptr* IC)
 		Int* A = (Int*)Casting("int", v1, IC);
 		Int* B = (Int*)Casting("int", v2, IC);
 		((Int*)returnV)->value = A->value - B->value;
-		delete A;
-		delete B;
+		hd::_delete<Int>(A);
+		hd::_delete<Int>(B);
 		return returnV;
 	}
 }
@@ -923,29 +1015,29 @@ ValuePtr* Same(ValuePtr* v1, ValuePtr* v2, Ptr* IC)
 		Float* A = (Float*)Casting("float", v1, IC);
 		Float* B = (Float*)Casting("float", v2, IC);
 		((Bool*)returnV)->value = A->value == B->value;
-		delete A;
-		delete B;
+		hd::_delete<Float>(A);
+		hd::_delete<Float>(B);
 	}
 	else if (v1->type_name == 'i' || v2->type_name == 'i') {
 		Int* A = (Int*)Casting("int", v1, IC);
 		Int* B = (Int*)Casting("int", v2, IC);
 		((Bool*)returnV)->value = A->value == B->value;
-		delete A;
-		delete B;
+		hd::_delete<Int>(A);
+		hd::_delete<Int>(B);
 	}
 	else if (v1->type_name == 'b' || v2->type_name == 'b') {
 		Bool* A = (Bool*)Casting("bool", v1, IC);
 		Bool* B = (Bool*)Casting("bool", v2, IC);
 		((Bool*)returnV)->value = A->value == B->value;
-		delete A;
-		delete B;
+		hd::_delete<Bool>(A);
+		hd::_delete<Bool>(B);
 	}
 	else if (v1->type_name == 'c' || v2->type_name == 'c') {
 		Char* A = (Char*)Casting("char", v1, IC);
 		Char* B = (Char*)Casting("char", v2, IC);
 		((Char*)returnV)->value = A->value == B->value;
-		delete A;
-		delete B;
+		hd::_delete<Char>(A);
+		hd::_delete<Char>(B);
 	}
 	return returnV;
 }
@@ -957,29 +1049,29 @@ ValuePtr* RBig(ValuePtr* v1, ValuePtr* v2, Ptr* IC)
 		Float* A = (Float*)Casting("float", v1, IC);
 		Float* B = (Float*)Casting("float", v2, IC);
 		((Bool*)returnV)->value = A->value < B->value;
-		delete A;
-		delete B;
+		hd::_delete<Float>(A);
+		hd::_delete<Float>(B);
 	}
 	else if (v1->type_name == 'i' || v2->type_name == 'i') {
 		Int* A = (Int*)Casting("int", v1, IC);
 		Int* B = (Int*)Casting("int", v2, IC);
 		((Bool*)returnV)->value = A->value < B->value;
-		delete A;
-		delete B;
+		hd::_delete<Int>(A);
+		hd::_delete<Int>(B);
 	}
 	else if (v1->type_name == 'b' || v2->type_name == 'b') {
 		Bool* A = (Bool*)Casting("bool", v1, IC);
 		Bool* B = (Bool*)Casting("bool", v2, IC);
 		((Bool*)returnV)->value = A->value < B->value;
-		delete A;
-		delete B;
+		hd::_delete<Bool>(A);
+		hd::_delete<Bool>(B);
 	}
 	else if (v1->type_name == 'c' || v2->type_name == 'c') {
 		Char* A = (Char*)Casting("char", v1, IC);
 		Char* B = (Char*)Casting("char", v2, IC);
 		((Char*)returnV)->value = A->value < B->value;
-		delete A;
-		delete B;
+		hd::_delete<Char>(A);
+		hd::_delete<Char>(B);
 	}
 	return returnV;
 }
@@ -991,29 +1083,29 @@ ValuePtr* LBig(ValuePtr* v1, ValuePtr* v2, Ptr* IC)
 		Float* A = (Float*)Casting("float", v1, IC);
 		Float* B = (Float*)Casting("float", v2, IC);
 		((Bool*)returnV)->value = A->value > B->value;
-		delete A;
-		delete B;
+		hd::_delete<Float>(A);
+		hd::_delete<Float>(B);
 	}
 	else if (v1->type_name == 'i' || v2->type_name == 'i') {
 		Int* A = (Int*)Casting("int", v1, IC);
 		Int* B = (Int*)Casting("int", v2, IC);
 		((Bool*)returnV)->value = A->value > B->value;
-		delete A;
-		delete B;
+		hd::_delete<Int>(A);
+		hd::_delete<Int>(B);
 	}
 	else if (v1->type_name == 'b' || v2->type_name == 'b') {
 		Bool* A = (Bool*)Casting("bool", v1, IC);
 		Bool* B = (Bool*)Casting("bool", v2, IC);
 		((Bool*)returnV)->value = A->value > B->value;
-		delete A;
-		delete B;
+		hd::_delete<Bool>(A);
+		hd::_delete<Bool>(B);
 	}
 	else if (v1->type_name == 'c' || v2->type_name == 'c') {
 		Char* A = (Char*)Casting("char", v1, IC);
 		Char* B = (Char*)Casting("char", v2, IC);
 		((Char*)returnV)->value = A->value > B->value;
-		delete A;
-		delete B;
+		hd::_delete<Char>(A);
+		hd::_delete<Char>(B);
 	}
 	return returnV;
 }
@@ -1025,29 +1117,29 @@ ValuePtr* RBigSame(ValuePtr* v1, ValuePtr* v2, Ptr* IC)
 		Float* A = (Float*)Casting("float", v1, IC);
 		Float* B = (Float*)Casting("float", v2, IC);
 		((Bool*)returnV)->value = A->value <= B->value;
-		delete A;
-		delete B;
+		hd::_delete<Float>(A);
+		hd::_delete<Float>(B);
 	}
 	else if (v1->type_name == 'i' || v2->type_name == 'i') {
 		Int* A = (Int*)Casting("int", v1, IC);
 		Int* B = (Int*)Casting("int", v2, IC);
 		((Bool*)returnV)->value = A->value <= B->value;
-		delete A;
-		delete B;
+		hd::_delete<Int>(A);
+		hd::_delete<Int>(B);
 	}
 	else if (v1->type_name == 'b' || v2->type_name == 'b') {
 		Bool* A = (Bool*)Casting("bool", v1, IC);
 		Bool* B = (Bool*)Casting("bool", v2, IC);
 		((Bool*)returnV)->value = A->value <= B->value;
-		delete A;
-		delete B;
+		hd::_delete<Bool>(A);
+		hd::_delete<Bool>(B);
 	}
 	else if (v1->type_name == 'c' || v2->type_name == 'c') {
 		Char* A = (Char*)Casting("char", v1, IC);
 		Char* B = (Char*)Casting("char", v2, IC);
 		((Char*)returnV)->value = A->value <= B->value;
-		delete A;
-		delete B;
+		hd::_delete<Char>(A);
+		hd::_delete<Char>(B);
 	}
 	return returnV;
 }
@@ -1059,29 +1151,29 @@ ValuePtr* LBigSame(ValuePtr* v1, ValuePtr* v2, Ptr* IC)
 		Float* A = (Float*)Casting("float", v1, IC);
 		Float* B = (Float*)Casting("float", v2, IC);
 		((Bool*)returnV)->value = A->value >= B->value;
-		delete A;
-		delete B;
+		hd::_delete<Float>(A);
+		hd::_delete<Float>(B);
 	}
 	else if (v1->type_name == 'i' || v2->type_name == 'i') {
 		Int* A = (Int*)Casting("int", v1, IC);
 		Int* B = (Int*)Casting("int", v2, IC);
 		((Bool*)returnV)->value = A->value >= B->value;
-		delete A;
-		delete B;
+		hd::_delete<Int>(A);
+		hd::_delete<Int>(B);
 	}
 	else if (v1->type_name ==  'b' || v2->type_name == 'b') {
 		Bool* A = (Bool*)Casting("bool", v1, IC);
 		Bool* B = (Bool*)Casting("bool", v2, IC);
 		((Bool*)returnV)->value = A->value >= B->value;
-		delete A;
-		delete B;
+		hd::_delete<Bool>(A);
+		hd::_delete<Bool>(B);
 	}
 	else if (v1->type_name == 'c' || v2->type_name == 'c') {
 		Char* A = (Char*)Casting("char", v1, IC);
 		Char* B = (Char*)Casting("char", v2, IC);
 		((Char*)returnV)->value = A->value >= B->value;
-		delete A;
-		delete B;
+		hd::_delete<Char>(A);
+		hd::_delete<Char>(B);
 	}
 	return returnV;
 }
@@ -1093,29 +1185,29 @@ ValuePtr* NotSame(ValuePtr* v1, ValuePtr* v2, Ptr* IC)
 		Float* A = (Float*)Casting("float", v1, IC);
 		Float* B = (Float*)Casting("float", v2, IC);
 		((Bool*)returnV)->value = A->value != B->value;
-		delete A;
-		delete B;
+		hd::_delete<Float>(A);
+		hd::_delete<Float>(B);
 	}
 	else if (v1->type_name == 'i' || v2->type_name == 'i') {
 		Int* A = (Int*)Casting("int", v1, IC);
 		Int* B = (Int*)Casting("int", v2, IC);
 		((Bool*)returnV)->value = A->value != B->value;
-		delete A;
-		delete B;
+		hd::_delete<Int>(A);
+		hd::_delete<Int>(B);
 	}
 	else if (v1->type_name == 'b' || v2->type_name == 'b') {
 		Bool* A = (Bool*)Casting("bool", v1, IC);
 		Bool* B = (Bool*)Casting("bool", v2, IC);
 		((Bool*)returnV)->value = A->value != B->value;
-		delete A;
-		delete B;
+		hd::_delete<Bool>(A);
+		hd::_delete<Bool>(B);
 	}
 	else if (v1->type_name == 'c' || v2->type_name == 'c') {
 		Char* A = (Char*)Casting("char", v1, IC);
 		Char* B = (Char*)Casting("char", v2, IC);
 		((Char*)returnV)->value = A->value != B->value;
-		delete A;
-		delete B;
+		hd::_delete<Char>(A);
+		hd::_delete<Char>(B);
 	}
 	return returnV;
 }
@@ -1129,8 +1221,8 @@ ValuePtr* And(ValuePtr* v1, ValuePtr* v2, Ptr* IC)
 	Bool* A = (Bool*)Casting("bool", v1, IC);
 	Bool* B = (Bool*)Casting("bool", v2, IC);
 	((Bool*)returnV)->value = A->value && B->value;
-	delete A;
-	delete B;
+	hd::_delete<Bool>(A);
+	hd::_delete<Bool>(B);
 	return returnV;
 }
 
@@ -1143,8 +1235,8 @@ ValuePtr* Or(ValuePtr* v1, ValuePtr* v2, Ptr* IC)
 	Bool* A = (Bool*)Casting("bool", v1, IC);
 	Bool* B = (Bool*)Casting("bool", v2, IC);
 	((Bool*)returnV)->value = A->value || B->value;
-	delete A;
-	delete B;
+	hd::_delete<Bool>(A);
+	hd::_delete<Bool>(B);
 	return returnV;
 }
 
@@ -1421,7 +1513,7 @@ void AddTextBlocks(string codetxt, InsideCode* IC)
 					IC->ALLblockdata.at(i)->push_back(t1.at(k));
 				}
 
-				delete IC->ALLblockdata[i + 1];
+				hd::_delete<textblock>(IC->ALLblockdata[i + 1]);
 				IC->ALLblockdata.erase(IC->ALLblockdata.begin() + i+1);
 			}
 		}
@@ -1432,7 +1524,7 @@ void AddTextBlocks(string codetxt, InsideCode* IC)
 			bool bequ = (c == '!' || c == '<') || (c == '=' || c == '>');
 			if (bequ) {
 				IC->ALLblockdata.at(i - 1)->push_back('=');
-				delete IC->ALLblockdata[i];
+				hd::_delete<textblock>(IC->ALLblockdata[i]);
 				IC->ALLblockdata.erase(IC->ALLblockdata.begin() + i);
 			}
 		}
@@ -1442,7 +1534,7 @@ void AddTextBlocks(string codetxt, InsideCode* IC)
 			bool bequ = (c == '|');
 			if (bequ) {
 				IC->ALLblockdata.at(i - 1)->push_back('|');
-				delete IC->ALLblockdata[i];
+				hd::_delete<textblock>(IC->ALLblockdata[i]);
 				IC->ALLblockdata.erase(IC->ALLblockdata.begin() + i);
 			}
 		}
@@ -1452,7 +1544,7 @@ void AddTextBlocks(string codetxt, InsideCode* IC)
 			bool bequ = (c == '&');
 			if (bequ) {
 				IC->ALLblockdata.at(i - 1)->push_back('&');
-				delete IC->ALLblockdata[i];
+				hd::_delete<textblock>(IC->ALLblockdata[i]);
 				IC->ALLblockdata.erase(IC->ALLblockdata.begin() + i);
 			}
 		}
@@ -1478,9 +1570,9 @@ void AddTextBlocks(string codetxt, InsideCode* IC)
 				for (int k = 0; k < back.size(); k++) {
 					IC->ALLblockdata.at(i - 1)->push_back(back.at(k));
 				}
-				delete IC->ALLblockdata[i];
+				hd::_delete<textblock>(IC->ALLblockdata[i]);
 				IC->ALLblockdata.erase(IC->ALLblockdata.begin() + i);
-				delete IC->ALLblockdata[i];
+				hd::_delete<textblock>(IC->ALLblockdata[i]);
 				IC->ALLblockdata.erase(IC->ALLblockdata.begin() + i);
 			}
 		}
@@ -1496,9 +1588,9 @@ void AddTextBlocks(string codetxt, InsideCode* IC)
 				IC->ALLblockdata.at(i)->push_back(back.at(k));
 			}
 
-			delete IC->ALLblockdata[i + 1];
+			hd::_delete<textblock>(IC->ALLblockdata[i + 1]);
 			IC->ALLblockdata.erase(IC->ALLblockdata.begin() + i + 1);
-			delete IC->ALLblockdata[i + 1];
+			hd::_delete<textblock>(IC->ALLblockdata[i + 1]);
 			IC->ALLblockdata.erase(IC->ALLblockdata.begin() + i + 1);
 		}
 	}
@@ -1527,7 +1619,7 @@ vector<CodeBlock*> AddCodeFromBlockData(vector<textblock*> bd, InsideCode* IC, s
 				if (IsTypeString(*bd.at(i), IC)) {
 					if (*bd.at(i + 2) == "(") {
 						//함수일 경우
-						CodeBlock* cb = new CodeBlock();
+						CodeBlock* cb = hd::_new<CodeBlock>();
 						cb->ck = codeKind::ck_addFunction;
 						cb->CodeBlocks.clear();
 						cb->naming.clear();
@@ -1564,7 +1656,7 @@ vector<CodeBlock*> AddCodeFromBlockData(vector<textblock*> bd, InsideCode* IC, s
 							}
 						}
 
-						CodeBlock* cb = new CodeBlock();
+						CodeBlock* cb = hd::_new<CodeBlock>();
 						cb->ck = codeKind::ck_addVariable;
 						cb->CodeBlocks.clear();
 						cb->naming.clear();
@@ -1578,7 +1670,7 @@ vector<CodeBlock*> AddCodeFromBlockData(vector<textblock*> bd, InsideCode* IC, s
 				}
 				else if (bd.size() > i+2 && (*bd.at(i + 2) == "(" && *bd.at(i) == "void")) {
 					//아무것도 반환하지 않는 함수일 경우
-					CodeBlock* cb = new CodeBlock();
+					CodeBlock* cb = hd::_new<CodeBlock>();
 					cb->ck = codeKind::ck_addFunction;
 					cb->CodeBlocks.clear();
 					cb->naming.clear();
@@ -1605,7 +1697,7 @@ vector<CodeBlock*> AddCodeFromBlockData(vector<textblock*> bd, InsideCode* IC, s
 					StartI = i + 1;
 				}
 				else if (*bd.at(i) == "{") {
-					CodeBlock* cb = new CodeBlock();
+					CodeBlock* cb = hd::_new<CodeBlock>();
 					cb->ck = codeKind::ck_blocks;
 					cb->CodeBlocks.clear();
 					cb->naming.clear();
@@ -1633,7 +1725,7 @@ vector<CodeBlock*> AddCodeFromBlockData(vector<textblock*> bd, InsideCode* IC, s
 					StartI = i+1;
 				}
 				else if (*bd.at(i) == "=") {
-					CodeBlock* cb = new CodeBlock();
+					CodeBlock* cb = hd::_new<CodeBlock>();
 					cb->ck = codeKind::ck_setVariable;
 					cb->CodeBlocks.clear();
 					cb->naming.clear();
@@ -1652,7 +1744,7 @@ vector<CodeBlock*> AddCodeFromBlockData(vector<textblock*> bd, InsideCode* IC, s
 				}
 				else if (*bd.at(i) == "if") {
 					//if는 소괄호까지만, codeblock에 담는다. if의 작동방식은 true면 다음 코드블록을 실행, 아니면 건너뛰는 것이다.
-					CodeBlock* cb = new CodeBlock();
+					CodeBlock* cb = hd::_new<CodeBlock>();
 					cb->ck = codeKind::ck_if;
 					cb->CodeBlocks.clear();
 					cb->naming.clear();
@@ -1672,7 +1764,7 @@ vector<CodeBlock*> AddCodeFromBlockData(vector<textblock*> bd, InsideCode* IC, s
 				}
 				else if (*bd.at(i) == "else") {
 					if (bd.size() > i + 1 && *bd.at(i + 1) == "if") {
-						CodeBlock* cb = new CodeBlock();
+						CodeBlock* cb = hd::_new<CodeBlock>();
 						cb->ck = codeKind::ck_if;
 						cb->CodeBlocks.clear();
 						cb->naming.clear();
@@ -1693,7 +1785,7 @@ vector<CodeBlock*> AddCodeFromBlockData(vector<textblock*> bd, InsideCode* IC, s
 						//else if 의 경우
 					}
 					else {
-						CodeBlock* cb = new CodeBlock();
+						CodeBlock* cb = hd::_new<CodeBlock>();
 						cb->ck = codeKind::ck_if;
 						cb->CodeBlocks.clear();
 						cb->naming.clear();
@@ -1703,7 +1795,7 @@ vector<CodeBlock*> AddCodeFromBlockData(vector<textblock*> bd, InsideCode* IC, s
 					}
 				}
 				else if (*bd.at(i) == "while") {
-					CodeBlock* cb = new CodeBlock();
+					CodeBlock* cb = hd::_new<CodeBlock>();
 					cb->ck = codeKind::ck_while;
 					cb->CodeBlocks.clear();
 					cb->naming.clear();
@@ -1721,7 +1813,7 @@ vector<CodeBlock*> AddCodeFromBlockData(vector<textblock*> bd, InsideCode* IC, s
 					StartI = i + 1;
 				}
 				else if (*bd.at(i + 1) == "(") {
-					CodeBlock* cb = new CodeBlock();
+					CodeBlock* cb = hd::_new<CodeBlock>();
 					cb->ck = codeKind::ck_useFunction;
 					cb->CodeBlocks.clear();
 					cb->naming.clear();
@@ -1735,7 +1827,7 @@ vector<CodeBlock*> AddCodeFromBlockData(vector<textblock*> bd, InsideCode* IC, s
 					StartI = i + 1;
 				}
 				else if (*bd.at(i) == "return") {
-					CodeBlock* cb = new CodeBlock();
+					CodeBlock* cb = hd::_new<CodeBlock>();
 					cb->ck = codeKind::ck_returnInFunction;
 					cb->CodeBlocks.clear();
 					cb->naming.clear();
@@ -1749,7 +1841,7 @@ vector<CodeBlock*> AddCodeFromBlockData(vector<textblock*> bd, InsideCode* IC, s
 					StartI = i + 1;
 				}
 				else if (*bd.at(i) == "break") {
-					CodeBlock* cb = new CodeBlock();
+					CodeBlock* cb = hd::_new<CodeBlock>();
 					cb->ck = codeKind::ck_break;
 					cb->CodeBlocks.clear();
 					cb->naming.clear();
@@ -1758,7 +1850,7 @@ vector<CodeBlock*> AddCodeFromBlockData(vector<textblock*> bd, InsideCode* IC, s
 					StartI = i + 1;
 				}
 				else if (*bd.at(i) == "continue") {
-					CodeBlock* cb = new CodeBlock();
+					CodeBlock* cb = hd::_new<CodeBlock>();
 					cb->ck = codeKind::ck_continue;
 					cb->CodeBlocks.clear();
 					cb->naming.clear();
@@ -1770,7 +1862,7 @@ vector<CodeBlock*> AddCodeFromBlockData(vector<textblock*> bd, InsideCode* IC, s
 			
 			if (ScanMod == "struct scan") {
 				if (*bd.at(i) == "struct") {
-					CodeBlock* cb = new CodeBlock();
+					CodeBlock* cb = hd::_new<CodeBlock>();
 					cb->ck = codeKind::ck_addStruct;
 					cb->CodeBlocks.clear();
 
@@ -1827,33 +1919,33 @@ bool IsTypeString(string str, InsideCode* IC)
 
 void DefineBasicTypes(InsideCode* IC)
 {
-	Int* basicInt = new Int();
+	Int* basicInt = hd::_new<Int>();
 	basicInt->value = 0;
 	ValuePtr* vp = (ValuePtr*)basicInt;
 	vp->type_name = 'i';
 	IC->typeList.push_back(vp);
 
-	Float* basicFloat = new Float();
+	Float* basicFloat = hd::_new<Float>();
 	basicFloat->value = 0.f;
 	basicFloat->Type_name = "float";
 	ValuePtr* vpf = (ValuePtr*)basicFloat;
 	vpf->type_name = 'f';
 	IC->typeList.push_back(vpf);
 
-	Bool* basicBool = new Bool();
+	Bool* basicBool = hd::_new<Bool>();
 	basicBool->value = false;
 	basicBool->Type_name = "bool";
 	ValuePtr* vpb = (ValuePtr*)basicBool;
 	vpb->type_name = 'b';
 	IC->typeList.push_back(vpb);
 
-	Char* basicChar = new Char();
+	Char* basicChar = hd::_new<Char>();
 	basicInt->value = 0;
 	ValuePtr* vpc = (ValuePtr*)basicChar;
 	vpc->type_name = 'c';
 	IC->typeList.push_back(vpc);
 
-	Pointer* basicPointer = new Pointer();
+	Pointer* basicPointer = hd::_new<Pointer>();
 	basicPointer->address = -1;
 	basicPointer->preTypeName = "int";
 	basicPointer->TypeName = "int*";
@@ -1861,14 +1953,14 @@ void DefineBasicTypes(InsideCode* IC)
 	vptr->type_name = 'p';
 	IC->typeList.push_back(vptr);
 
-	MemoryValue* basicMemoryValue = new MemoryValue();
+	MemoryValue* basicMemoryValue = hd::_new<MemoryValue>();
 	basicMemoryValue->Type_name = "memory";
 	basicMemoryValue->value = -1;
 	ValuePtr* memv = (ValuePtr*)basicMemoryValue;
 	memv->type_name = 'm';
 	IC->typeList.push_back(memv);
 
-	Array* basicArray = new Array();
+	Array* basicArray = hd::_new<Array>();
 	basicArray->p = Pointer(*basicPointer);
 	basicArray->siz = 0;
 	ValuePtr* arrayv = (ValuePtr*)basicArray;
@@ -1879,63 +1971,63 @@ void DefineBasicTypes(InsideCode* IC)
 void DefineBasicOperation(InsideCode* IC)
 {
 	FrontOperator* fopr = nullptr;
-	fopr = new FrontOperator("Parentheses Open", "(", INEQ);
+	fopr = hd::_new<FrontOperator>()->Init("Parentheses Open", "(", INEQ);
 	IC->frontOperatorList.push_back(fopr);
 	fopr = nullptr;
-	fopr = new FrontOperator("Seek Array Index", "[", SeekIndex);
+	fopr = hd::_new<FrontOperator>()->Init("Seek Array Index", "[", SeekIndex);
 	IC->frontOperatorList.push_back(fopr);
 	fopr = nullptr;
-	fopr = new FrontOperator("Struct Point", ".", StructDots);
+	fopr = hd::_new<FrontOperator>()->Init("Struct Point", ".", StructDots);
 	IC->frontOperatorList.push_back(fopr);
 	fopr = nullptr;
-	fopr = new FrontOperator("Get Address", "&", GetAddress);
+	fopr = hd::_new<FrontOperator>()->Init("Get Address", "&", GetAddress);
 	IC->frontOperatorList.push_back(fopr);
 	fopr = nullptr;
-	fopr = new FrontOperator("Get Variable From Pointer", "*", GetVariableFromPointer);
+	fopr = hd::_new<FrontOperator>()->Init("Get Variable From Pointer", "*", GetVariableFromPointer);
 	IC->frontOperatorList.push_back(fopr);
 	
 
 	Operator* oper = nullptr;
-	oper = new Operator("mul", "*", "any", "any", "any", Mul);
+	oper = hd::_new<Operator>()->Init("mul", "*", "any", "any", "any", Mul);
 	IC->operatorList.push_back(oper);
 	oper = nullptr;
-	oper = new Operator("div", "/", "any", "any", "any", Div);
+	oper = hd::_new<Operator>()->Init("div", "/", "any", "any", "any", Div);
 	IC->operatorList.push_back(oper);
 	oper = nullptr;
-	oper = new Operator("percent", "%", "int", "int", "int", IntPercent);
-	IC->operatorList.push_back(oper);
-	oper = nullptr;
-
-	oper = new Operator("int+", "+", "any", "any", "any", Plus);
-	IC->operatorList.push_back(oper);
-	oper = nullptr;
-	oper = new Operator("int-", "-", "any", "any", "any", Minus);
+	oper = hd::_new<Operator>()->Init("percent", "%", "int", "int", "int", IntPercent);
 	IC->operatorList.push_back(oper);
 	oper = nullptr;
 
-	oper = new Operator("same", "==", "any", "any", "any", Same);
+	oper = hd::_new<Operator>()->Init("int+", "+", "any", "any", "any", Plus);
 	IC->operatorList.push_back(oper);
 	oper = nullptr;
-	oper = new Operator("rbig", "<", "any", "any", "any", RBig);
-	IC->operatorList.push_back(oper);
-	oper = nullptr;
-	oper = new Operator("lbig", ">", "any", "any", "any", LBig);
-	IC->operatorList.push_back(oper);
-	oper = nullptr;
-	oper = new Operator("rbigsame", "<=", "any", "any", "any", RBigSame);
-	IC->operatorList.push_back(oper);
-	oper = nullptr;
-	oper = new Operator("lbigsame", ">=", "any", "any", "any", LBigSame);
-	IC->operatorList.push_back(oper);
-	oper = nullptr;
-	oper = new Operator("notsame", "!=", "any", "any", "any", NotSame);
+	oper = hd::_new<Operator>()->Init("int-", "-", "any", "any", "any", Minus);
 	IC->operatorList.push_back(oper);
 	oper = nullptr;
 
-	oper = new Operator("and", "&&", "any", "any", "any", And);
+	oper = hd::_new<Operator>()->Init("same", "==", "any", "any", "any", Same);
 	IC->operatorList.push_back(oper);
 	oper = nullptr;
-	oper = new Operator("or", "||", "any", "any", "any", Or);
+	oper = hd::_new<Operator>()->Init("rbig", "<", "any", "any", "any", RBig);
+	IC->operatorList.push_back(oper);
+	oper = nullptr;
+	oper = hd::_new<Operator>()->Init("lbig", ">", "any", "any", "any", LBig);
+	IC->operatorList.push_back(oper);
+	oper = nullptr;
+	oper = hd::_new<Operator>()->Init("rbigsame", "<=", "any", "any", "any", RBigSame);
+	IC->operatorList.push_back(oper);
+	oper = nullptr;
+	oper = hd::_new<Operator>()->Init("lbigsame", ">=", "any", "any", "any", LBigSame);
+	IC->operatorList.push_back(oper);
+	oper = nullptr;
+	oper = hd::_new<Operator>()->Init("notsame", "!=", "any", "any", "any", NotSame);
+	IC->operatorList.push_back(oper);
+	oper = nullptr;
+
+	oper = hd::_new<Operator>()->Init("and", "&&", "any", "any", "any", And);
+	IC->operatorList.push_back(oper);
+	oper = nullptr;
+	oper = hd::_new<Operator>()->Init("or", "||", "any", "any", "any", Or);
 	IC->operatorList.push_back(oper);
 	oper = nullptr;
 	
@@ -1943,7 +2035,7 @@ void DefineBasicOperation(InsideCode* IC)
 
 void AllocateICMemory(InsideCode* IC)
 {
-	IC->mem = new Memory(256, 64, 128, 256);
+	IC->mem = hd::_new<Memory>()->Init(256, 64, 128, 256);
 }
 
 void ScanGlobalVariable(InsideCode* IC)
@@ -2013,7 +2105,7 @@ void GetDataAddVariableTexts(vector<textblock*> code, string* typeN, string* Nam
 
 		ar = true;
 
-		delete sizV;
+		hd::_delete<Int>(sizV);
 	}
 	else {
 		*ArraySiz = 0;
@@ -2033,11 +2125,11 @@ void GetDataAddVariableTexts(vector<textblock*> code, string* typeN, string* Nam
 void ScanFunction(InsideCode* IC)
 {
 	bool addStart = false;
-	IC->process = (Ptr*)(new Process());
+	IC->process = (Ptr*)(hd::_new<Process>());
 	for (int i = 0; i < IC->code.size(); i++) {
 		if (IC->code.at(i)->ck == codeKind::ck_addFunction) {
 			CodeBlock* cb = IC->code.at(i + 1);
-			Function* f = new Function();
+			Function* f = hd::_new<Function>();
 			//함수내부 코드 저장
 			f->codes = cb;
 
@@ -2086,7 +2178,7 @@ void ScanFunction(InsideCode* IC)
 			//함수이름이 main일시, 가장 첫번째로 실행되는 함수로 지정.
 			if (*IC->code.at(i)->blockdata.at(1) == "main") {
 				((Process*)IC->process)->startFunction = IC->functions.size() - 1;
-				CodePlayData* cpd = new CodePlayData();
+				CodePlayData* cpd = hd::_new<CodePlayData>();
 				cpd->func = f;
 				cpd->line.push_back(0);
 				((Process*)IC->process)->callArray.push_back(cpd);
@@ -2104,7 +2196,7 @@ void ScanStruct(InsideCode* IC)
 {
 	for (int i = 0; i < IC->code.size(); i++) {
 		if (IC->code.at(i)->ck == codeKind::ck_addStruct) {
-			Struct* basicStruct = new Struct();
+			Struct* basicStruct = hd::_new<Struct>();
 			CodeBlock* cb = IC->code.at(i);
 			basicStruct->structType_Name = *cb->blockdata.at(1);
 			((ValuePtr*)basicStruct)->type_name = 's';
@@ -2155,7 +2247,11 @@ vector<textblock*> INEQ(vector<textblock*> expression, Ptr* ICptr) {
 			if (result->type_name == 'm') {
 				//변수 처리
 				MemoryValue* mv = (MemoryValue*)result;
-				textblock* t = new string(IC->mem->MemoryToString(mv->value));
+
+				string* nstr = hd::_new<string>();
+				*nstr = IC->mem->MemoryToString(mv->value);
+				textblock* t = nstr;
+
 				expression.erase(expression.begin() + i);
 				expression.erase(expression.begin() + i);
 				expression.insert(expression.begin() + i, t);
@@ -2167,7 +2263,7 @@ vector<textblock*> INEQ(vector<textblock*> expression, Ptr* ICptr) {
 				expression.erase(expression.begin() + i);
 				expression.insert(expression.begin() + i, t);
 			}
-			delete result;//
+			hd::_delete(result);//
 		}
 	}
 	return expression;
@@ -2205,9 +2301,11 @@ vector<textblock*> SeekIndex(vector<textblock*> expression, Ptr* ICptr)
 				int IndexAddress = ThatArray->p.address + result->value;
 
 				//메모리에 변수 처리
-				MemoryValue* mv = new MemoryValue();
+				MemoryValue* mv = hd::_new<MemoryValue>();
 				mv->value = IndexAddress;
-				textblock* t = new string(IC->mem->MemoryToString(mv->value));
+				string* nstr = hd::_new<string>();
+				*nstr = IC->mem->MemoryToString(mv->value);
+				textblock* t = nstr;
 				expression.erase(expression.begin() + i-1);
 				expression.erase(expression.begin() + i-1);
 				expression.erase(expression.begin() + i - 1);
@@ -2217,10 +2315,10 @@ vector<textblock*> SeekIndex(vector<textblock*> expression, Ptr* ICptr)
 				else {
 					expression.insert(expression.begin() + i - 1, t);
 				}
-				delete mv;
+				hd::_delete<MemoryValue>(mv);
 			}
 
-			delete result;
+			hd::_delete<Int>(result);
 		}
 	}
 	return expression;
@@ -2257,11 +2355,15 @@ vector<textblock*> StructDots(vector<textblock*> expression, Ptr* ICptr) {
 				expression.erase(expression.begin() + i - 1);
 			}
 			if (i - 1 < expression.size()) {
-				textblock* t = new string(IC->mem->MemoryToString(lo));
+				string* nstr = hd::_new<string>();
+				*nstr = IC->mem->MemoryToString(lo);
+				textblock* t = nstr;
 				expression.insert(expression.begin() + i - 1, t);
 			}
 			else {
-				textblock* t = new string(IC->mem->MemoryToString(lo));
+				string* nstr = hd::_new<string>();
+				*nstr = IC->mem->MemoryToString(lo);
+				textblock* t = nstr;
 				expression.push_back(t);
 			}
 		}
@@ -2298,7 +2400,9 @@ vector<textblock*> GetVariableFromPointer(vector<textblock*> expression, Ptr* IC
 			}
 			expression.erase(expression.begin() + i);
 			expression.erase(expression.begin() + i);
-			textblock* memt = new string(IC->mem->MemoryToString(address));
+			string* nstr = hd::_new<string>();
+			*nstr = IC->mem->MemoryToString(address);
+			textblock* memt = nstr;
 			expression.insert(expression.begin() + i, memt);
 		}
 	}
@@ -2317,13 +2421,13 @@ int main() {
 	DebugObjMap["Char"] = false;
 	DebugObjMap["MemoryValue"] = false;
 	DebugObjMap["Struct"] = false;
-	DebugObjMap["Pointer"] = false; // 포인터가 -1이 나옴 이게 왜 그러지
+	DebugObjMap["Pointer"] = false;
 	DebugObjMap["Array"] = false;
 	DebugObjMap["CodeBlock"] = false;
 	DebugObjMap["FuncParam"] = false;
 	DebugObjMap["Function"] = false;
 	DebugObjMap["Memory"] = false;
-	DebugObjMap["InsideCode"] = false; // 얘도 -1나옴
+	DebugObjMap["InsideCode"] = false;
 	DebugObjMap["CodePlayData"] = true; // 얘는 1 나옴
 	DebugObjMap["Process"] = true; // 얘도 1 나옴
 
@@ -2339,10 +2443,11 @@ int main() {
 	Float* v = (Float*)RunCode(cpd, &ic);
 
 	//디버그 로그 띄우기
-	printf("%g", v->value);
+	printf("%g\n", v->value);
+	
 
 	if (v != nullptr) {
-		delete v;
+		hd::_delete<Float>(v);
 	}
 	return 0;
 }
@@ -2438,7 +2543,7 @@ ValuePtr* StepCode(CodeBlock* code, InsideCode* IC, int* i)
 		break;
 	case codeKind::ck_blocks:
 	{
-		NamingDataList* NameDL = new NamingDataList();
+		NamingDataList* NameDL = hd::_new<NamingDataList>();
 		cpd->local_ndl.push_back(NameDL);
 
 		for (int k = 0; k < (int)code->CodeBlocks.size(); k++) {
@@ -2456,7 +2561,7 @@ ValuePtr* StepCode(CodeBlock* code, InsideCode* IC, int* i)
 					IC->mem->RemoveData(nameD->naming.at(k).dataid);
 				}
 				cpd->local_ndl.at(cpd->local_ndl.size() - 1)->naming.clear();
-				delete nameD;
+				hd::_delete<NamingDataList>(nameD);
 				cpd->local_ndl.pop_back();
 				cpd->line.pop_back();
 				return v;
@@ -2468,7 +2573,7 @@ ValuePtr* StepCode(CodeBlock* code, InsideCode* IC, int* i)
 			IC->mem->RemoveData(nameD->naming.at(k).dataid);
 		}
 		cpd->local_ndl.at(cpd->local_ndl.size() - 1)->naming.clear();
-		delete nameD;
+		hd::_delete<NamingDataList>(nameD);
 		cpd->local_ndl.pop_back();
 		cpd->line.pop_back();
 	}
@@ -2527,7 +2632,7 @@ int AddVariableCore(string type_name, string subTypeName, int ArraySiz, string n
 			cpd->local_ndl.at(last)->naming.push_back(nd);
 		}
 		else {
-			NamingDataList* NameDL = new NamingDataList();
+			NamingDataList* NameDL = hd::_new<NamingDataList>();
 			NameDL->naming.push_back(nd);
 			cpd->local_ndl.push_back(NameDL);
 		}
@@ -2620,13 +2725,13 @@ void SetVariable(CodeBlock* code, InsideCode* IC)
 			//ValuePtr* value = ValuePtr::AddValue(tname, "", IC); ?
 			ValuePtr* value = GetDataOperation(e, IC, ValuePtr::GetTypeStringFromChar(tname), cpd);
 			ValuePtr::CopyValue(setVP, value, IC);
-			delete value;
+			hd::_delete(value);
 			break;
 		}
 	}
 
 	if (L_Value != nullptr) {
-		delete L_Value;
+		hd::_delete<MemoryValue>(L_Value);
 	}
 }
 
@@ -2649,7 +2754,7 @@ void SetVariableCore(string type_name, string name, InsideCode* IC, CodePlayData
 				ValuePtr* vptr = ValuePtr::AddValue(com->memberVnaming.at(i).type_name.c_str(), "", 0, IC);
 				ValuePtr::CopyValue(vptr, com->values.at(i), IC);
 				ValuePtr::CopyValue(IC->mem->memory[lo+1+i], vptr, IC);
-				delete vptr;
+				hd::_delete(vptr);
 			}
 
 			//그 후 멤버변수를 가지는 구조체표식을 메모리에 만든다.
@@ -2709,7 +2814,7 @@ void StandardOutputFunction(CodeBlock* code, InsideCode* IC)
 			k++;
 			i++;
 
-			delete v;
+			hd::_delete(v);
 		}
 		else if (c == '\\' && nc == 'n') {
 			Format.push_back('\n');
@@ -2816,7 +2921,7 @@ bool Execute_if(CodeBlock* code, InsideCode* IC, int* i) {
 			Bool* b = (Bool*)GetDataOperation(e, IC, "bool", cpd);
 			bool returnbool = b->value;
 			if (returnbool == false) (*i)++;
-			delete b;
+			hd::_delete<Bool>(b);
 			return returnbool;
 		}
 		else {
@@ -2831,7 +2936,7 @@ bool Execute_if(CodeBlock* code, InsideCode* IC, int* i) {
 		Bool* b = (Bool*)GetDataOperation(e, IC, "bool", cpd);
 		bool returnbool = b->value;
 		if (returnbool == false) (*i)++;
-		delete b;
+		hd::_delete<Bool>(b);
 		return returnbool;
 	}
 }
@@ -2845,7 +2950,7 @@ void Execute_While(CodeBlock* code, InsideCode* IC, int* i)
 	while (true) {
 		Bool* b = (Bool*)GetDataOperation(e, IC, "bool", cpd);
 		bool returnbool = b->value;
-		delete b;
+		hd::_delete<Bool>(b);
 		if (returnbool) {
 			CodeBlock* code2 = ((CodeBlock*)cpd->func->codes->CodeBlocks.at(*i+1));
 			StepCode(code2, IC, i); // 여기에서 i는 아무의미가 없음 어차피 block에서 k로 들어가기 때문.
@@ -2877,7 +2982,7 @@ ValuePtr* Excute_Function(CodeBlock* code, InsideCode* IC)
 		if (IC->functions.at(i)->name == n) {
 			callFunc = true;
 
-			CodePlayData* cpd = new CodePlayData();
+			CodePlayData* cpd = hd::_new<CodePlayData>();
 			cpd->func = IC->functions.at(i);
 			cpd->line.push_back(0);
 
@@ -2903,13 +3008,13 @@ ValuePtr* Excute_Function(CodeBlock* code, InsideCode* IC)
 								AddVariableCore(tstr, "", 0, fp.name, cpd, IC);
 								ValuePtr* v = GetDataOperation(expression, IC, tstr, cpdp);
 								SetVariableCore(tstr, fp.name, IC, cpd, v);
-								delete v;
+								hd::_delete(v);
 							}
 							else {
 								AddVariableCore(ValuePtr::GetTypeStringFromChar(fp.valueType->type_name), "", 0, fp.name, cpd, IC);
 								ValuePtr* v = GetDataOperation(expression, IC, ValuePtr::GetTypeStringFromChar(fp.valueType->type_name), cpdp);
 								SetVariableCore(ValuePtr::GetTypeStringFromChar(fp.valueType->type_name), fp.name, IC, cpd, v);
-								delete v;
+								hd::_delete(v);
 							}
 
 							paramCount++;
@@ -3172,7 +3277,7 @@ ValuePtr* GetDataOperation(vector<textblock*> expression, InsideCode* IC, string
 					if (s == ")") {
 						inout_count--;
 						if (inout_count == 0) {
-							CodeBlock* cb = new CodeBlock();
+							CodeBlock* cb = hd::_new<CodeBlock>();
 							vector<textblock*> subExpress;
 							for (int l = i; l <= k; l++) {
 								subExpress.push_back(expression.at(l));
@@ -3180,7 +3285,7 @@ ValuePtr* GetDataOperation(vector<textblock*> expression, InsideCode* IC, string
 							cb->blockdata = subExpress;
 							//함수를 실행한다.
 							ValuePtr* v = Excute_Function(cb, IC);
-							delete cb;
+							hd::_delete<CodeBlock>(cb);
 							//문자로 치환해 expression에 넣는다.
 							for (int u = i; u <= k; u++) {
 								expression.erase(expression.begin() + i);
@@ -3212,7 +3317,7 @@ ValuePtr* GetDataOperation(vector<textblock*> expression, InsideCode* IC, string
 		return variableCheck;
 	}
 	if (variableCheck != nullptr) {
-		delete variableCheck;
+		hd::_delete(variableCheck);
 	}
 	
 
@@ -3249,14 +3354,14 @@ ValuePtr* GetDataOperation(vector<textblock*> expression, InsideCode* IC, string
 							inout_count--;
 							if (inout_count == 0) {
 								if (DecodeTextBlock(*expression.at(k - 1)) == "str") {
-									CodeBlock* cb = new CodeBlock();
+									CodeBlock* cb = hd::_new<CodeBlock>();
 									vector<textblock*> subExpress;
 									for (int l = k - 1; l < i; l++) {
 										subExpress.push_back(expression.at(l));
 									}
 									cb->blockdata = subExpress;
 									num1 = Excute_Function(cb, IC);
-									delete cb;
+									hd::_delete<CodeBlock>(cb);
 									startI = k;
 									break;
 								}
@@ -3282,14 +3387,14 @@ ValuePtr* GetDataOperation(vector<textblock*> expression, InsideCode* IC, string
 							if (s == ")") {
 								inout_count--;
 								if (inout_count == 0) {
-									CodeBlock* cb = new CodeBlock();
+									CodeBlock* cb = hd::_new<CodeBlock>();
 									vector<textblock*> subExpress;
 									for (int l = i + 1; l <= k; l++) {
 										subExpress.push_back(expression.at(l));
 									}
 									cb->blockdata = subExpress;
 									num2 = Excute_Function(cb, IC);
-									delete cb;
+									hd::_delete<CodeBlock>(cb);
 									endI = k;
 									break;
 								}
@@ -3341,8 +3446,8 @@ ValuePtr* GetDataOperation(vector<textblock*> expression, InsideCode* IC, string
 				textblock* t = r->ValueToString();
 				expression.insert(expression.begin() + startI, t);
 
-				delete num1;
-				delete num2;
+				hd::_delete(num1);
+				hd::_delete(num2);
 			}
 		}
 	}
@@ -3401,14 +3506,14 @@ ValuePtr* GetDataOperation(vector<textblock*> expression, InsideCode* IC, string
 				if (s == ")") {
 					inout_count--;
 					if (inout_count == 0) {
-						CodeBlock* cb = new CodeBlock();
+						CodeBlock* cb = hd::_new<CodeBlock>();
 						vector<textblock*> subExpress;
 						for (int l = 0; l <= k; l++) {
 							subExpress.push_back(expression.at(l));
 						}
 						cb->blockdata = subExpress;
 						ValuePtr* v = Excute_Function(cb, IC);
-						delete cb;
+						hd::_delete<CodeBlock>(cb);
 						return v;
 					}
 				}

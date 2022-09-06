@@ -5,8 +5,6 @@ int main(){
 		output("%v \n", a);
 	}
 
-	output("%v \n", a);
-
 	char[50] str;
 
 	str = "I like C Programming";

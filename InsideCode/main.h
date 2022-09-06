@@ -6,6 +6,130 @@
 #include <Windows.h>
 using namespace std;
 
+#pragma once
+#include <map>
+
+using namespace std;
+
+class hd {
+public:
+	hd() {
+
+	}
+
+	virtual ~hd() {
+
+	}
+
+	static map<void*, bool> HeapDebug;
+	//static map<void*, bool> HeapArrDebug;
+
+	static bool isHeapDebug;
+	static int heap_data_num;
+
+	template<typename T> static T* _new() {
+		if (isHeapDebug) {
+			T* newvalue = new T();
+			hd::heap_data_num += 1;
+			hd::HeapDebug[newvalue] = true;
+			return newvalue;
+		}
+		else {
+			return new T();
+		}
+	}
+
+	template<typename T> static bool _delete(T* heapvalue) {
+		if (isHeapDebug) {
+			if (hd::HeapDebug[heapvalue] == true) {
+				hd::heap_data_num -= 1;
+				hd::HeapDebug[heapvalue] = false;
+				delete heapvalue;
+				return true;
+			}
+			else return false;
+		}
+		else {
+			delete heapvalue;
+			return true;
+		}
+	}
+
+	template<typename T> static T* _arr_new(const int& num) {
+		if (isHeapDebug) {
+			T* newvalue = new T[num];
+			hd::heap_data_num += 1;
+			hd::HeapDebug[newvalue] = true;
+			return newvalue;
+		}
+		else {
+			return new T[num];
+		}
+	}
+
+	template<typename T> static bool _arr_delete(T* heapvalue) {
+		if (isHeapDebug) {
+			void* ptr = (void*)heapvalue;
+			if (hd::HeapDebug[ptr] == true) {
+				hd::heap_data_num -= 1;
+				hd::HeapDebug[ptr] = false;
+				delete[] heapvalue;
+				return true;
+			}
+			else return false;
+		}
+		else {
+			delete[] heapvalue;
+			return true;
+		}
+	}
+
+	//현재 해제되지 않은 힙 메모리의 개수
+	static int GetPresentHeapDataCount() {
+		return hd::heap_data_num;
+	}
+
+	static void MapClear() {
+		if (isHeapDebug == false) {
+			return;
+		}
+
+		if (HeapDebug.size() == 0) {
+			return;
+		}
+
+		int nonE = 0;
+		for (std::map<void*, bool>::iterator itr = HeapDebug.begin(); itr != HeapDebug.end(); ++itr) {
+			if (HeapDebug[itr->first] == false) {
+				nonE += 1;
+			}
+		}
+
+		if (nonE > 100) {
+			void** ptrarr = new void* [nonE];
+			int n = 0;
+
+			for (std::map<void*, bool>::iterator itr = HeapDebug.begin(); itr != HeapDebug.end(); ++itr) {
+				if (HeapDebug[itr->first] == false) {
+					if (n + 1 < nonE) {
+						ptrarr[n] = itr->first;
+						n += 1;
+					}
+					else {
+						break;
+					}
+				}
+			}
+
+			for (int i = 0; i < n; ++i) {
+				HeapDebug.erase(ptrarr[i]);
+			}
+
+			delete[] ptrarr;
+		}
+	}
+};
+
 bool isClassPtrDebug = true;
 map<string, int> classPtrMap;
 map<string, bool> DebugObjMap;
@@ -23,7 +147,7 @@ bool bSameStr(string a, char* b) {
 }
 
 textblock* tbClone(textblock* tb) {
-	textblock* rtb = new textblock();
+	textblock* rtb = hd::_new<textblock>();
 	for (int i = 0; i < (int)tb->size(); i++) {
 		rtb->push_back(tb->at(i));
 	}
@@ -125,6 +249,7 @@ public:
 	ValuePtr* (*Func)(ValuePtr*, ValuePtr*, Ptr*);
 	Operator();
 	Operator(string Name, string Form, string ParamType1, string ParamType2, string ReturnType, ValuePtr* (*func)(ValuePtr*, ValuePtr*, Ptr*));
+	Operator* Init(string Name, string Form, string ParamType1, string ParamType2, string ReturnType, ValuePtr* (*func)(ValuePtr*, ValuePtr*, Ptr*));
 	virtual ~Operator();
 };
 
@@ -186,6 +311,14 @@ public:
 		if (name.size() > 0) {
 			name.clear();
 		}
+	}
+
+	FrontOperator* Init(string Name, string Form, vector<textblock*>(*func)(vector<textblock*>, Ptr*))
+	{
+		name = Name;
+		form = Form;
+		Func = func;
+		return this;
 	}
 };
 
@@ -412,7 +545,8 @@ public:
 	}
 
 	textblock* ValueToString() {
-		textblock* tt =  new string("{loc:");
+		textblock* tt = hd::_new<string>();
+		*tt = "{loc:";
 		char num[128];
 		_itoa_s(value, num, 10);
 		for (unsigned int i = 0; i < strlen(num); i++) {
@@ -474,7 +608,7 @@ public:
 
 		for (unsigned int i = 0; i < values.size(); ++i) {
 			if (values[i] != nullptr) {
-				delete values[i];
+				hd::_delete(values[i]);
 				values[i] = nullptr;
 			}
 		}
@@ -569,7 +703,7 @@ public:
 		if (p.address <= 0) {
 			for (unsigned int i = 0; i < values.size(); ++i) {
 				if (values[i] != nullptr) {
-					delete values[i];
+					hd::_delete(values[i]);
 					values[i] = nullptr;
 				}
 			}
@@ -625,7 +759,7 @@ struct CodeBlock : Ptr {
 		for (unsigned int i = 0; i < CodeBlocks.size(); ++i) {
 			CodeBlock* c = (CodeBlock*)CodeBlocks[i];
 			if (c != nullptr) {
-				delete c;
+				hd::_delete<CodeBlock>(c);
 			}
 		}
 		CodeBlocks.clear();
@@ -652,7 +786,7 @@ struct FuncParam {
 		}
 
 		if (valueType != nullptr) {
-			delete valueType;
+			hd::_delete(valueType);
 		}
 
 		if (name.size() > 0) {
@@ -684,16 +818,19 @@ struct Function {
 			Parameter.clear();
 		}
 		
-		//if (codes != nullptr) {
-		//	delete codes;
-		//}
+		if (codes != nullptr) {
+			if (hd::HeapDebug[codes] == true) {
+				hd::_delete<CodeBlock>(codes);
+				codes = nullptr;
+			}
+		}
 
 		if (name.size() > 0) {
 			name.clear();
 		}
 
 		if (Return != nullptr) {
-			delete Return;
+			hd::_delete(Return);
 		}
 	}
 };
@@ -713,7 +850,7 @@ public:
 	int stackFlow = 64;
 
 	Memory() {
-		memory = new ValuePtr * [dataSiz];
+		memory = hd::_arr_new<ValuePtr*>(dataSiz);
 		for (int i = 0; i < dataSiz; i++) {
 			memory[i] = nullptr;
 		}
@@ -732,7 +869,7 @@ public:
 		stackLimit = sl;
 		stackFlow = heapLimit;
 
-		memory = new ValuePtr * [dataSiz];
+		memory = hd::_arr_new<ValuePtr*>(dataSiz);
 		for (int i = 0; i < dataSiz; i++) {
 			memory[i] = nullptr;
 		}
@@ -750,10 +887,27 @@ public:
 
 		for (int i = 0; i < dataSiz; i++) {
 			if (memory[i] != nullptr) {
-				delete memory[i];
+				hd::_delete(memory[i]);
 			}
 		}
-		delete[] memory;
+		hd::_arr_delete<ValuePtr*>(memory);
+	}
+
+	Memory* Init(int siz, int gl, int hl, int sl) {
+		dataSiz = siz;
+		globalLimit = gl;
+		globalFlow = 0;
+		heapLimit = hl;
+		heapFlow = globalLimit;
+		stackLimit = sl;
+		stackFlow = heapLimit;
+
+		memory = hd::_arr_new<ValuePtr*>(dataSiz);
+		for (int i = 0; i < dataSiz; i++) {
+			memory[i] = nullptr;
+		}
+
+		return this;
 	}
 
 	bool AddDataToMemory(string mod, ValuePtr* v, int* nptr = nullptr);
@@ -781,74 +935,7 @@ struct InsideCode : Ptr {
 		}
 	}
 
-	virtual ~InsideCode() {
-		if (isClassPtrDebug && DebugObjMap["InsideCode"]) {
-			--classPtrMap["InsideCode"];
-			printf("\n delete InsideCode :\t %p \t| InsideCode stack : %d", this, classPtrMap["InsideCode"]);
-		}
-
-		for (unsigned int i = 0; i < code.size(); ++i) {
-			if (code[i] != nullptr) {
-				delete code[i];
-			}
-		}
-		if (code.size() > 0) {
-			code.clear();
-		}
-
-		for (unsigned int i = 0; i < typeList.size(); ++i) {
-			if (typeList[i] != nullptr) {
-				delete typeList[i];
-			}
-		}
-		if (typeList.size() > 0) {
-			typeList.clear();
-		}
-
-		for (unsigned int i = 0; i < frontOperatorList.size(); ++i) {
-			if (frontOperatorList[i] != nullptr) {
-				delete frontOperatorList[i];
-			}
-		}
-		if (frontOperatorList.size() > 0) {
-			frontOperatorList.clear();
-		}
-
-		for (unsigned int i = 0; i < operatorList.size(); ++i) {
-			if (operatorList[i] != nullptr) {
-				delete operatorList[i];
-			}
-		}
-		if (operatorList.size() > 0) {
-			operatorList.clear();
-		}
-
-		for (unsigned int i = 0; i < ALLblockdata.size(); ++i) {
-			if (ALLblockdata[i] != nullptr) {
-				delete ALLblockdata[i];
-			}
-		}
-		if (ALLblockdata.size() > 0) {
-			ALLblockdata.clear();
-		}
-
-		for (unsigned int i = 0; i < functions.size(); ++i) {
-			if (functions[i] != nullptr) {
-				delete functions[i];
-			}
-		}
-		if (functions.size() > 0) {
-			functions.clear();
-		}
-
-		if (mem != nullptr) {
-			delete mem;
-		}
-
-		if (process != nullptr) {
-			delete process;
-		}
-	}
+	virtual ~InsideCode();
 };
 bool IsTypeString(string str, InsideCode* IC);
 ValuePtr* operTwoValue(ValuePtr* v1, string oper, ValuePtr* v2, Ptr* IC);
@@ -879,10 +966,17 @@ struct CodePlayData {
 			--classPtrMap["CodePlayData"];
 			printf("\n delete CodePlayData :\t %p \t| CodePlayData stack : %d", this, classPtrMap["CodePlayData"]);
 		}
+
+		for (int i = 0; i < local_ndl.size(); ++i) {
+			if (local_ndl[i] != nullptr && hd::HeapDebug[local_ndl[i]]) {
+				hd::_delete<NamingDataList>(local_ndl[i]);
+			}
+		}
+		local_ndl.clear();
 	}
 };
 
-class Process {
+class Process : Ptr {
 public:
 	Process() {
 		if (isClassPtrDebug && DebugObjMap["Process"]) {
@@ -899,7 +993,7 @@ public:
 
 		for (int i = 0; i < callArray.size(); ++i) {
 			if (callArray[i] != nullptr) {
-				delete callArray[i];
+				hd::_delete<CodePlayData>(callArray[i]);
 			}
 		}
 		if (callArray.size() > 0) {
