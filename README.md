@@ -20,4 +20,46 @@ It contains a lot of information, so every time you add a variable, you use a lo
 Free heap memory has not yet been implemented.
 To be honest, it's not the quality that I can use yet, but I'll try to complete it.
 
-thank you.
+Currently, the code is written in the <code.txt> file, and the compiler code is in the <main.cpp> and <main.h> files.
+To use the compiler, you can enter the code in the <code.txt> file.
+However, if you want to change the grammar or compiler code, please modify the <main.cpp> file.
+
+The grammar currently recorded in main.cpp is very similar to language C. But the details can be different.
+
+//Variable declaration
+int a;
+float b;
+bool c;
+char d;
+
+//Variable Set
+a = 1;
+b = 0.4;
+c = false;
+d = 'a';
+
+//if, while, for
+It's like C language.
+
+//Array declaration
+int[50] a;
+int[num] b;
+
+//pointer useage
+int a;
+a = 10;
+int* aptr;
+aptr = &a;
+
+//struct useage
+struct ABC{
+  int a;
+  float b;
+  bool c;
+};
+
+int main(){
+  ABC abc;
+  abc.a = 10;
+  return 0;
+}
