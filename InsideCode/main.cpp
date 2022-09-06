@@ -81,7 +81,7 @@ ValuePtr* ValuePtr::AddValue(string Typename, string SubTypename, int arraySiz, 
 		s->structType_Name = Typename;
 		InsideCode* ICptr = (InsideCode*)IC;
 		for (unsigned int i = 0; i < ICptr->typeList.size(); i++) { // IC를 매개변수로 받아야함
-			if (ICptr->typeList.at(i)->type_name == "struct") {
+			if (ICptr->typeList.at(i)->type_name == 's') {
 				Struct* basic = (Struct*)ICptr->typeList.at(i);
 				if (basic->structType_Name == Typename) {
 					ValuePtr::CopyValue((ValuePtr*)s, (ValuePtr*)basic, ICptr);
@@ -105,7 +105,7 @@ ValuePtr* ValuePtr::AddValue(string Typename, string SubTypename, int arraySiz, 
 
 ValuePtr::~ValuePtr()
 {
-	type_name.clear();
+	type_name = 0;
 
 	if (isClassPtrDebug && DebugObjMap["ValuePtr"]) {
 		--classPtrMap["ValuePtr"];
@@ -118,24 +118,24 @@ ValuePtr::~ValuePtr()
 
 string ValuePtr::GetTypeName()
 {
-	return type_name;
+	return GetTypeStringFromChar(type_name);
 }
 
 bool ValuePtr::CopyValue(ValuePtr* v1, ValuePtr* v2, Ptr* IC)
 {
 	InsideCode* ICptr = (InsideCode*)IC;
 	CodePlayData* cpd = ((Process*)((InsideCode*)IC)->process)->PresentPlayData();
-	if ((v1 == nullptr || v2 == nullptr) || (v2->type_name != "memory" && v1->type_name != v2->type_name)) {
+	if ((v1 == nullptr || v2 == nullptr) || (v2->type_name != 'm' && v1->type_name != v2->type_name)) {
 		PrintCodeLocation(cpd);
 		printf("[ERROR] : 값이 할당되지 않았거나 타입이 같지 않아 복사에 실패했습니다.\n");
 		return false;
 	}
 	else {
-		if (v1->type_name == "int") {
+		if (v1->type_name == 'i') {
 			Int* iv1 = (Int*)v1;
-			if (v2->type_name == "memory") {
+			if (v2->type_name == 'm') {
 				MemoryValue* iv2 = (MemoryValue*)v2;
-				if (ICptr->mem->memory[iv2->value]->type_name == "int") {
+				if (ICptr->mem->memory[iv2->value]->type_name == 'i') {
 					iv1->value = ((Int*)ICptr->mem->memory[iv2->value])->value;
 				}
 			}
@@ -144,11 +144,11 @@ bool ValuePtr::CopyValue(ValuePtr* v1, ValuePtr* v2, Ptr* IC)
 				iv1->value = iv2->value;
 			}
 		}
-		else if (v1->type_name == "bool") {
+		else if (v1->type_name == 'b') {
 			Bool* iv1 = (Bool*)v1;
-			if (v2->type_name == "memory") {
+			if (v2->type_name == 'm') {
 				MemoryValue* iv2 = (MemoryValue*)v2;
-				if (ICptr->mem->memory[iv2->value]->type_name == "bool") {
+				if (ICptr->mem->memory[iv2->value]->type_name == 'b') {
 					iv1->value = ((Bool*)ICptr->mem->memory[iv2->value])->value;
 				}
 			}
@@ -157,11 +157,11 @@ bool ValuePtr::CopyValue(ValuePtr* v1, ValuePtr* v2, Ptr* IC)
 				iv1->value = iv2->value;
 			}
 		}
-		else if (v1->type_name == "float") {
+		else if (v1->type_name == 'f') {
 			Float* iv1 = (Float*)v1;
-			if (v2->type_name == "memory") {
+			if (v2->type_name == 'm') {
 				MemoryValue* iv2 = (MemoryValue*)v2;
-				if (ICptr->mem->memory[iv2->value]->type_name == "float") {
+				if (ICptr->mem->memory[iv2->value]->type_name == 'f') {
 					iv1->value = ((Float*)ICptr->mem->memory[iv2->value])->value;
 				}
 			}
@@ -170,11 +170,11 @@ bool ValuePtr::CopyValue(ValuePtr* v1, ValuePtr* v2, Ptr* IC)
 				iv1->value = iv2->value;
 			}
 		}
-		else if (v1->type_name == "char") {
+		else if (v1->type_name == 'c') {
 			Char* iv1 = (Char*)v1;
-			if (v2->type_name == "memory") {
+			if (v2->type_name == 'm') {
 				MemoryValue* iv2 = (MemoryValue*)v2;
-				if (ICptr->mem->memory[iv2->value]->type_name == "char") {
+				if (ICptr->mem->memory[iv2->value]->type_name == 'c') {
 					iv1->value = ((Char*)ICptr->mem->memory[iv2->value])->value;
 				}
 			}
@@ -183,9 +183,9 @@ bool ValuePtr::CopyValue(ValuePtr* v1, ValuePtr* v2, Ptr* IC)
 				iv1->value = iv2->value;
 			}
 		}
-		else if (v1->type_name == "pointer") {
+		else if (v1->type_name == 'p') {
 			Pointer* iv1 = (Pointer*)v1;
-			if (v2->type_name == "memory") {
+			if (v2->type_name == 'm') {
 				MemoryValue* iv2 = (MemoryValue*)v2;
 				iv1->address = iv2->value;
 			}
@@ -194,11 +194,11 @@ bool ValuePtr::CopyValue(ValuePtr* v1, ValuePtr* v2, Ptr* IC)
 				iv1->address = iv2->address;
 			}
 		}
-		else if (v1->type_name == "struct") {
+		else if (v1->type_name == 's') {
 			Struct* iv1 = (Struct*)v1;
-			if (v2->type_name == "memory") {
+			if (v2->type_name == 'm') {
 				MemoryValue* iv2 = (MemoryValue*)v2;
-				if (ICptr->mem->memory[iv2->value]->type_name == "struct") {
+				if (ICptr->mem->memory[iv2->value]->type_name == 's') {
 					Struct* sv2 = (Struct*)ICptr->mem->memory[iv2->value];
 					if (iv1->structType_Name == sv2->structType_Name) {
 						iv1->memberVnaming.clear();
@@ -240,16 +240,16 @@ bool ValuePtr::CopyValue(ValuePtr* v1, ValuePtr* v2, Ptr* IC)
 				}
 			}
 		}
-		else if (v1->type_name == "array") {
+		else if (v1->type_name == 'a') {
 			Array* a1 = (Array*)v1;
-			if (v2->type_name == "memory") {
+			if (v2->type_name == 'm') {
 				MemoryValue* iv2 = (MemoryValue*)v2;
-				if (ICptr->mem->memory[iv2->value]->type_name == "array") {
+				if (ICptr->mem->memory[iv2->value]->type_name == 'a') {
 					a1->p = ((Array*)ICptr->mem->memory[iv2->value])->p;
 					a1->siz = ((Array*)ICptr->mem->memory[iv2->value])->siz;
 				}
 			}
-			else if (v2->type_name == "array") {
+			else if (v2->type_name == 'a') {
 				Array* a2 = (Array*)v2;
 				if (a2->p.preTypeName == "") { // 정해진 타입이 없을때
 					for (int i = 0; i < a2->values.size(); i++) {
@@ -296,6 +296,58 @@ string ValuePtr::GetTypeNameFromValueString(string constant_value)
 		if (beF) return "float";
 		else return "int";
 	}
+}
+
+string ValuePtr::GetTypeStringFromChar(char tc)
+{
+	switch (tc) {
+	case 'i':
+		return "int";
+	case 'f':
+		return "float";
+	case 'b':
+		return "bool";
+	case 'c':
+		return "char";
+	case 'm':
+		return "memory";
+	case 'p':
+		return "pointer";
+	case 'a':
+		return "array";
+	case 's':
+		return "struct";
+	}
+	return "";
+}
+
+char ValuePtr::GetTypeCharFromString(string str)
+{
+	if (str == "int") {
+		return 'i';
+	}
+	else if (str == "float") {
+		return 'f';
+	}
+	else if (str == "bool") {
+		return 'b';
+	}
+	else if (str == "char") {
+		return 'c';
+	}
+	else if (str == "array") {
+		return 'a';
+	}
+	else if (str == "memory") {
+		return 'm';
+	}
+	else if (str == "pointer") {
+		return 'p';
+	}
+	else if (str == "struct") {
+		return 's';
+	}
+	return 0;
 }
 
 void ValuePtr::getValueToString(string str)
@@ -581,7 +633,7 @@ bool Memory::AddDataToMemory(string mod, ValuePtr* v, int* nptr)
 
 	if (success) {
 		*flow = (*flow + 1 >= limit) ? *flow + 1 - limit + start : *flow + 1;
-		if (v->type_name == "struct") {
+		if (v->type_name == 's') {
 			Struct* s = (Struct*)v;
 			for (int i = 0; i < s->values.size(); i++) {
 				AddDataToMemory(mod, s->values.at(i));
@@ -594,32 +646,32 @@ void Memory::RemoveData(int id)
 {
 	if (memory[id] == nullptr) return;
 
-	string typestr = memory[id]->type_name;
-	if (typestr == "int") {
+	char typestr = memory[id]->type_name;
+	if (typestr == 'i') {
 		Int* v = (Int*)memory[id];
 		v->Type_name.clear();
-		memory[id]->type_name.clear();
+		memory[id]->type_name = 0;
 		delete v;
 		memory[id] = nullptr;
 	}
-	else if (typestr == "float") {
+	else if (typestr == 'f') {
 		Float* v = (Float*)memory[id];
 		v->Type_name.clear();
-		memory[id]->type_name.clear();
+		memory[id]->type_name = 0;
 		delete v;
 		memory[id] = nullptr;
 	}
-	else if (typestr == "bool") {
+	else if (typestr == 'b') {
 		Bool* v = (Bool*)memory[id];
 		v->Type_name.clear();
-		memory[id]->type_name.clear();
+		memory[id]->type_name = 0;
 		delete v;
 		memory[id] = nullptr;
 	}
-	else if (typestr == "struct") {
+	else if (typestr == 's') {
 		Struct* v = (Struct*)memory[id];
 		v->structType_Name.clear();
-		memory[id]->type_name.clear();
+		memory[id]->type_name = 0;
 		for (int i = 0; i < v->memberVnaming.size(); i++) {
 			RemoveData(v->memberVnaming.at(i).dataid);
 		}
@@ -715,7 +767,7 @@ Operator::~Operator()
 ValuePtr* IntPercent(ValuePtr* v1, ValuePtr* v2, Ptr* IC)
 {
 	ValuePtr* returnV = ValuePtr::AddValue("int", "", 0, IC);
-	if (v1->type_name != "int" || v2->type_name != "int")
+	if (v1->type_name != 'i' || v2->type_name != 'i')
 		return returnV;
 
 
@@ -731,14 +783,14 @@ ValuePtr* IntPercent(ValuePtr* v1, ValuePtr* v2, Ptr* IC)
 ValuePtr* Mul(ValuePtr* v1, ValuePtr* v2, Ptr* IC)
 {
 	ValuePtr* returnV = nullptr;
-	bool b = (v1->type_name != "int" && v1->type_name != "float") && v1->type_name != "char";
-	b = b || (v2->type_name != "int" && v2->type_name != "float") && v2->type_name != "char";
+	bool b = (v1->type_name != 'i' && v1->type_name != 'f') && v1->type_name != 'c';
+	b = b || (v2->type_name != 'i' && v2->type_name != 'f') && v2->type_name != 'c';
 	if (b) {
 		returnV = ValuePtr::AddValue("int", "", 0, IC);
 		return returnV;
 	}
 
-	b = v1->type_name == "float" || v2->type_name == "float";
+	b = v1->type_name == 'f' || v2->type_name == 'f';
 	if (b) {
 		returnV = ValuePtr::AddValue("float", "", 0, IC);
 		Float* A = (Float*)Casting("float", v1, IC);
@@ -765,14 +817,14 @@ ValuePtr* Mul(ValuePtr* v1, ValuePtr* v2, Ptr* IC)
 ValuePtr* Div(ValuePtr* v1, ValuePtr* v2, Ptr* IC)
 {
 	ValuePtr* returnV = nullptr;
-	bool b = (v1->type_name != "int" && v1->type_name != "float") && v1->type_name != "char";
-	b = b || (v2->type_name != "int" && v2->type_name != "float") && v2->type_name != "char";
+	bool b = (v1->type_name != 'i' && v1->type_name != 'i') && v1->type_name != 'c';
+	b = b || (v2->type_name != 'i' && v2->type_name != 'i') && v2->type_name != 'c';
 	if (b) {
 		returnV = ValuePtr::AddValue("int", "", 0, IC);
 		return returnV;
 	}
 
-	b = v1->type_name == "float" || v2->type_name == "float";
+	b = v1->type_name == 'f' || v2->type_name == 'f';
 	if (b) {
 		returnV = ValuePtr::AddValue("float", "", 0, IC);
 		float f[2];
@@ -799,14 +851,14 @@ ValuePtr* Div(ValuePtr* v1, ValuePtr* v2, Ptr* IC)
 ValuePtr* Plus(ValuePtr* v1, ValuePtr* v2, Ptr* IC)
 {
 	ValuePtr* returnV = nullptr;
-	bool b = (v1->type_name != "int" && v1->type_name != "float") && v1->type_name != "char";
-	b = b || (v2->type_name != "int" && v2->type_name != "float") && v2->type_name != "char";
+	bool b = (v1->type_name != 'i' && v1->type_name != 'f') && v1->type_name != 'c';
+	b = b || (v2->type_name != 'i' && v2->type_name != 'f') && v2->type_name != 'c';
 	if (b) {
 		returnV = ValuePtr::AddValue("int", "", 0, IC);
 		return returnV;
 	}
 
-	b = v1->type_name == "float" || v2->type_name == "float";
+	b = v1->type_name == 'f' || v2->type_name == 'f';
 	if (b) {
 		returnV = ValuePtr::AddValue("float", "", 0, IC);
 		float f[2];
@@ -833,14 +885,14 @@ ValuePtr* Plus(ValuePtr* v1, ValuePtr* v2, Ptr* IC)
 ValuePtr* Minus(ValuePtr* v1, ValuePtr* v2, Ptr* IC)
 {
 	ValuePtr* returnV = nullptr;
-	bool b = (v1->type_name != "int" && v1->type_name != "float") && v1->type_name != "char";
-	b = b || (v2->type_name != "int" && v2->type_name != "float") && v2->type_name != "char";
+	bool b = (v1->type_name != 'i' && v1->type_name != 'f') && v1->type_name != 'c';
+	b = b || (v2->type_name != 'i' && v2->type_name != 'f') && v2->type_name != 'c';
 	if (b) {
 		returnV = ValuePtr::AddValue("int", "", 0, IC);
 		return returnV;
 	}
 
-	b = v1->type_name == "float" || v2->type_name == "float";
+	b = v1->type_name == 'f' || v2->type_name == 'f';
 	if (b) {
 		returnV = ValuePtr::AddValue("float", "", 0, IC);
 		float f[2];
@@ -867,28 +919,28 @@ ValuePtr* Minus(ValuePtr* v1, ValuePtr* v2, Ptr* IC)
 ValuePtr* Same(ValuePtr* v1, ValuePtr* v2, Ptr* IC)
 {
 	ValuePtr* returnV = ValuePtr::AddValue("bool", "", 0, IC);
-	if (v1->type_name == "float" || v2->type_name == "float") {
+	if (v1->type_name == 'f' || v2->type_name == 'f') {
 		Float* A = (Float*)Casting("float", v1, IC);
 		Float* B = (Float*)Casting("float", v2, IC);
 		((Bool*)returnV)->value = A->value == B->value;
 		delete A;
 		delete B;
 	}
-	else if (v1->type_name == "int" || v2->type_name == "int") {
+	else if (v1->type_name == 'i' || v2->type_name == 'i') {
 		Int* A = (Int*)Casting("int", v1, IC);
 		Int* B = (Int*)Casting("int", v2, IC);
 		((Bool*)returnV)->value = A->value == B->value;
 		delete A;
 		delete B;
 	}
-	else if (v1->type_name == "bool" || v2->type_name == "bool") {
+	else if (v1->type_name == 'b' || v2->type_name == 'b') {
 		Bool* A = (Bool*)Casting("bool", v1, IC);
 		Bool* B = (Bool*)Casting("bool", v2, IC);
 		((Bool*)returnV)->value = A->value == B->value;
 		delete A;
 		delete B;
 	}
-	else if (v1->type_name == "char" || v2->type_name == "char") {
+	else if (v1->type_name == 'c' || v2->type_name == 'c') {
 		Char* A = (Char*)Casting("char", v1, IC);
 		Char* B = (Char*)Casting("char", v2, IC);
 		((Char*)returnV)->value = A->value == B->value;
@@ -901,28 +953,28 @@ ValuePtr* Same(ValuePtr* v1, ValuePtr* v2, Ptr* IC)
 ValuePtr* RBig(ValuePtr* v1, ValuePtr* v2, Ptr* IC)
 {
 	ValuePtr* returnV = ValuePtr::AddValue("bool", "", 0, IC);
-	if (v1->type_name == "float" || v2->type_name == "float") {
+	if (v1->type_name == 'f' || v2->type_name == 'f') {
 		Float* A = (Float*)Casting("float", v1, IC);
 		Float* B = (Float*)Casting("float", v2, IC);
 		((Bool*)returnV)->value = A->value < B->value;
 		delete A;
 		delete B;
 	}
-	else if (v1->type_name == "int" || v2->type_name == "int") {
+	else if (v1->type_name == 'i' || v2->type_name == 'i') {
 		Int* A = (Int*)Casting("int", v1, IC);
 		Int* B = (Int*)Casting("int", v2, IC);
 		((Bool*)returnV)->value = A->value < B->value;
 		delete A;
 		delete B;
 	}
-	else if (v1->type_name == "bool" || v2->type_name == "bool") {
+	else if (v1->type_name == 'b' || v2->type_name == 'b') {
 		Bool* A = (Bool*)Casting("bool", v1, IC);
 		Bool* B = (Bool*)Casting("bool", v2, IC);
 		((Bool*)returnV)->value = A->value < B->value;
 		delete A;
 		delete B;
 	}
-	else if (v1->type_name == "char" || v2->type_name == "char") {
+	else if (v1->type_name == 'c' || v2->type_name == 'c') {
 		Char* A = (Char*)Casting("char", v1, IC);
 		Char* B = (Char*)Casting("char", v2, IC);
 		((Char*)returnV)->value = A->value < B->value;
@@ -935,28 +987,28 @@ ValuePtr* RBig(ValuePtr* v1, ValuePtr* v2, Ptr* IC)
 ValuePtr* LBig(ValuePtr* v1, ValuePtr* v2, Ptr* IC)
 {
 	ValuePtr* returnV = ValuePtr::AddValue("bool", "", 0, IC);
-	if (v1->type_name == "float" || v2->type_name == "float") {
+	if (v1->type_name == 'f' || v2->type_name == 'f') {
 		Float* A = (Float*)Casting("float", v1, IC);
 		Float* B = (Float*)Casting("float", v2, IC);
 		((Bool*)returnV)->value = A->value > B->value;
 		delete A;
 		delete B;
 	}
-	else if (v1->type_name == "int" || v2->type_name == "int") {
+	else if (v1->type_name == 'i' || v2->type_name == 'i') {
 		Int* A = (Int*)Casting("int", v1, IC);
 		Int* B = (Int*)Casting("int", v2, IC);
 		((Bool*)returnV)->value = A->value > B->value;
 		delete A;
 		delete B;
 	}
-	else if (v1->type_name == "bool" || v2->type_name == "bool") {
+	else if (v1->type_name == 'b' || v2->type_name == 'b') {
 		Bool* A = (Bool*)Casting("bool", v1, IC);
 		Bool* B = (Bool*)Casting("bool", v2, IC);
 		((Bool*)returnV)->value = A->value > B->value;
 		delete A;
 		delete B;
 	}
-	else if (v1->type_name == "char" || v2->type_name == "char") {
+	else if (v1->type_name == 'c' || v2->type_name == 'c') {
 		Char* A = (Char*)Casting("char", v1, IC);
 		Char* B = (Char*)Casting("char", v2, IC);
 		((Char*)returnV)->value = A->value > B->value;
@@ -969,28 +1021,28 @@ ValuePtr* LBig(ValuePtr* v1, ValuePtr* v2, Ptr* IC)
 ValuePtr* RBigSame(ValuePtr* v1, ValuePtr* v2, Ptr* IC)
 {
 	ValuePtr* returnV = ValuePtr::AddValue("bool", "", 0, IC);
-	if (v1->type_name == "float" || v2->type_name == "float") {
+	if (v1->type_name == 'f' || v2->type_name == 'f') {
 		Float* A = (Float*)Casting("float", v1, IC);
 		Float* B = (Float*)Casting("float", v2, IC);
 		((Bool*)returnV)->value = A->value <= B->value;
 		delete A;
 		delete B;
 	}
-	else if (v1->type_name == "int" || v2->type_name == "int") {
+	else if (v1->type_name == 'i' || v2->type_name == 'i') {
 		Int* A = (Int*)Casting("int", v1, IC);
 		Int* B = (Int*)Casting("int", v2, IC);
 		((Bool*)returnV)->value = A->value <= B->value;
 		delete A;
 		delete B;
 	}
-	else if (v1->type_name == "bool" || v2->type_name == "bool") {
+	else if (v1->type_name == 'b' || v2->type_name == 'b') {
 		Bool* A = (Bool*)Casting("bool", v1, IC);
 		Bool* B = (Bool*)Casting("bool", v2, IC);
 		((Bool*)returnV)->value = A->value <= B->value;
 		delete A;
 		delete B;
 	}
-	else if (v1->type_name == "char" || v2->type_name == "char") {
+	else if (v1->type_name == 'c' || v2->type_name == 'c') {
 		Char* A = (Char*)Casting("char", v1, IC);
 		Char* B = (Char*)Casting("char", v2, IC);
 		((Char*)returnV)->value = A->value <= B->value;
@@ -1003,28 +1055,28 @@ ValuePtr* RBigSame(ValuePtr* v1, ValuePtr* v2, Ptr* IC)
 ValuePtr* LBigSame(ValuePtr* v1, ValuePtr* v2, Ptr* IC)
 {
 	ValuePtr* returnV = ValuePtr::AddValue("bool", "", 0, IC);
-	if (v1->type_name == "float" || v2->type_name == "float") {
+	if (v1->type_name == 'f' || v2->type_name == 'f') {
 		Float* A = (Float*)Casting("float", v1, IC);
 		Float* B = (Float*)Casting("float", v2, IC);
 		((Bool*)returnV)->value = A->value >= B->value;
 		delete A;
 		delete B;
 	}
-	else if (v1->type_name == "int" || v2->type_name == "int") {
+	else if (v1->type_name == 'i' || v2->type_name == 'i') {
 		Int* A = (Int*)Casting("int", v1, IC);
 		Int* B = (Int*)Casting("int", v2, IC);
 		((Bool*)returnV)->value = A->value >= B->value;
 		delete A;
 		delete B;
 	}
-	else if (v1->type_name == "bool" || v2->type_name == "bool") {
+	else if (v1->type_name ==  'b' || v2->type_name == 'b') {
 		Bool* A = (Bool*)Casting("bool", v1, IC);
 		Bool* B = (Bool*)Casting("bool", v2, IC);
 		((Bool*)returnV)->value = A->value >= B->value;
 		delete A;
 		delete B;
 	}
-	else if (v1->type_name == "char" || v2->type_name == "char") {
+	else if (v1->type_name == 'c' || v2->type_name == 'c') {
 		Char* A = (Char*)Casting("char", v1, IC);
 		Char* B = (Char*)Casting("char", v2, IC);
 		((Char*)returnV)->value = A->value >= B->value;
@@ -1037,28 +1089,28 @@ ValuePtr* LBigSame(ValuePtr* v1, ValuePtr* v2, Ptr* IC)
 ValuePtr* NotSame(ValuePtr* v1, ValuePtr* v2, Ptr* IC)
 {
 	ValuePtr* returnV = ValuePtr::AddValue("bool", "", 0, IC);
-	if (v1->type_name == "float" || v2->type_name == "float") {
+	if (v1->type_name == 'f' || v2->type_name == 'f') {
 		Float* A = (Float*)Casting("float", v1, IC);
 		Float* B = (Float*)Casting("float", v2, IC);
 		((Bool*)returnV)->value = A->value != B->value;
 		delete A;
 		delete B;
 	}
-	else if (v1->type_name == "int" || v2->type_name == "int") {
+	else if (v1->type_name == 'i' || v2->type_name == 'i') {
 		Int* A = (Int*)Casting("int", v1, IC);
 		Int* B = (Int*)Casting("int", v2, IC);
 		((Bool*)returnV)->value = A->value != B->value;
 		delete A;
 		delete B;
 	}
-	else if (v1->type_name == "bool" || v2->type_name == "bool") {
+	else if (v1->type_name == 'b' || v2->type_name == 'b') {
 		Bool* A = (Bool*)Casting("bool", v1, IC);
 		Bool* B = (Bool*)Casting("bool", v2, IC);
 		((Bool*)returnV)->value = A->value != B->value;
 		delete A;
 		delete B;
 	}
-	else if (v1->type_name == "char" || v2->type_name == "char") {
+	else if (v1->type_name == 'c' || v2->type_name == 'c') {
 		Char* A = (Char*)Casting("char", v1, IC);
 		Char* B = (Char*)Casting("char", v2, IC);
 		((Char*)returnV)->value = A->value != B->value;
@@ -1071,7 +1123,7 @@ ValuePtr* NotSame(ValuePtr* v1, ValuePtr* v2, Ptr* IC)
 ValuePtr* And(ValuePtr* v1, ValuePtr* v2, Ptr* IC)
 {
 	ValuePtr* returnV = ValuePtr::AddValue("bool", "", 0, IC);
-	if (v1->type_name != "bool" || v2->type_name != "bool")
+	if (v1->type_name != 'b' || v2->type_name != 'b')
 		return returnV;
 
 	Bool* A = (Bool*)Casting("bool", v1, IC);
@@ -1085,7 +1137,7 @@ ValuePtr* And(ValuePtr* v1, ValuePtr* v2, Ptr* IC)
 ValuePtr* Or(ValuePtr* v1, ValuePtr* v2, Ptr* IC)
 {
 	ValuePtr* returnV = ValuePtr::AddValue("bool", "", 0, IC);
-	if (v1->type_name != "bool" || v2->type_name != "bool")
+	if (v1->type_name != 'b' || v2->type_name != 'b')
 		return returnV;
 
 	Bool* A = (Bool*)Casting("bool", v1, IC);
@@ -1101,20 +1153,20 @@ ValuePtr* Casting(string type, ValuePtr* value, Ptr* IC)
 	InsideCode* Ic = (InsideCode*)IC;
 
 	if (type == "any") {
-		ValuePtr* returnV = ValuePtr::AddValue(value->type_name, "", 0, IC);
-		if (value->type_name == "int") {
+		ValuePtr* returnV = ValuePtr::AddValue(ValuePtr::GetTypeStringFromChar(value->type_name), "", 0, IC);
+		if (value->type_name == 'i') {
 			((Int*)returnV)->value = (int)((Int*)value)->value;
 		}
-		else if (value->type_name == "float") {
+		else if (value->type_name == 'f') {
 			((Float*)returnV)->value = (float)((Float*)value)->value;
 		}
-		else if (value->type_name == "bool") {
+		else if (value->type_name == 'b') {
 			((Bool*)returnV)->value = (bool)((Bool*)value)->value;
 		}
-		else if (value->type_name == "char") {
+		else if (value->type_name == 'c') {
 			((Char*)returnV)->value = (char)((Char*)value)->value;
 		}
-		else if (value->type_name == "array") {
+		else if (value->type_name == 'a') {
 			((Array*)returnV)->p = ((Array*)value)->p;
 			((Array*)returnV)->siz = ((Array*)value)->siz;
 			int add = ((Array*)value)->p.address;
@@ -1122,7 +1174,7 @@ ValuePtr* Casting(string type, ValuePtr* value, Ptr* IC)
 				((Array*)returnV)->values.push_back(Ic->mem->memory[add+i]);
 			}
 		}
-		else {
+		else if(value->type_name == 's') {
 			if (type == ((Struct*)value)->structType_Name) { // 같은 타입의 구조체로 캐스팅할 경우
 				Struct* v = (Struct*)value;
 				Struct* rv = (Struct*)returnV;
@@ -1138,58 +1190,58 @@ ValuePtr* Casting(string type, ValuePtr* value, Ptr* IC)
 	ValuePtr* returnV = ValuePtr::AddValue(type, "", 0, IC);
 
 	if (type == "int") {
-		if (value->type_name == "int") {
+		if (value->type_name == 'i') {
 			((Int*)returnV)->value = (int)((Int*)value)->value;
 		}
-		if (value->type_name == "float") {
+		if (value->type_name == 'f') {
 			((Int*)returnV)->value = (int)((Float*)value)->value;
 		}
-		if (value->type_name == "bool") {
+		if (value->type_name == 'b') {
 			((Int*)returnV)->value = (int)((Bool*)value)->value;
 		}
-		if (value->type_name == "char") {
+		if (value->type_name == 'c') {
 			((Int*)returnV)->value = (int)((Char*)value)->value;
 		}
 	}
 	else if (type == "float") {
-		if (value->type_name == "int") {
+		if (value->type_name == 'i') {
 			((Float*)returnV)->value = (float)((Int*)value)->value;
 		}
-		if (value->type_name == "float") {
+		if (value->type_name == 'f') {
 			((Float*)returnV)->value = (float)((Float*)value)->value;
 		}
-		if (value->type_name == "bool") {
+		if (value->type_name == 'b') {
 			((Float*)returnV)->value = (float)((Bool*)value)->value;
 		}
-		if (value->type_name == "char") {
+		if (value->type_name == 'c') {
 			((Float*)returnV)->value = (float)((Char*)value)->value;
 		}
 	}
 	else if (type == "bool") {
-		if (value->type_name == "int") {
+		if (value->type_name == 'i') {
 			((Bool*)returnV)->value = (bool)((Int*)value)->value;
 		}
-		if (value->type_name == "float") {
+		if (value->type_name == 'f') {
 			((Bool*)returnV)->value = (bool)((Float*)value)->value;
 		}
-		if (value->type_name == "bool") {
+		if (value->type_name == 'b') {
 			((Bool*)returnV)->value = (bool)((Bool*)value)->value;
 		}
-		if (value->type_name == "char") {
+		if (value->type_name == 'c') {
 			((Bool*)returnV)->value = (bool)((Char*)value)->value;
 		}
 	}
 	else if (type == "char") {
-		if (value->type_name == "int") {
+		if (value->type_name == 'i') {
 			((Char*)returnV)->value = (char)((Int*)value)->value;
 		}
-		if (value->type_name == "float") {
+		if (value->type_name == 'f') {
 			((Char*)returnV)->value = (char)((Float*)value)->value;
 		}
-		if (value->type_name == "bool") {
+		if (value->type_name == 'b') {
 			((Char*)returnV)->value = (char)((Bool*)value)->value;
 		}
-		if (value->type_name == "char") {
+		if (value->type_name == 'c') {
 			((Char*)returnV)->value = (char)((Char*)value)->value;
 		}
 	}
@@ -1760,10 +1812,10 @@ bool IsTypeString(string str, InsideCode* IC)
 {
 	int n = IC->typeList.size();
 	for (int i = 0; i < n; i++) {
-		if (str == IC->typeList.at(i)->type_name) {
+		if (str == ValuePtr::GetTypeStringFromChar(IC->typeList.at(i)->type_name)) {
 			return true;
 		}
-		else if (IC->typeList.at(i)->type_name == "struct") {
+		else if (IC->typeList.at(i)->type_name == 's') {
 			Struct* s = (Struct*)IC->typeList.at(i);
 			if (str == s->structType_Name) {
 				return true;
@@ -1778,27 +1830,27 @@ void DefineBasicTypes(InsideCode* IC)
 	Int* basicInt = new Int();
 	basicInt->value = 0;
 	ValuePtr* vp = (ValuePtr*)basicInt;
-	vp->type_name = "int";
+	vp->type_name = 'i';
 	IC->typeList.push_back(vp);
 
 	Float* basicFloat = new Float();
 	basicFloat->value = 0.f;
 	basicFloat->Type_name = "float";
 	ValuePtr* vpf = (ValuePtr*)basicFloat;
-	vpf->type_name = "float";
+	vpf->type_name = 'f';
 	IC->typeList.push_back(vpf);
 
 	Bool* basicBool = new Bool();
 	basicBool->value = false;
 	basicBool->Type_name = "bool";
 	ValuePtr* vpb = (ValuePtr*)basicBool;
-	vpb->type_name = "bool";
+	vpb->type_name = 'b';
 	IC->typeList.push_back(vpb);
 
 	Char* basicChar = new Char();
 	basicInt->value = 0;
 	ValuePtr* vpc = (ValuePtr*)basicChar;
-	vpc->type_name = "char";
+	vpc->type_name = 'c';
 	IC->typeList.push_back(vpc);
 
 	Pointer* basicPointer = new Pointer();
@@ -1806,21 +1858,21 @@ void DefineBasicTypes(InsideCode* IC)
 	basicPointer->preTypeName = "int";
 	basicPointer->TypeName = "int*";
 	ValuePtr* vptr = (ValuePtr*)basicPointer;
-	vptr->type_name = "pointer";
+	vptr->type_name = 'p';
 	IC->typeList.push_back(vptr);
 
 	MemoryValue* basicMemoryValue = new MemoryValue();
 	basicMemoryValue->Type_name = "memory";
 	basicMemoryValue->value = -1;
 	ValuePtr* memv = (ValuePtr*)basicMemoryValue;
-	memv->type_name = "memory";
+	memv->type_name = 'm';
 	IC->typeList.push_back(memv);
 
 	Array* basicArray = new Array();
 	basicArray->p = Pointer(*basicPointer);
 	basicArray->siz = 0;
 	ValuePtr* arrayv = (ValuePtr*)basicArray;
-	arrayv->type_name = "array";
+	arrayv->type_name = 'a';
 	IC->typeList.push_back(arrayv);
 }
 
@@ -2055,7 +2107,7 @@ void ScanStruct(InsideCode* IC)
 			Struct* basicStruct = new Struct();
 			CodeBlock* cb = IC->code.at(i);
 			basicStruct->structType_Name = *cb->blockdata.at(1);
-			((ValuePtr*)basicStruct)->type_name = "struct";
+			((ValuePtr*)basicStruct)->type_name = 's';
 			for (int k = 0; k < cb->CodeBlocks.size(); k++) {
 				CodeBlock* icb = (CodeBlock*)cb->CodeBlocks.at(k);
 				if (icb->ck == codeKind::ck_addVariable) {
@@ -2100,7 +2152,7 @@ vector<textblock*> INEQ(vector<textblock*> expression, Ptr* ICptr) {
 			}
 
 			ValuePtr* result = GetDataOperation(subExpression, IC, "none", cpd);
-			if (result->type_name == "memory") {
+			if (result->type_name == 'm') {
 				//변수 처리
 				MemoryValue* mv = (MemoryValue*)result;
 				textblock* t = new string(IC->mem->MemoryToString(mv->value));
@@ -2190,7 +2242,7 @@ vector<textblock*> StructDots(vector<textblock*> expression, Ptr* ICptr) {
 			int memNum = -1;
 			while (true) {
 				if (expression.size() - 1 <= search) break;
-				if (*expression.at(search) == "." && setVP->type_name == "struct") {
+				if (*expression.at(search) == "." && setVP->type_name == 's') {
 					Struct* svp = (Struct*)setVP;
 					search++;
 					memNum = GetNamingLocation(*expression.at(search), svp->memberVnaming);
@@ -2240,7 +2292,7 @@ vector<textblock*> GetVariableFromPointer(vector<textblock*> expression, Ptr* IC
 			(i == 0 || DecodeTextBlock(*expression.at(i-1)) == "operator") ) {
 			int address = IC->mem->StringToMemory(*expression.at(i + 1), ICptr);
 			ValuePtr* vp = IC->mem->memory[address];
-			if (vp->type_name == "pointer") {
+			if (vp->type_name == 'p') {
 				Pointer* p = (Pointer*)vp;
 				address = p->address;
 			}
@@ -2563,10 +2615,10 @@ void SetVariable(CodeBlock* code, InsideCode* IC)
 	//}
 	
 	for (int i = 0; i < IC->typeList.size(); i++) {
-		string tname = IC->typeList.at(i)->type_name;
+		char tname = IC->typeList.at(i)->type_name;
 		if (setVP->type_name == tname) { // 포인터를 어떻게 처리할건지 
 			//ValuePtr* value = ValuePtr::AddValue(tname, "", IC); ?
-			ValuePtr* value = GetDataOperation(e, IC, tname, cpd);
+			ValuePtr* value = GetDataOperation(e, IC, ValuePtr::GetTypeStringFromChar(tname), cpd);
 			ValuePtr::CopyValue(setVP, value, IC);
 			delete value;
 			break;

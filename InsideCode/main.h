@@ -102,11 +102,13 @@ public:
 	static ValuePtr* AddValue(string Typename, string SubTypename, int arraySiz, Ptr* IC);
 	virtual ~ValuePtr();
 
-	string type_name; // 기본 자료형일 경우 그 이름이 들어가지만, 구조체라면 이 변수에 "struct"라는 값이 들어가고, 구조체의 이름은 해당 Struct 오브젝트의 structType_Name에서 가져올 수 있다.
+	char type_name; // 기본 자료형일 경우 그 이름이 들어가지만, 구조체라면 이 변수에 "struct"라는 값이 들어가고, 구조체의 이름은 해당 Struct 오브젝트의 structType_Name에서 가져올 수 있다.
 	string GetTypeName();
 
 	static bool CopyValue(ValuePtr* v1, ValuePtr* v2, Ptr* IC);
 	static string GetTypeNameFromValueString(string constant_value);
+	static string GetTypeStringFromChar(char tc);
+	static char GetTypeCharFromString(string str);
 
 	virtual void getValueToString(string str);
 	virtual bool isThisType(string str);
