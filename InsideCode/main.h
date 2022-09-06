@@ -207,7 +207,7 @@ public:
 	Int()
 	{
 		value = 0;
-		type_name = "int";
+		type_name = 'i';
 
 		if (isClassPtrDebug && DebugObjMap["Int"]) {
 			++classPtrMap["Int"];
@@ -243,7 +243,7 @@ public:
 	Float()
 	{
 		value = 0.f;
-		type_name = "float";
+		type_name = 'f';
 
 		if (isClassPtrDebug && DebugObjMap["Float"]) {
 			++classPtrMap["Float"];
@@ -281,7 +281,7 @@ public:
 	Bool()
 	{
 		value = false;
-		type_name = "bool";
+		type_name = 'b';
 		if (isClassPtrDebug && DebugObjMap["Bool"]) {
 			++classPtrMap["Bool"];
 			printf("\n new Bool :\t %p \t| Bool stack : %d", this, classPtrMap["Bool"]);
@@ -314,7 +314,7 @@ public:
 
 	Char() {
 		value = 0;
-		type_name = "char";
+		type_name = 'c';
 		if (isClassPtrDebug && DebugObjMap["Char"]) {
 			++classPtrMap["Char"];
 			printf("\n new Char :\t %p \t| Char stack : %d", this, classPtrMap["Char"]);
@@ -369,7 +369,7 @@ public:
 
 	MemoryValue() {
 		value = 0;
-		type_name = "memory";
+		type_name = 'm';
 		if (isClassPtrDebug && DebugObjMap["MemoryValue"]) {
 			++classPtrMap["MemoryValue"];
 			printf("\n new MemoryValue :\t %p \t| MemoryValue stack : %d", this, classPtrMap["MemoryValue"]);
@@ -443,14 +443,14 @@ public:
 	string structType_Name;
 
 	Struct() { 
-		type_name = "struct"; 
+		type_name = 's';
 		if (isClassPtrDebug && DebugObjMap["Struct"]) {
 			++classPtrMap["Struct"];
 			printf("\n new Struct :\t %p \t| Struct stack : %d", this, classPtrMap["Struct"]);
 		}
 	}
 	Struct(const Struct& ref, Ptr* IC) {
-		type_name = "struct";
+		type_name = 's';
 		for (unsigned int i = 0; i < ref.memberVnaming.size(); i++) {
 			values.push_back(ValuePtr::AddValue(ref.memberVnaming.at(i).type_name, "", 0, IC));
 			NamingData nd;
@@ -498,14 +498,14 @@ public:
 	int address; //가리키는 주소값..
 
 	Pointer() { 
-		type_name = "pointer"; 
+		type_name = 'p';
 		if (isClassPtrDebug && DebugObjMap["Pointer"]) {
 			++classPtrMap["Pointer"];
 			printf("\n new Pointer :\t %p \t| Pointer stack : %d", this, classPtrMap["Pointer"]);
 		}
 	}
 	Pointer(const Pointer& ref, Ptr* IC) {
-		type_name = "pointer";
+		type_name = 'p';
 		preTypeName = ref.preTypeName;
 		TypeName = ref.TypeName;
 		address = ref.address;
@@ -541,7 +541,7 @@ public:
 	vector<ValuePtr*> values;
 
 	Array() { 
-		type_name = "array"; 
+		type_name = 'a';
 		p = Pointer();
 		p.address = -1;
 		if (isClassPtrDebug && DebugObjMap["Array"]) {
@@ -550,7 +550,7 @@ public:
 		}
 	}
 	Array(const Array& ref, Ptr* IC) {
-		type_name = "array";
+		type_name = 'a';
 		p = Pointer(ref.p);
 		siz = ref.siz;
 		p.address = -1;

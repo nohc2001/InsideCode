@@ -2633,16 +2633,16 @@ void SetVariable(CodeBlock* code, InsideCode* IC)
 void SetVariableCore(string type_name, string name, InsideCode* IC, CodePlayData* cpd, ValuePtr* vp) {
 	if (cpd == nullptr) {
 		int lo = GetDataLocationCore(name, IC->naming);
-		if (IC->mem->memory[lo]->type_name == type_name) {
+		if (IC->mem->memory[lo]->type_name == ValuePtr::GetTypeCharFromString(type_name)) {
 			 ValuePtr::CopyValue(IC->mem->memory[lo], vp, IC);
 		}
 	}
 	else {
 		int lo = GetDataLocationCoreInBlock(name, cpd->local_ndl);
-		if (IC->mem->memory[lo]->type_name == type_name) {
+		if (IC->mem->memory[lo]->type_name == ValuePtr::GetTypeCharFromString(type_name)) {
 			ValuePtr::CopyValue(IC->mem->memory[lo], vp, IC);
 		}
-		else if (IC->mem->memory[lo]->type_name == "struct") {
+		else if (IC->mem->memory[lo]->type_name == 's') {
 			//struct의 맴버변수들을 메모리에 먼저 만든다.
 			Struct* com = ((Struct*)vp);
 			for (int i = 0; i < com->values.size(); i++) {
@@ -2732,23 +2732,23 @@ void StandardInputFunction(CodeBlock* code, InsideCode* IC)
 	b.pop_back();
 
 	ValuePtr* m = GetDataFrontOperation(b, IC, cpd);
-	if (m != nullptr && m->type_name == "memory") {
+	if (m != nullptr && m->type_name == 'm') {
 		MemoryValue* mv = (MemoryValue*)m;
 		int lo = mv->value;
 		ValuePtr* variable = IC->mem->memory[lo];
-		if (variable->type_name == "int") {
+		if (variable->type_name == 'i') {
 			scanf_s("%d", &(((Int*)variable)->value));
 		}
-		else if (variable->type_name == "float") {
+		else if (variable->type_name == 'f') {
 			scanf_s("%f", &(((Float*)variable)->value));
 		}
-		else if (variable->type_name == "bool") {
+		else if (variable->type_name == 'b') {
 			scanf_s("%d", &(((Bool*)variable)->value) );
 		}
-		else if (variable->type_name == "char") {
+		else if (variable->type_name == 'c') {
 			scanf_s("%c", &(((Char*)variable)->value));
 		}
-		else if (variable->type_name == "array") {
+		else if (variable->type_name == 'a') {
 			if (((Array*)variable)->p.preTypeName == "char") {
 				Array* v = (Array*)variable;
 				char* str = new char[v->siz];
@@ -2786,13 +2786,13 @@ ValuePtr* StandardSizeofFunction(CodeBlock* code, InsideCode* IC)
 	b.pop_back();
 
 	ValuePtr* value = GetDataOperation(b, IC, "none", cpd);
-	if (value->type_name == "array") {
+	if (value->type_name == 'a') {
 		Array* a = (Array*)value;
 		Int* sv = (Int*)ValuePtr::AddValue("int", "", 0, IC);
 		sv->value = a->siz;
 		return (ValuePtr*)sv;
 	}
-	else if (value->type_name == "struct") {
+	else if (value->type_name == 's') {
 		Struct* s = (Struct*)value;
 		Int* sv = (Int*)ValuePtr::AddValue("int", "", 0, IC);
 		sv->value = s->memberVnaming.size();
@@ -2898,7 +2898,7 @@ ValuePtr* Excute_Function(CodeBlock* code, InsideCode* IC)
 					else {
 						if (cpd->func->Parameter.size() > 0) {
 							fp = cpd->func->Parameter.at(paramCount);
-							if (fp.valueType->type_name == "struct") {
+							if (fp.valueType->type_name == 's') {
 								string tstr = ((Struct*)fp.valueType)->structType_Name;
 								AddVariableCore(tstr, "", 0, fp.name, cpd, IC);
 								ValuePtr* v = GetDataOperation(expression, IC, tstr, cpdp);
@@ -2906,9 +2906,9 @@ ValuePtr* Excute_Function(CodeBlock* code, InsideCode* IC)
 								delete v;
 							}
 							else {
-								AddVariableCore(fp.valueType->type_name, "", 0, fp.name, cpd, IC);
-								ValuePtr* v = GetDataOperation(expression, IC, fp.valueType->type_name, cpdp);
-								SetVariableCore(fp.valueType->type_name, fp.name, IC, cpd, v);
+								AddVariableCore(ValuePtr::GetTypeStringFromChar(fp.valueType->type_name), "", 0, fp.name, cpd, IC);
+								ValuePtr* v = GetDataOperation(expression, IC, ValuePtr::GetTypeStringFromChar(fp.valueType->type_name), cpdp);
+								SetVariableCore(ValuePtr::GetTypeStringFromChar(fp.valueType->type_name), fp.name, IC, cpd, v);
 								delete v;
 							}
 
@@ -2961,11 +2961,11 @@ ValuePtr* ReturnInFunction(CodeBlock* code, InsideCode* IC) {
 
 	vector<CodePlayData*> cpdArray = ((Process*)IC->process)->callArray;
 	if (cpdArray.at(cpdArray.size() - 1)->func->Return != nullptr) {
-		string rtype = cpdArray.at(cpdArray.size() - 1)->func->Return->type_name; // 현재 작동중인 함수의 리턴타입
+		string rtype = ValuePtr::GetTypeStringFromChar(cpdArray.at(cpdArray.size() - 1)->func->Return->type_name); // 현재 작동중인 함수의 리턴타입
 		CodePlayData* cpd = ((Process*)IC->process)->PresentPlayData();
 
 		for (int i = 0; i < IC->typeList.size(); i++) {
-			string tname = IC->typeList.at(i)->type_name;
+			string tname = ValuePtr::GetTypeStringFromChar(IC->typeList.at(i)->type_name);
 			if (rtype == tname) {
 				//v = ValuePtr::AddValue(tname, "", 0, IC);
 				v = GetDataOperation(e, IC, tname, cpd);
@@ -3208,7 +3208,7 @@ ValuePtr* GetDataOperation(vector<textblock*> expression, InsideCode* IC, string
 	
 	//이건 변수 하나만 expression에 있을때의 대처 같은데 이상함. GetDataFrontOperation이 memory를 반환함.(내가 왜 이걸 썼지...)
 	ValuePtr* variableCheck = GetDataFrontOperation(expression, IC, cpd);
-	if (variableCheck != nullptr && variableCheck->type_name == returnType) {
+	if (variableCheck != nullptr && ValuePtr::GetTypeStringFromChar(variableCheck->type_name) == returnType) {
 		return variableCheck;
 	}
 	if (variableCheck != nullptr) {
@@ -3478,7 +3478,6 @@ ValuePtr* getvaluewithString(string str, InsideCode* IC, string returnType)
 		}
 		else if (typestr == "str") {
 			int lo = GetDataLocation(str, cpd, IC);
-			string type_string = IC->mem->memory[lo]->type_name;
 			ValuePtr* value = 0;
 			value = IC->mem->memory[lo];
 			result = value;
@@ -3496,7 +3495,7 @@ ValuePtr* getvaluewithString(string str, InsideCode* IC, string returnType)
 			//그려려면, 먼저 자료형별 이 텍스트가 이 자료형인지 확인하는 함수가 있어야 함
 			
 			for (int i = 0; i < IC->typeList.size(); i++) {
-				ValuePtr* vptr = ValuePtr::AddValue(IC->typeList.at(i)->type_name, "", 0, IC);
+				ValuePtr* vptr = ValuePtr::AddValue(ValuePtr::GetTypeStringFromChar(IC->typeList.at(i)->type_name), "", 0, IC);
 				if (vptr->isThisType(str) == true) {
 					vptr->getValueToString(str);
 					result = vptr;
@@ -3514,7 +3513,6 @@ ValuePtr* getvaluewithString(string str, InsideCode* IC, string returnType)
 		}
 		else if (typestr == "str") {
 			int lo = GetDataLocation(str, cpd, IC);
-			string type_string = IC->mem->memory[lo]->type_name;
 			ValuePtr* value = 0;
 			value = IC->mem->memory[lo];
 			result = value;
