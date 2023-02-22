@@ -36,9 +36,39 @@
 		81 byte -> 46byte
 
 2. 아직 힙 메모리 관리가 안됨.
+	1. struct 정의하는 것에 메모리 관리가 안됨
+	2. Array 선언시에 힙메모리 1개가 릴리즈 안됨
+		AddVariable -> GetDataAddVariableText -> AddVariableCore
+	3. 배열 인덱싱할때 힙메모리 1개가 릴리즈 안됨
 	HeapDebug하자.
 3. 사용할 수 있는 모든 메모리를 힙에서 끌어다 써야한다.
 	힙 뿐 아니라 데이터 메모리도 끌어올 수 있으면 좋겠다. (개발자가 필요에 따라 개선하도록)
-4. int a = 0; 이 안됨 따로따로 써야해서 정말 불편하다.
 5. new, delete 같은 것이 없다.
 	-Standard 함수로 만들자
+
+추가할 것
+1. int a = 1; (선언과 동시에 정의) -end
+2. a += 10; (+= -= *= /= 등등..) - end
+3. Heap0[1000] static_heap; // 1000byte의 FM_MODEL0 메모리 -> 이걸 기본으로 FM_Model012... 쓰임세 별로 힙 사용.
+	float* fArr = static_heap.new(float[100]);
+	이 힙은 사이즈 별로, 용도별로 알맞은 모델에 할당해야 한다.
+4. bake int a = 10; // bake 변수 - 이름이 저장되지 않는다. - 변수에 더 빨리 접근할 수 있다.
+	대신 스캔할때 변수 이름은 배열에 접근할 넘버로 바뀐다.
+5. const int a = 100; // const 변수 - 값이 변하지 않는다. - 전역 변수처럼 처음에 저장되고, 그 이름이 나올때마다 해당 값으로 치환됨.
+6. 모든 array 형 변수에 maxsiz를 접근할 수 있게 하자.
+	int[100] a;
+	output("size : %v", a.size);
+	>> size : 100
+
+	Heap0[1000] static_heap
+	float* fArr = static_heap.new(float[200]);
+	output("size : %v", fArr.size);
+	>> size : 200
+7. code addcode(const char* str); 함수를 만든다. 문자열을 입력받아 코드로 치환하는 함수
+	char[100] typestr = "int[0]";
+	input("%v", &typestr[4]);
+	addcode(typestr) a;
+	output("size : %v", a.size);
+	>> 7
+	>> size : 7
+8. 더 많은 메모리를 수용 가능하도록, 처음 만들어질때 메모리를 힙으로 잡지말고, 변수가 추가될 때마다 힙으로 잡자.

@@ -1,15 +1,33 @@
 #pragma once
 #include <stdio.h>
+#include <iostream>
 #include <vector>
 #include <string>
 #include <map>
-#include <Windows.h>
+//#include <Windows.h>
+#include <fstream>
 using namespace std;
 
-#pragma once
-#include <map>
+#define IS_PC
+//#define IS_MOBILE
 
-using namespace std;
+#ifdef IS_PC
+#define sprintf_f sprintf_s
+#define scanf_f scanf_s
+#define fopen_f(A, B, C) fopen_s(&A, B, C)
+#elif IS_MOBILE
+#define sprintf_f sprintf
+#define scanf_f scanf
+#define fopen_f(A, B, C) A = fopen(B, C)
+#endif
+
+bool isClassPtrDebug = true;
+map<string, int> classPtrMap;
+map<string, int> LogPrintMap;
+int lognum = 0;
+map<string, bool> DebugObjMap;
+
+ofstream out;
 
 class hd {
 public:
@@ -29,6 +47,14 @@ public:
 
 	template<typename T> static T* _new() {
 		if (isHeapDebug) {
+			if (LogPrintMap["HeapAlloc"] == true) {
+				lognum += 1;
+				out << "HeapNew : (" << sizeof(T) << ")" << "\n";
+				int siz = sizeof(T);
+				if ((siz == 96 || siz == 68)) {
+					cout << " error" << endl;
+				}
+			}
 			T* newvalue = new T();
 			hd::heap_data_num += 1;
 			hd::HeapDebug[newvalue] = true;
@@ -41,6 +67,15 @@ public:
 
 	template<typename T> static bool _delete(T* heapvalue) {
 		if (isHeapDebug) {
+			if (LogPrintMap["HeapAlloc"] == true) {
+				lognum -= 1;
+				out << "HeapDelete : (" << sizeof(T) << ")" << "\n";
+				int siz = sizeof(T);
+				if ((siz == 8)) {
+					cout << " error" << endl;
+				}
+			}
+
 			if (hd::HeapDebug[heapvalue] == true) {
 				hd::heap_data_num -= 1;
 				hd::HeapDebug[heapvalue] = false;
@@ -129,10 +164,6 @@ public:
 		}
 	}
 };
-
-bool isClassPtrDebug = true;
-map<string, int> classPtrMap;
-map<string, bool> DebugObjMap;
 
 typedef std::string textblock;
 
@@ -486,7 +517,8 @@ enum class codeKind {
 	ck_returnInFunction, // 함수 내에서 리턴 코드
 	ck_addStruct, // 구조체 선언
 	ck_break, // break
-	ck_continue // continue
+	ck_continue, // continue
+	ck_addsetVariable // 변수 선언과 값 설정 동시에 하기 ex> int a = 1;
 };
 
 struct NamingData {
@@ -548,7 +580,8 @@ public:
 		textblock* tt = hd::_new<string>();
 		*tt = "{loc:";
 		char num[128];
-		_itoa_s(value, num, 10);
+		sprintf_f(num, "%d", value);
+		//_itoa_s(value, num, 10);
 		for (unsigned int i = 0; i < strlen(num); i++) {
 			tt->push_back(num[i]);
 		}
@@ -694,6 +727,7 @@ public:
 		}
 	}
 	virtual ~Array() {
+		
 		//array는 삭제하기 전에 ArrayInMemory함수를 반드시 호출해야 한다.
 		if (isClassPtrDebug && DebugObjMap["Array"]) {
 			--classPtrMap["Array"];
@@ -719,6 +753,10 @@ public:
 
 		if (values.size() > 0) {
 			values.clear();
+		}
+
+		if (hd::HeapDebug[this] == true) {
+			hd::HeapDebug[this] == false;
 		}
 	}
 
@@ -885,9 +923,11 @@ public:
 			printf("\n delete Memory :\t %p \t| Memory stack : %d", this, classPtrMap["Memory"]);
 		}
 
+		int kk = 0;
 		for (int i = 0; i < dataSiz; i++) {
 			if (memory[i] != nullptr) {
 				hd::_delete(memory[i]);
+				kk += 1;
 			}
 		}
 		hd::_arr_delete<ValuePtr*>(memory);
@@ -901,6 +941,10 @@ public:
 		heapFlow = globalLimit;
 		stackLimit = sl;
 		stackFlow = heapLimit;
+
+		if (hd::HeapDebug[memory] == true) {
+			hd::_arr_delete(memory);
+		}
 
 		memory = hd::_arr_new<ValuePtr*>(dataSiz);
 		for (int i = 0; i < dataSiz; i++) {
@@ -1042,6 +1086,8 @@ ValuePtr* StepCode(CodeBlock* code, InsideCode* IC, int *i);
 void AddVariable(CodeBlock* code, InsideCode* IC); 
 // 변수 값 변경
 void SetVariable(CodeBlock* code, InsideCode* IC); 
+// 변수선언 + 값 설정
+void AddSetVariable(CodeBlock* code, InsideCode* IC);
 // if
 bool Execute_if(CodeBlock* code, InsideCode* IC, int *i); 
 // while

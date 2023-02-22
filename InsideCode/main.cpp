@@ -79,12 +79,12 @@ InsideCode::~InsideCode() {
 		hd::_delete<Memory>(mem);
 	}
 
-	if (process != nullptr && hd::HeapDebug[process]) {
-		hd::_delete<Ptr>(process);
+	if (process != nullptr && hd::HeapDebug[(Process*)process]) {
+		hd::_delete<Process>((Process*)process);
 	}
 
 	hd::MapClear();
-	printf("%d\n", hd::heap_data_num);
+	printf("\nheap data num : %d\n log num : %d", hd::heap_data_num, lognum);
 }
 
 //준비 함수
@@ -525,11 +525,11 @@ textblock* Bool::ValueToString()
 {
 	textblock* t;
 	if (value) {
-		t = hd::_new<string>();
+		t = hd::_new<textblock>();
 		*t = "true";
 	}
 	else {
-		t = hd::_new<string>();
+		t = hd::_new<textblock>();
 		*t = "false";
 	}
 	return t;
@@ -537,7 +537,14 @@ textblock* Bool::ValueToString()
 
 void Char::getValueToString(string str)
 {
-	value = str.at(0);//0인것 같은데 1로 되어있었음.. 뭐지
+	//이거 바꿔 - '0' 와 0 인식을 못함
+	if (str.at(0) == '\'') {
+		value = str.at(1);
+	}
+	else {
+		int v = atoi(str.c_str());
+		value = v;//0인것 같은데 1로 되어있었음.. 뭐지
+	}
 }
 
 bool Char::isThisType(string str)
@@ -660,6 +667,7 @@ textblock* Array::ValueToString()
 			if (i < values.size() - 1) {
 				rt->push_back(',');
 			}
+			hd::_delete<textblock>(copyt);
 		}
 		rt->push_back('}');
 		return rt;
@@ -807,6 +815,8 @@ textblock* Struct::ValueToString()
 		if (i < memberVnaming.size() - 1) {
 			rt->push_back(',');
 		}
+
+		hd::_delete(copyt);
 	}
 	rt->push_back('}');
 	return rt;
@@ -1417,10 +1427,10 @@ void CodeDataization(InsideCode* ic, const char* filename)
 	string codetxt = GetCodeTXT(filename);
 
 	//textblock들 구성
-	AddTextBlocks(codetxt, ic);
+	AddTextBlocks(codetxt, ic); // 9
 
 	//메모리 생성
-	AllocateICMemory(ic);
+	AllocateICMemory(ic); // 3
 
 	//구조체 구성
 	ic->code = AddCodeFromBlockData(ic->ALLblockdata, ic, "struct scan");
@@ -1439,14 +1449,14 @@ void CodeDataization(InsideCode* ic, const char* filename)
 string GetCodeTXT(const char* filename)
 {
 	FILE* fp;
-	if (fopen_s(&fp, filename, "rt") == 0) {
+	if (fopen_f(fp, filename, "rt") == 0) {
 		string codetxt;
 		int max = 0;
 		fseek(fp, 0, SEEK_END);
 		max = ftell(fp);
 		fclose(fp);
 
-		fopen_s(&fp, filename, "rt");
+		fopen_f(fp, filename, "rt");
 		int k = 0;
 		while (k < max) {
 			char c;
@@ -1522,6 +1532,8 @@ void AddTextBlocks(string codetxt, InsideCode* IC)
 			if (i == 0) continue;
 			char c = IC->ALLblockdata.at(i - 1)->at(0);
 			bool bequ = (c == '!' || c == '<') || (c == '=' || c == '>');
+			bequ = bequ || ((c == '+' || c == '-') || (c == '*' || c == '/'));
+			bequ = bequ || (c == '%');
 			if (bequ) {
 				IC->ALLblockdata.at(i - 1)->push_back('=');
 				hd::_delete<textblock>(IC->ALLblockdata[i]);
@@ -1647,25 +1659,57 @@ vector<CodeBlock*> AddCodeFromBlockData(vector<textblock*> bd, InsideCode* IC, s
 					}
 					else {
 						int k = 1;
+						int v = k;
+						bool addset = false;
 						while (true) {
-							if (*bd.at(i + k) != ";") {
-								k++;
+							if (addset) {
+								if (*bd.at(i + v) != ";") {
+									v++;
+								}
+								else {
+									break;
+								}
 							}
 							else {
-								break;
+								if (*bd.at(i + k) == "=") {
+									addset = true;
+									v = k + 1;
+									continue;
+								}
+
+								if (*bd.at(i + k) != ";") {
+									k++;
+								}
+								else {
+									break;
+								}
 							}
 						}
 
-						CodeBlock* cb = hd::_new<CodeBlock>();
-						cb->ck = codeKind::ck_addVariable;
-						cb->CodeBlocks.clear();
-						cb->naming.clear();
-						for (int j = 0; j < k; j++) {
-							cb->blockdata.push_back(bd.at(i+j));
+						if (addset == false) {
+							CodeBlock* cb = hd::_new<CodeBlock>();
+							cb->ck = codeKind::ck_addVariable;
+							cb->CodeBlocks.clear();
+							cb->naming.clear();
+							for (int j = 0; j < k; j++) {
+								cb->blockdata.push_back(bd.at(i + j));
+							}
+							code.push_back(cb);
+							i += k;
+							StartI = i + 1;
 						}
-						code.push_back(cb);
-						i += k;
-						StartI = i + 1;
+						else {
+							CodeBlock* cb = hd::_new<CodeBlock>();
+							cb->ck = codeKind::ck_addsetVariable;
+							cb->CodeBlocks.clear();
+							cb->naming.clear();
+							for (int j = 0; j < v; j++) {
+								cb->blockdata.push_back(bd.at(i + j));
+							}
+							code.push_back(cb);
+							i += v;
+							StartI = i + 1;
+						}
 					}
 				}
 				else if (bd.size() > i+2 && (*bd.at(i + 2) == "(" && *bd.at(i) == "void")) {
@@ -1724,7 +1768,7 @@ vector<CodeBlock*> AddCodeFromBlockData(vector<textblock*> bd, InsideCode* IC, s
 					i += h;
 					StartI = i+1;
 				}
-				else if (*bd.at(i) == "=") {
+				else if (*bd.at(i) == "=" || (bd.at(i)->size() == 2 && bd.at(i)->at(1) == '=')) {
 					CodeBlock* cb = hd::_new<CodeBlock>();
 					cb->ck = codeKind::ck_setVariable;
 					cb->CodeBlocks.clear();
@@ -2412,6 +2456,8 @@ vector<textblock*> GetVariableFromPointer(vector<textblock*> expression, Ptr* IC
 
 //메인
 int main() {
+	out.open("LOG.txt");
+	LogPrintMap["HeapAlloc"] = false;
 	DebugObjMap["ValuePtr"] = false;
 	DebugObjMap["Operator"] = false;
 	DebugObjMap["FrontOperator"] = false;
@@ -2428,8 +2474,8 @@ int main() {
 	DebugObjMap["Function"] = false;
 	DebugObjMap["Memory"] = false;
 	DebugObjMap["InsideCode"] = false;
-	DebugObjMap["CodePlayData"] = true; // 얘는 1 나옴
-	DebugObjMap["Process"] = true; // 얘도 1 나옴
+	DebugObjMap["CodePlayData"] = false; // 얘는 1 나옴
+	DebugObjMap["Process"] = false; // 얘도 1 나옴
 
 	//기본자료형 정의
 	DefineBasicTypes(&ic);
@@ -2443,9 +2489,8 @@ int main() {
 	Float* v = (Float*)RunCode(cpd, &ic);
 
 	//디버그 로그 띄우기
-	printf("%g\n", v->value);
+	printf("return : %g\n", v->value);
 	
-
 	if (v != nullptr) {
 		hd::_delete<Float>(v);
 	}
@@ -2462,7 +2507,9 @@ void PrintMemory(CodeBlock* code, CodePlayData* cpd, InsideCode* IC) {
 	printf("\n");
 	for (int i = 0; i < IC->mem->dataSiz; i++) {
 		if (IC->mem->memory[i] != nullptr) {
-			printf("[%d] %s \t", i, IC->mem->memory[i]->ValueToString()->c_str());
+			textblock* tptr = IC->mem->memory[i]->ValueToString();
+			printf("[%d] %s \t", i, tptr->c_str());
+			hd::_delete(tptr);
 		}
 		else {
 			printf("[%d] %s \t", i, "null");
@@ -2471,8 +2518,6 @@ void PrintMemory(CodeBlock* code, CodePlayData* cpd, InsideCode* IC) {
 			printf("\n");
 		}
 	}
-
-	Sleep(1000);
 	getchar();
 }
 
@@ -2511,6 +2556,9 @@ ValuePtr* StepCode(CodeBlock* code, InsideCode* IC, int* i)
 		break;
 	case codeKind::ck_setVariable:
 		SetVariable(code, IC);
+		break;
+	case codeKind::ck_addsetVariable:
+		AddSetVariable(code, IC);
 		break;
 	case codeKind::ck_if:
 		if (*code->blockdata.at(0) == "if") {
@@ -2670,9 +2718,37 @@ void SetVariable(CodeBlock* code, InsideCode* IC)
 	vector<textblock*> t;
 	vector<textblock*> e;
 	bool front = true;
+	char additionalOper = 0;
 	for (int i = 0; i < code->blockdata.size(); i++) {
 		if (*code->blockdata.at(i) == "=") {
 			front = false;
+			continue;
+		}
+		else if (code->blockdata.at(i)->size() == 2 && code->blockdata.at(i)->at(1) == '=') {
+			char c = code->blockdata.at(i)->at(0);
+			additionalOper = c;
+			front = false;
+			for (int i = 0; i < t.size(); ++i) {
+				e.push_back(t[i]);
+			}
+
+			switch (c) {
+			case '+':
+				e.push_back(&IC->operatorList[3]->form);
+				break;
+			case '-':
+				e.push_back(&IC->operatorList[4]->form);
+				break;
+			case '*':
+				e.push_back(&IC->operatorList[0]->form);
+				break;
+			case '/':
+				e.push_back(&IC->operatorList[1]->form);
+				break;
+			case '%':
+				e.push_back(&IC->operatorList[2]->form);
+				break;
+			}
 			continue;
 		}
 		else {
@@ -2719,9 +2795,11 @@ void SetVariable(CodeBlock* code, InsideCode* IC)
 	//	}
 	//}
 	
+
 	for (int i = 0; i < IC->typeList.size(); i++) {
 		char tname = IC->typeList.at(i)->type_name;
-		if (setVP->type_name == tname) { // 포인터를 어떻게 처리할건지 
+		if (setVP->type_name == tname) { 
+			//포인터를 어떻게 처리할건지 
 			//ValuePtr* value = ValuePtr::AddValue(tname, "", IC); ?
 			ValuePtr* value = GetDataOperation(e, IC, ValuePtr::GetTypeStringFromChar(tname), cpd);
 			ValuePtr::CopyValue(setVP, value, IC);
@@ -2772,6 +2850,33 @@ void SetVariableCore(string type_name, string name, InsideCode* IC, CodePlayData
 	
 }
 
+void AddSetVariable(CodeBlock* code, InsideCode* IC) {
+	int k = 0;
+	int v = 0;
+	for (int i = 0; i < code->blockdata.size(); ++i) {
+		if (*code->blockdata[i] == "=") {
+			break;
+		}
+		else {
+			k++;
+		}
+	}
+
+	CodeBlock code1;
+	code1.ck = codeKind::ck_addVariable;
+	for (int i = 0; i < k; ++i) {
+		code1.blockdata.push_back(code->blockdata[i]);
+	}
+	AddVariable(&code1, IC);
+
+	CodeBlock code2;
+	code2.ck = codeKind::ck_setVariable;
+	for (int i = k-1; i < code->blockdata.size(); ++i) {
+		code2.blockdata.push_back(code->blockdata[i]);
+	}
+	SetVariable(&code2, IC);
+}
+
 void StandardOutputFunction(CodeBlock* code, InsideCode* IC)
 {
 	//함수의 이름과 괄호를 뺀다. - 매개변수만 남게 한다.
@@ -2810,6 +2915,7 @@ void StandardOutputFunction(CodeBlock* code, InsideCode* IC)
 			for (int h = 0; h < valueBlock->size(); h++) {
 				Format.push_back(valueBlock->at(h));
 			}
+			hd::_delete(valueBlock);
 
 			k++;
 			i++;
@@ -2842,22 +2948,22 @@ void StandardInputFunction(CodeBlock* code, InsideCode* IC)
 		int lo = mv->value;
 		ValuePtr* variable = IC->mem->memory[lo];
 		if (variable->type_name == 'i') {
-			scanf_s("%d", &(((Int*)variable)->value));
+			scanf_f("%d", &(((Int*)variable)->value));
 		}
 		else if (variable->type_name == 'f') {
-			scanf_s("%f", &(((Float*)variable)->value));
+			scanf_f("%f", &(((Float*)variable)->value));
 		}
 		else if (variable->type_name == 'b') {
-			scanf_s("%d", &(((Bool*)variable)->value) );
+			scanf_f("%d", &(((Bool*)variable)->value) );
 		}
 		else if (variable->type_name == 'c') {
-			scanf_s("%c", &(((Char*)variable)->value));
+			scanf_f("%c", &(((Char*)variable)->value));
 		}
 		else if (variable->type_name == 'a') {
 			if (((Array*)variable)->p.preTypeName == "char") {
 				Array* v = (Array*)variable;
 				char* str = new char[v->siz];
-				scanf_s("%s", str, v->siz);
+				scanf_f("%s", str, v->siz);
 				int len = strlen(str);
 				//string의 경우
 				for (int i = 0; i < len; ++i) {
@@ -3471,6 +3577,7 @@ ValuePtr* GetDataOperation(vector<textblock*> expression, InsideCode* IC, string
 				return result;
 			}
 			else {
+				//여기서 스트링 상수 처리됨
 				ValuePtr* v = ValuePtr::AddValue(returnType, "", 0, IC);
 
 				v->getValueToString(ex);
@@ -3618,8 +3725,8 @@ ValuePtr* getvaluewithString(string str, InsideCode* IC, string returnType)
 		}
 		else if (typestr == "str") {
 			int lo = GetDataLocation(str, cpd, IC);
-			ValuePtr* value = 0;
-			value = IC->mem->memory[lo];
+			ValuePtr* value = ValuePtr::AddValue(IC->mem->memory[lo]->GetTypeName(), "", 0, IC);
+			ValuePtr::CopyValue(value, IC->mem->memory[lo], IC);
 			result = value;
 		}
 		else if (typestr == "memory") {

@@ -1,23 +1,14 @@
 int main(){
-	if(true){
-		int a;
-		a = 10;
-		output("%v \n", a);
+	int a = 0;
+	int i = 0;
+	input(&a);
+
+	int num = 0;
+	while(i < a){
+		num += i;
+		i += 1;
 	}
 
-	char[50] str;
-
-	str = "I like C Programming";
-	output("string : %v \n", str);
-
-	str[8] = 0;
-	output("string : %v \n", str);
-
-	str[6] = 0;
-	output("string : %v \n", str);
-
-	str[1] = 0;
-	output("string : %v \n", str);
-
+	output("%v\n", num);
 	return 0;
 }

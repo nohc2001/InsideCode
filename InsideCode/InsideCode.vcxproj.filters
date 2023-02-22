@@ -27,5 +27,6 @@
   <ItemGroup>
     <Text Include="code.txt" />
     <Text Include="memo.txt" />
+    <Text Include="LOG.txt" />
   </ItemGroup>
 </Project>
