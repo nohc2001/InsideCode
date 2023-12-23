@@ -43,6 +43,7 @@ bool bCanBeTextblock(lcstr &a)
 		return true;
 	}
 
+	//heloo!
 	bool isdot = false;
 	bool isn = false;
 	if (a.at(0) == '-')
