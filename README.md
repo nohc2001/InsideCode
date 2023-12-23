@@ -15,6 +15,11 @@ Using these things, you can create your own grammar in your language.<br />
 You can implement several convenient functions in your language.<br />
 Or you can discover new possibilities of coding.<br />
 
+And the only dependency is the C++ environment because the internal code as a whole is writen into pure C++ code.<br />
+
+This means that any library that runs on C++ can be used with InsideCode.<br />
+You can draw by adding bitmap commands, draw triangular graphics, pass commands on a network, and deal with variations of music, such as vst.<br />
+
 # The Three Level of InsideCode
 
 There are programming languages for various functions in the world,<br /> 
