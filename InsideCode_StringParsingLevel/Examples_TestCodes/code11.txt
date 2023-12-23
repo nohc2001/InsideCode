@@ -1,0 +1,23 @@
+int SimpleFuncOne(){
+	int num; num = 10;
+	num = num + 1;
+	output("SimpleFuncOne num : %v \n", num);
+	return 0;
+}
+
+int SimpleFuncTwo(){
+	int num1; num1 = 20;
+	int num2; num2 = 30;
+	num1 = num1 + 1;
+	num2 = num2 - 1;
+	output("num1 & num2 : %v %v \n", num1, num2);
+	return 0;
+}
+
+int main(){
+	int num; num = 17;
+	SimpleFuncOne();
+	SimpleFuncTwo();
+	output("main num : %v \n", num);
+	return 0;
+}

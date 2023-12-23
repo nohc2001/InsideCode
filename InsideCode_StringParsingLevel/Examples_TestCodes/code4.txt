@@ -1,0 +1,32 @@
+int main()
+{
+	int opt;
+	float num1;
+	float num2;
+	float result;
+	output("1.덧셈 2.뺄셈 3.곱셈 4.나눗셈 \n 연산자를 선택하십시오 : ");
+	input(&opt);
+	output("\n num1 : "); input(&num1);
+	output("\n num2 : "); input(&num2);
+
+	if(opt == 1){
+		result = num1 + num2;
+	}
+	else if(opt == 2){
+		result = num1 - num2;
+	}
+	else if(opt == 3){
+		result = num1 * num2;
+	}
+	else if(opt == 4){
+		result = num1 / num2;
+	}
+	else{
+		output("\n 연산자가 잘못입력되었습니다.");
+		return 0;
+	}
+
+	output("\n결과 : %v\n", result);
+
+	return 0;
+}

@@ -1,0 +1,15 @@
+int num;
+
+int Add(int val){
+	int num; num = 9;
+	num = num + val;
+	return num;
+}
+
+int main(){
+	num = 1;
+	int num; num = 5;
+	output("num : %v \n", Add(3));
+	output("num : %v \n", num+9);
+	return 0;
+}

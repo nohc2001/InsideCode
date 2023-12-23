@@ -1,0 +1,14 @@
+int num;
+
+void Add(int val){
+	num = num + val;
+}
+
+int main(){
+	output("num : %v \n", num);
+	Add(3);
+	output("num : %v \n", num);
+	num = num + 1;
+	output("num : %v \n", num);
+	return 0;
+}

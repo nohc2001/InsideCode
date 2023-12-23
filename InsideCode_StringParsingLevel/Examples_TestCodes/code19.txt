@@ -1,0 +1,12 @@
+int main(){
+	char[30] str;
+	str = "Good Morning!";
+	output("배열 str의 크기 : %v, \n", sizeof(str));
+	output("널 문자 문자형 출력 : %v, \n", str[13]);
+	output("널 문자 정수형 출력 : %v, \n", str[13]);
+
+	output("\n"");
+	str[12] = '?';
+	output("문자열 출력 : %v \n", str);
+	return 0;
+}

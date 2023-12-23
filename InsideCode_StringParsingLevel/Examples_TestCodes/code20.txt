@@ -1,0 +1,17 @@
+int main(void){
+	char[50] str;
+	int idx;
+	idx = 0;
+
+	output("문자열 입력 : ");
+	input(&str);
+	output("입력받은 문자열 : %v \n", str);
+
+	output("문자 단위 출력 : ");
+	while(str[idx] != 0){
+		output("%v", str[idx]);
+		idx = idx + 1;
+	}
+	output("\n");
+	return 0;
+}

@@ -1,0 +1,16 @@
+int main()
+{
+	int num;
+	input(&num);
+
+	if(num > 0){
+		output("입력값이 0보다 큽니다.");
+	}
+	else if (num == 0){
+		output("입력값이 0입니다.");
+	}
+	else{
+		output("입력값이 0보다 작습니다.");
+	}
+	return 0;
+}

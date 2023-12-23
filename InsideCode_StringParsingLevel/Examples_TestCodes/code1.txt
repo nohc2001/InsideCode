@@ -1,0 +1,22 @@
+struct Point {
+	float x;
+	float y;
+}
+
+float GetLength(Point p1, Point p2){
+	float x;
+	x = p1.x - p2.x;
+	float y;
+	y = p1.y - p2.y;
+	return x*x + y*y;
+}
+
+int main()
+{
+	Point p1;
+	p1.x = 5; p1.y = 10;
+
+	Point p2;
+	p2.x = 10; p2.y = 0;
+	return GetLength(p1, p2);
+}

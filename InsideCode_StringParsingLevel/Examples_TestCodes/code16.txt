@@ -1,0 +1,14 @@
+int Factorial(int n){
+	if(n == 0) return 1;
+	else
+		return n * Factorial(n-1);
+}
+
+int main(){
+	output("1! : %v \n", Factorial(1));
+	output("2! : %v \n", Factorial(2));
+	output("3! : %v \n", Factorial(3));
+	output("4! : %v \n", Factorial(4));
+	output("9! : %v \n", Factorial(9));
+	return 0;
+}

@@ -1,0 +1,37 @@
+int main(){
+	int[5] arr1; arr1 = {1, 2, 3, 4, 5};
+	int[7] arr2; arr2 = {1, 2, 3, 4, 5, 6, 7};
+	int[5] arr3; arr3 = {1, 2};
+	int arr1Len; int arr2Len; int arr3Len; int i;
+
+	output("배열 arr1의 크기 : %v \n", sizeof(arr1));
+	output("배열 arr2의 크기 : %v \n", sizeof(arr2));
+	output("배열 arr3의 크기 : %v \n", sizeof(arr3));
+
+	arr1Len = sizeof(arr1);
+	arr2Len = sizeof(arr2);
+	arr3Len = sizeof(arr3);
+
+	i = 0; 
+	while(i < arr1Len){
+		output("%v ", arr1[i]);
+		i = i + 1;
+	}
+	output("\n");
+
+	i = 0; 
+	while(i < arr2Len){
+		output("%v ", arr2[i]);
+		i = i + 1;
+	}
+	output("\n");
+
+	i = 0; 
+	while(i < arr3Len){
+		output("%v ", arr3[i]);
+		i = i + 1;
+	}
+	output("\n");
+
+	return 0;
+}

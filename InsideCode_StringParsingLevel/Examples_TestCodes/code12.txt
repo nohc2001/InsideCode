@@ -1,0 +1,17 @@
+int main(){
+	int cnt;
+	cnt = 0;
+	while(cnt < 3){
+		int num; num = 0;
+		num = num + 1;
+		output("%v 번째 반복, 지역변수 num은 %v, \n", cnt+1, num);
+		cnt = cnt + 1;
+	}
+
+	if(cnt == 3){
+		int num; num = 7;
+		num = num + 1;
+		output("if문 내에 존재하는 지역변수 num은 %v \n", num);
+	}
+	return 0;
+}
