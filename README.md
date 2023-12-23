@@ -119,3 +119,5 @@ int main(){<br />
 int num;<br />
 input(&num);<br />
 output("num : %v \n", num);<br />
+
+# Code EveryWhere!
