@@ -66,7 +66,7 @@ class lcstr
 			Init(len + 1, islocal);
 		}
 
-		strcpy(Arr, str);
+		strcpy_s(Arr, len, str);
 		up = len - 1;
 	}
 

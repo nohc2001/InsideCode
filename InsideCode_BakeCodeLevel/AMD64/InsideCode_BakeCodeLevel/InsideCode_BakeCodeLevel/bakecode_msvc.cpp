@@ -229,7 +229,8 @@ TBT DecodeTextBlock(lcstr &t)
 
 lcstr *GetCodeTXT(const char *filename, FM_System0 *fm)
 {
-	FILE *fp = fopen(filename, "rt");
+	FILE* fp;
+	fopen_s(&fp, filename, "rt");
 	if (fp)
 	{
 		lcstr *codetxt = (lcstr *)fm->_New(sizeof(lcstr), true);
@@ -240,7 +241,7 @@ lcstr *GetCodeTXT(const char *filename, FM_System0 *fm)
 		fclose(fp);
 
 		int stack = 0;
-		fp = fopen(filename, "rt");
+		fopen_s(&fp, filename, "rt");
 		int k = 0;
 		while (k < max)
 		{
@@ -1003,7 +1004,7 @@ public:
 
 		string str = to_string(size);
 		char *strnum = (char *)fm->_New(str.size() + 2, true);
-		strcpy(strnum, str.c_str());
+		strcpy_s(strnum, str.size(), str.c_str());
 		for (int i = 0; i < strlen(strnum); ++i)
 		{
 			rtd->name.push_back(strnum[i]);
@@ -1110,7 +1111,8 @@ public:
 
 	void read_inst_table()
 	{
-		FILE *file = fopen("instruction_table.txt", "r"); // Open the file
+		FILE* file;
+		fopen_s(&file, "instruction_table.txt", "r"); // Open the file
 		// in read
 		// mode
 		if (file == nullptr)
@@ -1395,35 +1397,35 @@ public:
 
 		char *name[8] = {};
 		name[0] = (char *)fm->_New(4, true);
-		strcpy(name[0], "int");
+		strcpy_s(name[0], 4, "int");
 		basictype[0] = create_type(name[0], 4, 'b', nullptr);
 
 		name[1] = (char *)fm->_New(5, true);
-		strcpy(name[1], "char");
+		strcpy_s(name[1], 5, "char");
 		basictype[1] = create_type(name[1], 1, 'b', nullptr);
 
 		name[2] = (char *)fm->_New(6, true);
-		strcpy(name[2], "short");
+		strcpy_s(name[2], 6, "short");
 		basictype[2] = create_type(name[2], 2, 'b', nullptr);
 
 		name[3] = (char *)fm->_New(6, true);
-		strcpy(name[3], "float");
+		strcpy_s(name[3], 6, "float");
 		basictype[3] = create_type(name[3], 4, 'b', nullptr);
 
 		name[4] = (char *)fm->_New(5, true);
-		strcpy(name[4], "bool");
+		strcpy_s(name[4], 5, "bool");
 		basictype[4] = create_type(name[4], 4, 'b', nullptr);
 
 		name[5] = (char *)fm->_New(5, true);
-		strcpy(name[5], "uint");
+		strcpy_s(name[5], 5, "uint");
 		basictype[5] = create_type(name[5], 4, 'b', nullptr);
 
 		name[6] = (char *)fm->_New(7, true);
-		strcpy(name[6], "ushort");
+		strcpy_s(name[6], 7, "ushort");
 		basictype[6] = create_type(name[6], 2, 'b', nullptr);
 
 		name[7] = (char *)fm->_New(6, true);
-		strcpy(name[7], "uchar");
+		strcpy_s(name[7], 6, "uchar");
 		basictype[7] = create_type(name[7], 1, 'b', nullptr);
 
 		for (int i = 0; i < basictype_max; ++i)
@@ -1522,7 +1524,7 @@ public:
 		const char *sptr = str.c_str();
 		int len = strlen(sptr);
 		char *cstr = (char *)fm->_New(len + 1, true);
-		strcpy(cstr, sptr);
+		strcpy_s(cstr, len+1, sptr);
 		cstr[len] = 0;
 
 		for (int i = 0; i < wbss.wordlist.size(); ++i)
@@ -3688,7 +3690,7 @@ public:
 			// global variable
 			NamingData *nd = (NamingData *)fm->_New(sizeof(NamingData), true);
 			nd->name = (char *)fm->_New(strlen(variable_name) + 1, true);
-			strcpy(nd->name, variable_name);
+			strcpy_s(nd->name, strlen(variable_name) + 1, variable_name);
 			nd->td = get_type_with_namesen(type_name);
 			if (globalVariables.size() == 0)
 			{
@@ -3734,7 +3736,7 @@ public:
 
 						NamingData nd;
 						nd.name = (char *)fm->_New(strlen(variable_name) + 1, true);
-						strcpy(nd.name, variable_name);
+						strcpy_s(nd.name, strlen(variable_name) + 1, variable_name);
 						nd.td = basictype[id];
 						nd.add_address =
 							blockstack.last()->add_address_up + basictype[id]->typesiz;
@@ -3760,7 +3762,7 @@ public:
 
 							NamingData nd;
 							nd.name = (char *)fm->_New(strlen(variable_name) + 1, true);
-							strcpy(nd.name, variable_name);
+							strcpy_s(nd.name, strlen(variable_name) + 1, variable_name);
 							nd.td = types.at(i);
 							nd.add_address = blockstack.last()->add_address_up;
 							blockstack.last()->add_address_up += types.at(i)->typesiz;
@@ -4840,7 +4842,7 @@ int code_control(vecarr<InsideCode_Bake *> *icbarr)
 	stack++;
 	if (stack >= 1)
 	{
-		scanf("%c", &c);
+		scanf_s("%c", &c);
 		stack = 0;
 	}
 	switch (c)
@@ -4913,8 +4915,7 @@ void execute(vecarr<InsideCode_Bake *> icbarr, int execodenum,
 	dbgtype dbg_type = (dbgtype)0;
 	inptype inp_type = (inptype)0;
 
-	goto INST_SWITCH;
-INST_INIT_END:
+	goto CONTEXT_SWITCH;
 
 CONTEXT_SWITCH:
 	if (n == maxo)
@@ -5075,35 +5076,35 @@ DBG_SWITCH:
 INP_SWITCH:
 	switch (inp_type) {
 	case inptype::INP_BYTE:
-		scanf("%c", reinterpret_cast<char*>(mem + (int)_as[0]));
+		scanf_s("%c", reinterpret_cast<char*>(mem + (int)_as[0]));
 	case inptype::INP_UBYTE:
 	{
 		unsigned int in;
-		scanf("%u", &in);
+		scanf_s("%u", &in);
 		*reinterpret_cast<byte8*>(mem + (int)_as[0]) = (byte8)in;
 	}
 	case inptype::INP_SHORT:
 	{
 		int in;
-		scanf("%d", &in);
+		scanf_s("%d", &in);
 		*reinterpret_cast<short*>(mem + (int)_as[0]) = (short)in;
 	}
 	case inptype::INP_USHORT:
 	{
 		unsigned int in;
-		scanf("%u", &in);
+		scanf_s("%u", &in);
 		*reinterpret_cast<ushort*>(mem + (int)_as[0]) = (ushort)in;
 	}
 	case inptype::INP_INT:
-		scanf("%d", reinterpret_cast<int*>(mem + (int)_as[0]));
+		scanf_s("%d", reinterpret_cast<int*>(mem + (int)_as[0]));
 	case inptype::INP_UINT:
-		scanf("%u", reinterpret_cast<uint*>(mem + (int)_as[0]));
+		scanf_s("%u", reinterpret_cast<uint*>(mem + (int)_as[0]));
 	case inptype::INP_FLOAT:
-		scanf("%f", reinterpret_cast<float*>(mem + (int)_as[0]));
+		scanf_s("%f", reinterpret_cast<float*>(mem + (int)_as[0]));
 	case inptype::INP_BOOL:
 	{
 		char str[8] = {};
-		scanf("%s", str);
+		scanf_s("%s", str);
 		if (strcmp(str, "true"))
 		{
 			*reinterpret_cast<bool*>(mem + (int)_as[0]) = true;
@@ -5114,7 +5115,7 @@ INP_SWITCH:
 		}
 	}
 	case inptype::INP_STRING:
-		scanf("%s", reinterpret_cast<char*>(mem + (int)_as[0]));
+		scanf_s("%s", reinterpret_cast<char*>(mem + (int)_as[0]));
 	}
 
 	++ * pc;
