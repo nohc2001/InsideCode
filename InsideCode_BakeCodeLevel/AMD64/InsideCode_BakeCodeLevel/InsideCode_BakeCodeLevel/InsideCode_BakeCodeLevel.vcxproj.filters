@@ -14,4 +14,43 @@
       <Extensions>rc;ico;cur;bmp;dlg;rc2;rct;bin;rgs;gif;jpg;jpeg;jpe;resx;tiff;tif;png;wav;mfcribbon-ms</Extensions>
     </Filter>
   </ItemGroup>
+  <ItemGroup>
+    <ClCompile Include="bakecode_msvc.cpp">
+      <Filter>소스 파일</Filter>
+    </ClCompile>
+  </ItemGroup>
+  <ItemGroup>
+    <ClInclude Include="arr_expend.h">
+      <Filter>헤더 파일</Filter>
+    </ClInclude>
+    <ClInclude Include="dbg.h">
+      <Filter>헤더 파일</Filter>
+    </ClInclude>
+    <ClInclude Include="infArray_fm_v0.h">
+      <Filter>헤더 파일</Filter>
+    </ClInclude>
+    <ClInclude Include="multifor.h">
+      <Filter>헤더 파일</Filter>
+    </ClInclude>
+    <ClInclude Include="sen_tr.h">
+      <Filter>헤더 파일</Filter>
+    </ClInclude>
+    <ClInclude Include="Utill_FreeMemory.h">
+      <Filter>헤더 파일</Filter>
+    </ClInclude>
+  </ItemGroup>
+  <ItemGroup>
+    <Text Include="code.txt">
+      <Filter>리소스 파일</Filter>
+    </Text>
+    <Text Include="instruction_table.txt">
+      <Filter>리소스 파일</Filter>
+    </Text>
+    <Text Include="memo.txt" />
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="fm1_sizetable.bin">
+      <Filter>리소스 파일</Filter>
+    </None>
+  </ItemGroup>
 </Project>
