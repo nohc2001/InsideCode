@@ -28,5 +28,47 @@ SFML의 드로우 명령, 기초적 폰트 출력 등. 기반 인스트럭션을
 
 > 만들어 두면 이후에 만들 프로그램들에 확실한 도움이 될 것이다.
 
-2. execute함수 실행가능하게 만들기
-> switch를 써서 내부 구현?
+
+2. gnu와 msvc모두 고쳐야할 것
+    1. lcstr, lwstr에 문자가 push될때, up에 0을 붙이는것 때문에 maxsiz를 넘어가서 데이터를 쓰게됨.
+    2. 길이가 늘어나는 배열에 fm이 달려있는 경우가 있다. 모두 전역으로 돌려야 함.
+    3. 이거 이렇게 바꾸라
+    type_data *get_type_with_namesen(sen *tname)
+	{
+		type_data *td = nullptr;
+		type_data *ntd = nullptr;
+		char *bt = tname->at(0).data.str;
+		for (int i = 0; i < types.size(); ++i)
+		{
+			if (strcmp(bt, types[i]->name.c_str()) == 0)
+			{
+				td = types[i];
+				break;
+			}
+		}
+        ...
+    }
+
+    type_data *get_array_type(type_data *td, int size)
+	{
+		type_data *rtd = (type_data *)fm->_New(sizeof(type_data), true);
+		rtd->name.NULLState();
+		rtd->name.Init(2, false);
+		int len = strlen(td->name.c_str());
+		rtd->name = td->name.c_str();
+		rtd->name.push_back('[');
+
+		string str = to_string(size);
+		char *strnum = (char *)fm->_New(str.size() + 2, true);
+		strcpy_s(strnum, str.size()+1, str.c_str());
+		...
+	}
+
+	line 3086
+	result_ten->memsiz = left_ten->memsiz + right_ten->memsiz + add + 1;
+	result_ten->mem.NULLState();
+	result_ten->mem.Init(result_ten->memsiz + 1, false);
+
+	현재 msvc의 코드 해석과 컴파일은 되지만, 예제 틱텍토 게임의 승리를 판단하지 못한다.
+	이걸 고쳐야 함.
+

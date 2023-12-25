@@ -5,7 +5,7 @@
 #include "sen_tr.h"
 using namespace std;
 using namespace freemem;
-int FM_Model1::updateid = 0;
+//int FM_Model1::updateid = 0;
 
 typedef unsigned char byte8;
 typedef unsigned short ushort;
@@ -234,11 +234,14 @@ lcstr *GetCodeTXT(const char *filename, FM_System0 *fm)
 	if (fp)
 	{
 		lcstr *codetxt = (lcstr *)fm->_New(sizeof(lcstr), true);
-		codetxt->Init(10, false);
+		
 		int max = 0;
 		fseek(fp, 0, SEEK_END);
 		max = ftell(fp);
 		fclose(fp);
+
+		codetxt->NULLState();
+		codetxt->Init(max + 8, false);
 
 		int stack = 0;
 		fopen_s(&fp, filename, "rt");
@@ -572,7 +575,7 @@ struct code_sen
 	int maxlen;
 	codeKind ck;
 	vecarr<int *> *codeblocks = nullptr;
-	FM_System0 *fm;
+	//FM_System0 *fm;
 
 	int start_line = 0;
 	int end_line = 0;
@@ -1004,7 +1007,7 @@ public:
 
 		string str = to_string(size);
 		char *strnum = (char *)fm->_New(str.size() + 2, true);
-		strcpy_s(strnum, str.size(), str.c_str());
+		strcpy_s(strnum, str.size()+1, str.c_str());
 		for (int i = 0; i < strlen(strnum); ++i)
 		{
 			rtd->name.push_back(strnum[i]);
@@ -2004,8 +2007,9 @@ public:
 						vecarr<code_sen*>* cbv = AddCodeFromBlockData(cbs, "none");
 
 						cs->codeblocks = (vecarr<int*> *)fm->_New(sizeof(vecarr<int*>), true);
-						cs->fm = fm;
-						cs->codeblocks->islocal = false;
+						cs->codeblocks->NULLState();
+						cs->codeblocks->Init((int)cbv->size() + 1, false);
+						//cs->fm = fm;
 						Init_VPTR<vecarr<int*>*>(cs->codeblocks);
 
 						for (int u = 0; u < (int)cbv->size(); u++)
@@ -2249,7 +2253,7 @@ public:
 						vecarr<code_sen*>* cbv = AddCodeFromBlockData(bd, "none");
 
 						cs->codeblocks = (vecarr<int*> *)fm->_New(sizeof(vecarr<int*>), true);
-						cs->fm = fm;
+						//cs->fm = fm;
 						Init_VPTR<vecarr<int*>*>(cs->codeblocks);
 
 						for (int u = 0; u < (int)cbv->size(); u++)
@@ -2332,6 +2336,7 @@ public:
 			if (strcmp(bt, types[i]->name.c_str()) == 0)
 			{
 				td = types[i];
+				break;
 			}
 		}
 		for (int i = 1; i < tname->size(); ++i)
@@ -2339,7 +2344,7 @@ public:
 			char c = 0;
 			if (tname->at(i).data.str != nullptr)
 			{
-				cout << (int *)tname->at(i).data.str << endl;
+				//cout << (int *)tname->at(i).data.str << endl;
 				c = tname->at(i).data.str[0];
 			}
 			if (c == '*')
@@ -3078,6 +3083,7 @@ public:
 									if (rightcast != (int)casting_type::nocasting)
 										++add;
 
+									result_ten->memsiz = left_ten->memsiz + right_ten->memsiz + add + 1;
 									result_ten->mem.NULLState();
 									result_ten->mem.Init(result_ten->memsiz + 1, false);
 									for (int u = 0; u < left_ten->memsiz; ++u)
@@ -3883,7 +3889,7 @@ public:
 			sen *right_expr = wbss.sen_cut(code, loc + 1, code->size() - 1);
 
 			wbss.dbg_sen(left_expr);
-			// wbss.dbg_sen(right_expr);
+			wbss.dbg_sen(right_expr);
 
 			temp_mem *left_tm = get_asm_from_sen(left_expr, true, false);
 			temp_mem *right_tm = get_asm_from_sen(right_expr, true, true);
@@ -4145,7 +4151,7 @@ public:
 						stack += 1;
 						css2 = reinterpret_cast<code_sen *>(cs->codeblocks->at(ifi + 2));
 						ifi += 2;
-						if (css2 == nullptr)
+						if (css2 == nullptr || ifi >= cs->codeblocks->size())
 						{
 							break;
 						}
@@ -4631,7 +4637,7 @@ public:
 		cs0->sen = (char **)fm->_New(sizeof(char *) * loc, true);
 		cs0->maxlen = loc;
 		cs0->codeblocks = nullptr;
-		cs0->fm = fm;
+		//cs0->fm = fm;
 		cs0->ck = codeKind::ck_addVariable;
 		for (int i = 0; i < loc; ++i)
 		{
@@ -4644,7 +4650,7 @@ public:
 		cs1->maxlen = loc1;
 		cs1->codeblocks = nullptr;
 		cs1->ck = codeKind::ck_setVariable;
-		cs1->fm = fm;
+		//cs1->fm = fm;
 		cs1->sen = (char **)fm->_New(sizeof(char *) * loc1, true);
 		for (int i = loc - 1; i < cs->maxlen; ++i)
 		{
@@ -4686,7 +4692,7 @@ public:
 			cs0->sen = (char **)fm->_New(sizeof(char *) * loc, true);
 			cs0->maxlen = loc;
 			cs0->codeblocks = nullptr;
-			cs0->fm = fm;
+			//cs0->fm = fm;
 			cs0->ck = codeKind::ck_addVariable;
 			for (int i = 0; i < loc; ++i)
 			{
@@ -4987,44 +4993,64 @@ CAST_SWITCH:
 	switch (castv) {
 	case casttype::CAST_BYTE_TO_SHORT:
 		casted_value = (short)*reinterpret_cast<char*>(&casting_value);
+		break;
 	case casttype::CAST_BYTE_TO_USHORT:
 		casted_value = (ushort) * reinterpret_cast<char*>(&casting_value);
+		break;
 	case casttype::CAST_BYTE_TO_INT:
 		casted_value = (int)*reinterpret_cast<char*>(&casting_value);
+		break;
 	case casttype::CAST_BYTE_TO_UINT:
 		casted_value = (uint) * reinterpret_cast<char*>(&casting_value);
+		break;
 	case casttype::CAST_BYTE_TO_FLOAT:
 		casted_value = (float)*reinterpret_cast<char*>(&casting_value);
+		break;
 	case casttype::CAST_UBYTE_TO_FLOAT:
 		casted_value = (float)*reinterpret_cast<byte8*>(&casting_value);
+		break;
 	case casttype::CAST_SHORT_TO_BYTE:
 		casted_value = (char)*reinterpret_cast<short*>(&casting_value);
+		break;
 	case casttype::CAST_SHORT_TO_INT:
 		casted_value = (int)*reinterpret_cast<short*>(&casting_value);
+		break;
 	case casttype::CAST_SHORT_TO_FLOAT:
 		casted_value = (float)*reinterpret_cast<short*>(&casting_value);
+		break;
 	case casttype::CAST_USHORT_TO_FLOAT:
 		casted_value = (float)*reinterpret_cast<ushort*>(&casting_value);
+		break;
 	case casttype::CAST_INT_TO_BYTE:
 		casted_value = (char)*reinterpret_cast<int*>(&casting_value);
+		break;
 	case casttype::CAST_INT_TO_SHORT:
 		casted_value = (short)*reinterpret_cast<int*>(&casting_value);
+		break;
 	case casttype::CAST_INT_TO_FLOAT:
 		casted_value = (float)*reinterpret_cast<int*>(&casting_value);
+		break;
 	case casttype::CAST_UINT_TO_FLOAT:
 		casted_value = (float)*reinterpret_cast<uint*>(&casting_value);
+		break;
 	case casttype::CAST_FLOAT_TO_BYTE:
 		casted_value = (char)*reinterpret_cast<float*>(&casting_value);
+		break;
 	case casttype::CAST_FLOAT_TO_UBYTE:
 		casted_value = (byte8) * reinterpret_cast<float*>(&casting_value);
+		break;
 	case casttype::CAST_FLOAT_TO_SHORT:
 		casted_value = (short)*reinterpret_cast<float*>(&casting_value);
+		break;
 	case casttype::CAST_FLOAT_TO_USHORT:
 		casted_value = (ushort) * reinterpret_cast<float*>(&casting_value);
+		break;
 	case casttype::CAST_FLOAT_TO_INT:
 		casted_value = (int)*reinterpret_cast<float*>(&casting_value);
+		break;
 	case casttype::CAST_FLOAT_TO_UINT:
 		casted_value = (uint) * reinterpret_cast<float*>(&casting_value);
+		break;
 	}
 
 	switch (selectRegister) {
@@ -5052,22 +5078,31 @@ DBG_SWITCH:
 	switch (dbg_type) {
 	case dbgtype::DBG_A_BYTE:
 		printf("%c", (char)_as[0]);
+		break;
 	case dbgtype::DBG_A_UBYTE:
 		printf("%d", (byte8)_as[0]);
+		break;
 	case dbgtype::DBG_A_SHORT:
 		printf("%d", (short)_as[0]);
+		break;
 	case dbgtype::DBG_A_USHORT:
 		printf("%d", (ushort)_as[0]);
+		break;
 	case dbgtype::DBG_A_INT:
 		printf("%d", (int)_as[0]);
+		break;
 	case dbgtype::DBG_A_UINT:
 		printf("%d", (uint)_as[0]);
+		break;
 	case dbgtype::DBG_A_FLOAT:
 		printf("%g", (float)_as[0]);
+		break;
 	case dbgtype::DBG_A_BOOL:
 		printf((bool)_as[0] ? "true" : "false");
+		break;
 	case dbgtype::DBG_A_STRING:
 		printf("%s", reinterpret_cast<char*>(mem + (int)_as[0]));
+		break;
 	}
 
 	++*pc;
@@ -5077,30 +5112,37 @@ INP_SWITCH:
 	switch (inp_type) {
 	case inptype::INP_BYTE:
 		scanf_s("%c", reinterpret_cast<char*>(mem + (int)_as[0]));
+		break;
 	case inptype::INP_UBYTE:
 	{
 		unsigned int in;
 		scanf_s("%u", &in);
 		*reinterpret_cast<byte8*>(mem + (int)_as[0]) = (byte8)in;
+		break;
 	}
 	case inptype::INP_SHORT:
 	{
 		int in;
 		scanf_s("%d", &in);
 		*reinterpret_cast<short*>(mem + (int)_as[0]) = (short)in;
+		break;
 	}
 	case inptype::INP_USHORT:
 	{
 		unsigned int in;
 		scanf_s("%u", &in);
 		*reinterpret_cast<ushort*>(mem + (int)_as[0]) = (ushort)in;
+		break;
 	}
 	case inptype::INP_INT:
 		scanf_s("%d", reinterpret_cast<int*>(mem + (int)_as[0]));
+		break;
 	case inptype::INP_UINT:
 		scanf_s("%u", reinterpret_cast<uint*>(mem + (int)_as[0]));
+		break;
 	case inptype::INP_FLOAT:
 		scanf_s("%f", reinterpret_cast<float*>(mem + (int)_as[0]));
+		break;
 	case inptype::INP_BOOL:
 	{
 		char str[8] = {};
@@ -5113,9 +5155,11 @@ INP_SWITCH:
 		{
 			*reinterpret_cast<bool*>(mem + (int)_as[0]) = false;
 		}
+		break;
 	}
 	case inptype::INP_STRING:
 		scanf_s("%s", reinterpret_cast<char*>(mem + (int)_as[0]));
+		break;
 	}
 
 	++ * pc;
