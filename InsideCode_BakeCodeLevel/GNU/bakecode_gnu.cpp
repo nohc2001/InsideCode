@@ -166,7 +166,7 @@ TBT DecodeTextBlock(lcstr &t)
 			continue;
 		}
 
-		if ((num && dot == false) && c == '.')
+		if (((num && dot == false) && c == '.') && i != 0)
 		{
 			intarray[i] = 1;
 			dot = true;
@@ -2676,8 +2676,8 @@ public:
 			fm->_Delete((byte8 *)vtemp, sizeof(sen));
 		}
 
-		/*
-		   for(int k=0;k<segs.size();++k){ wbss.dbg_sen(segs.at(k)); } */
+		
+		for(int k=0;k<segs.size();++k){ wbss.dbg_sen(segs.at(k)); } 
 
 		for (int k = 0; k < basicoper_max; ++k)
 		{
@@ -4152,6 +4152,7 @@ public:
 		{
 			inner_params->pop_back();
 			inner_params->erase(0);
+			wbss.dbg_sen(inner_params);
 			temp_mem *tm = get_asm_from_sen(inner_params, true, true);
 			for (int k = 0; k < tm->memsiz; ++k)
 			{
