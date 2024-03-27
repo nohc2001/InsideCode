@@ -1936,7 +1936,7 @@ public:
 					}
 				}
 
-				if (strcmp(ScanMod, "struct scan") == 0)
+				if (strcmp(ScanMod, "struct") == 0)
 				{
 					if (strcmp(allcodesen[i], "struct") == 0)
 					{
@@ -2068,7 +2068,7 @@ public:
 			char c = 0;
 			if (tname->at(i).data.str != nullptr)
 			{
-				cout << (int *)tname->at(i).data.str << endl;
+				//cout << (int *)tname->at(i).data.str << endl;
 				c = tname->at(i).data.str[0];
 			}
 			if (c == '*')
@@ -3405,6 +3405,34 @@ public:
 		return nullptr;
 	}
 
+	void interpret_AddStruct(code_sen* cs){
+		sen *code = get_sen_from_codesen(cs);
+		char *cname = code->at(1).data.str;
+		char *name = (char*)fm->_New(strlen(cname)+1, true);
+		strcpy(name, cname);
+		struct_data* stdata = (struct_data*)fm->_New(sizeof(struct_data), true);
+		stdata->name = name;
+		int cpivot = 3;
+		int totalSiz = 0;
+		while(cpivot < code->size() - 1){
+			int loc = wbss.search_word_first(cpivot, code, ";");
+			sen* member_sen = wbss.sen_cut(code, cpivot, loc);
+			NamingData nd;
+			cname = member_sen->last().data.str;
+			nd.name = (char*)fm->_New(strlen(cname)+1, true);
+			strcpy(nd.name, cname);
+			sen* type_sen = wbss.sen_cut(member_sen, 0, member_sen->size()-1);
+			type_data* td = get_type_with_namesen(type_sen);
+			nd.td = td;
+			nd.add_address = totalSiz;
+			totalSiz += td->typesiz;
+			stdata->member_data.push_back(nd);
+			cpivot = loc + 1;
+		}
+		type_data* newtype = create_type(name, totalSiz, 's', reinterpret_cast<int*>(stdata));
+		types.push_back(newtype);
+	}
+
 	void compile_addVariable(code_sen *cs)
 	{
 		sen *code = get_sen_from_codesen(cs);
@@ -4481,7 +4509,7 @@ public:
 			break;
 		}
 		cs->end_line = writeup - 1;
-		// dbg_bakecode();
+		dbg_bakecode(csarr, 0);
 	}
 
 	void bake_code(const char *filename)
@@ -4512,6 +4540,12 @@ public:
 		cout << endl;
 
 		int gs = 0;
+		for (int i = 0; i < senstptr->size(); ++i)
+		{
+			code_sen *cs = senstptr->at(i);
+			dbg_codesen(cs);
+		}
+
 		for (int i = 0; i < senptr->size(); ++i)
 		{
 			code_sen *cs = senptr->at(i);
@@ -4530,6 +4564,12 @@ public:
 		mem[writeup++] = 200; // jmp
 		writeup += 4;		  // start function address
 
+		for (int i = 0; i < senstptr->size(); ++i)
+		{
+			code_sen *cs = senstptr->at(i);
+			interpret_AddStruct(cs);
+		}
+		
 		for (int i = 0; i < senptr->size(); ++i)
 		{
 			// fm->dbg_fm1_lifecheck();
