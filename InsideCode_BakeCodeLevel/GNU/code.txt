@@ -4,21 +4,14 @@ struct vec3f{
 	float z;
 };
 
-void print_sentence(char* str, int len){
-	int i=0;while(i<len){
-		dbg(str[i]);
-		i += 1;
-	}
-}
-
 void print_vec3f(vec3f obj){
-	print_sentence("vector = (");
+	dbg("vector = (");
 	dbg(obj.x);
-	print_sentence(", ");
+	dbg(", ");
 	dbg(obj.y);
-	print_sentence(", ");
+	dbg(", ");
 	dbg(obj.z);
-	print_sentence(")\n");
+	dbg(")\n");
 }
 
 int main(){

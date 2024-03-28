@@ -802,9 +802,9 @@ public:
 
 	bool IsTypeString(const char *str)
 	{
-		for (int i = 0; i < basictype_max; ++i)
+		for (int i = 0; i < types.size(); ++i)
 		{
-			if (strcmp(str, basictype[i]->name.c_str()) == 0)
+			if (strcmp(str, types[i]->name.c_str()) == 0)
 				return true;
 		}
 		return false;
@@ -3154,79 +3154,64 @@ public:
 									(temp_mem *)fm->_New(sizeof(temp_mem), true);
 
 								temp_mem *left_ten = nullptr;
+								wbss.dbg_sen(segs.at(i-1));
 								left_ten = get_asm_from_sen(segs.at(i - 1), true, false);
-								type_data *td;
-								if (segs.at(i + 1)->size() == 1 && segs.at(i + 1)->at(0).type == 'w')
-								{
-									td = get_type_with_vname(segs.at(i + 1)->at(0).data.str);
-									// a.b
-									uint bid = 0;
-									bool perfect = false;
-									type_data *returntype = nullptr;
-
-									if (td == nullptr)
-										break;
-									if (td->typetype != 's')
-										break;
-									struct_data *sptr =
-										reinterpret_cast<struct_data *>(td->structptr);
-									int su = 0;
-									for (int u = 0; u < sptr->member_data.size(); ++u)
-									{
-										if (sptr->member_data[u].name ==
-											segs.at(i + 1)->at(0).data.str)
-										{
-											bid = sptr->member_data[u].add_address;
-											su = u;
-											returntype = sptr->member_data[u].td;
-											perfect = true;
+								type_data *member_td;
+								int add_address = 0;
+								type_data* struct_td = get_sub_type(left_ten->valuetype_detail);
+								if(struct_td->typetype == 's' && segs.at(i+1)->at(0).type == 'w'){
+									struct_data* stdataPtr = (struct_data*)struct_td->structptr;
+									char* member_string = segs.at(i+1)->at(0).data.str;
+									for(int i=0;i<stdataPtr->member_data.size();++i){
+										if(strcmp(stdataPtr->member_data.at(i).name, member_string) == 0){
+											add_address = stdataPtr->member_data.at(i).add_address;
+											member_td = stdataPtr->member_data.at(i).td;
 											break;
 										}
 									}
-
-									if (perfect)
+									result_ten->memsiz = left_ten->memsiz + 7;
+									result_ten->mem.NULLState();
+									result_ten->mem.Init(2, false);
+									for (int u = 0; u < left_ten->memsiz; ++u)
 									{
-										result_ten->memsiz = left_ten->memsiz + 7;
-										result_ten->mem.NULLState();
-										result_ten->mem.Init(2, false);
-										for (int u = 0; u < left_ten->memsiz; ++u)
-										{
-											result_ten->mem.push_back(left_ten->mem[u]);
-										}
-										// axby
-										result_ten->mem.push_back(52);
-										result_ten->mem.push_back(218); // POP
-										// set y const4
-										result_ten->mem.push_back(45);
-
-										char cc[4] = {};
-										*reinterpret_cast<uint *>(cc) = bid;
-										for (int u = 0; u < 4; ++u)
-											result_ten->mem.push_back(cc[u]);
-
-										if (is_a)
-										{
-											// a=x+y uint
-											result_ten->mem.push_back(61);
-										}
-										else
-										{
-											// b=x+y uint
-											result_ten->mem.push_back(62);
-										}
-
-										// ptr
-										result_ten->valuetype = 8;
-										result_ten->valuetype_detail =
-											sptr->member_data[su].td;
-
-										segs.erase(i + 1);
-										segs[i]->at(0).type = 'a'; // asm
-										segs[i]->at(0).data.str =
-											reinterpret_cast<char *>(result_ten);
-										segs.erase(i - 1);
-										--i;
+										result_ten->mem.push_back(left_ten->mem[u]);
 									}
+									//a <= instance address
+
+									result_ten->mem.push_back(27); // b = const value
+									byte8* barr = (byte8*)&add_address;
+									for(int i=0;i<4;++i){
+										result_ten->mem.push_back(barr[i]);
+									}
+									// axby
+									result_ten->mem.push_back(52);
+									result_ten->mem.push_back(218); // POP
+									if(is_a){
+										result_ten->mem.push_back(61);
+										if(isvalue){
+											result_ten->mem.push_back(205);
+											result_ten->memsiz = result_ten->mem.size();
+											result_ten->valuetype_detail = member_td;
+											result_ten->valuetype = get_int_with_basictype(member_td);
+										}
+										else{
+											result_ten->memsiz = result_ten->mem.size();
+											result_ten->valuetype_detail = get_addpointer_type(member_td);
+											result_ten->valuetype = 8; // ptr
+										}
+									}
+									else{
+										result_ten->mem.push_back(62);
+										if(isvalue){
+											result_ten->mem.push_back(206);
+										}
+									}
+
+									segs.erase(i + 1);
+									segs[i]->at(0).type = 'a'; // asm
+									segs[i]->at(0).data.str = reinterpret_cast<char *>(result_ten);
+									segs.erase(i - 1);
+									--i;
 								}
 							}
 							break;
@@ -3416,7 +3401,8 @@ public:
 		int totalSiz = 0;
 		while(cpivot < code->size() - 1){
 			int loc = wbss.search_word_first(cpivot, code, ";");
-			sen* member_sen = wbss.sen_cut(code, cpivot, loc);
+			sen* member_sen = wbss.sen_cut(code, cpivot, loc-1);
+			wbss.dbg_sen(member_sen);
 			NamingData nd;
 			cname = member_sen->last().data.str;
 			nd.name = (char*)fm->_New(strlen(cname)+1, true);
@@ -4533,6 +4519,14 @@ public:
 
 		vecarr<code_sen *> *senstptr = AddCodeFromBlockData(allcode_sen, "struct");
 
+		for (int i = 0; i < senstptr->size(); ++i)
+		{
+			code_sen *cs = senstptr->at(i);
+			interpret_AddStruct(cs);
+
+			dbg_codesen(cs);
+		}
+
 		vecarr<code_sen *> *senptr = AddCodeFromBlockData(allcode_sen, "none");
 		senptr->islocal = false;
 
@@ -4541,11 +4535,6 @@ public:
 		cout << endl;
 
 		int gs = 0;
-		for (int i = 0; i < senstptr->size(); ++i)
-		{
-			code_sen *cs = senstptr->at(i);
-			dbg_codesen(cs);
-		}
 
 		for (int i = 0; i < senptr->size(); ++i)
 		{
@@ -4565,11 +4554,7 @@ public:
 		mem[writeup++] = 200; // jmp
 		writeup += 4;		  // start function address
 
-		for (int i = 0; i < senstptr->size(); ++i)
-		{
-			code_sen *cs = senstptr->at(i);
-			interpret_AddStruct(cs);
-		}
+		
 		
 		for (int i = 0; i < senptr->size(); ++i)
 		{
@@ -4589,7 +4574,7 @@ public:
 vecarr<InsideCode_Bake *> icbarr;
 
 bool isBreaking = false;
-int stopnum = 2417;
+int stopnum = 213;
 
 int code_control(vecarr<InsideCode_Bake *> *icbarr)
 {
@@ -4638,6 +4623,7 @@ void execute(vecarr<InsideCode_Bake *> icbarr, int execodenum,
 	uint64_t casting_value = 0;
 	uint64_t casted_value = 0;
 	void *castend_label = nullptr;
+	float fmem = 0;
 
 	int n = 0;
 	int max = icbarr.size();
@@ -4741,7 +4727,7 @@ CONTEXT_SWITCH:
 	lfspi = reinterpret_cast<uint **>(lfsp);
 
 	if((int)(icb->pc - mem) == stopnum){
-		//isBreaking = true;
+		isBreaking = true;
 		cout << "Debug BreakPoint Check!" << endl;
 	}
 	goto *inst[**pc];
@@ -4763,7 +4749,7 @@ INSTEND:
 	}
 
 	if((int)(icb->pc - mem) == stopnum){
-		//isBreaking = true;
+		isBreaking = true;
 		cout << "Debug BreakPoint Check!" << endl;
 	}
 
@@ -6151,11 +6137,11 @@ CAST_BYTE_TO_UINT:
 	goto *castend_label;
 
 CAST_BYTE_TO_FLOAT:
-	casted_value = (float)*reinterpret_cast<char *>(&casting_value);
+	*(float*)&casted_value = (float)*reinterpret_cast<char *>(&casting_value);
 	goto *castend_label;
 
 CAST_UBYTE_TO_FLOAT:
-	casted_value = (float)*reinterpret_cast<byte8 *>(&casting_value);
+	*(float*)&casted_value = (float)*reinterpret_cast<byte8 *>(&casting_value);
 	goto *castend_label;
 
 CAST_SHORT_TO_BYTE:
@@ -6167,11 +6153,11 @@ CAST_SHORT_TO_INT:
 	goto *castend_label;
 
 CAST_SHORT_TO_FLOAT:
-	casted_value = (float)*reinterpret_cast<short *>(&casting_value);
+	*(float*)&casted_value = (float)*reinterpret_cast<short *>(&casting_value);
 	goto *castend_label;
 
 CAST_USHORT_TO_FLOAT:
-	casted_value = (float)*reinterpret_cast<ushort *>(&casting_value);
+	*(float*)&casted_value = (float)*reinterpret_cast<ushort *>(&casting_value);
 	goto *castend_label;
 
 CAST_INT_TO_BYTE:
@@ -6183,11 +6169,12 @@ CAST_INT_TO_SHORT:
 	goto *castend_label;
 
 CAST_INT_TO_FLOAT:
-	casted_value = (float)*reinterpret_cast<int *>(&casting_value);
+	fmem = *reinterpret_cast<int *>(&casting_value);
+	*(float*)&casted_value = fmem;
 	goto *castend_label;
 
 CAST_UINT_TO_FLOAT:
-	casted_value = (float)*reinterpret_cast<uint *>(&casting_value);
+	*(float*)&casted_value = (float)*reinterpret_cast<uint *>(&casting_value);
 	goto *castend_label;
 
 CAST_FLOAT_TO_BYTE:
@@ -6195,7 +6182,7 @@ CAST_FLOAT_TO_BYTE:
 	goto *castend_label;
 
 CAST_FLOAT_TO_UBYTE:
-	casted_value = (byte8) * reinterpret_cast<float *>(&casting_value);
+	casted_value = (byte8)*reinterpret_cast<float *>(&casting_value);
 	goto *castend_label;
 
 CAST_FLOAT_TO_SHORT:
@@ -6720,5 +6707,5 @@ int main()
 	exeicbs.NULLState();
 	exeicbs.Init(2, false);
 	exeicbs.push_back(&icb);
-	execute(exeicbs, 1000, code_control, true);
+	execute(exeicbs, 1, code_control, true);
 }
