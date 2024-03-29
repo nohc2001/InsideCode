@@ -6331,7 +6331,8 @@ DBG_A_BOOL:
 	goto DBG_END;
 
 DBG_A_FLOAT:
-	printf("%g", (float)_as[0]);
+	*reinterpret_cast<uint*>(&fmem) = (uint)_as[0];
+	printf("%g", fmem);
 	goto DBG_END;
 
 DBG_A_STRING:
