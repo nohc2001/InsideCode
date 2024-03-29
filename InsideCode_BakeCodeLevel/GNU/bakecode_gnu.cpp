@@ -6458,7 +6458,7 @@ PARAM_N_COPY_BY_ADDRESS:
 	*sp -= paramSiz;
 	++*pci;
 	for(int i=0;i<paramSiz;++i){
-		*(*sp+i) = *(mem - (int)_as[0] + i);
+		*(*sp+i) = *(mem + (int)_as[0] + i);
 	}
 	goto INSTEND;
 
