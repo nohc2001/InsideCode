@@ -4795,7 +4795,7 @@ CONTEXT_SWITCH:
 	lfspi = reinterpret_cast<uint **>(lfsp);
 
 	if((int)(icb->pc - mem) == stopnum){
-		isBreaking = true;
+		//isBreaking = true;
 		cout << "Debug BreakPoint Check!" << endl;
 	}
 	goto *inst[**pc];
@@ -4817,7 +4817,7 @@ INSTEND:
 	}
 
 	if((int)(icb->pc - mem) == stopnum){
-		isBreaking = true;
+		//isBreaking = true;
 		cout << "Debug BreakPoint Check!" << endl;
 	}
 
