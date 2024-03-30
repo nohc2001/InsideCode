@@ -593,6 +593,16 @@ struct instruct_data
 	int param_typesiz[4] = {};
 };
 
+typedef void (*exInst)(int*); // int -> ICB_Context
+typedef void (*exCompileFunc)(int*); // int -> InsideCode_Bake
+
+struct ICB_Extension{
+    struct_data* exstructArr;
+    func_data* exfuncArr;
+    exCompileFunc *extend_comp;
+    exInst *extend_inst;
+};
+
 class InsideCode_Bake
 {
 private:
@@ -637,6 +647,8 @@ public:
 
 	static constexpr int basicoper_max = 19;
 	operator_data basicoper[basicoper_max];
+
+	ICB_Extension* extension; // 확장코드
 
 	void release_tempmem(temp_mem *ptr)
 	{
