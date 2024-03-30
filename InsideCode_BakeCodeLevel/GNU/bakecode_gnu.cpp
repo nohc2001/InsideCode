@@ -6060,7 +6060,7 @@ FUNC:
 	fsp->push_back(--*sp);
 	*rfsp = fsp->last();
 */
-	*saveSP = *sp - 1;
+	*saveSP = *sp;
 	++*pc;
 	// *pc = &mem[*++*pci];
 	goto INSTEND;
@@ -6244,8 +6244,8 @@ CAST_INT_TO_SHORT:
 	goto *castend_label;
 
 CAST_INT_TO_FLOAT:
-	fmem = *reinterpret_cast<int *>(&casting_value);
-	*(float*)&casted_value = fmem;
+	fmem = casting_value;
+	*reinterpret_cast<float*>(&casted_value) = fmem;
 	goto *castend_label;
 
 CAST_UINT_TO_FLOAT:
