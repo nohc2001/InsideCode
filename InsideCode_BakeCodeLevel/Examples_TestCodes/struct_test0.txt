@@ -1,0 +1,24 @@
+struct vec3f{
+	float x;
+	float y;
+	float z;
+};
+
+void print_vec3f(vec3f obj){
+	dbg("vector = (");
+	dbg(obj.x);
+	dbg(", ");
+	dbg(obj.y);
+	dbg(", ");
+	dbg(obj.z);
+	dbg(")\n");
+}
+
+int main(){
+	vec3f A;
+	A.x = 10;
+	A.y = 20;
+	A.z = 30;
+	print_vec3f(A);
+	return 0;
+}

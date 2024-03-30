@@ -218,3 +218,5 @@
 :POP_B;
 :POP_AB;
 :PARAM_N_COPY_BY_ADDRESS+4;
+:A=&Global_VID+4;
+:B=&Global_VID+4;
