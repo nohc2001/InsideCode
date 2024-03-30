@@ -4745,6 +4745,7 @@ void execute(vecarr<ICB_Context *> icbarr, int execodenum,
 	uint64_t casted_value = 0;
 	void *castend_label = nullptr;
 	float fmem = 0;
+	void (*extContainer)(int* ic) = nullptr;
 
 	int n = 0;
 	int max = icbarr.size();
@@ -6535,6 +6536,11 @@ PUSH_B_GLOBAL_VARIABLE_ADDRESS:
 	++*pci;
 	goto INSTEND;
 
+EXTENSION_INST:
+	++*pc;
+	extContainer = reinterpret_cast<exInst>(reinterpret_cast<uint64_t>(**pc));
+	goto INSTEND;
+
 INST_INIT:
 	for (int k = 0; k < icbarr.size(); ++k)
 	{
@@ -6801,6 +6807,41 @@ INST_INIT:
 
 		inst[i++] = &&PUSH_A_GLOBAL_VARIABLE_ADDRESS;
 		inst[i++] = &&PUSH_B_GLOBAL_VARIABLE_ADDRESS;
+
+		inst[i++] = &&WAIT;
+		inst[i++] = &&WAIT;
+		inst[i++] = &&WAIT;
+		inst[i++] = &&WAIT;
+		inst[i++] = &&WAIT;
+		inst[i++] = &&WAIT;
+		inst[i++] = &&WAIT;
+		inst[i++] = &&WAIT;
+		inst[i++] = &&WAIT;
+		inst[i++] = &&WAIT;
+		inst[i++] = &&WAIT;
+		inst[i++] = &&WAIT;
+		inst[i++] = &&WAIT;
+		inst[i++] = &&WAIT;
+		inst[i++] = &&WAIT;
+		inst[i++] = &&WAIT;
+		inst[i++] = &&WAIT;
+		inst[i++] = &&WAIT;
+		inst[i++] = &&WAIT;
+		inst[i++] = &&WAIT;
+		inst[i++] = &&WAIT;
+		inst[i++] = &&WAIT;
+		inst[i++] = &&WAIT;
+		inst[i++] = &&WAIT;
+		inst[i++] = &&WAIT;
+		inst[i++] = &&WAIT;
+		inst[i++] = &&WAIT;
+		inst[i++] = &&WAIT;
+		inst[i++] = &&WAIT;
+		inst[i++] = &&WAIT;
+		inst[i++] = &&WAIT;
+		inst[i++] = &&WAIT;
+		inst[i++] = &&WAIT;
+		inst[i++] = &&EXTENSION_INST;
 
 		int c = 0;
 		cast[c++] = &&CAST_BYTE_TO_SHORT;
