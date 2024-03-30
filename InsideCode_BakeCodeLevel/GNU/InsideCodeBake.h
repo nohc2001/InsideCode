@@ -597,10 +597,8 @@ typedef void (*exInst)(int*); // int -> ICB_Context
 typedef void (*exCompileFunc)(int*); // int -> InsideCode_Bake
 
 struct ICB_Extension{
-    struct_data* exstructArr;
-    func_data* exfuncArr;
-    exCompileFunc *extend_comp;
-    exInst *extend_inst;
+    vecarr<struct_data*> exstructArr;
+    vecarr<func_data*> exfuncArr;
 };
 
 class InsideCode_Bake
@@ -648,7 +646,7 @@ public:
 	static constexpr int basicoper_max = 19;
 	operator_data basicoper[basicoper_max];
 
-	ICB_Extension* extension; // 확장코드
+	vecarr<ICB_Extension*> extension; // 확장코드
 
 	void release_tempmem(temp_mem *ptr)
 	{
@@ -4043,6 +4041,21 @@ public:
 		int nameloc = loc - inner_params->size();
 		char *funcname = code->at(nameloc).data.str;
 
+		bool isext = false;
+		for(int i=0;i<extension.size();++i){
+			ICB_Extension* ext = extension.at(i);
+			for(int k=0;k<ext->exfuncArr.size();++k){
+				func_data* efd = ext->exfuncArr[k];
+				if(strcmp(funcname, efd->name.c_str()) == 0){
+					isext = true;
+					sen *typen = wbss.sen_cut(code, 0, nameloc - 1);
+					sen *params_sen = wbss.sen_cut(code, nameloc + 2, loc - 1);
+					fd = efd;
+					break;
+				}
+			}
+		}
+
 		if (strcmp(funcname, "dbg") == 0)
 		{
 			inner_params->pop_back();
@@ -4098,7 +4111,10 @@ public:
 		{
 		}
 
-		fd = get_func_with_name(code->at(nameloc).data.str);
+		if(isext == false){
+			fd = get_func_with_name(code->at(nameloc).data.str);
+		}
+		
 		// mem[writeup++] = fd->start_pc; // func
 
 		sen *typen = wbss.sen_cut(code, 0, nameloc - 1);
@@ -4233,9 +4249,17 @@ public:
 			}
 		}
 
-		mem[writeup++] = 200; // jmp
-		*reinterpret_cast<uint *>(&mem[writeup]) = (uint)(fd->start_pc - &mem[0]);
-		writeup += 4;
+		if(isext){
+			mem[writeup++] = 255; // ext instruction
+			*reinterpret_cast<uint64_t *>(&mem[writeup]) = reinterpret_cast<uint64_t>(fd->start_pc); // byte8* but real value is function pointer of extension.
+			writeup += 8;
+		}
+		else{
+			mem[writeup++] = 200; // jmp
+			*reinterpret_cast<uint *>(&mem[writeup]) = (uint)(fd->start_pc - &mem[0]);
+			writeup += 4;
+		}
+		
 
 		code->release();
 		fm->_Delete((byte8 *)code, sizeof(sen));
