@@ -4,7 +4,6 @@
 #include "ICB_Extension.h"
 
 void exAdd_add(int* pcontext){
-
     ICB_Context* cxt = reinterpret_cast<ICB_Context*>(pcontext);
     int a = *reinterpret_cast<int*>(cxt->rfsp - 8);
     int b = *reinterpret_cast<int*>(cxt->rfsp - 4);

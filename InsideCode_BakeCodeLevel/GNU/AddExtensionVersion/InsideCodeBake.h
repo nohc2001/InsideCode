@@ -2224,6 +2224,7 @@ public:
 
 			int addadd = 0;
 			int paramid = 0;
+			int paramCount = 0;
 
 			tm->mem.push_back(189);
 
@@ -2246,6 +2247,14 @@ public:
 					{
 						tm->mem.push_back(rtm->mem[i]);
 					}
+
+					casting_type ct = get_cast_type(tm->valuetype, get_int_with_basictype(fd->param_data.at(paramCount).td));
+					tm->mem.push_back(201);
+					int ll = tm->mem.size();
+					for(int k=0;k<4;++k){
+						tm->mem.push_back(0);
+					}
+					*reinterpret_cast<uint*>(&mem[ll]) = (uint)ct;
 				}
 
 				if (fd->param_data[paramid].td->typetype != 's')
@@ -2283,6 +2292,7 @@ public:
 
 				savecoma = coma;
 				coma = wbss.search_word_first(coma + 1, params_sen, ",");
+				paramCount += 1;
 			}
 
 			wbss.dbg_sen(params_sen);
@@ -2303,6 +2313,13 @@ public:
 				{
 					tm->mem.push_back(rtm->mem[i]);
 				}
+				casting_type ct = get_cast_type(tm->valuetype, get_int_with_basictype(fd->param_data.at(paramCount).td));
+				tm->mem.push_back(201);
+				int ll = tm->mem.size();
+				for(int k=0;k<4;++k){
+					tm->mem.push_back(0);
+				}
+				*reinterpret_cast<uint*>(&mem[ll]) = (uint)ct;
 			}
 
 			if (fd->param_data[paramid].td->typetype != 's')
@@ -4338,6 +4355,7 @@ public:
 
 		int addadd = 0;
 		int paramid = 0;
+		int paramCount = 0;
 
 		mem[writeup++] = 189; // FUNC
 
@@ -4358,8 +4376,12 @@ public:
 				{
 					mem[writeup++] = tm->mem[i];
 				}
+
+				casting_type ct = get_cast_type(tm->valuetype, get_int_with_basictype(fd->param_data.at(paramCount).td));
+				mem[writeup++] = 201;
+				*reinterpret_cast<uint*>(&mem[writeup]) = (uint)ct;
+				writeup += 4;
 			}
-			
 
 			if (fd->param_data[paramid].td->typetype != 's')
 			{
@@ -4394,6 +4416,7 @@ public:
 			fm->_Delete((byte8 *)param_sen, sizeof(sen));
 
 			release_tempmem(tm);
+			++paramCount;
 		}
 
 		wbss.dbg_sen(params_sen);
@@ -4415,6 +4438,11 @@ public:
 			{
 				mem[writeup++] = tm->mem[i];
 			}
+
+			casting_type ct = get_cast_type(tm->valuetype, get_int_with_basictype(fd->param_data.at(paramCount).td));
+			mem[writeup++] = 201;
+			*reinterpret_cast<uint*>(&mem[writeup]) = (uint)ct;
+			writeup += 4;
 		}
 
 		if (fd->param_data[paramid].td->typetype != 's')
