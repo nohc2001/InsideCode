@@ -1,5 +1,5 @@
-#ifndef EXTEND_FUNC_H
-#define EXTEND_FUNC_H
+#ifndef ICB_EXTENSION_H
+#define ICB_EXTENSION_H
 
 #include "InsideCodeBake.h"
 
@@ -718,26 +718,6 @@ void bake_Extension(const char* filename, ICB_Extension* ext){
 		code_sen *cs = senptr->at(i);
         if (cs->ck == codeKind::ck_addFunction) compile_addFunction(cs, ext);
 	}
-}
-
-void exExecute_add(int* pcontext){
-    ICB_Context* cxt = reinterpret_cast<ICB_Context*>(pcontext);
-    int a = *reinterpret_cast<int*>(cxt->rfsp - 8);
-    int b = *reinterpret_cast<int*>(cxt->rfsp - 4);
-    cxt->_as[0] = a+b;
-    cxt->_as.move_pivot(-1);
-}
-
-ICB_Extension* Init_Extend(){
-    //확장을 입력.
-    ICB_Extension* icbext = (ICB_Extension*)fm->_New(sizeof(ICB_Extension), true);
-    icbext->exfuncArr.NULLState();
-    icbext->exfuncArr.Init(8, false);
-    icbext->exstructArr.NULLState();
-    icbext->exstructArr.Init(8, false);
-
-    bake_Extension("extension_header.h", icbext);
-    icbext->exfuncArr[0]->start_pc = reinterpret_cast<byte8*>(exExecute_add);
 }
 
 #endif

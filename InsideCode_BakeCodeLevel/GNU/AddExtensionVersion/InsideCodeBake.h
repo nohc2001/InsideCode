@@ -803,18 +803,6 @@ public:
 		return rs;
 	}
 
-	void setfm(FM_System0 *fms)
-	{
-		fm = fms;
-		allcode_sen.NULLState();
-		allcode_sen.Init(2, false);
-		allcode_sen.islocal = false;
-		csarr = nullptr;
-		// word_arr.Init(10, fm);
-		// sen_arr.Init(10, fm);
-		wbss.fm = fm;
-	}
-
 	void read_inst_table()
 	{
 		FILE *file = fopen("instruction_table.txt", "r"); // Open the file
@@ -1077,6 +1065,11 @@ public:
 
 	void init()
 	{
+		allcode_sen.NULLState();
+		allcode_sen.Init(2, false);
+		allcode_sen.islocal = false;
+		csarr = nullptr;
+
 		for (int i = 0; i < basictype_max; ++i)
 		{
 			types.push_back(basictype[i]);
