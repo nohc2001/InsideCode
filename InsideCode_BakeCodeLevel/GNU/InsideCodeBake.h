@@ -882,7 +882,6 @@ public:
 		}
 	}
 
-
 	code_sen *find_codesen_with_linenum(vecarr<code_sen *> *csa, int line)
 	{
 		for (int i = 0; i < csa->size(); ++i)
@@ -905,7 +904,6 @@ public:
 
 		return nullptr;
 	}
-
 
 	void print_asm(int start, int end)
 	{
@@ -4484,18 +4482,6 @@ public:
 		lcstr &allcode = *allcodeptr;
 		AddTextBlocks(allcode);
 
-		/*
-		for (int i = 0; i < allcode_sen.size(); ++i)
-		{
-			cout << allcode_sen[i] << " ";
-			if (i == 685)
-			{
-				int a = 0;
-			}
-		}
-		cout << endl;
-		*/
-
 		vecarr<code_sen *> *senstptr = AddCodeFromBlockData(allcode_sen, "struct");
 
 		for (int i = 0; i < senstptr->size(); ++i)
@@ -6537,8 +6523,23 @@ PUSH_B_GLOBAL_VARIABLE_ADDRESS:
 	goto INSTEND;
 
 EXTENSION_INST:
+	*lfsp = *rfsp;
+	fsp->push_back(*saveSP);
+	*rfsp = fsp->last();
+
 	++*pc;
-	extContainer = reinterpret_cast<exInst>(reinterpret_cast<uint64_t>(**pc));
+	extContainer = reinterpret_cast<exInst>(*reinterpret_cast<uint64_t*>(*pc));
+	*pc += 8;
+	call_stack->push_back(*pc - 1);
+	extContainer(reinterpret_cast<int*>(icb));
+
+	*sp = *rfsp;
+	*rfsp = *lfsp;
+	fsp->pop_back();
+	*lfsp = (*fsp)[fsp->size() - 2];
+	*pc = call_stack->last();
+	call_stack->pop_back();
+	++*pc;
 	goto INSTEND;
 
 INST_INIT:
