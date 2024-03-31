@@ -44,7 +44,7 @@ there is a method of compiling the original code into byte code first,<br />
 and executing it through a virtual machine when executing the byte code to allow some performance by product<br />
 or to help programmers experiment with the code and catch errors.<br />
 
-C#, JAVA, etc. use this method and are sometimes called JIT compilers. ex> LuaJIT<br />
+C#, JAVA, etc. use this method and are sometimes called Virtual Machine<br />
 It is the bake code that does this.<br />
 
 ## 3. AtomLevel
@@ -61,16 +61,17 @@ and call and use it like a function. That is the atom level.<br />
 
 Usually, there are so many programming languages with these compilers (C, C++, Rust),<br />
 but most of them only exist in the program itself,<br />
-and there were no compilers that could go into a program and add additional functionality.<br />
+and there were few compilers that could go into a program and add additional functionality.<br>
+use this method and are sometimes called JIT<br />
 
-## 4. Shader
-But I think there's a better way to perform than these three, and that's Shader. Shader didn't feel the need to make it because he could already type in a string from a graphics library or GPU library.
+## 4. ComputeShader Or GPGPU
+But I think there's a better way to perform than these three, and that's Shader. Shader didn't feel the need to make it because he could already type in a string from a graphics library or GPU library. such as Nvidea CUDA, DirectX ComputeShader, OpenCL ... 
 However, Shader won't be able to solve all the problems more effectively. Although there are many processors inside the GPU, they are specialized in doing a lot of simple tasks. Therefore, due to a number of problems, such as the speed of communication with the CPU and the problem of deciding where to store the results, it is not usually write the main logic.
 Therefore, if you need to do a lot of simple tasks very quickly, manipulating the GPU may be a better way than doing something like InsideCode.
 
 # ETC
 But it's not complete yet.<br />
-It contains a lot of information, so every time you add a variable, you use a lot more memory.<br />
+when you use string parsing level, It contains a lot of information, so every time you add a variable, you use a lot more memory.<br />
 Free heap memory has not yet been implemented.<br />
 To be honest, it's not the quality that I can use yet, but I'll try to complete it.<br />
 
@@ -94,7 +95,7 @@ b = 0.4;<br />
 c = false;<br />
 d = 'a';<br />
 
-## if, while, for <br />
+## if, while<br />
 It's like C language.<br />
 
 ## Array declaration <br />
@@ -121,8 +122,14 @@ int main(){<br />
 }<br />
 
 ## input and output<br />
+string parsing : <br />
 int num;<br />
 input(&num);<br />
 output("num : %v \n", num);<br />
+
+bake code : <br />
+int num;<br />
+inp(&num);<br />
+dbg(num);<br />
 
 # Code EveryWhere!
