@@ -676,6 +676,18 @@ public:
 				return functions[i];
 			}
 		}
+
+		for (int i = 0; i < extension.size(); ++i)
+		{
+			ICB_Extension* ext = extension.at(i);
+			for(int k=0;k<ext->exfuncArr.size();++k){
+				if (strcmp(ext->exfuncArr.at(k)->name.c_str(), name) == 0)
+				{
+					return ext->exfuncArr.at(k);
+				}
+			}
+		}
+
 		return nullptr;
 	}
 
@@ -783,6 +795,18 @@ public:
 			if (strcmp(str, types[i]->name.c_str()) == 0)
 				return true;
 		}
+
+		for (int i = 0; i < extension.size(); ++i)
+		{
+			ICB_Extension* ext = extension.at(i);
+			for(int k=0;k<ext->exstructArr.size();++k){
+				if (strcmp(str, ext->exstructArr.at(k)->name.c_str()) == 0)
+				{
+					return true;
+				}
+			}
+		}
+
 		return false;
 	}
 
@@ -840,6 +864,9 @@ public:
 					break;
 				case '4':
 					id.param_typesiz[pi++] = 4;
+					break;
+				case '8':
+					id.param_typesiz[pi++] = 8;
 					break;
 				}
 			}
@@ -930,6 +957,16 @@ public:
 							 << (uint)mem[i + 2] << ", " << (uint)mem[i + 3] << ")";
 						i += 3;
 						break;
+					case 8:
+						++i;
+						n = *reinterpret_cast<uint *>(&mem[i]);
+						strmax = n;
+						cout << " > " << n << "(" << (uint)mem[i] << ", " << (uint)mem[i + 1] << ", "
+							 << (uint)mem[i + 2] << ", " << (uint)mem[i + 3]
+							 << (uint)mem[i + 4] << ", " << (uint)mem[i + 5] << ", "
+							 << (uint)mem[i + 6] << ", " << (uint)mem[i + 7] << ")";
+						i += 7;
+						break;
 					}
 				}
 				cout << "\"";
@@ -964,6 +1001,13 @@ public:
 					n = *reinterpret_cast<uint *>(&mem[i]);
 					cout << " > " << n << "(" << (uint)mem[i] << ", " << (uint)mem[i + 1] << ", " << (uint)mem[i + 2] << ", " << (uint)mem[i + 3] << ")";
 					i += 3;
+					break;
+				case 8:
+					++i;
+					n = *reinterpret_cast<uint *>(&mem[i]);
+					cout << " > " << n << "(" << (uint)mem[i] << ", " << (uint)mem[i + 1] << ", " << (uint)mem[i + 2] << ", " << (uint)mem[i + 3]
+					<< (uint)mem[i+4] << ", " << (uint)mem[i + 5] << ", " << (uint)mem[i + 6] << ", " << (uint)mem[i + 7] << ")";
+					i += 7;
 					break;
 				}
 			}
@@ -1941,8 +1985,25 @@ public:
 			if (strcmp(bt, types[i]->name.c_str()) == 0)
 			{
 				td = types[i];
+				break;
 			}
 		}
+
+		if(td == nullptr){
+			for (int i = 0; i < extension.size(); ++i)
+			{
+				ICB_Extension* ext = extension.at(i);
+				for(int k=0;k<ext->exstructArr.size();++i){
+					if (strcmp(bt, ext->exstructArr.at(k)->name.c_str()) == 0)
+					{
+						td = ext->exstructArr.at(k);
+						break;
+					}
+				}
+				if(td != nullptr) break;
+			}
+		}
+		
 		for (int i = 1; i < tname->size(); ++i)
 		{
 			char c = 0;
@@ -2057,6 +2118,25 @@ public:
 			// wbss.dbg_sen(inner_params);
 			int nameloc = loc - inner_params->size();
 			char *funcname = code->at(nameloc).data.str;
+
+			bool isext = false;
+			for (int i = 0; i < extension.size(); ++i)
+			{
+				ICB_Extension *ext = extension.at(i);
+				for (int k = 0; k < ext->exfuncArr.size(); ++k)
+				{
+					func_data *efd = ext->exfuncArr[k];
+					if (strcmp(funcname, efd->name.c_str()) == 0)
+					{
+						isext = true;
+						sen *typen = wbss.sen_cut(code, 0, nameloc - 1);
+						sen *params_sen = wbss.sen_cut(code, nameloc + 2, loc - 1);
+						fd = efd;
+						break;
+					}
+				}
+			}
+
 			if (strcmp(funcname, "dbg") == 0)
 			{
 				inner_params->pop_back();
@@ -2108,7 +2188,9 @@ public:
 				// release_tempmem(rtm);
 			}
 
-			fd = get_func_with_name(code->at(nameloc).data.str);
+			if(isext == false){
+				fd = get_func_with_name(code->at(nameloc).data.str);
+			}
 			// mem[writeup++] = fd->start_pc; // func
 
 			sen *params_sen = wbss.sen_cut(code, nameloc + 2, loc - 1);
@@ -2134,7 +2216,7 @@ public:
 
 			wbss.dbg_sen(params_sen);
 			int coma = wbss.search_word_first(0, params_sen, ",");
-			int savecoma = 0;
+			int savecoma = -1;
 			int last = params_sen->size() - 1;
 
 			int addadd = 0;
@@ -2144,13 +2226,84 @@ public:
 
 			while (coma != -1)
 			{
-				sen *param_sen = wbss.sen_cut(params_sen, savecoma, coma - 1);
+				sen *param_sen = wbss.sen_cut(params_sen, savecoma + 1, coma - 1);
 				temp_mem *rtm = get_asm_from_sen(param_sen, true, true);
+
+				if (rtm->valuetype_detail->typetype == 's')
+				{
+					temp_mem *ptrtm = get_asm_from_sen(param_sen, true, false);
+					for (int i = 0; i < ptrtm->memsiz; ++i)
+					{
+						tm->mem.push_back(ptrtm->mem[i]);
+					}
+				}
+				else
+				{
+					for (int i = 0; i < rtm->memsiz; ++i)
+					{
+						tm->mem.push_back(rtm->mem[i]);
+					}
+				}
+
+				if (fd->param_data[paramid].td->typetype != 's')
+				{
+					switch (fd->param_data[paramid].td->typesiz)
+					{
+					case 1:
+						tm->mem.push_back(190); // param
+						break;
+					case 2:
+						tm->mem.push_back(191); // param
+						break;
+					case 4:
+						tm->mem.push_back(192); // param
+						break;
+					}
+				}
+				else
+				{
+					tm->mem.push_back(219); // param N by address(a)
+					byte8 *N = (byte8 *)&fd->param_data[paramid].td->typesiz;
+					// write siz of struct type
+					for (int i = 0; i < 4; ++i)
+					{
+						tm->mem.push_back(N[i]);
+					}
+				}
+
+				++paramid;
+
+				param_sen->release();
+				fm->_Delete((byte8 *)param_sen, sizeof(sen));
+
+				release_tempmem(rtm);
+
+				savecoma = coma;
+				coma = wbss.search_word_first(coma + 1, params_sen, ",");
+			}
+
+			wbss.dbg_sen(params_sen);
+			sen *param_sen = wbss.sen_cut(params_sen, savecoma + 1, last);
+			wbss.dbg_sen(param_sen);
+			temp_mem *rtm = get_asm_from_sen(param_sen, true, true);
+			if (rtm->valuetype_detail->typetype == 's')
+			{
+				temp_mem *ptrtm = get_asm_from_sen(param_sen, true, false);
+				for (int i = 0; i < ptrtm->memsiz; ++i)
+				{
+					tm->mem.push_back(ptrtm->mem[i]);
+				}
+			}
+			else
+			{
 				for (int i = 0; i < rtm->memsiz; ++i)
 				{
 					tm->mem.push_back(rtm->mem[i]);
 				}
+			}
 
+			if (fd->param_data[paramid].td->typetype != 's')
+			{
 				switch (fd->param_data[paramid].td->typesiz)
 				{
 				case 1:
@@ -2163,44 +2316,36 @@ public:
 					tm->mem.push_back(192); // param
 					break;
 				}
-
-				++paramid;
-
-				param_sen->release();
-				fm->_Delete((byte8 *)param_sen, sizeof(sen));
-
-				release_tempmem(rtm);
 			}
-
-			wbss.dbg_sen(params_sen);
-			sen *param_sen = wbss.sen_cut(params_sen, savecoma, last);
-			wbss.dbg_sen(param_sen);
-			temp_mem *rtm = get_asm_from_sen(param_sen, true, true);
-			for (int i = 0; i < rtm->memsiz; ++i)
+			else
 			{
-				tm->mem.push_back(rtm->mem[i]);
+				tm->mem.push_back(219); // param N by address(a)
+				byte8 *N = (byte8 *)&fd->param_data[paramid].td->typesiz;
+				// write siz of struct type
+				for (int i = 0; i < 4; ++i)
+				{
+					tm->mem.push_back(N[i]);
+				}
 			}
 
-			switch (fd->param_data[paramid].td->typesiz)
-			{
-			case 1:
-				tm->mem.push_back(190); // param
-				break;
-			case 2:
-				tm->mem.push_back(191); // param
-				break;
-			case 4:
-				tm->mem.push_back(192); // param
-				break;
+			if(isext){
+				tm->mem.push_back(255); // ext instruction
+				int ll = tm->mem.size();
+				for (int k = 0; k < 8; ++k)
+				{
+					tm->mem.push_back(0);
+				}
+				*reinterpret_cast<uint64_t *>(&tm->mem[ll]) = reinterpret_cast<uint64_t>(fd->start_pc); // byte8* but real value is function pointer of extension.
 			}
-
-			tm->mem.push_back(200); // jmp
-			int ll = tm->mem.size();
-			for (int k = 0; k < 4; ++k)
-			{
-				tm->mem.push_back(0);
+			else{
+				tm->mem.push_back(200); // jmp
+				int ll = tm->mem.size();
+				for (int k = 0; k < 4; ++k)
+				{
+					tm->mem.push_back(0);
+				}
+				*reinterpret_cast<uint *>(&tm->mem[ll]) = (uint)(fd->start_pc - &mem[0]);
 			}
-			*reinterpret_cast<uint *>(&tm->mem[ll]) = (uint)(fd->start_pc - &mem[0]);
 
 			tm->memsiz = tm->mem.size();
 			tm->valuetype = get_int_with_basictype(fd->returntype);
@@ -2557,7 +2702,7 @@ public:
 		}
 
 		
-		for(int k=0;k<segs.size();++k){ wbss.dbg_sen(segs.at(k)); } 
+		//for(int k=0;k<segs.size();++k){ wbss.dbg_sen(segs.at(k)); } 
 
 		for (int k = 0; k < basicoper_max; ++k)
 		{
@@ -3344,78 +3489,122 @@ public:
 		}
 		else
 		{
-			bool add = false;
-			if (loc - 1 == 0)
+			type_data *td = get_type_with_namesen(type_name);
+			mem[writeup] = 0;
+			++writeup;
+			int spup = 0;
+			int kst = 0;
+			for (int k = blockstack.size() - 1; k >= 0; --k)
 			{
-				// basic or struct type
-				char *typen = type_name->at(0).data.str;
-				for (int id = 0; id < basictype_max; ++id)
+				if (blockstack.at(k)->bs == blockstate::bs_function)
 				{
-					if (strcmp(typen, basictype[id]->name.c_str()) == 0)
-					{
-						mem[writeup] = 0;
-						++writeup;
-
-						int spup = 0;
-						int kst = 0;
-						for (int k = blockstack.size() - 1; k >= 0; --k)
-						{
-							if (blockstack.at(k)->bs == blockstate::bs_function)
-							{
-								kst = k;
-							}
-						}
-						for (int k = kst; k < blockstack.size(); ++k)
-						{
-							spup += blockstack.at(k)->add_address_up;
-						}
-						spup += basictype[id]->typesiz;
-						*reinterpret_cast<int *>(&mem[writeup]) = spup;
-						writeup += 4;
-
-						NamingData nd;
-						nd.name = (char *)fm->_New(strlen(variable_name) + 1, true);
-						strcpy(nd.name, variable_name);
-						nd.td = basictype[id];
-						nd.add_address =
-							blockstack.last()->add_address_up + basictype[id]->typesiz;
-						blockstack.last()->add_address_up += basictype[id]->typesiz;
-
-						blockstack.last()->variable_data.push_back(nd);
-						add = true;
-						break;
-					}
+					kst = k;
 				}
+			}
+			for (int k = kst; k < blockstack.size(); ++k)
+			{
+				spup += blockstack.at(k)->add_address_up;
+			}
+			spup += td->typesiz;
+			*reinterpret_cast<int *>(&mem[writeup]) = spup;
+			writeup += 4;
 
-				if (add == false)
+			NamingData nd;
+			nd.name = (char *)fm->_New(strlen(variable_name) + 1, true);
+			strcpy(nd.name, variable_name);
+			nd.td = td;
+			nd.add_address = blockstack.last()->add_address_up + td->typesiz;
+			blockstack.last()->add_address_up += td->typesiz;
+			blockstack.last()->variable_data.push_back(nd);
+
+			/*
+				bool add = false;
+				if (loc - 1 == 0)
 				{
-					// struct
-					for (int i = basictype_max; i < types.size(); ++i)
+					// basic or struct type
+					char *typen = type_name->at(0).data.str;
+					for (int id = 0; id < basictype_max; ++id)
 					{
-						if (strcmp(typen, types.at(i)->name.c_str()) == 0)
+						if (strcmp(typen, basictype[id]->name.c_str()) == 0)
 						{
 							mem[writeup] = 0;
 							++writeup;
-							*reinterpret_cast<int *>(&mem[writeup]) = types.at(i)->typesiz;
+
+							int spup = 0;
+							int kst = 0;
+							for (int k = blockstack.size() - 1; k >= 0; --k)
+							{
+								if (blockstack.at(k)->bs == blockstate::bs_function)
+								{
+									kst = k;
+								}
+							}
+							for (int k = kst; k < blockstack.size(); ++k)
+							{
+								spup += blockstack.at(k)->add_address_up;
+							}
+							spup += basictype[id]->typesiz;
+							*reinterpret_cast<int *>(&mem[writeup]) = spup;
 							writeup += 4;
 
 							NamingData nd;
 							nd.name = (char *)fm->_New(strlen(variable_name) + 1, true);
 							strcpy(nd.name, variable_name);
-							nd.td = types.at(i);
-							nd.add_address = blockstack.last()->add_address_up + types.at(i)->typesiz;
-							blockstack.last()->add_address_up += types.at(i)->typesiz;
+							nd.td = basictype[id];
+							nd.add_address =
+								blockstack.last()->add_address_up + basictype[id]->typesiz;
+							blockstack.last()->add_address_up += basictype[id]->typesiz;
+
 							blockstack.last()->variable_data.push_back(nd);
 							add = true;
 							break;
 						}
 					}
+
+					if (add == false)
+					{
+						// struct
+						for (int i = basictype_max; i < types.size(); ++i)
+						{
+							if (strcmp(typen, types.at(i)->name.c_str()) == 0)
+							{
+								mem[writeup] = 0;
+								++writeup;
+								*reinterpret_cast<int *>(&mem[writeup]) = types.at(i)->typesiz;
+								writeup += 4;
+
+								NamingData nd;
+								nd.name = (char *)fm->_New(strlen(variable_name) + 1, true);
+								strcpy(nd.name, variable_name);
+								nd.td = types.at(i);
+								nd.add_address = blockstack.last()->add_address_up + types.at(i)->typesiz;
+								blockstack.last()->add_address_up += types.at(i)->typesiz;
+								blockstack.last()->variable_data.push_back(nd);
+								add = true;
+								break;
+							}
+						}
+					}
 				}
-			}
-			else
-			{
-				// combine type
-			}
+				else
+				{
+					// combine type
+					type_data *td = get_type_with_namesen(type_name);
+					mem[writeup] = 0;
+					++writeup;
+					*reinterpret_cast<int *>(&mem[writeup]) = td->typesiz;
+					writeup += 4;
+
+					NamingData nd;
+					nd.name = (char *)fm->_New(strlen(variable_name) + 1, true);
+					strcpy(nd.name, variable_name);
+					nd.td = td;
+					nd.add_address = blockstack.last()->add_address_up + td->typesiz;
+					blockstack.last()->add_address_up += td->typesiz;
+					blockstack.last()->variable_data.push_back(nd);
+					add = true;
+				}
+				*/
 		}
 
 		code->release();
@@ -3934,7 +4123,7 @@ public:
 		sen *params_sen = wbss.sen_cut(code, nameloc + 2, loc - 1);
 		wbss.dbg_sen(params_sen);
 		int coma = wbss.search_word_first(0, params_sen, ",");
-		int savecoma = 0;
+		int savecoma = -1;
 		int last = params_sen->size() - 1;
 
 		fd->param_data.NULLState();
@@ -3957,7 +4146,7 @@ public:
 
 		while (coma != -1)
 		{
-			sen *param_sen = wbss.sen_cut(params_sen, savecoma, coma - 1);
+			sen *param_sen = wbss.sen_cut(params_sen, savecoma+1, coma - 1);
 			NamingData nd;
 
 			sen *typestr = (sen *)fm->_New(sizeof(sen), true);
@@ -3983,9 +4172,12 @@ public:
 
 			typestr->release();
 			fm->_Delete((byte8 *)typestr, sizeof(sen));
+
+			savecoma = coma;
+			coma = wbss.search_word_first(savecoma+1, params_sen, ",");
 		}
 
-		sen *param_sen = wbss.sen_cut(params_sen, savecoma, last);
+		sen *param_sen = wbss.sen_cut(params_sen, savecoma+1, last);
 		wbss.dbg_sen(param_sen);
 		NamingData nd;
 
@@ -4129,7 +4321,7 @@ public:
 		int last = params_sen->size() - 1;
 		wbss.dbg_sen(params_sen);
 		int coma = wbss.search_word_first(0, params_sen, ",");
-		int savecoma = 0;
+		int savecoma = -1;
 
 		int addadd = 0;
 		int paramid = 0;
@@ -4138,7 +4330,7 @@ public:
 
 		while (coma != -1)
 		{
-			sen *param_sen = wbss.sen_cut(params_sen, savecoma, coma - 1);
+			sen *param_sen = wbss.sen_cut(params_sen, savecoma+1, coma - 1);
 			wbss.dbg_sen(param_sen);
 			temp_mem *tm = get_asm_from_sen(param_sen, true, true);
 			if(tm->valuetype_detail->typetype == 's'){
@@ -4180,8 +4372,8 @@ public:
 				}
 			}
 
-			savecoma = coma + 1;
-			coma = wbss.search_word_first(savecoma, params_sen, ",");
+			savecoma = coma;
+			coma = wbss.search_word_first(savecoma+1, params_sen, ",");
 
 			++paramid;
 
@@ -4193,7 +4385,7 @@ public:
 
 		wbss.dbg_sen(params_sen);
 
-		sen *param_sen = wbss.sen_cut(params_sen, savecoma, last);
+		sen *param_sen = wbss.sen_cut(params_sen, savecoma+1, last);
 		wbss.dbg_sen(param_sen);
 		temp_mem *tm = get_asm_from_sen(param_sen, true, true);
 		if (tm->valuetype_detail->typetype == 's')
@@ -4572,10 +4764,11 @@ class ICB_Context{
     ICB_Context(){}
     ~ICB_Context(){}
 
-    void SetICB(InsideCode_Bake* picb){
-        icb = icb;
+    void SetICB(InsideCode_Bake* picb, uint maxmembyte){
+        icb = picb;
 		
 		codemem = icb->mem;
+		pc = &codemem[0];
 
 		fsp.NULLState();
 		fsp.Init(2, false);
@@ -4583,14 +4776,15 @@ class ICB_Context{
 		call_stack.NULLState();
 		call_stack.Init(2, false);
 
-		pc = &codemem[0];
-		sp = &mem[max_mem_byte - 1];
-		lfsp = sp;
-		rfsp = sp;
-
 		datamem.NULLState();
         datamem.Init(icb->datamem_up+8, false);
 		datamem.up = icb->datamem_up;
+
+		max_mem_byte = maxmembyte;
+		mem = (byte8*)fm->_New(max_mem_byte, true);
+		sp = &mem[max_mem_byte - 1];
+		lfsp = sp;
+		rfsp = sp;
 
 		_as.Init(32, fm);
 		_bs.Init(32, fm);
@@ -4662,6 +4856,11 @@ class ICB_Context{
 			case 4:
 				n = *reinterpret_cast<uint *>(pc + 1);
 				cout << " > " << n << "(" << (uint) * (pc + 1) << ", " << (uint) * (pc + 2) << ", " << (uint) * (pc + 3) << ", " << (uint) * (pc + 4) << ")";
+				break;
+			case 8:
+				n = *reinterpret_cast<uint64_t *>(pc + 1);
+				cout << " > " << n << "(" << (uint) * (pc + 1) << ", " << (uint) * (pc + 2) << ", " << (uint) * (pc + 3) << ", " << (uint) * (pc + 4)
+				<< (uint) * (pc + 5) << ", " << (uint) * (pc + 6) << ", " << (uint) * (pc + 7) << ", " << (uint) * (pc + 8) << ")";
 				break;
 			}
 		}
@@ -4831,7 +5030,7 @@ CONTEXT_SWITCH:
 	lfspi = reinterpret_cast<uint **>(lfsp);
 
 	if((int)(icb->pc - mem) == stopnum){
-		//isBreaking = true;
+		isBreaking = true;
 		cout << "Debug BreakPoint Check!" << endl;
 	}
 	goto *inst[**pc];
@@ -4853,7 +5052,7 @@ INSTEND:
 	}
 
 	if((int)(icb->pc - mem) == stopnum){
-		//isBreaking = true;
+		isBreaking = true;
 		cout << "Debug BreakPoint Check!" << endl;
 	}
 

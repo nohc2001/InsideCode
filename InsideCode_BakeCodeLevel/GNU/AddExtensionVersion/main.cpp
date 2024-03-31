@@ -20,7 +20,7 @@ int main(){
 
 	vecarr<ICB_Context *> exectxs;
     ICB_Context* ctx = (ICB_Context*)fm->_New(sizeof(ICB_Context), true);
-    ctx->SetICB(&icb);
+    ctx->SetICB(&icb, 40960); // 40KB
     
 	exectxs.NULLState();
 	exectxs.Init(2, false);
