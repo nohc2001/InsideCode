@@ -597,7 +597,7 @@ typedef void (*exInst)(int*); // int -> ICB_Context
 typedef void (*exCompileFunc)(int*); // int -> InsideCode_Bake
 
 struct ICB_Extension{
-    vecarr<struct_data*> exstructArr;
+    vecarr<type_data*> exstructArr;
     vecarr<func_data*> exfuncArr;
 };
 
@@ -619,7 +619,7 @@ public:
 
 	// compile var
 	vecarr<char *> allcode_sen;
-	word_base_sen_sys wbss;
+	static word_base_sen_sys wbss;
 	vecarr<code_sen *> *csarr;
 	// infArray < code_sen > sen_arr;
 
@@ -641,10 +641,10 @@ public:
     int datamem_up = 0;
 
 	static constexpr int basictype_max = 8;
-	type_data *basictype[basictype_max];
+	static type_data *basictype[basictype_max];
 
 	static constexpr int basicoper_max = 19;
-	operator_data basicoper[basicoper_max];
+	static operator_data basicoper[basicoper_max];
 
 	vecarr<ICB_Extension*> extension; // 확장코드
 
@@ -655,7 +655,7 @@ public:
 		// type_data memeory management reqired.. but how?
 	}
 
-	type_data *create_type(char *nam, int tsiz, char typ, int *strptr)
+	static type_data *create_type(char *nam, int tsiz, char typ, int *strptr)
 	{
 		type_data *td = (type_data *)fm->_New(sizeof(type_data), true);
 		td->name.NULLState();
@@ -679,12 +679,12 @@ public:
 		return nullptr;
 	}
 
-	type_data *get_sub_type(type_data *t)
+	static type_data *get_sub_type(type_data *t)
 	{
 		return reinterpret_cast<type_data *>(t->structptr);
 	}
 
-	type_data *get_addpointer_type(type_data *td)
+	static type_data *get_addpointer_type(type_data *td)
 	{
 		type_data *rtd = (type_data *)fm->_New(sizeof(type_data), true);
 		rtd->name.NULLState();
@@ -699,7 +699,7 @@ public:
 		return rtd;
 	}
 
-	type_data *get_array_type(type_data *td, int size)
+	static type_data *get_array_type(type_data *td, int size)
 	{
 		type_data *rtd = (type_data *)fm->_New(sizeof(type_data), true);
 		rtd->name.NULLState();
@@ -723,7 +723,7 @@ public:
 		return rtd;
 	}
 
-	type_data *get_basic_type_with_int(int n)
+	static type_data *get_basic_type_with_int(int n)
 	{
 		switch (n)
 		{
@@ -747,7 +747,7 @@ public:
 		return nullptr;
 	}
 
-	int get_int_with_basictype(type_data *td)
+	static int get_int_with_basictype(type_data *td)
 	{
 		if (td == basictype[1])
 			return 0;
@@ -786,7 +786,7 @@ public:
 		return false;
 	}
 
-	sen *get_sen_from_codesen(code_sen *cs)
+	static sen *get_sen_from_codesen(code_sen *cs)
 	{
 		sen *rs = (sen *)fm->_New(sizeof(sen), true);
 		rs->NULLState();
@@ -1018,8 +1018,7 @@ public:
 		}
 	}
 
-	void init()
-	{
+	static void StaticInit(){
 		wbss.Init();
 
 		char *name[8] = {};
@@ -1055,17 +1054,6 @@ public:
 		strcpy(name[7], "uchar");
 		basictype[7] = create_type(name[7], 1, 'b', nullptr);
 
-		for (int i = 0; i < basictype_max; ++i)
-		{
-			types.push_back(basictype[i]);
-		}
-
-		block_data *bd = (block_data *)fm->_New(sizeof(block_data), true);
-		bd->start_pc = &mem[0];
-		bd->add_address_up = 0;
-		bd->variable_data.NULLState();
-		bd->variable_data.Init(10, false);
-
 		basicoper[0] = create_oper("[", 'f', 0, 0);
 		basicoper[1] = create_oper(".", 'f', 0, 0);
 		basicoper[2] = create_oper("->", 'f', 0, 0);
@@ -1085,6 +1073,20 @@ public:
 		basicoper[16] = create_oper("!", 'o', 125, 126);
 		basicoper[17] = create_oper("&&", 'o', 121, 122);
 		basicoper[18] = create_oper("||", 'o', 123, 124);
+	}
+
+	void init()
+	{
+		for (int i = 0; i < basictype_max; ++i)
+		{
+			types.push_back(basictype[i]);
+		}
+
+		block_data *bd = (block_data *)fm->_New(sizeof(block_data), true);
+		bd->start_pc = &mem[0];
+		bd->add_address_up = 0;
+		bd->variable_data.NULLState();
+		bd->variable_data.Init(10, false);
 
 		mem = new byte8[max_mem_byte];
 		for (int i = 0; i < max_mem_byte; ++i)
@@ -1098,8 +1100,6 @@ public:
 		blockstack.NULLState();
 		blockstack.Init(2, false);
 		blockstack.islocal = false;
-
-		
 
 		nextbd.breakpoints = (vecarr<int> *)fm->_New(sizeof(vecarr<int>), true);
 		nextbd.continuepoints = (vecarr<int> *)fm->_New(sizeof(vecarr<int>), true);
@@ -1396,16 +1396,14 @@ public:
 		insstr.islocal = true;
 	}
 
-	void set_codesen(code_sen *sen, vecarr<char *> &arr, FM_System0 *fm)
+	static void set_codesen(code_sen *sen, vecarr<char *> &arr)
 	{
 		sen->maxlen = arr.size();
 		sen->sen = (char **)fm->_New(sizeof(char *) * sen->maxlen, true);
 		for (int i = 0; i < sen->maxlen; ++i)
 		{
 			sen->sen[i] = arr[i];
-			// cout << arr[i] << ' '; // dbg
 		}
-		// cout << endl; // dbg
 	}
 
 	vecarr<code_sen *> *AddCodeFromBlockData(vecarr<char *> &allcodesen, const char *ScanMod)
@@ -1476,7 +1474,7 @@ public:
 								}
 							}
 
-							set_codesen(cs, cbs, fm);
+							set_codesen(cs, cbs);
 
 							senarr->push_back(cs);
 							i = startI - 1;
@@ -1532,7 +1530,7 @@ public:
 									cbs.push_back(allcodesen[i + j]);
 								}
 
-								set_codesen(cs, cbs, fm);
+								set_codesen(cs, cbs);
 								senarr->push_back(cs);
 								i += k;
 								StartI = i + 1;
@@ -1549,7 +1547,7 @@ public:
 									cbs.push_back(allcodesen[i + j]);
 								}
 
-								set_codesen(cs, cbs, fm);
+								set_codesen(cs, cbs);
 								senarr->push_back(cs);
 								i += v;
 								StartI = i + 1;
@@ -1585,7 +1583,7 @@ public:
 							}
 						}
 
-						set_codesen(cs, cbs, fm);
+						set_codesen(cs, cbs);
 						senarr->push_back(cs);
 						i = startI - 1;
 						StartI = i + 1;
@@ -1659,7 +1657,7 @@ public:
 							h++;
 						}
 
-						set_codesen(cs, cbs, fm);
+						set_codesen(cs, cbs);
 						senarr->push_back(cs);
 
 						i += h;
@@ -1691,7 +1689,7 @@ public:
 							cbs.push_back(allcodesen[i + h]);
 						}
 
-						set_codesen(cs, cbs, fm);
+						set_codesen(cs, cbs);
 						senarr->push_back(cs);
 						i += h;
 						StartI = i + 1;
@@ -1720,7 +1718,7 @@ public:
 								cbs.push_back(allcodesen[i + h]);
 							}
 
-							set_codesen(cs, cbs, fm);
+							set_codesen(cs, cbs);
 							senarr->push_back(cs);
 							i += h;
 							StartI = i + 1;
@@ -1735,7 +1733,7 @@ public:
 							cbs.Init(3, true);
 							// �׳� else�� ���
 							cbs.push_back(allcodesen[i]);
-							set_codesen(cs, cbs, fm);
+							set_codesen(cs, cbs);
 							senarr->push_back(cs);
 						}
 					}
@@ -1758,7 +1756,7 @@ public:
 							h++;
 							cbs.push_back(allcodesen[i + h]);
 						}
-						set_codesen(cs, cbs, fm);
+						set_codesen(cs, cbs);
 						senarr->push_back(cs);
 						i += h;
 						StartI = i + 1;
@@ -1776,7 +1774,7 @@ public:
 							cbs.push_back(allcodesen[i + h]);
 							h++;
 						}
-						set_codesen(cs, cbs, fm);
+						set_codesen(cs, cbs);
 						senarr->push_back(cs);
 						i += h;
 						StartI = i + 1;
@@ -1794,7 +1792,7 @@ public:
 							cbs.push_back(allcodesen[i + h]);
 							h++;
 						}
-						set_codesen(cs, cbs, fm);
+						set_codesen(cs, cbs);
 						senarr->push_back(cs);
 						i += h;
 						StartI = i + 1;
@@ -1807,7 +1805,7 @@ public:
 						cbs.NULLState();
 						cbs.Init(3, true);
 						cbs.push_back(allcodesen[i]);
-						set_codesen(cs, cbs, fm);
+						set_codesen(cs, cbs);
 						senarr->push_back(cs);
 						StartI = i + 1;
 					}
@@ -1819,7 +1817,7 @@ public:
 						cbs.NULLState();
 						cbs.Init(3, true);
 						cbs.push_back(allcodesen[i]);
-						set_codesen(cs, cbs, fm);
+						set_codesen(cs, cbs);
 						senarr->push_back(cs);
 						StartI = i + 1;
 					}
@@ -1878,7 +1876,7 @@ public:
 						cbv->release();
 						fm->_Delete((byte8 *)cbv, sizeof(cbv));
 
-						set_codesen(cs, cbs, fm);
+						set_codesen(cs, cbs);
 						senarr->push_back(cs);
 					}
 				}
