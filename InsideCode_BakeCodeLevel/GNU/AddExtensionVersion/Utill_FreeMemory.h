@@ -1,10 +1,10 @@
+#ifndef H_UTILL_FREEMEMORY
 #define H_UTILL_FREEMEMORY
 #include <math.h>
+#include <thread>
 #include <iostream>
 #include <fstream>
-#include <math.h>
 #include "arr_expend.h"
-#include "dbg.h"
 #include <map>
 using namespace std;
 typedef unsigned char byte8;
@@ -14,7 +14,7 @@ namespace freemem
 #define Init_VPTR freemem::Init_VPTR_x64
 #define ptr_size 8
 #define ptr_max 0xFFFFFFFFFFFFFFFF
-#define ptr_type int64_t
+#define ptr_type uintptr_t
 
 #define _GetByte(dat, loc) (dat >> loc) % 2
 #define _SetByte(dat, loc, is) dat = freemem::SetByte8(dat, loc, is);
@@ -117,7 +117,7 @@ namespace freemem
 
 		byte8 *_New(unsigned int byteSiz)
 		{
-			if (Fup + byteSiz < siz)
+			if (Fup + byteSiz <= siz)
 			{
 				unsigned int fup = Fup;
 				Fup += byteSiz;
@@ -222,7 +222,8 @@ namespace freemem
 	class FM_Model1:FM_Model
 	{
 	  public:
-		static int updateid;
+		// static ofstream *fmout;
+		// static int updateid;
 		int id = 0;
 		bool isHeap = false;	// true�� heap, false�� stack
 		byte8 *DataPtr = nullptr;
@@ -259,8 +260,9 @@ namespace freemem
 		{
 			return (siz % dbg_bytesize) ? dbg_bytesize * (1 + (siz / dbg_bytesize)) : siz;
 		}
-		
-		inline int getallocbit(int siz){
+
+		inline int getallocbit(int siz)
+		{
 			return siz / dbg_bytesize;
 		}
 
@@ -272,8 +274,6 @@ namespace freemem
 			dbg_bytesize = dbgs / 8;
 			sumDataSiz = (dbg_bitsize + 1) * realDataSiz / (dbg_bitsize);
 			DataPtr = new byte8[sumDataSiz];
-			id = FM_Model1::updateid;
-			++FM_Model1::updateid;
 		}
 
 		bool isValid(unsigned int address)
@@ -385,7 +385,7 @@ namespace freemem
 		{
 			int start_bit = getallocbit(start);
 			int end_bit = getallocbit(end);
-			
+
 			if (end_bit - start_bit < 8)
 			{
 				for (int i = start_bit; i <= end_bit; ++i)
@@ -465,7 +465,7 @@ namespace freemem
 
 		byte8 *_New(unsigned int size)
 		{
-			return _fastnew(size);
+			return _savenew(size);
 		}
 
 		byte8 *_fastnew(unsigned int size)
@@ -537,14 +537,16 @@ namespace freemem
 									case 1:
 										break;
 									default:
-									{
-										if(isValid(adds+1)){
-											DataPtr[adds + 1] = nn;
+										{
+											if (isValid(adds + 1))
+											{
+												DataPtr[adds + 1] = nn;
+											}
+											if (isValid(n))
+											{
+												DataPtr[n] = nn;
+											}
 										}
-										if(isValid(n)){
-											DataPtr[n] = nn;
-										}
-									}
 										break;
 									}
 									SetAllocs(add, adds, true);
@@ -619,7 +621,6 @@ namespace freemem
 						*variable = 0;
 					}
 				}
-
 				return true;
 			}
 
@@ -1049,6 +1050,140 @@ namespace freemem
 		}
 	};
 
+	struct large_alloc
+	{
+		int *ptr;
+		int size = 0;
+	};
+
+	class TempStack
+	{
+	  public:
+		int thread_id = 0;
+		  vecarr < vecarr < large_alloc > *>large;
+		  vecarr < vecarr < FM_Model0 * >*>tempFM;
+
+		TempStack()
+		{
+		}
+		virtual ~ TempStack()
+		{
+			release();
+		}
+
+		void init()
+		{
+			large.NULLState();
+			large.Init(10, false);
+			tempFM.NULLState();
+			tempFM.Init(10, false);
+			for (int i = 0; i < 10; ++i) {
+				tempFM[i] = nullptr;
+			}
+			//watch("tempFM init", 0);
+		}
+
+		void release()
+		{
+			for (int i = 0; i < tempFM.size(); ++i)
+			{
+				for (int k = 0; k < tempFM[i]->size(); ++k)
+				{
+					tempFM[i]->at(k)->ClearAll();
+					delete tempFM[i]->at(k);
+				}
+				tempFM[i]->release();
+			}
+			tempFM.release();
+
+			for (int i = 0; i < large.size(); ++i)
+			{
+				for (int k = 0; k < large[i]->size(); ++k)
+				{
+					delete[](byte8 *) large[i]->at(k).ptr;
+				}
+				large[i]->release();
+			}
+			large.release();
+		}
+
+		byte8 *_New(unsigned int size, int fmlayer = -1)
+		{
+			vecarr<FM_Model0*>* tm;
+			if(fmlayer < 0 || fmlayer >= tempFM.up) tm = tempFM.last();
+			else tm = tempFM.at(fmlayer);
+			unsigned int tsize = tm->size();
+
+			for (int i = 0; i < tsize; ++i)
+			{
+				//watch("i", i);
+				int remain = 4096 - tm->at(i)->Fup + 1;
+				if (remain >= size)
+				{
+					return tm->at(i)->_New(size);
+				}
+			}
+
+			if (size <= 4096)
+			{
+				FM_Model0 *fm0 = new FM_Model0();
+				fm0->SetHeapData(new byte8[4096], 4096);
+				tm->push_back(fm0);
+				return tm->last()->_New(size);
+			}
+			else
+			{
+				large_alloc la;
+				la.ptr = (int *)new byte8[size];
+				la.size = size;
+				large.last()->push_back(la);
+				return reinterpret_cast < byte8 * >(la.ptr);
+			}
+		}
+
+		void PushLayer()
+		{
+			if (tempFM[tempFM.up] == nullptr || tempFM.up == tempFM.maxsize)
+			{
+				vecarr < FM_Model0 * >* fmv = new vecarr < FM_Model0 * >();
+				fmv->NULLState();
+				fmv->Init(8, false);
+				FM_Model0* fm0 = new FM_Model0();
+				fm0->SetHeapData(new byte8[4096], 4096);
+				fmv->push_back(fm0);
+				tempFM.push_back(fmv);
+				//watch("tempfm push", 0);
+
+				large.push_back(new vecarr < large_alloc > ());
+				large.last()->NULLState();
+				large.last()->Init(8, false);
+			}
+			else
+			{
+				tempFM.up += 1;
+			}
+		}
+
+		void PopLayer()
+		{
+			for (int i = 0; i < tempFM.last()->size(); ++i)
+			{
+				tempFM.last()->at(i)->Fup = 0;
+			}
+			tempFM.up -= 1;
+			if (large.last()->size() > 0)
+			{
+				for (int i = 0; i < large.last()->size(); ++i)
+				{
+					delete[](byte8 *) large.last()->at(i).ptr;
+				}
+				large.last()->up = 0;
+			}
+			large.up -= 1;
+		}
+
+	};
+
 	// The storage method is classified by the size of the data.
 	class FM_System0
 	{
@@ -1061,7 +1196,9 @@ namespace freemem
 		unsigned int bshd_Size = 0;
 		int fm1_sizetable[128] = { };
 
+		vecarr < std::thread::id > thread_idarr;
 		vecarr < FM_Model0 * >TempFM;
+		vecarr < TempStack * >tempStack;
 		vecarr < vecarr < FM_Model1 * >*>SmallSize_HeapDebugFM;
 		// 1 ~ midminsize byte
 		vecarr < FM_Model2 * >MidiumSize_HeapDebugFM;
@@ -1100,6 +1237,17 @@ namespace freemem
 			FM_Model0 *tempFM = new FM_Model0(new byte8[tempSize], tempSize);
 			TempFM.push_back(tempFM);
 
+			tempStack.NULLState();
+			tempStack.Init(16, false);
+			for (int i = 0; i < 8; ++i)
+			{
+				TempStack *ts = new TempStack();
+				ts->init();
+				tempStack.push_back(ts);
+			}
+			thread_idarr.NULLState();
+			thread_idarr.Init(16, false);
+
 			SmallSize_HeapDebugFM.NULLState();
 			SmallSize_HeapDebugFM.Init(2, false);
 			for (int i = 0; i < 8; ++i)
@@ -1125,6 +1273,58 @@ namespace freemem
 			FM_Model2 *bshdFM = new FM_Model2();
 			bshdFM->SetHeapData(new byte8[bshd], bshd, 2);
 			BigSize_HeapDebugFM.push_back(bshdFM);
+		}
+
+		void thread_tm_push()
+		{
+			std::thread::id tid = std::this_thread::get_id();
+			thread_idarr.push_back(tid);
+		}
+
+		void thread_tm_arrange()
+		{
+			for (int i = 0; i < thread_idarr.size(); ++i)
+			{
+				for (int k = i + 1; k < thread_idarr.size(); ++k)
+				{
+					if (thread_idarr[i] > thread_idarr[k])
+					{
+						std::thread::id a = thread_idarr[i];
+						thread_idarr[i] = thread_idarr[k];
+						thread_idarr[k] = a;
+					}
+				}
+			}
+		}
+
+		void thread_tm_clear()
+		{
+			thread_idarr.up = 0;
+		}
+
+		int get_threadid(std::thread::id stdid)
+		{
+			int delta = thread_idarr.size() / 4;
+			int piv = thread_idarr.size() / 2;
+			while (delta > 0)
+			{
+				if (thread_idarr[piv] > stdid)
+				{
+					piv += delta;
+					delta /= 2;
+				}
+				else if (thread_idarr[piv] < stdid)
+				{
+					piv -= delta;
+					delta /= 2;
+				}
+				else
+				{
+					return piv;
+				}
+			}
+
+			return 0;
 		}
 
 		void dbg_fm1_lifecheck()
@@ -1198,6 +1398,21 @@ namespace freemem
 				byte8 *ptr = BigSize_HeapDebugFM[BigSize_HeapDebugFM.size() - 1]->_New(byteSiz);
 				return ptr;
 			}
+		}
+
+		inline void _tempPushLayer()
+		{
+			tempStack[get_threadid(std::this_thread::get_id())]->PushLayer();
+		}
+
+		inline void _tempPopLayer()
+		{
+			tempStack[get_threadid(std::this_thread::get_id())]->PopLayer();
+		}
+
+		byte8 *_tempNew(unsigned int byteSiz, int fmlayer = -1)
+		{
+			return tempStack[get_threadid(std::this_thread::get_id())]->_New(byteSiz, fmlayer);
 		}
 
 		byte8 *_New(unsigned int byteSiz, bool isHeapDebug)
@@ -1425,12 +1640,6 @@ namespace freemem
 		}
 	};
 
-}
-
-freemem::FM_System0* fm;
-
-namespace freemem{
-
 	class BitArray
 	{
 	  public:
@@ -1521,3 +1730,258 @@ namespace freemem{
 		}
 	};
 }
+
+freemem::FM_System0 *fm;
+	
+namespace freemem{
+	template < typename T > class fmvecarr
+	{
+	  public:
+		T *Arr;
+		size_t maxsize = 0;
+		int up = 0;
+		bool islocal = true;
+		bool isdebug = false;
+		int fmlayer = -1;
+
+		fmvecarr()
+		{
+			Arr = nullptr;
+			maxsize = 0;
+			up = 0;
+			islocal = true;
+			fmlayer = -1;
+		}
+
+		~fmvecarr()
+		{
+			if (islocal)
+			{
+				if (isdebug)
+				{
+					fm->_Delete(reinterpret_cast < byte8 * >(Arr), sizeof(T) * maxsize);
+				}
+				Arr = nullptr;
+			}
+		}
+
+		void NULLState()
+		{
+			Arr = nullptr;
+			maxsize = 0;
+			up = 0;
+			fmlayer = -1;
+		}
+
+		void Init(size_t siz, bool local, bool _isdebug = false)
+		{
+			T *newArr;
+			if (_isdebug)
+			{
+				newArr = (T *) fm->_New(sizeof(T) * siz, _isdebug);
+			}
+			else
+			{
+				newArr = (T *) fm->_tempNew(sizeof(T) * siz, fmlayer);
+				if(fmlayer < 0){
+					fmlayer = fm->tempStack[fm->get_threadid(std::this_thread::get_id())]->tempFM.size()-1;
+				}
+				else{
+					//cout << "reuse" << endl;
+				}
+			}
+			if (Arr != nullptr)
+			{
+				for (int i = 0; i < maxsize; ++i)
+				{
+					newArr[i] = Arr[i];
+				}
+
+				if (isdebug)
+				{
+					fm->_Delete(reinterpret_cast < byte8 * >(Arr), sizeof(T) * maxsize);
+				}
+				Arr = nullptr;
+			}
+
+			islocal = local;
+			isdebug = _isdebug;
+			Arr = newArr;
+			maxsize = siz;
+		}
+
+		T & at(size_t i)
+		{
+			return Arr[i];
+		}
+
+		T & operator[](size_t i) const
+		{
+			return Arr[i];
+		}
+
+		void push_back(T value)
+		{
+			if (up < maxsize)
+			{
+				Arr[up] = value;
+				up += 1;
+			}
+			else
+			{
+				Init(maxsize * 2 + 1, islocal, isdebug);
+				Arr[up] = value;
+				up += 1;
+			}
+		}
+
+		void pop_back()
+		{
+			if (up - 1 >= 0)
+			{
+				up -= 1;
+				// Arr[up] = 0;
+			}
+		}
+
+		void erase(size_t i)
+		{
+			for (int k = i; k < up; ++k)
+			{
+				Arr[k] = Arr[k + 1];
+			}
+			up -= 1;
+		}
+
+		void insert(size_t i, T value)
+		{
+			push_back(value);
+			for (int k = maxsize - 1; k > i; k--)
+			{
+				Arr[k] = Arr[k - 1];
+			}
+			Arr[i] = value;
+		}
+
+		inline size_t size() const
+		{
+			return up;
+		}
+
+		void clear()
+		{
+			if (Arr != nullptr && isdebug)
+				fm->_Delete(reinterpret_cast < byte8 * >(Arr), sizeof(T) * maxsize);
+			Arr = nullptr;
+			up = 0;
+
+			Init(2, islocal, isdebug);
+		}
+
+		T & last() const
+		{
+			if (up > 0)
+			{
+				return Arr[up - 1];
+			}
+			return Arr[0];
+		}
+
+		void release()
+		{
+			if (Arr != nullptr && isdebug)
+				fm->_Delete(reinterpret_cast < byte8 * >(Arr), sizeof(T) * maxsize);
+			Arr = nullptr;
+			up = 0;
+			islocal = false;
+		}
+	};
+
+	template < typename T > struct fmlist_node
+	{
+		T value;
+		  fmlist_node < T > *next = nullptr;
+		  fmlist_node < T > *prev = nullptr;
+	};
+	template < typename T > class fmlist
+	{
+	  public:
+		bool isdebug = false;
+		bool islocal = false;
+		size_t size = 0;
+		fmlist_node < T > *first;
+
+		fmlist(){}
+		~fmlist(){
+			if (!islocal)
+			{
+				while (first->next != nullptr)
+				{
+					erase(first);
+				}
+				if (isdebug)
+				{
+					fm->_Delete(reinterpret_cast < byte8 * >(first), sizeof(fmlist_node < T >));
+				}
+			}
+		}
+
+		void Init(T fv) {
+			first = (fmlist_node<T>*)fm->_tempNew(sizeof(fmlist_node<T>), -1);
+			first->value = fv;
+			first->next = nullptr;
+			first->prev = nullptr;
+			++size;
+		}
+
+		void release()
+		{
+		}
+
+		void push_front(T value)
+		{
+			fmlist_node < T > *sav = first;
+			first = (fmlist_node < T > *)fm->_New(sizeof(fmlist_node < T >), isdebug);
+			first->value = value;
+			first->next = sav;
+			first->prev = nullptr;
+			sav->prev = first;
+			++size;
+		}
+
+		inline fmlist_node < T > *getnext(fmlist_node < T > *node)
+		{
+			if (node->next == nullptr) {
+				return first;
+			}
+			return node->next;
+		}
+
+		inline fmlist_node < T > *getprev(fmlist_node < T > *node)
+		{
+			return node->prev;
+		}
+
+		void erase(fmlist_node < T > *node)
+		{
+			if (node == first)
+			{
+				first = node->next;
+			}
+			if (node->prev != nullptr)
+			{
+				node->prev->next = node->next;
+			}
+			if (node->next != nullptr)
+			{
+				node->next->prev = node->prev;
+			}
+			if (isdebug)
+			{
+				fm->_Delete(reinterpret_cast < byte8 * >(node), sizeof(fmlist_node < T >));
+			}
+			--size;
+		}
+	};
+}
+#endif

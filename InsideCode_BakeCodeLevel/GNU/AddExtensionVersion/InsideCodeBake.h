@@ -8,7 +8,6 @@
 #include "sen_tr.h"
 using namespace std;
 using namespace freemem;
-int FM_Model1::updateid = 0;
 
 typedef unsigned char byte8;
 typedef unsigned short ushort;
@@ -2120,6 +2119,8 @@ public:
 			char *funcname = code->at(nameloc).data.str;
 
 			bool isext = false;
+			int extID = 0;
+			int exfuncID = 0;
 			for (int i = 0; i < extension.size(); ++i)
 			{
 				ICB_Extension *ext = extension.at(i);
@@ -2132,6 +2133,8 @@ public:
 						sen *typen = wbss.sen_cut(code, 0, nameloc - 1);
 						sen *params_sen = wbss.sen_cut(code, nameloc + 2, loc - 1);
 						fd = efd;
+						extID = i;
+						exfuncID = k;
 						break;
 					}
 				}
@@ -2331,11 +2334,17 @@ public:
 			if(isext){
 				tm->mem.push_back(255); // ext instruction
 				int ll = tm->mem.size();
-				for (int k = 0; k < 8; ++k)
+				for (int k = 0; k < 4; ++k)
 				{
 					tm->mem.push_back(0);
 				}
-				*reinterpret_cast<uint64_t *>(&tm->mem[ll]) = reinterpret_cast<uint64_t>(fd->start_pc); // byte8* but real value is function pointer of extension.
+				*reinterpret_cast<uint *>(&tm->mem[ll]) = (uint)(extID);
+				ll += 4;
+				for (int k = 0; k < 4; ++k)
+				{
+					tm->mem.push_back(0);
+				}
+				*reinterpret_cast<uint *>(&tm->mem[ll]) = (uint)(exfuncID); // byte8* but real value is function pointer of extension.
 			}
 			else{
 				tm->mem.push_back(200); // jmp
@@ -4223,6 +4232,8 @@ public:
 		char *funcname = code->at(nameloc).data.str;
 
 		bool isext = false;
+		int extID = 0;
+		int exfuncID = 0;
 		for(int i=0;i<extension.size();++i){
 			ICB_Extension* ext = extension.at(i);
 			for(int k=0;k<ext->exfuncArr.size();++k){
@@ -4232,6 +4243,8 @@ public:
 					sen *typen = wbss.sen_cut(code, 0, nameloc - 1);
 					sen *params_sen = wbss.sen_cut(code, nameloc + 2, loc - 1);
 					fd = efd;
+					extID = i;
+					exfuncID = k;
 					break;
 				}
 			}
@@ -4432,8 +4445,10 @@ public:
 
 		if(isext){
 			mem[writeup++] = 255; // ext instruction
-			*reinterpret_cast<uint64_t *>(&mem[writeup]) = reinterpret_cast<uint64_t>(fd->start_pc); // byte8* but real value is function pointer of extension.
-			writeup += 8;
+			*reinterpret_cast<uint *>(&mem[writeup]) = (uint)(extID);
+			writeup += 4;
+			*reinterpret_cast<uint *>(&mem[writeup]) = (uint)(exfuncID); // byte8* but real value is function pointer of extension.
+			writeup += 4;
 		}
 		else{
 			mem[writeup++] = 200; // jmp
@@ -4833,12 +4848,12 @@ class ICB_Context{
 		{
 			return;
 		}
-		code_sen *cs = icb->find_codesen_with_linenum(icb->csarr, (int)(pc - mem));
+		code_sen *cs = icb->find_codesen_with_linenum(icb->csarr, (int)(pc - codemem));
 		if (cs != nullptr)
 		{
 			dbg_codesen(cs);
 		}
-		cout << (int)(pc - mem) << " : " << icb->inst_meta[*pc].name << "(" << (uint)*pc << ")";
+		cout << (int)(pc - codemem) << " : " << icb->inst_meta[*pc].name << "(" << (uint)*pc << ")";
 		instruct_data id = icb->inst_meta[*pc];
 		int n;
 		for (int k = 0; k < id.param_num; ++k)
@@ -4871,7 +4886,7 @@ class ICB_Context{
 vecarr<ICB_Context *> icbarr;
 
 bool isBreaking = false;
-int stopnum = 175;
+int stopnum = 0;
 
 int code_control(vecarr<ICB_Context *> *icbarr)
 {
@@ -4922,6 +4937,7 @@ void execute(vecarr<ICB_Context *> icbarr, int execodenum,
 	void *castend_label = nullptr;
 	float fmem = 0;
 	void (*extContainer)(int* ic) = nullptr;
+	ICB_Extension* CurrentExtension = nullptr;
 
 	int n = 0;
 	int max = icbarr.size();
@@ -4962,6 +4978,7 @@ void execute(vecarr<ICB_Context *> icbarr, int execodenum,
 	uint **lfspi = nullptr;
 
 	byte8 *mem = nullptr;
+	byte8 *codemem = nullptr;
 	void **inst = nullptr;
 	void **cast = nullptr;
 	void **dbgt = nullptr;
@@ -4999,6 +5016,7 @@ CONTEXT_SWITCH:
 	_bs = icb->_bs;
 
 	mem = icb->mem;
+	codemem = icb->codemem;
 	inst = icb->icb->inst;
 	dbgt = icb->icb->dbgt;
 	inpt = icb->icb->inpt;
@@ -5029,7 +5047,7 @@ CONTEXT_SWITCH:
 	lfsps = reinterpret_cast<ushort **>(lfsp);
 	lfspi = reinterpret_cast<uint **>(lfsp);
 
-	if((int)(icb->pc - mem) == stopnum){
+	if((int)(icb->pc - codemem) == stopnum){
 		isBreaking = true;
 		cout << "Debug BreakPoint Check!" << endl;
 	}
@@ -5051,7 +5069,7 @@ INSTEND:
 		goto CONTEXT_SWITCH;
 	}
 
-	if((int)(icb->pc - mem) == stopnum){
+	if((int)(icb->pc - codemem) == stopnum){
 		isBreaking = true;
 		cout << "Debug BreakPoint Check!" << endl;
 	}
@@ -6286,7 +6304,7 @@ JMP:
 	++*pc;
 	tmptr_i = *pci;
 	++*pci;
-	*pc = &mem[*tmptr_i];
+	*pc = &codemem[*tmptr_i];
 	goto INSTEND;
 
 FUNC:
@@ -6380,7 +6398,7 @@ FUNCJMP:
 	tmptr_i = *pci;
 	++*pci;
 	call_stack->push_back(*pc - 1);
-	*pc = &mem[*tmptr_i];
+	*pc = &codemem[*tmptr_i];
 	goto INSTEND;
 
 CASTEND_A:
@@ -6659,7 +6677,7 @@ SET_A_CONST_STRING:
 	strmax = *reinterpret_cast<uint *>(*pci);
 	++*pci;
 	_as.move_pivot(-1);
-	_as[0] = *pc - mem;
+	_as[0] = *pc - codemem;
 	*pc += strmax;
 	goto INSTEND;
 
@@ -6668,7 +6686,7 @@ SET_B_CONST_STRING:
 	strmax = *reinterpret_cast<uint *>(*pci);
 	++*pci;
 	_bs.move_pivot(-1);
-	_bs[0] = *pc - mem;
+	_bs[0] = *pc - codemem;
 	*pc += strmax;
 	goto INSTEND;
 
@@ -6718,8 +6736,11 @@ EXTENSION_INST:
 	*rfsp = fsp->last();
 
 	++*pc;
-	extContainer = reinterpret_cast<exInst>(*reinterpret_cast<uint64_t*>(*pc));
-	*pc += 8;
+	CurrentExtension = icb->icb->extension.at(**pci);
+	++*pci;
+	extContainer = reinterpret_cast<exInst>(CurrentExtension->exfuncArr.at(**pci)->start_pc);
+	++*pci;
+
 	call_stack->push_back(*pc - 1);
 	extContainer(reinterpret_cast<int*>(icb));
 

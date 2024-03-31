@@ -10,7 +10,7 @@ operator_data InsideCode_Bake::basicoper[basicoper_max];
 
 int main(){
     fm = new FM_System0();
-	fm->SetHeapData(4096, 4096, 4096, 4096);
+	fm->SetHeapData(4096, 4096, 65536, 1048576);
     InsideCode_Bake::StaticInit();
     InsideCode_Bake icb;
 	icb.init();
