@@ -217,6 +217,9 @@
 :POP_A;
 :POP_B;
 :POP_AB;
+:PARAM_N_COPY_BY_ADDRESS+4;
+:A=&Global_VID+4;
+:B=&Global_VID+4;
 :Unallocated;
 :Unallocated;
 :Unallocated;
@@ -250,7 +253,4 @@
 :Unallocated;
 :Unallocated;
 :Unallocated;
-:Unallocated;
-:Unallocated;
-:Unallocated;
-:Extension_Instruction;
+:Extend_Instruction+4+4;
