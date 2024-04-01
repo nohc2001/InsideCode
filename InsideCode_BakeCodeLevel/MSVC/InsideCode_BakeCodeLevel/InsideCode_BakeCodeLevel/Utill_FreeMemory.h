@@ -1737,7 +1737,7 @@ namespace freemem
 	};
 }
 
-extern freemem::FM_System0* fm;
+freemem::FM_System0* fm;
 
 namespace freemem {
 	template < typename T > class fmvecarr

@@ -128,23 +128,25 @@
     </Link>
   </ItemDefinitionGroup>
   <ItemGroup>
-    <ClCompile Include="bakecode_msvc.cpp" />
+    <ClCompile Include="bakecode_msvc.cpp">
+      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">true</ExcludedFromBuild>
+    </ClCompile>
+    <ClCompile Include="main.cpp" />
   </ItemGroup>
   <ItemGroup>
-    <ClInclude Include="AddExtensionVersion\exAdd.h" />
-    <ClInclude Include="AddExtensionVersion\ICB_Extension.h" />
-    <ClInclude Include="AddExtensionVersion\InsideCodeBake.h" />
     <ClInclude Include="arr_expend.h" />
     <ClInclude Include="dbg.h" />
+    <ClInclude Include="exAdd.h" />
+    <ClInclude Include="ICB_Extension.h" />
     <ClInclude Include="infArray_fm_v0.h" />
+    <ClInclude Include="InsideCodeBake.h" />
     <ClInclude Include="multifor.h" />
     <ClInclude Include="sen_tr.h" />
     <ClInclude Include="Utill_FreeMemory.h" />
   </ItemGroup>
   <ItemGroup>
-    <Text Include="AddExtensionVersion\exAdd.txt" />
-    <Text Include="AddExtensionVersion\instruction_table.txt" />
     <Text Include="code.txt" />
+    <Text Include="exAdd.txt" />
     <Text Include="instruction_table.txt" />
     <Text Include="memo.txt" />
   </ItemGroup>

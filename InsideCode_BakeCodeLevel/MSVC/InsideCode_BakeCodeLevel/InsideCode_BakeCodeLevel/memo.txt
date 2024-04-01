@@ -60,7 +60,7 @@ SFML의 드로우 명령, 기초적 폰트 출력 등. 기반 인스트럭션을
 
 		string str = to_string(size);
 		char *strnum = (char *)fm->_New(str.size() + 2, true);
-		strcpy_s(strnum, str.size()+1, str.c_str());
+		strcpy_s_s(strnum, str.size()+1, str.c_str());
 		...
 	}
 

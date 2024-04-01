@@ -14,6 +14,8 @@
 
 using namespace freemem;
 
+extern FM_System0* fm;
+
 union segstr
 {
 	char *str;
@@ -42,14 +44,10 @@ struct seg_range
 
 typedef vecarr < vecarr < seg_variable > *>var_cases;
 
-FM_System0 *fm;
-
-
 class word_base_sen_sys
 {
   public:
 	vecarr < lcstr * >wordlist;
-	FM_System0 *fm;
 
 	word_base_sen_sys()
 	{
@@ -127,6 +125,8 @@ class word_base_sen_sys
 	sen *makesen(const char *segs)
 	{
 		sen *ten = (sen *) fm->_New(sizeof(sen), true);
+		ten->NULLState();
+		ten->Init(8, false);
 		int len = strlen(segs);
 		lcstr str;
 		str.NULLState();

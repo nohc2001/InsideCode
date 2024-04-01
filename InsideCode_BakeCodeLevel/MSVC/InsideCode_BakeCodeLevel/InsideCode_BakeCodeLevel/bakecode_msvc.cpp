@@ -1007,7 +1007,7 @@ public:
 
 		string str = to_string(size);
 		char *strnum = (char *)fm->_New(str.size() + 2, true);
-		strcpy_s(strnum, str.size()+1, str.c_str());
+		strcpy_s_s(strnum, str.size()+1, str.c_str());
 		for (int i = 0; i < strlen(strnum); ++i)
 		{
 			rtd->name.push_back(strnum[i]);
@@ -1400,35 +1400,35 @@ public:
 
 		char *name[8] = {};
 		name[0] = (char *)fm->_New(4, true);
-		strcpy_s(name[0], 4, "int");
+		strcpy_s_s(name[0], 4, "int");
 		basictype[0] = create_type(name[0], 4, 'b', nullptr);
 
 		name[1] = (char *)fm->_New(5, true);
-		strcpy_s(name[1], 5, "char");
+		strcpy_s_s(name[1], 5, "char");
 		basictype[1] = create_type(name[1], 1, 'b', nullptr);
 
 		name[2] = (char *)fm->_New(6, true);
-		strcpy_s(name[2], 6, "short");
+		strcpy_s_s(name[2], 6, "short");
 		basictype[2] = create_type(name[2], 2, 'b', nullptr);
 
 		name[3] = (char *)fm->_New(6, true);
-		strcpy_s(name[3], 6, "float");
+		strcpy_s_s(name[3], 6, "float");
 		basictype[3] = create_type(name[3], 4, 'b', nullptr);
 
 		name[4] = (char *)fm->_New(5, true);
-		strcpy_s(name[4], 5, "bool");
+		strcpy_s_s(name[4], 5, "bool");
 		basictype[4] = create_type(name[4], 4, 'b', nullptr);
 
 		name[5] = (char *)fm->_New(5, true);
-		strcpy_s(name[5], 5, "uint");
+		strcpy_s_s(name[5], 5, "uint");
 		basictype[5] = create_type(name[5], 4, 'b', nullptr);
 
 		name[6] = (char *)fm->_New(7, true);
-		strcpy_s(name[6], 7, "ushort");
+		strcpy_s_s(name[6], 7, "ushort");
 		basictype[6] = create_type(name[6], 2, 'b', nullptr);
 
 		name[7] = (char *)fm->_New(6, true);
-		strcpy_s(name[7], 6, "uchar");
+		strcpy_s_s(name[7], 6, "uchar");
 		basictype[7] = create_type(name[7], 1, 'b', nullptr);
 
 		for (int i = 0; i < basictype_max; ++i)
@@ -1527,7 +1527,7 @@ public:
 		const char *sptr = str.c_str();
 		int len = strlen(sptr);
 		char *cstr = (char *)fm->_New(len + 1, true);
-		strcpy_s(cstr, len+1, sptr);
+		strcpy_s_s(cstr, len+1, sptr);
 		cstr[len] = 0;
 
 		for (int i = 0; i < wbss.wordlist.size(); ++i)
@@ -3696,7 +3696,7 @@ public:
 			// global variable
 			NamingData *nd = (NamingData *)fm->_New(sizeof(NamingData), true);
 			nd->name = (char *)fm->_New(strlen(variable_name) + 1, true);
-			strcpy_s(nd->name, strlen(variable_name) + 1, variable_name);
+			strcpy_s_s(nd->name, strlen(variable_name) + 1, variable_name);
 			nd->td = get_type_with_namesen(type_name);
 			if (globalVariables.size() == 0)
 			{
@@ -3742,7 +3742,7 @@ public:
 
 						NamingData nd;
 						nd.name = (char *)fm->_New(strlen(variable_name) + 1, true);
-						strcpy_s(nd.name, strlen(variable_name) + 1, variable_name);
+						strcpy_s_s(nd.name, strlen(variable_name) + 1, variable_name);
 						nd.td = basictype[id];
 						nd.add_address =
 							blockstack.last()->add_address_up + basictype[id]->typesiz;
@@ -3768,7 +3768,7 @@ public:
 
 							NamingData nd;
 							nd.name = (char *)fm->_New(strlen(variable_name) + 1, true);
-							strcpy_s(nd.name, strlen(variable_name) + 1, variable_name);
+							strcpy_s_s(nd.name, strlen(variable_name) + 1, variable_name);
 							nd.td = types.at(i);
 							nd.add_address = blockstack.last()->add_address_up;
 							blockstack.last()->add_address_up += types.at(i)->typesiz;

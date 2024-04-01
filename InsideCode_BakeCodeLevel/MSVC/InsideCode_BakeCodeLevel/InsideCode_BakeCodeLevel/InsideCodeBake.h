@@ -505,10 +505,12 @@ TBT DecodeTextBlock(lcstr &t)
 
 lcstr *GetCodeTXT(const char *filename, FM_System0 *fm)
 {
-	FILE *fp = fopen(filename, "rt");
-	if (fp)
+	FILE* fp;
+	fopen_s(&fp, filename, "rt");
+	if (fp != nullptr)
 	{
 		lcstr *codetxt = (lcstr *)fm->_New(sizeof(lcstr), true);
+		codetxt->NULLState();
 		codetxt->Init(10, false);
 		int max = 0;
 		fseek(fp, 0, SEEK_END);
@@ -516,7 +518,7 @@ lcstr *GetCodeTXT(const char *filename, FM_System0 *fm)
 		fclose(fp);
 
 		int stack = 0;
-		fp = fopen(filename, "rt");
+		fopen_s(&fp, filename, "rt");
 		int k = 0;
 		while (k < max)
 		{
@@ -578,7 +580,6 @@ struct code_sen
 	int maxlen;
 	codeKind ck;
 	vecarr<int *> *codeblocks = nullptr;
-	FM_System0 *fm;
 
 	int start_line = 0;
 	int end_line = 0;
@@ -994,7 +995,7 @@ public:
 
 		string str = to_string(size);
 		char *strnum = (char *)fm->_New(str.size() + 2, true);
-		strcpy(strnum, str.c_str());
+		strcpy_s(strnum, str.size()+2, str.c_str());
 		for (int i = 0; i < strlen(strnum); ++i)
 		{
 			rtd->name.push_back(strnum[i]);
@@ -1101,7 +1102,8 @@ public:
 
 	void read_inst_table()
 	{
-		FILE *file = fopen("instruction_table.txt", "r"); // Open the file
+		FILE* file;
+		fopen_s(&file, "instruction_table.txt", "r"); // Open the file
 		// in read
 		// mode
 		if (file == nullptr)
@@ -1327,35 +1329,35 @@ public:
 
 		char *name[8] = {};
 		name[0] = (char *)fm->_New(4, true);
-		strcpy(name[0], "int");
+		strcpy_s(name[0], 4, "int");
 		basictype[0] = create_type(name[0], 4, 'b', nullptr);
 
 		name[1] = (char *)fm->_New(5, true);
-		strcpy(name[1], "char");
+		strcpy_s(name[1], 5, "char");
 		basictype[1] = create_type(name[1], 1, 'b', nullptr);
 
 		name[2] = (char *)fm->_New(6, true);
-		strcpy(name[2], "short");
+		strcpy_s(name[2], 6, "short");
 		basictype[2] = create_type(name[2], 2, 'b', nullptr);
 
 		name[3] = (char *)fm->_New(6, true);
-		strcpy(name[3], "float");
+		strcpy_s(name[3], 6, "float");
 		basictype[3] = create_type(name[3], 4, 'b', nullptr);
 
 		name[4] = (char *)fm->_New(5, true);
-		strcpy(name[4], "bool");
+		strcpy_s(name[4], 5, "bool");
 		basictype[4] = create_type(name[4], 4, 'b', nullptr);
 
 		name[5] = (char *)fm->_New(5, true);
-		strcpy(name[5], "uint");
+		strcpy_s(name[5], 5, "uint");
 		basictype[5] = create_type(name[5], 4, 'b', nullptr);
 
 		name[6] = (char *)fm->_New(7, true);
-		strcpy(name[6], "ushort");
+		strcpy_s(name[6], 7, "ushort");
 		basictype[6] = create_type(name[6], 2, 'b', nullptr);
 
 		name[7] = (char *)fm->_New(6, true);
-		strcpy(name[7], "uchar");
+		strcpy_s(name[7], 6, "uchar");
 		basictype[7] = create_type(name[7], 1, 'b', nullptr);
 
 		basicoper[0] = create_oper("[", 'f', 0, 0);
@@ -1379,13 +1381,16 @@ public:
 		basicoper[18] = create_oper("||", 'o', 123, 124);
 	}
 
-	void init()
+	void init(int maxmem_byte)
 	{
+		max_mem_byte = maxmem_byte;
 		allcode_sen.NULLState();
 		allcode_sen.Init(2, false);
 		allcode_sen.islocal = false;
 		csarr = nullptr;
 
+		types.NULLState();
+		types.Init(8, false);
 		for (int i = 0; i < basictype_max; ++i)
 		{
 			types.push_back(basictype[i]);
@@ -1397,7 +1402,7 @@ public:
 		bd->variable_data.NULLState();
 		bd->variable_data.Init(10, false);
 
-		mem = new byte8[max_mem_byte];
+		mem = (byte8*)fm->_New(max_mem_byte, true);
 		for (int i = 0; i < max_mem_byte; ++i)
 		{
 			mem[i] = 255;
@@ -1411,13 +1416,21 @@ public:
 		blockstack.islocal = false;
 
 		nextbd.breakpoints = (vecarr<int> *)fm->_New(sizeof(vecarr<int>), true);
+		nextbd.breakpoints->NULLState();
+		nextbd.breakpoints->Init(8, false);
+
 		nextbd.continuepoints = (vecarr<int> *)fm->_New(sizeof(vecarr<int>), true);
+		nextbd.continuepoints->NULLState();
+		nextbd.continuepoints->Init(8, false);
 
 		functions.NULLState();
 		functions.Init(2, false);
 
 		globalVariables.NULLState();
 		globalVariables.Init(2, false);
+
+		extension.NULLState();
+		extension.Init(8, false);
 	}
 
 	void push_word(lcstr &str)
@@ -1451,7 +1464,7 @@ public:
 		const char *sptr = str.c_str();
 		int len = strlen(sptr);
 		char *cstr = (char *)fm->_New(len + 1, true);
-		strcpy(cstr, sptr);
+		strcpy_s(cstr, len + 1, sptr);
 		cstr[len] = 0;
 
 		for (int i = 0; i < wbss.wordlist.size(); ++i)
@@ -1929,8 +1942,8 @@ public:
 						vecarr<code_sen *> *cbv = AddCodeFromBlockData(cbs, "none");
 
 						cs->codeblocks = (vecarr<int *> *)fm->_New(sizeof(vecarr<int *>), true);
-						cs->fm = fm;
-						cs->codeblocks->islocal = false;
+						cs->codeblocks->NULLState();
+						cs->codeblocks->Init(8, false);
 						Init_VPTR<vecarr<int *> *>(cs->codeblocks);
 
 						for (int u = 0; u < (int)cbv->size(); u++)
@@ -2174,7 +2187,8 @@ public:
 						vecarr<code_sen *> *cbv = AddCodeFromBlockData(bd, "none");
 
 						cs->codeblocks = (vecarr<int *> *)fm->_New(sizeof(vecarr<int *>), true);
-						cs->fm = fm;
+						cs->codeblocks->NULLState();
+						cs->codeblocks->Init(8, false);
 						Init_VPTR<vecarr<int *> *>(cs->codeblocks);
 
 						for (int u = 0; u < (int)cbv->size(); u++)
@@ -3494,7 +3508,7 @@ public:
 								temp_mem *left_ten = nullptr;
 								wbss.dbg_sen(segs.at(i-1));
 								left_ten = get_asm_from_sen(segs.at(i - 1), true, false);
-								type_data *member_td;
+								type_data *member_td = nullptr;
 								int add_address = 0;
 								type_data* struct_td = get_sub_type(left_ten->valuetype_detail);
 								if(struct_td->typetype == 's' && segs.at(i+1)->at(0).type == 'w'){
@@ -3507,6 +3521,11 @@ public:
 											break;
 										}
 									}
+
+									if (member_td == nullptr) {
+										break;
+									}
+
 									result_ten->memsiz = left_ten->memsiz + 7;
 									result_ten->mem.NULLState();
 									result_ten->mem.Init(2, false);
@@ -3733,8 +3752,9 @@ public:
 	void interpret_AddStruct(code_sen* cs){
 		sen *code = get_sen_from_codesen(cs);
 		char *cname = code->at(1).data.str;
-		char *name = (char*)fm->_New(strlen(cname)+1, true);
-		strcpy(name, cname);
+		int nlen = strlen(cname) + 1;
+		char *name = (char*)fm->_New(nlen, true);
+		strcpy_s(name, nlen, cname);
 		struct_data* stdata = (struct_data*)fm->_New(sizeof(struct_data), true);
 		stdata->name = name;
 		int cpivot = 3;
@@ -3745,8 +3765,9 @@ public:
 			wbss.dbg_sen(member_sen);
 			NamingData nd;
 			cname = member_sen->last().data.str;
-			nd.name = (char*)fm->_New(strlen(cname)+1, true);
-			strcpy(nd.name, cname);
+			int cnlen = strlen(cname) + 1;
+			nd.name = (char*)fm->_New(cnlen, true);
+			strcpy_s(nd.name, cnlen, cname);
 			sen* type_sen = wbss.sen_cut(member_sen, 0, member_sen->size()-1);
 			type_data* td = get_type_with_namesen(type_sen);
 			nd.td = td;
@@ -3772,8 +3793,9 @@ public:
 		{
 			// global variable
 			NamingData *nd = (NamingData *)fm->_New(sizeof(NamingData), true);
-			nd->name = (char *)fm->_New(strlen(variable_name) + 1, true);
-			strcpy(nd->name, variable_name);
+			int vnlen = strlen(variable_name) + 1;
+			nd->name = (char *)fm->_New(vnlen, true);
+			strcpy_s(nd->name, vnlen, variable_name);
 			nd->td = get_type_with_namesen(type_name);
 			if (globalVariables.size() == 0)
 			{
@@ -3809,8 +3831,9 @@ public:
 			writeup += 4;
 
 			NamingData nd;
-			nd.name = (char *)fm->_New(strlen(variable_name) + 1, true);
-			strcpy(nd.name, variable_name);
+			int vnlen = strlen(variable_name) + 1;
+			nd.name = (char *)fm->_New(vnlen, true);
+			strcpy_s(nd.name, vnlen, variable_name);
 			nd.td = td;
 			nd.add_address = blockstack.last()->add_address_up + td->typesiz;
 			blockstack.last()->add_address_up += td->typesiz;
@@ -3848,7 +3871,7 @@ public:
 
 							NamingData nd;
 							nd.name = (char *)fm->_New(strlen(variable_name) + 1, true);
-							strcpy(nd.name, variable_name);
+							strcpy_s(nd.name, variable_name);
 							nd.td = basictype[id];
 							nd.add_address =
 								blockstack.last()->add_address_up + basictype[id]->typesiz;
@@ -3874,7 +3897,7 @@ public:
 
 								NamingData nd;
 								nd.name = (char *)fm->_New(strlen(variable_name) + 1, true);
-								strcpy(nd.name, variable_name);
+								strcpy_s(nd.name, variable_name);
 								nd.td = types.at(i);
 								nd.add_address = blockstack.last()->add_address_up + types.at(i)->typesiz;
 								blockstack.last()->add_address_up += types.at(i)->typesiz;
@@ -3896,7 +3919,7 @@ public:
 
 					NamingData nd;
 					nd.name = (char *)fm->_New(strlen(variable_name) + 1, true);
-					strcpy(nd.name, variable_name);
+					strcpy_s(nd.name, variable_name);
 					nd.td = td;
 					nd.add_address = blockstack.last()->add_address_up + td->typesiz;
 					blockstack.last()->add_address_up += td->typesiz;
@@ -4851,7 +4874,6 @@ public:
 		cs0->sen = (char **)fm->_New(sizeof(char *) * loc, true);
 		cs0->maxlen = loc;
 		cs0->codeblocks = nullptr;
-		cs0->fm = fm;
 		cs0->ck = codeKind::ck_addVariable;
 		for (int i = 0; i < loc; ++i)
 		{
@@ -4864,7 +4886,6 @@ public:
 		cs1->maxlen = loc1;
 		cs1->codeblocks = nullptr;
 		cs1->ck = codeKind::ck_setVariable;
-		cs1->fm = fm;
 		cs1->sen = (char **)fm->_New(sizeof(char *) * loc1, true);
 		for (int i = loc - 1; i < cs->maxlen; ++i)
 		{
@@ -4906,7 +4927,6 @@ public:
 			cs0->sen = (char **)fm->_New(sizeof(char *) * loc, true);
 			cs0->maxlen = loc;
 			cs0->codeblocks = nullptr;
-			cs0->fm = fm;
 			cs0->ck = codeKind::ck_addVariable;
 			for (int i = 0; i < loc; ++i)
 			{
@@ -5012,6 +5032,7 @@ public:
 		}
         datamem_up = gs;
 
+		writeup = 0;
 		mem[writeup++] = 189; // func
 		mem[writeup++] = 200; // jmp
 		writeup += 4;		  // start function address
@@ -5210,7 +5231,7 @@ int code_control(vecarr<ICB_Context *> *icbarr)
 	stack++;
 	if (stack >= 1)
 	{
-		scanf("%c", &c);
+		scanf_s("%c", &c);
 		stack = 0;
 	}
 	switch (c)
@@ -5333,6 +5354,7 @@ CONTEXT_SWITCH:
 
 	rfsp = &icb->rfsp; // function stack pos
 	lfsp = &icb->lfsp; // last function stack pos
+	saveSP = &icb->saveSP;
 
 	pcb = pc;
 	pcs = reinterpret_cast<ushort**>(pc);
@@ -5532,12 +5554,11 @@ INP_SWITCH:
 		break;
 	}
 
-	++ * pc;
+	++*pc;
 	goto INST_SWITCH;
 
 INST_SWITCH:
 
-	++exed_num;
 	if (exed_num >= execodenum)
 	{
 		icb->_a = _a;
@@ -5553,9 +5574,11 @@ INST_SWITCH:
 	}
 
 	if ((int)(icb->pc - mem) == stopnum) {
-		//isBreaking = true;
+		isBreaking = true;
 		cout << "Debug BreakPoint Check!" << endl;
 	}
+
+	++exed_num;
 
 	insttype instn = (insttype) * *pc;
 

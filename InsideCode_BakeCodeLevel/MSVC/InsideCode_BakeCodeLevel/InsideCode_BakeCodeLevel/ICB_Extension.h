@@ -23,7 +23,7 @@ void set_word(int index, lcstr &str, vecarr<char*>* codesen)
     const char *sptr = str.c_str();
     int len = strlen(sptr);
     char *cstr = (char *)fm->_New(len + 1, true);
-    strcpy(cstr, sptr);
+    strcpy_s(cstr, len + 1, sptr);
     cstr[len] = 0;
     fm->_Delete((byte8*)(*codesen)[index], strlen((*codesen)[index])+1);
     (*codesen)[index] = cstr;
@@ -421,7 +421,8 @@ vecarr<code_sen *> *AddCodeFromBlockData(vecarr<char *> &allcodesen, const char 
                     vecarr<code_sen *> *cbv = AddCodeFromBlockData(cbs, "none", ext);
 
                     cs->codeblocks = (vecarr<int *> *)fm->_New(sizeof(vecarr<int *>), true);
-                    cs->fm = fm;
+                    cs->codeblocks->NULLState();
+                    cs->codeblocks->Init(8, false);
                     cs->codeblocks->islocal = false;
                     Init_VPTR<vecarr<int *> *>(cs->codeblocks);
 
@@ -482,7 +483,8 @@ vecarr<code_sen *> *AddCodeFromBlockData(vecarr<char *> &allcodesen, const char 
                     vecarr<code_sen *> *cbv = AddCodeFromBlockData(bd, "none", ext);
 
                     cs->codeblocks = (vecarr<int *> *)fm->_New(sizeof(vecarr<int *>), true);
-                    cs->fm = fm;
+                    cs->codeblocks->NULLState();
+                    cs->codeblocks->Init(8, false);
                     Init_VPTR<vecarr<int *> *>(cs->codeblocks);
 
                     for (int u = 0; u < (int)cbv->size(); u++)
@@ -554,10 +556,15 @@ void interpret_AddStruct(code_sen *cs, ICB_Extension *ext)
 {
     sen *code = InsideCode_Bake::get_sen_from_codesen(cs);
     char *cname = code->at(1).data.str;
-    char *name = (char *)fm->_New(strlen(cname) + 1, true);
-    strcpy(name, cname);
+    int cnlen = strlen(cname) + 1;
+    char *name = (char *)fm->_New(cnlen, true);
+    strcpy_s(name, cnlen, cname);
     struct_data *stdata = (struct_data *)fm->_New(sizeof(struct_data), true);
+    stdata->name.NULLState();
+    stdata->name.Init(16, false);
     stdata->name = name;
+    stdata->member_data.NULLState();
+    stdata->member_data.Init(8, false);
     int cpivot = 3;
     int totalSiz = 0;
     while (cpivot < code->size() - 1)
@@ -567,8 +574,9 @@ void interpret_AddStruct(code_sen *cs, ICB_Extension *ext)
         InsideCode_Bake::wbss.dbg_sen(member_sen);
         NamingData nd;
         cname = member_sen->last().data.str;
-        nd.name = (char *)fm->_New(strlen(cname) + 1, true);
-        strcpy(nd.name, cname);
+        int cnlen = strlen(cname) + 1;
+        nd.name = (char *)fm->_New(cnlen, true);
+        strcpy_s(nd.name, cnlen, cname);
         sen *type_sen = InsideCode_Bake::wbss.sen_cut(member_sen, 0, member_sen->size() - 1);
         type_data *td = get_type_with_namesen(type_sen, ext);
         nd.td = td;

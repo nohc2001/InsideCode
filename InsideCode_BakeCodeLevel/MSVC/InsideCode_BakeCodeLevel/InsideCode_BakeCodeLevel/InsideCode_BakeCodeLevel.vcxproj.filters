@@ -18,6 +18,9 @@
     <ClCompile Include="bakecode_msvc.cpp">
       <Filter>소스 파일</Filter>
     </ClCompile>
+    <ClCompile Include="main.cpp">
+      <Filter>소스 파일</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="arr_expend.h">
@@ -38,13 +41,13 @@
     <ClInclude Include="Utill_FreeMemory.h">
       <Filter>헤더 파일</Filter>
     </ClInclude>
-    <ClInclude Include="AddExtensionVersion\exAdd.h">
+    <ClInclude Include="exAdd.h">
       <Filter>헤더 파일</Filter>
     </ClInclude>
-    <ClInclude Include="AddExtensionVersion\ICB_Extension.h">
+    <ClInclude Include="ICB_Extension.h">
       <Filter>헤더 파일</Filter>
     </ClInclude>
-    <ClInclude Include="AddExtensionVersion\InsideCodeBake.h">
+    <ClInclude Include="InsideCodeBake.h">
       <Filter>헤더 파일</Filter>
     </ClInclude>
   </ItemGroup>
@@ -56,10 +59,9 @@
       <Filter>리소스 파일</Filter>
     </Text>
     <Text Include="memo.txt" />
-    <Text Include="AddExtensionVersion\exAdd.txt">
+    <Text Include="exAdd.txt">
       <Filter>헤더 파일</Filter>
     </Text>
-    <Text Include="AddExtensionVersion\instruction_table.txt" />
   </ItemGroup>
   <ItemGroup>
     <None Include="fm1_sizetable.bin">
