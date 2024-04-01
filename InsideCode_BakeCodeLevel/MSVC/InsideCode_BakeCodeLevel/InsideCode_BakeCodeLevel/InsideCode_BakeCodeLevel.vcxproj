@@ -131,6 +131,9 @@
     <ClCompile Include="bakecode_msvc.cpp" />
   </ItemGroup>
   <ItemGroup>
+    <ClInclude Include="AddExtensionVersion\exAdd.h" />
+    <ClInclude Include="AddExtensionVersion\ICB_Extension.h" />
+    <ClInclude Include="AddExtensionVersion\InsideCodeBake.h" />
     <ClInclude Include="arr_expend.h" />
     <ClInclude Include="dbg.h" />
     <ClInclude Include="infArray_fm_v0.h" />
@@ -139,6 +142,8 @@
     <ClInclude Include="Utill_FreeMemory.h" />
   </ItemGroup>
   <ItemGroup>
+    <Text Include="AddExtensionVersion\exAdd.txt" />
+    <Text Include="AddExtensionVersion\instruction_table.txt" />
     <Text Include="code.txt" />
     <Text Include="instruction_table.txt" />
     <Text Include="memo.txt" />

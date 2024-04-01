@@ -1,0 +1,7 @@
+struct vec3f{
+    float x;
+    float y;
+    float z;
+};
+
+int add(int a, int b)
