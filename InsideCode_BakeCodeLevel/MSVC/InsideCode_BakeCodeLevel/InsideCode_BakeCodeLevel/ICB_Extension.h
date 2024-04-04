@@ -322,6 +322,7 @@ vecarr<code_sen *> *AddCodeFromBlockData(vecarr<char *> &allcodesen, const char 
                     {
                         // addfunction
                         code_sen *cs = (code_sen *)fm->_New(sizeof(code_sen), true);
+                        *cs = code_sen();
                         cs->ck = codeKind::ck_addFunction;
                         vecarr<char *> cbs;
                         cbs.NULLState();
@@ -358,6 +359,7 @@ vecarr<code_sen *> *AddCodeFromBlockData(vecarr<char *> &allcodesen, const char 
                 else if (allcodesen.size() > i + 2 && (strcmp(allcodesen[i + 2], "(") == 0 && strcmp(allcodesen[i], "void") == 0))
                 {
                     code_sen *cs = (code_sen *)fm->_New(sizeof(code_sen), true);
+                    *cs = code_sen();
                     cs->ck = codeKind::ck_addFunction;
                     vecarr<char *> cbs;
                     cbs.NULLState();
@@ -392,6 +394,7 @@ vecarr<code_sen *> *AddCodeFromBlockData(vecarr<char *> &allcodesen, const char 
                 else if (strcmp(allcodesen[i], "{") == 0)
                 {
                     code_sen *cs = (code_sen *)fm->_New(sizeof(code_sen), true);
+                    *cs = code_sen();
                     cs->ck = codeKind::ck_blocks;
                     vecarr<char *> cbs;
                     cbs.NULLState();
@@ -446,6 +449,7 @@ vecarr<code_sen *> *AddCodeFromBlockData(vecarr<char *> &allcodesen, const char 
                 if (strcmp(allcodesen[i], "struct") == 0)
                 {
                     code_sen *cs = (code_sen *)fm->_New(sizeof(code_sen), true);
+                    *cs = code_sen();
                     cs->ck = codeKind::ck_addStruct;
                     vecarr<char *> cbs;
                     cbs.NULLState();

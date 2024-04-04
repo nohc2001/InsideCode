@@ -571,7 +571,8 @@ enum class codeKind
 	ck_addStruct,
 	ck_break,
 	ck_continue,
-	ck_addsetVariable
+	ck_addsetVariable,
+	ck_null
 };
 
 struct code_sen
@@ -583,6 +584,17 @@ struct code_sen
 
 	int start_line = 0;
 	int end_line = 0;
+
+	code_sen() :
+		start_line(0),
+		end_line(0),
+		codeblocks(nullptr),
+		sen(nullptr),
+		maxlen(0),
+		ck(codeKind::ck_null)
+	{
+
+	}
 };
 
 void dbg_codesen(code_sen *cs)
@@ -1194,6 +1206,100 @@ public:
 		return nullptr;
 	}
 
+	void dbg_temp_codemem(temp_mem* tm) {
+		for (int i = 0; i <= tm->memsiz; ++i)
+		{
+			if (inst_meta[tm->mem[i]].param_num < 0)
+			{
+				return;
+			}
+			if (tm->mem[i] == 214 || tm->mem[i] == 215)
+			{
+				cout << i << "\t:" << inst_meta[tm->mem[i]].name << "(" << (uint)tm->mem[i] << ")";
+				uint strmax = 0;
+				instruct_data id = inst_meta[tm->mem[i]];
+				int n;
+				for (int k = 0; k < id.param_num; ++k)
+				{
+					switch (id.param_typesiz[k])
+					{
+					case 1:
+						++i;
+						n = (uint)tm->mem[i];
+						cout << " > " << n;
+						break;
+					case 2:
+						++i;
+						n = *reinterpret_cast<ushort*>(&tm->mem[i]);
+						cout << " > " << n << "(" << (uint)tm->mem[i] << ", " << (uint)tm->mem[i + 1] << ")";
+						i += 1;
+						break;
+					case 4:
+						++i;
+						n = *reinterpret_cast<uint*>(&tm->mem[i]);
+						strmax = n;
+						cout << " > " << n << "(" << (uint)tm->mem[i] << ", " << (uint)tm->mem[i + 1] << ", "
+							<< (uint)tm->mem[i + 2] << ", " << (uint)tm->mem[i + 3] << ")";
+						i += 3;
+						break;
+					case 8:
+						++i;
+						n = *reinterpret_cast<uint*>(&tm->mem[i]);
+						strmax = n;
+						cout << " > " << n << "(" << (uint)tm->mem[i] << ", " << (uint)tm->mem[i + 1] << ", "
+							<< (uint)tm->mem[i + 2] << ", " << (uint)tm->mem[i + 3]
+							<< (uint)tm->mem[i + 4] << ", " << (uint)tm->mem[i + 5] << ", "
+							<< (uint)tm->mem[i + 6] << ", " << (uint)tm->mem[i + 7] << ")";
+						i += 7;
+						break;
+					}
+				}
+				cout << "\"";
+				for (int k = 1; k < strmax; ++k)
+				{
+					cout << tm->mem[i + k];
+				}
+				cout << "\"";
+				cout << endl;
+				i += strmax + 1;
+			}
+			cout << i << "\t:" << inst_meta[tm->mem[i]].name << "(" << (uint)tm->mem[i] << ")";
+			instruct_data id = inst_meta[tm->mem[i]];
+			int n;
+			for (int k = 0; k < id.param_num; ++k)
+			{
+				switch (id.param_typesiz[k])
+				{
+				case 1:
+					++i;
+					n = (uint)tm->mem[i];
+					cout << " > " << n;
+					break;
+				case 2:
+					++i;
+					n = *reinterpret_cast<ushort*>(&tm->mem[i]);
+					cout << " > " << n << "(" << (uint)tm->mem[i] << ", " << (uint)tm->mem[i + 1] << ")";
+					i += 1;
+					break;
+				case 4:
+					++i;
+					n = *reinterpret_cast<uint*>(&tm->mem[i]);
+					cout << " > " << n << "(" << (uint)tm->mem[i] << ", " << (uint)tm->mem[i + 1] << ", " << (uint)mem[i + 2] << ", " << (uint)mem[i + 3] << ")";
+					i += 3;
+					break;
+				case 8:
+					++i;
+					n = *reinterpret_cast<uint*>(&tm->mem[i]);
+					cout << " > " << n << "(" << (uint)tm->mem[i] << ", " << (uint)tm->mem[i + 1] << ", " << (uint)tm->mem[i + 2] << ", " << (uint)tm->mem[i + 3]
+						<< (uint)tm->mem[i + 4] << ", " << (uint)tm->mem[i + 5] << ", " << (uint)tm->mem[i + 6] << ", " << (uint)tm->mem[i + 7] << ")";
+					i += 7;
+					break;
+				}
+			}
+			cout << endl;
+		}
+	}
+
 	void print_asm(int start, int end)
 	{
 		for (int i = start; i <= end; ++i)
@@ -1770,6 +1876,7 @@ public:
 						{
 							// addfunction
 							code_sen *cs = (code_sen *)fm->_New(sizeof(code_sen), true);
+							*cs = code_sen();
 							cs->ck = codeKind::ck_addFunction;
 							vecarr<char *> cbs;
 							cbs.NULLState();
@@ -1843,6 +1950,7 @@ public:
 							if (addset == false)
 							{
 								code_sen *cs = (code_sen *)fm->_New(sizeof(code_sen), true);
+								*cs = code_sen();
 								cs->ck = codeKind::ck_addVariable;
 								vecarr<char *> cbs;
 								cbs.NULLState();
@@ -1860,6 +1968,7 @@ public:
 							else
 							{
 								code_sen *cs = (code_sen *)fm->_New(sizeof(code_sen), true);
+								*cs = code_sen();
 								cs->ck = codeKind::ck_addsetVariable;
 								vecarr<char *> cbs;
 								cbs.NULLState();
@@ -1879,6 +1988,7 @@ public:
 					else if (allcodesen.size() > i + 2 && (strcmp(allcodesen[i + 2], "(") == 0 && strcmp(allcodesen[i], "void") == 0))
 					{
 						code_sen *cs = (code_sen *)fm->_New(sizeof(code_sen), true);
+						*cs = code_sen();
 						cs->ck = codeKind::ck_addFunction;
 						vecarr<char *> cbs;
 						cbs.NULLState();
@@ -1913,6 +2023,7 @@ public:
 					else if (strcmp(allcodesen[i], "{") == 0)
 					{
 						code_sen *cs = (code_sen *)fm->_New(sizeof(code_sen), true);
+						*cs = code_sen();
 						cs->ck = codeKind::ck_blocks;
 						vecarr<char *> cbs;
 						cbs.NULLState();
@@ -1962,6 +2073,7 @@ public:
 					else if (strcmp(allcodesen[i], "=") == 0 || (strlen(allcodesen[i]) == 2 && allcodesen[i][1] == '='))
 					{
 						code_sen *cs = (code_sen *)fm->_New(sizeof(code_sen), true);
+						*cs = code_sen();
 						cs->ck = codeKind::ck_setVariable;
 						vecarr<char *> cbs;
 						cbs.NULLState();
@@ -1994,6 +2106,7 @@ public:
 						// �ƴϸ�
 						// �ǳʶٴ� ���̴�.
 						code_sen *cs = (code_sen *)fm->_New(sizeof(code_sen), true);
+						*cs = code_sen();
 						cs->ck = codeKind::ck_if;
 						vecarr<char *> cbs;
 						cbs.NULLState();
@@ -2021,6 +2134,7 @@ public:
 						if (allcodesen.size() > i + 1 && strcmp(allcodesen[i + 1], "if") == 0)
 						{
 							code_sen *cs = (code_sen *)fm->_New(sizeof(code_sen), true);
+							*cs = code_sen();
 							cs->ck = codeKind::ck_if;
 							vecarr<char *> cbs;
 							cbs.NULLState();
@@ -2049,6 +2163,7 @@ public:
 						else
 						{
 							code_sen *cs = (code_sen *)fm->_New(sizeof(code_sen), true);
+							*cs = code_sen();
 							cs->ck = codeKind::ck_if;
 							vecarr<char *> cbs;
 							cbs.NULLState();
@@ -2062,6 +2177,7 @@ public:
 					else if (strcmp(allcodesen[i], "while") == 0)
 					{
 						code_sen *cs = (code_sen *)fm->_New(sizeof(code_sen), true);
+						*cs = code_sen();
 						cs->ck = codeKind::ck_while;
 						vecarr<char *> cbs;
 						cbs.NULLState();
@@ -2086,6 +2202,7 @@ public:
 					else if (strcmp(allcodesen[i + 1], "(") == 0)
 					{
 						code_sen *cs = (code_sen *)fm->_New(sizeof(code_sen), true);
+						*cs = code_sen();
 						cs->ck = codeKind::ck_useFunction;
 						vecarr<char *> cbs;
 						cbs.NULLState();
@@ -2104,6 +2221,7 @@ public:
 					else if (strcmp(allcodesen[i], "return") == 0)
 					{
 						code_sen *cs = (code_sen *)fm->_New(sizeof(code_sen), true);
+						*cs = code_sen();
 						cs->ck = codeKind::ck_returnInFunction;
 						vecarr<char *> cbs;
 						cbs.NULLState();
@@ -2122,6 +2240,7 @@ public:
 					else if (strcmp(allcodesen[i], "break") == 0)
 					{
 						code_sen *cs = (code_sen *)fm->_New(sizeof(code_sen), true);
+						*cs = code_sen();
 						cs->ck = codeKind::ck_break;
 						vecarr<char *> cbs;
 						cbs.NULLState();
@@ -2134,6 +2253,7 @@ public:
 					else if (strcmp(allcodesen[i], "continue") == 0)
 					{
 						code_sen *cs = (code_sen *)fm->_New(sizeof(code_sen), true);
+						*cs = code_sen();
 						cs->ck = codeKind::ck_continue;
 						vecarr<char *> cbs;
 						cbs.NULLState();
@@ -2150,6 +2270,7 @@ public:
 					if (strcmp(allcodesen[i], "struct") == 0)
 					{
 						code_sen *cs = (code_sen *)fm->_New(sizeof(code_sen), true);
+						*cs = code_sen();
 						cs->ck = codeKind::ck_addStruct;
 						vecarr<char *> cbs;
 						cbs.NULLState();
@@ -2537,11 +2658,8 @@ public:
 
 					casting_type ct = get_cast_type(tm->valuetype, get_int_with_basictype(fd->param_data.at(paramCount).td));
 					tm->mem.push_back(201);
-					int ll = tm->mem.size();
-					for(int k=0;k<4;++k){
-						tm->mem.push_back(0);
-					}
-					*reinterpret_cast<uint*>(&mem[ll]) = (uint)ct;
+					tm->mem.push_back((byte8)ct);
+					//*reinterpret_cast<uint*>(&mem[ll]) = (uint)ct;
 				}
 
 				if (fd->param_data[paramid].td->typetype != 's')
@@ -2602,11 +2720,7 @@ public:
 				}
 				casting_type ct = get_cast_type(tm->valuetype, get_int_with_basictype(fd->param_data.at(paramCount).td));
 				tm->mem.push_back(201);
-				int ll = tm->mem.size();
-				for(int k=0;k<4;++k){
-					tm->mem.push_back(0);
-				}
-				*reinterpret_cast<uint*>(&mem[ll]) = (uint)ct;
+				tm->mem.push_back((byte8)ct);
 			}
 
 			if (fd->param_data[paramid].td->typetype != 's')
@@ -2674,6 +2788,7 @@ public:
 			fm->_Delete((byte8 *)param_sen, sizeof(sen));
 
 			release_tempmem(rtm);
+			dbg_temp_codemem(tm);
 
 			return tm;
 		}
@@ -4037,6 +4152,7 @@ public:
 
 			temp_mem *left_tm = get_asm_from_sen(left_expr, true, false);
 			temp_mem *right_tm = get_asm_from_sen(right_expr, true, true);
+			dbg_temp_codemem(right_tm);
 
 			bool need_casting = false;
 			casting_type castt;
@@ -4675,8 +4791,9 @@ public:
 
 				casting_type ct = get_cast_type(tm->valuetype, get_int_with_basictype(fd->param_data.at(paramCount).td));
 				mem[writeup++] = 201;
-				*reinterpret_cast<uint*>(&mem[writeup]) = (uint)ct;
-				writeup += 4;
+				mem[writeup++] = (byte8)ct;
+				//*reinterpret_cast<uint*>(&mem[writeup]) = (uint)ct;
+				//writeup += 4;
 			}
 
 			if (fd->param_data[paramid].td->typetype != 's')
@@ -4737,8 +4854,9 @@ public:
 
 			casting_type ct = get_cast_type(tm->valuetype, get_int_with_basictype(fd->param_data.at(paramCount).td));
 			mem[writeup++] = 201;
-			*reinterpret_cast<uint*>(&mem[writeup]) = (uint)ct;
-			writeup += 4;
+			mem[writeup++] = (byte8)ct;
+			//*reinterpret_cast<uint*>(&mem[writeup]) = (uint)ct;
+			//writeup += 4;
 		}
 
 		if (fd->param_data[paramid].td->typetype != 's')
@@ -4871,6 +4989,7 @@ public:
 		int loc = wbss.search_word_first(0, code, "=");
 
 		code_sen *cs0 = (code_sen *)fm->_New(sizeof(code_sen), true);
+		*cs0 = code_sen();
 		cs0->sen = (char **)fm->_New(sizeof(char *) * loc, true);
 		cs0->maxlen = loc;
 		cs0->codeblocks = nullptr;
@@ -4882,6 +5001,7 @@ public:
 		compile_addVariable(cs0);
 
 		code_sen *cs1 = (code_sen *)fm->_New(sizeof(code_sen), true);
+		*cs1 = code_sen();
 		int loc1 = cs->maxlen - loc + 1;
 		cs1->maxlen = loc1;
 		cs1->codeblocks = nullptr;
@@ -4924,6 +5044,7 @@ public:
 			int loc = wbss.search_word_first(0, code, "=");
 
 			code_sen *cs0 = (code_sen *)fm->_New(sizeof(code_sen), true);
+			*cs0 = code_sen();
 			cs0->sen = (char **)fm->_New(sizeof(char *) * loc, true);
 			cs0->maxlen = loc;
 			cs0->codeblocks = nullptr;
@@ -4992,7 +5113,7 @@ public:
 			break;
 		}
 		cs->end_line = writeup - 1;
-		//dbg_bakecode(csarr, 0);
+		dbg_bakecode(csarr, 0);
 	}
 
 	void bake_code(const char *filename)
@@ -5041,6 +5162,7 @@ public:
 		{
 			// fm->dbg_fm1_lifecheck();
 			code_sen *cs = senptr->at(i);
+			dbg_codesen(cs);
 			compile_code(cs);
 		}
 
@@ -5342,6 +5464,7 @@ CONTEXT_SWITCH:
 	_bs = icb->_bs;
 
 	mem = icb->mem;
+	codemem = icb->codemem;
 	inst = icb->icb->inst;
 	dbgt = icb->icb->dbgt;
 	inpt = icb->icb->inpt;
@@ -5574,7 +5697,7 @@ INST_SWITCH:
 	}
 
 	if ((int)(icb->pc - mem) == stopnum) {
-		isBreaking = true;
+		//isBreaking = true;
 		cout << "Debug BreakPoint Check!" << endl;
 	}
 
@@ -6555,13 +6678,13 @@ INST_SWITCH:
 		tmptr_i = *pci;
 		++*pci;
 		if (!(bool)_as[0])
-			*pc = &mem[*tmptr_i];
+			*pc = &codemem[*tmptr_i];
 		goto INST_SWITCH;
 	case insttype::IT_JMP:
 		++*pc;
 		tmptr_i = *pci;
 		++*pci;
-		*pc = &mem[*tmptr_i];
+		*pc = &codemem[*tmptr_i];
 		goto INST_SWITCH;
 	case insttype::IT_FUNC:
 		*saveSP = *sp;
@@ -6699,7 +6822,7 @@ INST_SWITCH:
 		strmax = *reinterpret_cast<uint*>(*pci);
 		++*pci;
 		_as.move_pivot(-1);
-		_as[0] = *pc - mem;
+		_as[0] = *pc - codemem;
 		*pc += strmax;
 		goto INST_SWITCH;
 	case insttype::IT_SET_B_CONST_STRING:
@@ -6707,7 +6830,7 @@ INST_SWITCH:
 		strmax = *reinterpret_cast<uint*>(*pci);
 		++*pci;
 		_bs.move_pivot(-1);
-		_bs[0] = *pc - mem;
+		_bs[0] = *pc - codemem;
 		*pc += strmax;
 		goto INST_SWITCH;
 	case insttype::IT_POP_A:
