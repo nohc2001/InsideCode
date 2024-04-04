@@ -67,8 +67,11 @@ SFML의 드로우 명령, 기초적 폰트 출력 등. 기반 인스트럭션을
 	line 3086
 	result_ten->memsiz = left_ten->memsiz + right_ten->memsiz + add + 1;
 	result_ten->mem.NULLState();
-	result_ten->mem.Init(result_ten->memsiz + 1, false);
+	result_ten->mem.Init(result_ten->memsiz + 1, false); // 고침
 
-	현재 msvc의 코드 해석과 컴파일은 되지만, 예제 틱텍토 게임의 승리를 판단하지 못한다.
+	- 현재 msvc의 코드 해석과 컴파일은 되지만, 예제 틱텍토 게임의 승리를 판단하지 못한다.
 	이걸 고쳐야 함.
 
+	- PARAM inst 가 제대로 작동안함. (값 복사를 안함 ) > extension 함수가 뭘 못함
+	
+	- vec3f struct 타입은 float 타입 맴버 x, y, z를 가지는데, 메모리에 적제될때 uint형태로 저장됨. 케스팅이 제대로 작동 안하는듯.

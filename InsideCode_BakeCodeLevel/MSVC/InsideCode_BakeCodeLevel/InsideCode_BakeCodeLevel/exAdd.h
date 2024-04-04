@@ -5,8 +5,8 @@
 
 void exAdd_add(int* pcontext){
     ICB_Context* cxt = reinterpret_cast<ICB_Context*>(pcontext);
-    int a = *reinterpret_cast<int*>(cxt->rfsp - 8);
-    int b = *reinterpret_cast<int*>(cxt->rfsp - 4);
+    float a = *reinterpret_cast<float*>(cxt->rfsp - 8);
+    float b = *reinterpret_cast<float*>(cxt->rfsp - 4);
     cxt->_as[0] = a+b;
     cxt->_as.move_pivot(-1);
 }
