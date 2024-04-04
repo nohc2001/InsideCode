@@ -11,6 +11,7 @@ type_data *InsideCode_Bake::basictype[basictype_max];
 operator_data InsideCode_Bake::basicoper[basicoper_max];
 
 int main(){
+    cout.flush();
     fm = new FM_System0();
 	fm->SetHeapData(4096, 4096, 65536, 1048576);
     InsideCode_Bake::StaticInit();

@@ -5247,6 +5247,10 @@ class ICB_Context{
 
 		_as.Init(32, fm);
 		_bs.Init(32, fm);
+		for (int i = 0; i < 32; ++i) {
+			_as[i] = 0;
+			_bs[i] = 0;
+		}
     }
 
     void dbg_registers()
@@ -5331,6 +5335,7 @@ vecarr<ICB_Context *> icbarr;
 
 bool isBreaking = false;
 int stopnum = 0;
+bool isDbg = false;
 
 int code_control(vecarr<ICB_Context *> *icbarr)
 {
@@ -5495,8 +5500,8 @@ CONTEXT_SWITCH:
 	lfsps = reinterpret_cast<ushort**>(lfsp);
 	lfspi = reinterpret_cast<uint**>(lfsp);
 
-	if ((int)(icb->pc - mem) == stopnum) {
-		//isBreaking = true;
+	if ((int)(icb->pc - codemem) == stopnum) {
+		isBreaking = isDbg;
 		cout << "Debug BreakPoint Check!" << endl;
 	}
 	goto INST_SWITCH;
@@ -5696,8 +5701,8 @@ INST_SWITCH:
 		goto CONTEXT_SWITCH;
 	}
 
-	if ((int)(icb->pc - mem) == stopnum) {
-		//isBreaking = true;
+	if ((int)(icb->pc - codemem) == stopnum) {
+		isBreaking = isDbg;
 		cout << "Debug BreakPoint Check!" << endl;
 	}
 
@@ -6822,7 +6827,7 @@ INST_SWITCH:
 		strmax = *reinterpret_cast<uint*>(*pci);
 		++*pci;
 		_as.move_pivot(-1);
-		_as[0] = *pc - codemem;
+		_as[0] = *pc - mem;
 		*pc += strmax;
 		goto INST_SWITCH;
 	case insttype::IT_SET_B_CONST_STRING:
@@ -6830,7 +6835,7 @@ INST_SWITCH:
 		strmax = *reinterpret_cast<uint*>(*pci);
 		++*pci;
 		_bs.move_pivot(-1);
-		_bs[0] = *pc - codemem;
+		_bs[0] = *pc - mem;
 		*pc += strmax;
 		goto INST_SWITCH;
 	case insttype::IT_POP_A:
