@@ -2,6 +2,8 @@
 #include "ICB_Extension.h"
 #include "exAdd.h"
 
+using namespace std;
+
 extern FM_System0 *fm;
 
 word_base_sen_sys InsideCode_Bake::wbss;
