@@ -2250,11 +2250,14 @@ public:
 
 					casting_type ct = get_cast_type(tm->valuetype, get_int_with_basictype(fd->param_data.at(paramCount).td));
 					tm->mem.push_back(201);
+					tm->mem.push_back((byte8)ct);
+					/*
 					int ll = tm->mem.size();
 					for(int k=0;k<4;++k){
 						tm->mem.push_back(0);
 					}
 					*reinterpret_cast<uint*>(&mem[ll]) = (uint)ct;
+					*/
 				}
 
 				if (fd->param_data[paramid].td->typetype != 's')
@@ -2315,11 +2318,14 @@ public:
 				}
 				casting_type ct = get_cast_type(tm->valuetype, get_int_with_basictype(fd->param_data.at(paramCount).td));
 				tm->mem.push_back(201);
+				tm->mem.push_back((byte8)ct);
+				/*
 				int ll = tm->mem.size();
 				for(int k=0;k<4;++k){
 					tm->mem.push_back(0);
 				}
 				*reinterpret_cast<uint*>(&mem[ll]) = (uint)ct;
+				*/
 			}
 
 			if (fd->param_data[paramid].td->typetype != 's')
@@ -4379,8 +4385,11 @@ public:
 
 				casting_type ct = get_cast_type(tm->valuetype, get_int_with_basictype(fd->param_data.at(paramCount).td));
 				mem[writeup++] = 201;
+				mem[writeup++] = (byte8)ct;
+				/*
 				*reinterpret_cast<uint*>(&mem[writeup]) = (uint)ct;
 				writeup += 4;
+				*/
 			}
 
 			if (fd->param_data[paramid].td->typetype != 's')
@@ -4441,8 +4450,11 @@ public:
 
 			casting_type ct = get_cast_type(tm->valuetype, get_int_with_basictype(fd->param_data.at(paramCount).td));
 			mem[writeup++] = 201;
+			mem[writeup++] = (byte8)ct;
+			/*
 			*reinterpret_cast<uint*>(&mem[writeup]) = (uint)ct;
 			writeup += 4;
+			*/
 		}
 
 		if (fd->param_data[paramid].td->typetype != 's')
