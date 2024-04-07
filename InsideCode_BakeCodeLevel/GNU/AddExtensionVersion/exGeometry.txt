@@ -21,7 +21,7 @@ struct angle2d{
 struct rectf4{
     vec2f fp;
     vec2f lp;
-}
+};
 
 struct vec3f{
     float x;
@@ -54,7 +54,18 @@ circle _circle(vec2f cen, float rad);
 line2d _line2d(vec2f FP, vec2f LP);
 angle2d _angle2d_delta(float deltaX, float deltaY);
 angle2d _angle2d(float radian);
+
 vec2f[2] get_cross_CircleAndLine(circle c, line2d l);
 vec2f get_pos_in_LineAndRatioAB(line2d l, float A, float B);
 vec2f* get_poses_in_Bezier1F(vec2f p0, vec2f p1, vec2f factor, uint sizeOfVertex);
-float get_distance(line2d l);
+float get_distance2d(line2d l);
+bool isPosInRect2d(vec2f pos, rect4f rt);
+bool isPosInPolygonRange(vec2f pos, vec2f* polygon, uint polygon_vertex_siz);
+angle2d addAngle(angle2d A, angle2d B);
+
+vec3f[2] get_cross_SphereAndLine(sphere c, line3d l);
+vec3f get_pos_in_LineAndRatioAB(line3d l, float A, float B);
+vec3f* get_poses_in_Bezier1F(vec3f p0, vec3f p1, vec3f factor, uint sizeOfVertex);
+float get_distance(line3d l);
+bool isPosInCube3d(vec3f pos, cubef6 cb);
+angle3d addAngle(angle3d A, angle3d B);
