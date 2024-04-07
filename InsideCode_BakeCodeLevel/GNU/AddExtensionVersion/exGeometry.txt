@@ -1,0 +1,60 @@
+struct vec2f{
+    float x;
+    float y;
+};
+
+struct circle{
+    vec2f center;
+    float radius;
+};
+
+struct line2d{
+    vec2f fp;
+    vec2f lp;
+};
+
+struct angle2d{
+    vec2f delta;
+	float radian;
+};
+
+struct rectf4{
+    vec2f fp;
+    vec2f lp;
+}
+
+struct vec3f{
+    float x;
+    float y;
+    float z;
+};
+
+struct sphere{
+    vec3f center;
+    float radius;
+};
+
+struct line3d{
+    vec3f fp;
+    vec3f lp;
+};
+
+struct cubef6{
+    vec3f fp;
+    vec3f lp;
+};
+
+struct angle3d{
+    vec3f delta;
+	vec2f radian;
+};
+
+vec2f _vec2f(float x, float y);
+circle _circle(vec2f cen, float rad);
+line2d _line2d(vec2f FP, vec2f LP);
+angle2d _angle2d_delta(float deltaX, float deltaY);
+angle2d _angle2d(float radian);
+vec2f[2] get_cross_CircleAndLine(circle c, line2d l);
+vec2f get_pos_in_LineAndRatioAB(line2d l, float A, float B);
+vec2f* get_poses_in_Bezier1F(vec2f p0, vec2f p1, vec2f factor, uint sizeOfVertex);
+float get_distance(line2d l);
