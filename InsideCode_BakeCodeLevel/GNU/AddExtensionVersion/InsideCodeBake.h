@@ -2248,7 +2248,7 @@ public:
 						tm->mem.push_back(rtm->mem[i]);
 					}
 
-					casting_type ct = get_cast_type(tm->valuetype, get_int_with_basictype(fd->param_data.at(paramCount).td));
+					casting_type ct = get_cast_type(rtm->valuetype, get_int_with_basictype(fd->param_data.at(paramCount).td));
 					tm->mem.push_back(201);
 					tm->mem.push_back((byte8)ct);
 					/*
@@ -6467,7 +6467,8 @@ CASTING_A:
 	castend_label = &&CASTEND_A;
 	casting_value = _as[0];
 	casted_value = 0;
-	goto *cast[*++*pc];
+	++*pc;
+	goto *cast[**pc];
 
 CASTING_B:
 	castend_label = &&CASTEND_B;
