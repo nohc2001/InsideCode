@@ -2316,7 +2316,7 @@ public:
 				{
 					tm->mem.push_back(rtm->mem[i]);
 				}
-				casting_type ct = get_cast_type(tm->valuetype, get_int_with_basictype(fd->param_data.at(paramCount).td));
+				casting_type ct = get_cast_type(rtm->valuetype, get_int_with_basictype(fd->param_data.at(paramCount).td));
 				tm->mem.push_back(201);
 				tm->mem.push_back((byte8)ct);
 				/*
