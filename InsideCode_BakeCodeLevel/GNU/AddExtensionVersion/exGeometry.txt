@@ -62,6 +62,7 @@ float get_distance2d(line2d l);
 bool isPosInRect2d(vec2f pos, rect4f rt);
 bool isPosInPolygonRange(vec2f pos, vec2f* polygon, uint polygon_vertex_siz);
 angle2d addAngle(angle2d A, angle2d B);
+vec2f get_cross_line(line2d A, line2d B);
 
 vec3f[2] get_cross_SphereAndLine(sphere c, line3d l);
 vec3f get_pos_in_LineAndRatioAB(line3d l, float A, float B);
