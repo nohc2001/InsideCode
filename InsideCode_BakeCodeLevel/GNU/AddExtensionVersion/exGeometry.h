@@ -398,6 +398,23 @@ void exGeometry_get_cross_line(int* pcontext){
     icc->_as.move_pivot(-1);
 }
 
+//bool isNAN(float f);
+void exGeometry_isNAN(int* pcontext){
+    ICB_Context* icc = reinterpret_cast<ICB_Context*>(pcontext);
+    float f = *reinterpret_cast<float*>(icc->rfsp - 4);
+    bool r;
+    if(isnanf(f)){
+        r = true;
+    }
+    else{
+        r = false;
+    }
+    icc->sp -= sizeof(bool);
+    *reinterpret_cast<bool*>(icc->sp) = r;
+    icc->_as[0] = icc->sp - icc->mem;
+    icc->_as.move_pivot(-1);
+}
+
 ICB_Extension* Init_exGeometry(){
     //확장을 입력.
     ICB_Extension* ext = (ICB_Extension*)fm->_New(sizeof(ICB_Extension), true);
@@ -421,6 +438,7 @@ ICB_Extension* Init_exGeometry(){
     ext->exfuncArr[++i]->start_pc = reinterpret_cast<byte8*>(exGeometry_isPosInRect2d);//9
     ext->exfuncArr[++i]->start_pc = reinterpret_cast<byte8*>(exGeometry_addAngle2d);//10
     ext->exfuncArr[++i]->start_pc = reinterpret_cast<byte8*>(exGeometry_get_cross_line);//11
+    ext->exfuncArr[++i]->start_pc = reinterpret_cast<byte8*>(exGeometry_isNAN);//12
     
     return ext;
 }

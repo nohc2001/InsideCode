@@ -1,18 +1,38 @@
-void print_vec3f(vec3f obj){
-	dbg("vector = (");
-	dbg(obj.x);
-	dbg(", ");
-	dbg(obj.y);
-	dbg(", ");
-	dbg(obj.z);
-	dbg(")\n");
-}
-
+float PI = 3.141592;
 int main(){
-	vec3f A;
-	A.x = 10;
-	A.y = 20;
-	A.z = add(A.x, A.y);
-	print_vec3f(A);
+	vec2f pos1 = _vec2f(10, 20);
+	vec2f pos2 = _vec2f(3, 4);
+
+	line2d line1 = _line2d(pos1, pos2);
+
+	float len = get_distance2d(line1);
+
+	circle cir1 = _circle(pos1, len);
+
+	vec2f ratePos = get_pos_in_LineAndRatioAB(line1, 2, 1);
+	angle2d ang1 = _angle2d_delta(pos1.x - pos2.x, pos1.y - pos2.y);
+	angle2d ang2 = _angle2d(PI / 3);
+	angle2d rang = addAngle(ang1, ang2);
+
+	pos1 = _vec2f(pos1.x + rang.delta.x * 30, pos1.y + rang.delta.y * 30);
+	vec2f cross = get_cross_line(_line2d(pos1, ratePos), _line2d(pos2, cir1.center));
+
+	vec2f[2] circross = get_cross_CircleAndLine(cir1, _line2d(cross, _vec2f(100, 200)));
+	if(isNAN(circross[0].x)){
+		dbg("cross 0 is nan!!\n");
+	}
+	if(isNAN(circross[1].x)){
+		dbg("cross 1 is nan!!\n");
+	}
+
+	int bSiz = 100;
+	vec2f* bezierCurve = get_poses_in_Bezier1F(circross, pos2, cross, bSiz);
+	int i=0;while(i<bSiz){
+		dbg("pos ["); dbg(i); dbg("] : (");
+		dbg(bezierCurve[i].x); dbg(", "); dbg(bezierCurve[i].y);
+		dbg(")");
+		dbg("\n");
+		i+=1;
+	}
 	return 0;
 }

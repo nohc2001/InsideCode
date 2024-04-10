@@ -1,6 +1,6 @@
 #include "InsideCodeBake.h"
 #include "ICB_Extension.h"
-#include "exAdd.h"
+#include "exGeometry.h"
 
 extern FM_System0 *fm;
 
@@ -14,7 +14,7 @@ int main(){
     InsideCode_Bake::StaticInit();
     InsideCode_Bake icb;
 	icb.init();
-    ICB_Extension* ext = Init_exAdd();
+    ICB_Extension* ext = Init_exGeometry();
     icb.extension.push_back(ext);
 	icb.bake_code("code.txt");
 
