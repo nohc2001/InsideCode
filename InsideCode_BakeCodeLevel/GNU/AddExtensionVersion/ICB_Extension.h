@@ -280,8 +280,6 @@ bool IsTypeString(const char *str, ICB_Extension* ext)
     return false;
 }
 
-
-
 vecarr<code_sen *> *AddCodeFromBlockData(vecarr<char *> &allcodesen, const char *ScanMod, ICB_Extension* ext)
 {
     // allcode_sen-> allcode_sen
@@ -320,6 +318,7 @@ vecarr<code_sen *> *AddCodeFromBlockData(vecarr<char *> &allcodesen, const char 
                 }
                 if (IsTypeString(allcodesen[i], ext))
                 {
+                    //일단 타입이 감지되면 특정한 함수가 allcodesen과 i를 받고, 타입을 나타내는 인덱스까지의 범위를 반환하면 좋겠음. 그럼 될듯.
                     if (strcmp(allcodesen[i + 2], "(") == 0)
                     {
                         // addfunction
