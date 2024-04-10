@@ -773,7 +773,6 @@ shp::vec2f shp::GetCrossPoint(straightLine sl1, straightLine sl2)
 			cross.y = (sl1.yrate == 0) ? sl1.inDot.y : sl2.inDot.y;
 			cross.x = (sl1.yrate == 0) ? sl2.GetXFromY(cross.y) : sl1.GetXFromY(cross.y);
 		}
-
 	}
 	return cross;
 }

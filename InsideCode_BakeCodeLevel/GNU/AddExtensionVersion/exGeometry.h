@@ -1,3 +1,4 @@
+//version 0.1
 #ifndef EXGEOMETRY_H
 #define EXGEOMETRY_H
 
@@ -26,7 +27,7 @@ struct angle2d{
 	float radian;
 };
 
-struct rectf4{
+struct rect4f{
     vec2f fp;
     vec2f lp;
 };
@@ -275,148 +276,125 @@ void exGeometry_get_poses_in_Bezier1F(int* pcontext){
     vec2f e = *reinterpret_cast<vec2f*>(icc->rfsp - 20);
     vec2f factor = *reinterpret_cast<vec2f*>(icc->rfsp - 12);
     uint Siz = *reinterpret_cast<uint*>(icc->rfsp - 4);
-
-    float t = 0;
-    float delta = 1 / (float)Siz;
-    fm->_tempPushLayer();
-    icc->sp -= sizeof(vec2f)*Siz;
-    vec2f* output = (vec2f*)icc->sp;
-    float it = (1.0f);
     vec2f sf, ef;
     sf = s;
-    ef = e;
-    const float fdx = factor.x * delta;
-    const float fdy = factor.y * delta;
-    const float sfdx = fdx - s.x * delta;
-    const float sfdy = fdy - s.y * delta;
-    const float efdx = e.x * delta - fdx;
-    const float efdy = e.y * delta - fdy;
-    const float outaddx = efdx - sfdx;
-    const float outaddy = efdy - sfdy;
-    const float SdeltaOx = Siz * sfdx;
-    const float SdeltaOy = Siz * sfdy;
-
-    float save_ox = 0;
-    float save_oy = 0;
-    float prev_sfx=0, prev_sfy=0;
-    float prev_efx=0, prev_efy=0;
+    ef = factor;
+    float t = 0;
+    float delta = 1.0f / (float)Siz;
+    icc->sp -= sizeof(vec2f)*Siz;
+    vec2f* out = (vec2f*)icc->sp;
     for(int i=0;i<Siz;++i){
-        //sf.x += sfdx;
-        //sf.y += sfdy;
-        //ef.x += efdx;
-        //ef.y += efdy;
-        //output[i].x = it*sf.x + t*ef.x;
-        //output[i].y = it*sf.y + t*ef.y;
-        output[i].x = output[i-1].x - save_ox + SdeltaOx - prev_sfx + prev_efx;
-        output[i].y = output[i-1].y - save_oy + SdeltaOy - prev_sfy + prev_efy;
-
-        save_ox += outaddx;
-        save_oy += outaddy;
-        prev_sfx += sfdx;
-        prev_sfy += sfdy;
-        prev_efx += efdx;
-        prev_efy += efdy;
+        sf.x = (1.0f-t)*s.x + t*factor.x;
+        sf.y = (1.0f-t)*s.y + t*factor.y;
+        ef.x = (1.0f-t)*factor.x + t*e.x;
+        ef.y = (1.0f-t)*factor.y + t*e.y;
+        out[i].x = (1.0f-t)*sf.x + t*ef.x;
+        out[i].y = (1.0f-t)*sf.y + t*ef.y;
+        t += delta;
     }
     icc->_as[0] = icc->sp - icc->mem;
     icc->_as.move_pivot(-1);
-    fm->_tempPopLayer();
 }
 
 //float get_distance2d(line2d l);
 void exGeometry_get_distance2d(int* pcontext){
     ICB_Context* icc = reinterpret_cast<ICB_Context*>(pcontext);
     line2d L = *reinterpret_cast<line2d*>(icc->rfsp - 16);
-    icc->_as[0] = a+b;
+    float distx = (L.lp.x - L.fp.x);
+    float disty = (L.lp.y - L.fp.y);
+    float dist = sqrtf(distx*distx + disty*disty);
+    *reinterpret_cast<float*>(&icc->_as[0]) = dist;
     icc->_as.move_pivot(-1);
 }
 
 //bool isPosInRect2d(vec2f pos, rect4f rt);
 void exGeometry_isPosInRect2d(int* pcontext){
     ICB_Context* icc = reinterpret_cast<ICB_Context*>(pcontext);
-    int a = *reinterpret_cast<int*>(icc->rfsp - 8);
-    int b = *reinterpret_cast<int*>(icc->rfsp - 4);
-    icc->_as[0] = a+b;
-    icc->_as.move_pivot(-1);
-}
-
-//bool isPosInPolygonRange(vec2f pos, vec2f* polygon, uint polygon_vertex_siz);
-void exGeometry_isPosInPolygonRange(int* pcontext){
-    ICB_Context* icc = reinterpret_cast<ICB_Context*>(pcontext);
-    int a = *reinterpret_cast<int*>(icc->rfsp - 8);
-    int b = *reinterpret_cast<int*>(icc->rfsp - 4);
-    icc->_as[0] = a+b;
+    vec2f pos = *reinterpret_cast<vec2f*>(icc->rfsp - 24);
+    rect4f rt = *reinterpret_cast<rect4f*>(icc->rfsp - 16);
+    bool b = rt.fp.x < pos.x && pos.x < rt.lp.x;
+    b = b || (rt.fp.y < pos.y && pos.y < rt.lp.y);
+    *reinterpret_cast<bool*>(&icc->_as[0]) = b;
     icc->_as.move_pivot(-1);
 }
 
 //angle2d addAngle(angle2d A, angle2d B);
 void exGeometry_addAngle2d(int* pcontext){
     ICB_Context* icc = reinterpret_cast<ICB_Context*>(pcontext);
-    int a = *reinterpret_cast<int*>(icc->rfsp - 8);
-    int b = *reinterpret_cast<int*>(icc->rfsp - 4);
-    icc->_as[0] = a+b;
+    angle2d A = *reinterpret_cast<angle2d*>(icc->rfsp - 24);
+    angle2d B = *reinterpret_cast<angle2d*>(icc->rfsp - 12);
+    angle2d R;
+    R.radian = A.radian + B.radian;
+    R.radian -= 2*PI*floorf((R.radian) / (2*PI));
+    R.delta.x = cosf(R.radian);
+    R.delta.y = sinf(R.radian);
+
+    icc->sp -= sizeof(angle2d);
+    *reinterpret_cast<angle2d*>(icc->sp) = R;
+    icc->_as[0] = icc->sp - icc->mem;
     icc->_as.move_pivot(-1);
 }
 
 //vec2f get_cross_line(line2d A, line2d B);
 void exGeometry_get_cross_line(int* pcontext){
     ICB_Context* icc = reinterpret_cast<ICB_Context*>(pcontext);
-    int a = *reinterpret_cast<int*>(icc->rfsp - 8);
-    int b = *reinterpret_cast<int*>(icc->rfsp - 4);
-    icc->_as[0] = a+b;
-    icc->_as.move_pivot(-1);
-}
+    line2d sl1 = *reinterpret_cast<line2d*>(icc->rfsp - 32);
+    line2d sl2 = *reinterpret_cast<line2d*>(icc->rfsp - 16);
 
-//vec3f[2] get_cross_SphereAndLine(sphere c, line3d l);
-void exGeometry_get_cross_SphereAndLine(int* pcontext){
-    ICB_Context* icc = reinterpret_cast<ICB_Context*>(pcontext);
-    int a = *reinterpret_cast<int*>(icc->rfsp - 8);
-    int b = *reinterpret_cast<int*>(icc->rfsp - 4);
-    icc->_as[0] = a+b;
-    icc->_as.move_pivot(-1);
-}
+    vec2f sl1Rate, sl2Rate;
+    sl1Rate.x = sl1.lp.x - sl1.fp.x;
+    sl1Rate.y = sl1.lp.y - sl1.fp.y;
+    sl2Rate.x = sl2.lp.x - sl2.fp.x;
+    sl2Rate.y = sl2.lp.y - sl2.fp.y;
 
-//vec3f get_pos_in_LineAndRatioAB(line3d l, float A, float B);
-void exGeometry_get_pos_in_LineAndRatioAB(int* pcontext){
-    ICB_Context* icc = reinterpret_cast<ICB_Context*>(pcontext);
-    int a = *reinterpret_cast<int*>(icc->rfsp - 8);
-    int b = *reinterpret_cast<int*>(icc->rfsp - 4);
-    icc->_as[0] = a+b;
-    icc->_as.move_pivot(-1);
-}
+    vec2f cross;
+	if (sl1Rate.x * sl2Rate.x != 0 || sl1Rate.y * sl2Rate.y != 0) {
+		cross.x = (sl1.fp.x * sl1Rate.y / sl1Rate.x - sl1.fp.y - sl2.fp.x * sl2Rate.y / sl2Rate.x + sl2.fp.y) / (sl1Rate.y / sl1Rate.x - sl2Rate.y / sl2Rate.x);
+		cross.y = (sl1Rate.y / sl1Rate.x)* (cross.x - sl1.fp.x) + sl1.fp.y;
+	}
+	else {
+		if (sl1Rate.x == 0 || sl2Rate.x == 0) {
+			cross.x = (sl1Rate.x == 0) ? sl1.fp.x : sl2.fp.x;
+			if (sl1Rate.y == 0 || sl2Rate.y == 0) {
+				cross.y = (sl1Rate.y == 0) ? sl1.fp.y : sl2.fp.y;
+			}
+			else {
+				cross.y = (sl1Rate.x == 0) ? ((sl2Rate.y / sl2Rate.x)* (cross.x - sl2.fp.x) + sl2.fp.y) : ((sl1Rate.y / sl1Rate.x)* (cross.x - sl1.fp.x) + sl1.fp.y);
+			}
+		}
+		else {
+			cross.y = (sl1Rate.y == 0) ? sl1.fp.y : sl2.fp.y;
+			cross.x = (sl1Rate.y == 0) ? ((sl2Rate.x / sl2Rate.y)* (cross.y - sl2.fp.y) + sl2.fp.x) : ((sl1Rate.x / sl1Rate.y)* (cross.y - sl1.fp.y) + sl1.fp.x);
+		}
+	}
+	//return cross;
 
-//vec3f* get_poses_in_Bezier1F(vec3f p0, vec3f p1, vec3f factor, uint sizeOfVertex);
-void exGeometry_get_poses_in_Bezier1F(int* pcontext){
-    ICB_Context* icc = reinterpret_cast<ICB_Context*>(pcontext);
-    int a = *reinterpret_cast<int*>(icc->rfsp - 8);
-    int b = *reinterpret_cast<int*>(icc->rfsp - 4);
-    icc->_as[0] = a+b;
-    icc->_as.move_pivot(-1);
-}
+    bool b = true;
+    vec2f temp_mm;
+    temp_mm.x = (sl1.fp.x < sl1.lp.x) ? sl1.fp.x : sl1.lp.x;
+    temp_mm.y = (sl1.fp.x < sl1.lp.x) ? sl1.lp.x : sl1.fp.x;
+    b = b && (temp_mm.x <= cross.x && cross.x <= temp_mm.y);
 
-//float get_distance(line3d l);
-void exGeometry_get_distance(int* pcontext){
-    ICB_Context* icc = reinterpret_cast<ICB_Context*>(pcontext);
-    int a = *reinterpret_cast<int*>(icc->rfsp - 8);
-    int b = *reinterpret_cast<int*>(icc->rfsp - 4);
-    icc->_as[0] = a+b;
-    icc->_as.move_pivot(-1);
-}
+    temp_mm.x = (sl1.fp.y < sl1.lp.y) ? sl1.fp.y : sl1.lp.y;
+    temp_mm.y = (sl1.fp.y < sl1.lp.y) ? sl1.lp.y : sl1.fp.y;
+    b = b && (temp_mm.x <= cross.y && cross.y <= temp_mm.y);
 
-//bool isPosInCube3d(vec3f pos, cubef6 cb);
-void exGeometry_isPosInCube3d(int* pcontext){
-    ICB_Context* icc = reinterpret_cast<ICB_Context*>(pcontext);
-    int a = *reinterpret_cast<int*>(icc->rfsp - 8);
-    int b = *reinterpret_cast<int*>(icc->rfsp - 4);
-    icc->_as[0] = a+b;
-    icc->_as.move_pivot(-1);
-}
+    temp_mm.x = (sl2.fp.x < sl2.lp.x) ? sl2.fp.x : sl2.lp.x;
+    temp_mm.y = (sl2.fp.x < sl2.lp.x) ? sl2.lp.x : sl2.fp.x;
+    b = b && (temp_mm.x <= cross.x && cross.x <= temp_mm.y);
 
-//angle3d addAngle(angle3d A, angle3d B);
-void exGeometry_addAngle3d(int* pcontext){
-    ICB_Context* icc = reinterpret_cast<ICB_Context*>(pcontext);
-    int a = *reinterpret_cast<int*>(icc->rfsp - 8);
-    int b = *reinterpret_cast<int*>(icc->rfsp - 4);
-    icc->_as[0] = a+b;
+    temp_mm.x = (sl2.fp.y < sl2.lp.y) ? sl2.fp.y : sl2.lp.y;
+    temp_mm.y = (sl2.fp.y < sl2.lp.y) ? sl2.lp.y : sl2.fp.y;
+    b = b && (temp_mm.x <= cross.y && cross.y <= temp_mm.y);
+
+    if(b == false){
+        cross.x = NAN;
+        cross.y = NAN;
+    }
+
+    icc->sp -= sizeof(vec2f);
+    *reinterpret_cast<vec2f*>(icc->sp) = cross;
+    icc->_as[0] = icc->sp - icc->mem;
     icc->_as.move_pivot(-1);
 }
 
@@ -424,14 +402,26 @@ ICB_Extension* Init_exGeometry(){
     //확장을 입력.
     ICB_Extension* ext = (ICB_Extension*)fm->_New(sizeof(ICB_Extension), true);
     ext->exfuncArr.NULLState();
-    ext->exfuncArr.Init(8, false);
+    ext->exfuncArr.Init(32, false);
     ext->exstructArr.NULLState();
-    ext->exstructArr.Init(8, false);
+    ext->exstructArr.Init(32, false);
 
     bake_Extension("exGeometry.txt", ext);
     
-    ext->exfuncArr[0]->start_pc = reinterpret_cast<byte8*>(exAdd_add);
-
+    int i = -1;
+    ext->exfuncArr[++i]->start_pc = reinterpret_cast<byte8*>(exGeometry__vec2f);//0
+    ext->exfuncArr[++i]->start_pc = reinterpret_cast<byte8*>(exGeometry__circle);//1
+    ext->exfuncArr[++i]->start_pc = reinterpret_cast<byte8*>(exGeometry__line2d);//2
+    ext->exfuncArr[++i]->start_pc = reinterpret_cast<byte8*>(exGeometry__angle2d_delta);//3
+    ext->exfuncArr[++i]->start_pc = reinterpret_cast<byte8*>(exGeometry__angle2d);//4
+    ext->exfuncArr[++i]->start_pc = reinterpret_cast<byte8*>(exGeometry_get_cross_CircleAndLine);//5
+    ext->exfuncArr[++i]->start_pc = reinterpret_cast<byte8*>(exGeometry_get_pos_in_LineAndRatioAB);//6
+    ext->exfuncArr[++i]->start_pc = reinterpret_cast<byte8*>(exGeometry_get_poses_in_Bezier1F);//7
+    ext->exfuncArr[++i]->start_pc = reinterpret_cast<byte8*>(exGeometry_get_distance2d);//8
+    ext->exfuncArr[++i]->start_pc = reinterpret_cast<byte8*>(exGeometry_isPosInRect2d);//9
+    ext->exfuncArr[++i]->start_pc = reinterpret_cast<byte8*>(exGeometry_addAngle2d);//10
+    ext->exfuncArr[++i]->start_pc = reinterpret_cast<byte8*>(exGeometry_get_cross_line);//11
+    
     return ext;
 }
 
