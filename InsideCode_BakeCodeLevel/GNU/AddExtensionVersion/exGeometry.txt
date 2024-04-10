@@ -18,7 +18,7 @@ struct angle2d{
 	float radian;
 };
 
-struct rectf4{
+struct rect4f{
     vec2f fp;
     vec2f lp;
 };

@@ -280,6 +280,8 @@ bool IsTypeString(const char *str, ICB_Extension* ext)
     return false;
 }
 
+
+
 vecarr<code_sen *> *AddCodeFromBlockData(vecarr<char *> &allcodesen, const char *ScanMod, ICB_Extension* ext)
 {
     // allcode_sen-> allcode_sen
@@ -354,6 +356,7 @@ vecarr<code_sen *> *AddCodeFromBlockData(vecarr<char *> &allcodesen, const char 
                         i = startI - 1;
                         StartI = i + 1;
                     }
+                    
                 }
                 else if (allcodesen.size() > i + 2 && (strcmp(allcodesen[i + 2], "(") == 0 && strcmp(allcodesen[i], "void") == 0))
                 {
@@ -716,7 +719,10 @@ void bake_Extension(const char* filename, ICB_Extension* ext){
 	{
 		// fm->dbg_fm1_lifecheck();
 		code_sen *cs = senptr->at(i);
-        if (cs->ck == codeKind::ck_addFunction) compile_addFunction(cs, ext);
+        dbg_codesen(cs);
+        if (cs->ck == codeKind::ck_addFunction){
+            compile_addFunction(cs, ext);
+        } 
 	}
 }
 
