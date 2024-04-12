@@ -318,8 +318,22 @@ vecarr<code_sen *> *AddCodeFromBlockData(vecarr<char *> &allcodesen, const char 
                 }
                 if (IsTypeString(allcodesen[i], ext))
                 {
+                    int typeS = i;
+                    int typeE = i;
+                    while(true){
+                        if(strcmp(allcodesen[typeE+1], "*") == 0){
+                            typeE += 1;
+                        }
+                        else if(strcmp(allcodesen[typeE+1], "[") == 0){
+                            typeE += 3;
+                        }
+                        else{
+                            break;
+                        }
+                    }
+                    
                     //일단 타입이 감지되면 특정한 함수가 allcodesen과 i를 받고, 타입을 나타내는 인덱스까지의 범위를 반환하면 좋겠음. 그럼 될듯.
-                    if (strcmp(allcodesen[i + 2], "(") == 0)
+                    if (strcmp(allcodesen[typeE+2], "(") == 0)
                     {
                         // addfunction
                         code_sen *cs = (code_sen *)fm->_New(sizeof(code_sen), true);
@@ -327,10 +341,11 @@ vecarr<code_sen *> *AddCodeFromBlockData(vecarr<char *> &allcodesen, const char 
                         vecarr<char *> cbs;
                         cbs.NULLState();
                         cbs.Init(3, true);
-                        cbs.push_back(allcodesen[i]);
-                        cbs.push_back(allcodesen[i + 1]);
+                        for(int k=typeS;k<typeE+2;++k){
+                            cbs.push_back(allcodesen[k]);
+                        }
 
-                        int startI = i + 2;
+                        int startI = typeE + 2;
                         int count = 0;
                         while (1)
                         {

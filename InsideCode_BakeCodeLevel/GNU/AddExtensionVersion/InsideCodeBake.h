@@ -1992,7 +1992,7 @@ public:
 			for (int i = 0; i < extension.size(); ++i)
 			{
 				ICB_Extension* ext = extension.at(i);
-				for(int k=0;k<ext->exstructArr.size();++i){
+				for(int k=0;k<ext->exstructArr.size();++k){
 					if (strcmp(bt, ext->exstructArr.at(k)->name.c_str()) == 0)
 					{
 						td = ext->exstructArr.at(k);
