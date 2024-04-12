@@ -162,7 +162,8 @@ TBT DecodeTextBlock(lcstr &t)
 			continue;
 		}
 
-		if (i == 0 && c == '-')
+		//음수 표현
+		if ((i == 0 && c == '-' ) && t.size() > 1)
 		{
 			intarray[i] = 1;
 			continue;
@@ -2231,6 +2232,7 @@ public:
 			while (coma != -1)
 			{
 				sen *param_sen = wbss.sen_cut(params_sen, savecoma + 1, coma - 1);
+				wbss.dbg_sen(param_sen);
 				temp_mem *rtm = get_asm_from_sen(param_sen, true, true);
 
 				if (rtm->valuetype_detail->typetype == 's')
@@ -2745,6 +2747,7 @@ public:
 					continue;
 				if (seg->size() == 0)
 					continue;
+
 				lcstr str;
 				str.NULLState();
 				str.Init(2, true);
@@ -2752,6 +2755,10 @@ public:
 				TBT tbt = DecodeTextBlock(str);
 				if (tbt == TBT::_operation)
 				{
+					for(int u=0;u<segs.size();++u){
+						cout << segs.at(u)->at(0).data.str << " ][ ";
+					}
+					cout << endl;
 					if (strcmp(str.Arr, basicoper[k].symbol) == 0)
 					{
 						if (basicoper[k].mod == 'o')
@@ -3459,6 +3466,11 @@ public:
 			tm = reinterpret_cast<temp_mem *>(segs[0]->at(0).data.str);
 			return tm;
 		}
+
+		for(int u=0;u<segs.size();++u){
+			cout << segs.at(u)->at(0).data.str << " ][ ";
+		}
+		cout << endl;
 
 		return nullptr;
 	}
