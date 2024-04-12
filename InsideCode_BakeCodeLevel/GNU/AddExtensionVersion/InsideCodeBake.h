@@ -3258,8 +3258,8 @@ public:
 
 									result_ten->mem.push_back(27); // b = const value
 									byte8* barr = (byte8*)&add_address;
-									for(int i=0;i<4;++i){
-										result_ten->mem.push_back(barr[i]);
+									for(int u=0;u<4;++u){
+										result_ten->mem.push_back(barr[u]);
 									}
 									// axby
 									result_ten->mem.push_back(52);
@@ -3289,7 +3289,7 @@ public:
 									segs[i]->at(0).type = 'a'; // asm
 									segs[i]->at(0).data.str = reinterpret_cast<char *>(result_ten);
 									segs.erase(i - 1);
-									--i;
+									i -= 2;
 
 									release_tempmem(left_ten);
 								}
