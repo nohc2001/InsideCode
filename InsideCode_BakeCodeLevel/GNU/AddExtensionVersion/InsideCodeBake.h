@@ -2219,7 +2219,7 @@ public:
 			}
 
 			wbss.dbg_sen(params_sen);
-			int coma = wbss.search_word_first(0, params_sen, ",");
+			int coma = wbss.search_word_first_in_specific_oc_layer(params_sen, 0, "(", ")", 0, ",");
 			int savecoma = -1;
 			int last = params_sen->size() - 1;
 
@@ -2296,7 +2296,8 @@ public:
 				release_tempmem(rtm);
 
 				savecoma = coma;
-				coma = wbss.search_word_first(coma + 1, params_sen, ",");
+				coma = wbss.search_word_first_in_specific_oc_layer(params_sen, coma+1, "(", ")", 0, ",");
+				//coma = wbss.search_word_first(coma + 1, params_sen, ",");
 				paramCount += 1;
 			}
 
@@ -3236,7 +3237,7 @@ public:
 								left_ten = get_asm_from_sen(segs.at(i - 1), true, false);
 								type_data *member_td;
 								int add_address = 0;
-								
+
 								type_data* struct_td = left_ten->valuetype_detail;
 								if(left_ten->valuetype_detail->typetype == 'p'){
 									struct_td = get_sub_type(left_ten->valuetype_detail);
@@ -4373,7 +4374,7 @@ public:
 		}
 		int last = params_sen->size() - 1;
 		wbss.dbg_sen(params_sen);
-		int coma = wbss.search_word_first(0, params_sen, ",");
+		int coma = wbss.search_word_first_in_specific_oc_layer(params_sen, 0, "(", ")", 0, ",");
 		int savecoma = -1;
 
 		int addadd = 0;
@@ -4434,7 +4435,8 @@ public:
 			}
 
 			savecoma = coma;
-			coma = wbss.search_word_first(savecoma+1, params_sen, ",");
+			coma = wbss.search_word_first_in_specific_oc_layer(params_sen, savecoma+1, "(", ")", 0, ",");
+			//coma = wbss.search_word_first(savecoma+1, params_sen, ",");
 
 			++paramid;
 
