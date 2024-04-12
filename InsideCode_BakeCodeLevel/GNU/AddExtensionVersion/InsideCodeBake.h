@@ -3236,7 +3236,12 @@ public:
 								left_ten = get_asm_from_sen(segs.at(i - 1), true, false);
 								type_data *member_td;
 								int add_address = 0;
-								type_data* struct_td = get_sub_type(left_ten->valuetype_detail);
+								
+								type_data* struct_td = left_ten->valuetype_detail;
+								if(left_ten->valuetype_detail->typetype == 'p'){
+									struct_td = get_sub_type(left_ten->valuetype_detail);
+								}
+								
 								if(struct_td->typetype == 's' && segs.at(i+1)->at(0).type == 'w'){
 									struct_data* stdataPtr = (struct_data*)struct_td->structptr;
 									char* member_string = segs.at(i+1)->at(0).data.str;
