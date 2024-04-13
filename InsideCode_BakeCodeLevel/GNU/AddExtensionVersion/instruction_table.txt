@@ -220,8 +220,8 @@
 :PARAM_N_COPY_BY_ADDRESS+4;
 :A=&Global_VID+4;
 :B=&Global_VID+4;
-:Unallocated;
-:Unallocated;
+:A=B;
+:B=A;
 :Unallocated;
 :Unallocated;
 :Unallocated;

@@ -2104,14 +2104,75 @@ public:
 		{
 			*tm = *reinterpret_cast<temp_mem *>(ten->at(0).data.str);
 			if(isvalue){
-				if(tm->valuetype < 0){
+				if(tm->isValue == false){
 					tm->valuetype_detail = get_sub_type(tm->valuetype_detail);
-					tm->valuetype = -1 - tm->valuetype;
+					tm->valuetype = get_int_with_basictype(tm->valuetype_detail);
+					tm->isValue = true;
+					switch(tm->registerMod){
+						case 'A':
+						{
+							if(is_a){
+								tm->mem.push_back(205); // a = *a
+							}
+							else{
+								tm->mem.push_back(223); // b = a
+								tm->mem.push_back(206); // b = *b
+							}
+						}
+						break;
+						case 'B':
+						{
+							if(is_a){
+								tm->mem.push_back(222); // a = b
+								tm->mem.push_back(205); // a = *a
+							}
+							else{
+								tm->mem.push_back(206); // b = *b
+							}
+						}
+						break;
+					}
+				}
+			    else{
+					switch(tm->registerMod){
+						case 'A':
+						{
+							if(is_a == false){
+								tm->mem.push_back(223); // b = a
+							}
+						}
+						break;
+						case 'B':
+						{
+							if(is_a){
+								tm->mem.push_back(222); // a = b
+							}
+						}
+						break;
+					}
 				}
 			}
 			else{
 				if(tm->valuetype >= 0){
 					//WARN : imposible task. waring.
+				}
+				else{
+					switch(tm->registerMod){
+						case 'A':
+						{
+							if(is_a == false){
+								tm->mem.push_back(223); // b = a
+							}
+						}
+						break;
+						case 'B':
+						{
+							if(is_a){
+								tm->mem.push_back(222); // a = b
+							}
+						}
+						break;
+					}
 				}
 			}
 			
@@ -2823,11 +2884,13 @@ public:
 								{
 									int opp = basicoper[k].startop + 2 * opertype;
 									result_ten->mem.push_back((byte8)opp);
+									result_ten->registerMod = 'A';
 								}
 								else
 								{
 									int opp = basicoper[k].startop + 2 * opertype + 1;
 									result_ten->mem.push_back((byte8)opp);
+									result_ten->registerMod = 'B';
 								}
 
 								if (k <= 10)
@@ -2838,6 +2901,7 @@ public:
 								{
 									result_ten->valuetype = 7; // bool
 								}
+								result_ten->isValue = true;
 								result_ten->valuetype_detail =
 									get_basic_type_with_int(result_ten->valuetype);
 
@@ -2907,11 +2971,13 @@ public:
 									{
 										int opp = basicoper[k].startop;
 										result_ten->mem.push_back((byte8)opp);
+										result_ten->registerMod = 'A';
 									}
 									else
 									{
 										int opp = basicoper[k].startop;
 										result_ten->mem.push_back((byte8)opp);
+										result_ten->registerMod = 'B';
 									}
 
 									if (k <= 10)
@@ -2924,6 +2990,7 @@ public:
 									}
 									result_ten->valuetype_detail =
 										get_basic_type_with_int(result_ten->valuetype);
+									result_ten->isValue = true;
 
 									segs.erase(i + 1);
 									segs[i]->at(0).type = 'a'; // asm
@@ -2957,16 +3024,19 @@ public:
 									{
 										int opp = basicoper[k].startop; // A = !X
 										result_ten->mem.push_back((byte8)opp);
+										result_ten->registerMod = 'A';
 									}
 									else
 									{
 										int opp = basicoper[k].startop + 1; // B = !X
 										result_ten->mem.push_back((byte8)opp);
+										result_ten->registerMod = 'B';
 									}
 
 									result_ten->valuetype = 7; // bool
 									result_ten->valuetype_detail =
 										get_basic_type_with_int(result_ten->valuetype);
+									result_ten->isValue = true;
 
 									segs.erase(i + 1);
 									segs[i]->at(0).type = 'a'; // asm
@@ -3002,16 +3072,20 @@ public:
 									{
 										int opp = basicoper[k].startop;
 										result_ten->mem.push_back((byte8)opp);
+										result_ten->registerMod = 'A';
 									}
 									else
 									{
 										int opp = basicoper[k].startop + 1;
 										result_ten->mem.push_back((byte8)opp);
+										result_ten->registerMod = 'B';
 									}
 
 									result_ten->valuetype = 7; // bool
 									result_ten->valuetype_detail =
 										get_basic_type_with_int(result_ten->valuetype);
+									result_ten->isValue = true;
+									
 
 									segs.erase(i + 1);
 
@@ -3116,7 +3190,8 @@ public:
 								{
 									int opp = 61;
 									result_ten->mem.push_back((byte8)opp);
-									
+									result_ten->registerMod = 'A';
+									/*
 									if (isvalue)
 									{
 										if(is_array_type){
@@ -3150,20 +3225,22 @@ public:
 									{
 										result_ten->valuetype = 8;
 										if(is_array_type){
-											result_ten->valuetype_detail =
-											get_addpointer_type(std);
+											result_ten->valuetype_detail = get_addpointer_type(std);
 										}
 										else{
-											result_ten->valuetype_detail =
-											get_addpointer_type(td);
+											result_ten->valuetype_detail = get_addpointer_type(td);
 										}
 									}
+
+									*/
+									
 								}
 								else
 								{
 									int opp = 62;
 									result_ten->mem.push_back((byte8)opp);
-									
+									result_ten->registerMod = 'B';
+									/*
 									if (isvalue)
 									{
 										result_ten->valuetype = get_int_with_basictype(td);
@@ -3203,6 +3280,18 @@ public:
 											get_addpointer_type(td);
 										}
 									}
+
+									*/
+
+								}
+
+								result_ten->valuetype = 8;
+								result_ten->isValue = false;
+								if(is_array_type){
+									result_ten->valuetype_detail = get_addpointer_type(std);
+								}
+								else{
+									result_ten->valuetype_detail = get_addpointer_type(td);
 								}
 
 								segs.erase(i + 1);
@@ -4816,7 +4905,7 @@ class ICB_Context{
 
 	byte8 *rfsp = 0; // function stack pos
 	byte8 *lfsp = 0; // last function stack pos
-	byte8* saveSP = 0; // function save stack pos
+	vecarr<byte8*> saveSP; // function save stack pos
 
 	byte8 **rfspb = nullptr;
 	ushort **rfsps = nullptr;
@@ -4850,6 +4939,9 @@ class ICB_Context{
 		datamem.NULLState();
         datamem.Init(icb->datamem_up+8, false);
 		datamem.up = icb->datamem_up;
+
+		saveSP.NULLState();
+		saveSP.Init(32, false);
 
 		max_mem_byte = maxmembyte;
 		mem = (byte8*)fm->_New(max_mem_byte, true);
@@ -5022,7 +5114,7 @@ void execute(vecarr<ICB_Context *> icbarr, int execodenum,
 
 	byte8 **rfsp = 0; // function stack pos
 	byte8 **lfsp = 0; // last function stack pos
-	byte8** saveSP = 0; // function save stack pos
+	vecarr<byte8*>* saveSP; // function save stack pos
 
 	byte8 **rfspb = nullptr;
 	ushort **rfsps = nullptr;
@@ -6369,7 +6461,7 @@ FUNC:
 	fsp->push_back(--*sp);
 	*rfsp = fsp->last();
 */
-	*saveSP = *sp;
+	saveSP->push_back(*sp);
 	++*pc;
 	// *pc = &mem[*++*pci];
 	goto INSTEND;
@@ -6447,7 +6539,8 @@ SET_LA_FROM_A:
 
 FUNCJMP:
 	*lfsp = *rfsp;
-	fsp->push_back(*saveSP);
+	fsp->push_back(saveSP->last());
+	saveSP->pop_back();
 	*rfsp = fsp->last();
 
 	++*pc;
@@ -6787,9 +6880,22 @@ PUSH_B_GLOBAL_VARIABLE_ADDRESS:
 	++*pci;
 	goto INSTEND;
 
+PUSH_A_FROM_B:
+    ++*pc;
+	_as.move_pivot(-1);
+	_as[0] = _bs[0];
+    goto INSTEND;
+
+PUSH_B_FROM_A:
+    ++*pc;
+	_bs.move_pivot(-1);
+	_bs[0] = _as[0];
+    goto INSTEND;
+
 EXTENSION_INST:
 	*lfsp = *rfsp;
-	fsp->push_back(*saveSP);
+	fsp->push_back(saveSP->last());
+	saveSP->pop_back();
 	*rfsp = fsp->last();
 
 	++*pc;
@@ -7077,8 +7183,9 @@ INST_INIT:
 		inst[i++] = &&PUSH_A_GLOBAL_VARIABLE_ADDRESS;
 		inst[i++] = &&PUSH_B_GLOBAL_VARIABLE_ADDRESS;
 
-		inst[i++] = &&WAIT;
-		inst[i++] = &&WAIT;
+		inst[i++] = &&PUSH_A_FROM_B;
+		inst[i++] = &&PUSH_B_FROM_A;
+
 		inst[i++] = &&WAIT;
 		inst[i++] = &&WAIT;
 		inst[i++] = &&WAIT;
