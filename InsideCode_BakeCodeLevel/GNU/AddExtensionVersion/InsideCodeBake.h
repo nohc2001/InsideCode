@@ -454,10 +454,11 @@ struct struct_data
 
 struct temp_mem
 {
-	vecarr<byte8> mem;
-	int memsiz = 0;
-	int valuetype = 0;
-	type_data *valuetype_detail;
+	vecarr<byte8> mem; // 32
+	type_data *valuetype_detail; // 8
+	int valuetype = 0; // 4
+	char registerMod = 'A'; // A, B, X, Y ...
+	char isValue = true; // true > value operation state ; false > ptr operation state
 };
 
 enum class casting_type
@@ -2101,7 +2102,19 @@ public:
 		tm->valuetype_detail = nullptr;
 		if (ten->at(0).type == 'a')
 		{
-			tm = reinterpret_cast<temp_mem *>(ten->at(0).data.str);
+			*tm = *reinterpret_cast<temp_mem *>(ten->at(0).data.str);
+			if(isvalue){
+				if(tm->valuetype < 0){
+					tm->valuetype_detail = get_sub_type(tm->valuetype_detail);
+					tm->valuetype = -1 - tm->valuetype;
+				}
+			}
+			else{
+				if(tm->valuetype >= 0){
+					//WARN : imposible task. waring.
+				}
+			}
+			
 			return tm;
 		}
 
@@ -2146,7 +2159,7 @@ public:
 				inner_params->pop_back();
 				inner_params->erase(0);
 				temp_mem *rtm = get_asm_from_sen(inner_params, true, true);
-				for (int k = 0; k < rtm->memsiz; ++k)
+				for (int k = 0; k < rtm->mem.size(); ++k)
 				{
 					tm->mem.push_back(rtm->mem[k]);
 				}
@@ -2163,7 +2176,7 @@ public:
 				inner_params->pop_back();
 				inner_params->erase(0);
 				temp_mem *rtm = get_asm_from_sen(inner_params, true, true);
-				for (int k = 0; k < rtm->memsiz; ++k)
+				for (int k = 0; k < rtm->mem.size(); ++k)
 				{
 					tm->mem.push_back(rtm->mem[k]);
 				}
@@ -2214,7 +2227,6 @@ public:
 
 				params_sen->release();
 				fm->_Delete((byte8 *)params_sen, sizeof(sen));
-				tm->memsiz = tm->mem.size();
 				return tm;
 			}
 
@@ -2238,14 +2250,14 @@ public:
 				if (rtm->valuetype_detail->typetype == 's')
 				{
 					temp_mem *ptrtm = get_asm_from_sen(param_sen, true, false);
-					for (int i = 0; i < ptrtm->memsiz; ++i)
+					for (int i = 0; i < ptrtm->mem.size(); ++i)
 					{
 						tm->mem.push_back(ptrtm->mem[i]);
 					}
 				}
 				else
 				{
-					for (int i = 0; i < rtm->memsiz; ++i)
+					for (int i = 0; i < rtm->mem.size(); ++i)
 					{
 						tm->mem.push_back(rtm->mem[i]);
 					}
@@ -2308,14 +2320,14 @@ public:
 			if (rtm->valuetype_detail->typetype == 's')
 			{
 				temp_mem *ptrtm = get_asm_from_sen(param_sen, true, false);
-				for (int i = 0; i < ptrtm->memsiz; ++i)
+				for (int i = 0; i < ptrtm->mem.size(); ++i)
 				{
 					tm->mem.push_back(ptrtm->mem[i]);
 				}
 			}
 			else
 			{
-				for (int i = 0; i < rtm->memsiz; ++i)
+				for (int i = 0; i < rtm->mem.size(); ++i)
 				{
 					tm->mem.push_back(rtm->mem[i]);
 				}
@@ -2382,7 +2394,6 @@ public:
 				*reinterpret_cast<uint *>(&tm->mem[ll]) = (uint)(fd->start_pc - &mem[0]);
 			}
 
-			tm->memsiz = tm->mem.size();
 			tm->valuetype = get_int_with_basictype(fd->returntype);
 			tm->valuetype_detail = fd->returntype;
 
@@ -2438,14 +2449,14 @@ public:
 					{
 						tm->mem.push_back(206);
 					}
-					tm->memsiz = 6;
+
 					tm->valuetype = get_int_with_basictype(td);
 					tm->valuetype_detail = td;
 					return tm;
 				}
 				else
 				{
-					tm->memsiz = 5;
+
 					tm->valuetype = 8;
 					tm->valuetype_detail = get_addpointer_type(td);
 					return tm;
@@ -2489,14 +2500,12 @@ public:
 					{
 						tm->mem.push_back(206);
 					}
-					tm->memsiz = 6;
 					tm->valuetype = get_int_with_basictype(td);
 					tm->valuetype_detail = td;
 					return tm;
 				}
 				else
 				{
-					tm->memsiz = 5;
 					tm->valuetype = 8;
 					tm->valuetype_detail = get_addpointer_type(td);
 					return tm;
@@ -2532,7 +2541,6 @@ public:
 						tm->mem.push_back(0);
 					}
 					*reinterpret_cast<bool *>(&tm->mem[1]) = b;
-					tm->memsiz = 5;
 					tm->valuetype = 7;
 				}
 				break;
@@ -2553,7 +2561,6 @@ public:
 						tm->mem.push_back(0);
 					}
 					*reinterpret_cast<int *>(&tm->mem[1]) = a;
-					tm->memsiz = 5;
 					tm->valuetype = 4;
 				}
 				break;
@@ -2574,7 +2581,6 @@ public:
 						tm->mem.push_back(0);
 					}
 					*reinterpret_cast<float *>(&tm->mem[1]) = a;
-					tm->memsiz = 5;
 					tm->valuetype = 6;
 				}
 				break;
@@ -2619,8 +2625,6 @@ public:
 							break;
 						}
 					}
-
-					tm->memsiz = 2;
 					tm->valuetype = 0;
 				}
 				break;
@@ -2646,7 +2650,6 @@ public:
 						tm->mem.push_back(str[k]);
 					}
 					tm->mem.push_back(0);
-					tm->memsiz = tm->mem.size();
 					tm->valuetype = 8;
 				}
 				break;
@@ -2791,8 +2794,8 @@ public:
 									++add;
 
 								result_ten->mem.NULLState();
-								result_ten->mem.Init(result_ten->memsiz + 1, false);
-								for (int u = 0; u < left_ten->memsiz; ++u)
+								result_ten->mem.Init(result_ten->mem.size() + 1, false);
+								for (int u = 0; u < left_ten->mem.size(); ++u)
 								{
 									result_ten->mem.push_back(left_ten->mem[u]);
 								}
@@ -2802,7 +2805,7 @@ public:
 									result_ten->mem.push_back((byte8)201);
 									result_ten->mem.push_back((byte8)leftcast);
 								}
-								for (int u = 0; u < right_ten->memsiz; ++u)
+								for (int u = 0; u < right_ten->mem.size(); ++u)
 								{
 									result_ten->mem.push_back(right_ten->mem[u]);
 								}
@@ -2826,7 +2829,6 @@ public:
 									int opp = basicoper[k].startop + 2 * opertype + 1;
 									result_ten->mem.push_back((byte8)opp);
 								}
-								result_ten->memsiz = result_ten->mem.size();
 
 								if (k <= 10)
 								{
@@ -2876,8 +2878,8 @@ public:
 										++add;
 
 									result_ten->mem.NULLState();
-									result_ten->mem.Init(result_ten->memsiz + 1, false);
-									for (int u = 0; u < left_ten->memsiz; ++u)
+									result_ten->mem.Init(result_ten->mem.size() + 1, false);
+									for (int u = 0; u < left_ten->mem.size(); ++u)
 									{
 										result_ten->mem.push_back(left_ten->mem[u]);
 									}
@@ -2887,7 +2889,7 @@ public:
 										result_ten->mem.push_back((byte8)201);
 										result_ten->mem.push_back((byte8)leftcast);
 									}
-									for (int u = 0; u < right_ten->memsiz; ++u)
+									for (int u = 0; u < right_ten->mem.size(); ++u)
 									{
 										result_ten->mem.push_back(right_ten->mem[u]);
 									}
@@ -2911,7 +2913,6 @@ public:
 										int opp = basicoper[k].startop;
 										result_ten->mem.push_back((byte8)opp);
 									}
-									result_ten->memsiz = result_ten->mem.size();
 
 									if (k <= 10)
 									{
@@ -2942,10 +2943,9 @@ public:
 									temp_mem *right_ten = nullptr;
 									right_ten = get_asm_from_sen(segs.at(i + 1), true, true);
 									int add = 1;
-									result_ten->memsiz = right_ten->memsiz + add + 1;
 									result_ten->mem.NULLState();
-									result_ten->mem.Init(result_ten->memsiz + 1, false);
-									for (int u = 0; u < right_ten->memsiz; ++u)
+									result_ten->mem.Init(result_ten->mem.size() + 1, false);
+									for (int u = 0; u < right_ten->mem.size(); ++u)
 									{
 										result_ten->mem.push_back(right_ten->mem[u]);
 									}
@@ -2963,7 +2963,6 @@ public:
 										int opp = basicoper[k].startop + 1; // B = !X
 										result_ten->mem.push_back((byte8)opp);
 									}
-									result_ten->memsiz = result_ten->mem.size();
 
 									result_ten->valuetype = 7; // bool
 									result_ten->valuetype_detail =
@@ -2985,14 +2984,13 @@ public:
 									temp_mem *right_ten = nullptr;
 									left_ten = get_asm_from_sen(segs.at(i - 1), true, true);
 									right_ten = get_asm_from_sen(segs.at(i + 1), false, true);
-									result_ten->memsiz = left_ten->memsiz + right_ten->memsiz + 2;
 									result_ten->mem.NULLState();
-									result_ten->mem.Init(result_ten->memsiz + 1, false);
-									for (int u = 0; u < left_ten->memsiz; ++u)
+									result_ten->mem.Init(result_ten->mem.size() + 1, false);
+									for (int u = 0; u < left_ten->mem.size(); ++u)
 									{
 										result_ten->mem.push_back(left_ten->mem[u]);
 									}
-									for (int u = 0; u < right_ten->memsiz; ++u)
+									for (int u = 0; u < right_ten->mem.size(); ++u)
 									{
 										result_ten->mem.push_back(right_ten->mem[u]);
 									}
@@ -3010,8 +3008,6 @@ public:
 										int opp = basicoper[k].startop + 1;
 										result_ten->mem.push_back((byte8)opp);
 									}
-
-									result_ten->memsiz = result_ten->mem.size();
 
 									result_ten->valuetype = 7; // bool
 									result_ten->valuetype_detail =
@@ -3075,11 +3071,10 @@ public:
 								}
 								right_ten = get_asm_from_sen(segs.at(i + 1), true, true);
 								
-								result_ten->memsiz = left_ten->memsiz + right_ten->memsiz + 9;
 								result_ten->mem.NULLState();
-								result_ten->mem.Init(result_ten->memsiz + 1, false);
+								result_ten->mem.Init(result_ten->mem.size() + 1, false);
 
-								for (int u = 0; u < right_ten->memsiz; ++u)
+								for (int u = 0; u < right_ten->mem.size(); ++u)
 								{
 									result_ten->mem.push_back(right_ten->mem[u]);
 								}
@@ -3109,7 +3104,7 @@ public:
 								// b=x*y uint
 								result_ten->mem.push_back(92);
 
-								for (int u = 0; u < left_ten->memsiz; ++u)
+								for (int u = 0; u < left_ten->mem.size(); ++u)
 								{
 									result_ten->mem.push_back(left_ten->mem[u]);
 								}
@@ -3163,8 +3158,6 @@ public:
 											get_addpointer_type(td);
 										}
 									}
-
-									result_ten->memsiz = result_ten->mem.size();
 								}
 								else
 								{
@@ -3210,8 +3203,6 @@ public:
 											get_addpointer_type(td);
 										}
 									}
-
-									result_ten->memsiz = result_ten->mem.size();
 								}
 
 								segs.erase(i + 1);
@@ -3222,7 +3213,6 @@ public:
 									reinterpret_cast<char *>(result_ten);
 								segs.erase(i - 1);
 								--i;
-								result_ten->memsiz = result_ten->mem.size();
 								release_tempmem(left_ten);
 								release_tempmem(right_ten);
 							}
@@ -3238,10 +3228,7 @@ public:
 								type_data *member_td;
 								int add_address = 0;
 
-								type_data* struct_td = left_ten->valuetype_detail;
-								if(left_ten->valuetype_detail->typetype == 'p'){
-									struct_td = get_sub_type(left_ten->valuetype_detail);
-								}
+								type_data* struct_td = get_sub_type(left_ten->valuetype_detail);
 								
 								if(struct_td->typetype == 's' && segs.at(i+1)->at(0).type == 'w'){
 									struct_data* stdataPtr = (struct_data*)struct_td->structptr;
@@ -3253,10 +3240,9 @@ public:
 											break;
 										}
 									}
-									result_ten->memsiz = left_ten->memsiz + 7;
 									result_ten->mem.NULLState();
 									result_ten->mem.Init(2, false);
-									for (int u = 0; u < left_ten->memsiz; ++u)
+									for (int u = 0; u < left_ten->mem.size(); ++u)
 									{
 										result_ten->mem.push_back(left_ten->mem[u]);
 									}
@@ -3272,6 +3258,8 @@ public:
 									result_ten->mem.push_back(218); // POP
 									if(is_a){
 										result_ten->mem.push_back(61);
+										result_ten->registerMod = 'A';
+										/*
 										if(isvalue){
 											result_ten->mem.push_back(205);
 											result_ten->memsiz = result_ten->mem.size();
@@ -3283,13 +3271,25 @@ public:
 											result_ten->valuetype_detail = get_addpointer_type(member_td);
 											result_ten->valuetype = 8; // ptr
 										}
+										*/
+										
 									}
 									else{
 										result_ten->mem.push_back(62);
+										result_ten->registerMod = 'B';
+										//only ptr output segment
+										//result_ten->valuetype_detail = get_addpointer_type(member_td);
+										//result_ten->valuetype = -1; // ptr oper state
+										/*
 										if(isvalue){
 											result_ten->mem.push_back(206);
 										}
+										*/
 									}
+									//only ptr output segment
+									result_ten->isValue = false;
+									result_ten->valuetype_detail = get_addpointer_type(member_td);
+									result_ten->valuetype = get_int_with_basictype(result_ten->valuetype_detail); // ptr
 
 									segs.erase(i + 1);
 									segs[i]->at(0).type = 'a'; // asm
@@ -3338,10 +3338,9 @@ public:
 
 									if (perfect)
 									{
-										result_ten->memsiz = left_ten->memsiz + 8;
 										result_ten->mem.NULLState();
 										result_ten->mem.Init(2, false);
-										for (int u = 0; u < left_ten->memsiz; ++u)
+										for (int u = 0; u < left_ten->mem.size(); ++u)
 										{
 											result_ten->mem.push_back(left_ten->mem[u]);
 										}
@@ -3402,8 +3401,7 @@ public:
 
 								result_ten->mem.NULLState();
 								result_ten->mem.Init(2, false);
-								result_ten->memsiz = right_ten->memsiz;
-								for (int u = 0; u < right_ten->memsiz; ++u)
+								for (int u = 0; u < right_ten->mem.size(); ++u)
 								{
 									result_ten->mem.push_back(right_ten->mem[u]);
 								}
@@ -3435,10 +3433,9 @@ public:
 								{
 									right_ten = get_asm_from_sen(segs.at(i + 1), false, true);
 								}
-								result_ten->memsiz = right_ten->memsiz + 1;
 								result_ten->mem.NULLState();
 								result_ten->mem.Init(2, false);
-								for (int u = 0; u < right_ten->memsiz; ++u)
+								for (int u = 0; u < right_ten->mem.size(); ++u)
 								{
 									result_ten->mem.push_back(right_ten->mem[u]);
 								}
@@ -3696,7 +3693,7 @@ public:
 				}
 			}
 
-			for (int i = 0; i < right_tm->memsiz; ++i)
+			for (int i = 0; i < right_tm->mem.size(); ++i)
 			{
 				mem[writeup++] = right_tm->mem[i];
 			}
@@ -3705,7 +3702,7 @@ public:
 				mem[writeup++] = (byte8)201;
 				mem[writeup++] = (byte8)castt;
 			}
-			for (int i = 0; i < left_tm_v->memsiz; ++i)
+			for (int i = 0; i < left_tm_v->mem.size(); ++i)
 			{
 				mem[writeup++] = left_tm_v->mem[i];
 			}
@@ -3720,7 +3717,7 @@ public:
 				}
 			}
 
-			for (int i = 0; i < left_tm_ptr->memsiz; ++i)
+			for (int i = 0; i < left_tm_ptr->mem.size(); ++i)
 			{
 				mem[writeup++] = left_tm_ptr->mem[i];
 			}
@@ -3779,7 +3776,7 @@ public:
 				}
 			}
 			
-			for (int i = 0; i < right_tm->memsiz; ++i)
+			for (int i = 0; i < right_tm->mem.size(); ++i)
 			{
 				mem[writeup++] = right_tm->mem[i];
 			}
@@ -3789,7 +3786,7 @@ public:
 				mem[writeup++] = (byte8)castt;
 			}
 
-			for (int i = 0; i < left_tm->memsiz; ++i)
+			for (int i = 0; i < left_tm->mem.size(); ++i)
 			{
 				mem[writeup++] = left_tm->mem[i];
 			}
@@ -3843,7 +3840,7 @@ public:
 		inner_expr->pop_back();
 		inner_expr->erase(0);
 		temp_mem *inner_tm = get_asm_from_sen(inner_expr, true, true);
-		for (int i = 0; i < inner_tm->memsiz; ++i)
+		for (int i = 0; i < inner_tm->mem.size(); ++i)
 		{
 			mem[writeup++] = inner_tm->mem[i];
 		}
@@ -3875,7 +3872,7 @@ public:
 		wbss.dbg_sen(inner_expr);
 		int save = writeup;
 		temp_mem *inner_tm = get_asm_from_sen(inner_expr, true, true);
-		for (int i = 0; i < inner_tm->memsiz; ++i)
+		for (int i = 0; i < inner_tm->mem.size(); ++i)
 		{
 			mem[writeup++] = inner_tm->mem[i];
 		}
@@ -4297,7 +4294,7 @@ public:
 			inner_params->erase(0);
 			wbss.dbg_sen(inner_params);
 			temp_mem *tm = get_asm_from_sen(inner_params, true, true);
-			for (int k = 0; k < tm->memsiz; ++k)
+			for (int k = 0; k < tm->mem.size(); ++k)
 			{
 				mem[writeup++] = tm->mem[k];
 			}
@@ -4317,7 +4314,7 @@ public:
 			inner_params->erase(0);
 			wbss.dbg_sen(inner_params);
 			temp_mem *tm = get_asm_from_sen(inner_params, true, true);
-			for (int k = 0; k < tm->memsiz; ++k)
+			for (int k = 0; k < tm->mem.size(); ++k)
 			{
 				mem[writeup++] = tm->mem[k];
 			}
@@ -4390,13 +4387,13 @@ public:
 			temp_mem *tm = get_asm_from_sen(param_sen, true, true);
 			if(tm->valuetype_detail->typetype == 's'){
 				temp_mem *ptrtm = get_asm_from_sen(param_sen, true, false);
-				for (int i = 0; i < ptrtm->memsiz; ++i)
+				for (int i = 0; i < ptrtm->mem.size(); ++i)
 				{
 					mem[writeup++] = ptrtm->mem[i];
 				}
 			}
 			else{
-				for (int i = 0; i < tm->memsiz; ++i)
+				for (int i = 0; i < tm->mem.size(); ++i)
 				{
 					mem[writeup++] = tm->mem[i];
 				}
@@ -4455,14 +4452,14 @@ public:
 		if (tm->valuetype_detail->typetype == 's')
 		{
 			temp_mem *ptrtm = get_asm_from_sen(param_sen, true, false);
-			for (int i = 0; i < ptrtm->memsiz; ++i)
+			for (int i = 0; i < ptrtm->mem.size(); ++i)
 			{
 				mem[writeup++] = ptrtm->mem[i];
 			}
 		}
 		else
 		{
-			for (int i = 0; i < tm->memsiz; ++i)
+			for (int i = 0; i < tm->mem.size(); ++i)
 			{
 				mem[writeup++] = tm->mem[i];
 			}
@@ -4541,7 +4538,7 @@ public:
 		sen *right_expr = wbss.sen_cut(code, loc + 1, code->size() - 1);
 		temp_mem *right_tm = get_asm_from_sen(right_expr, true, true);
 
-		for (int i = 0; i < right_tm->memsiz; ++i)
+		for (int i = 0; i < right_tm->mem.size(); ++i)
 		{
 			mem[writeup++] = right_tm->mem[i];
 		}

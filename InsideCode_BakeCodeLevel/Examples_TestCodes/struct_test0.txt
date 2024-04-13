@@ -21,4 +21,5 @@ int main(){
 	A.z = 30;
 	print_vec3f(A);
 	return 0;
+	
 }

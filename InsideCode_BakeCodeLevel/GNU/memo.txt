@@ -32,3 +32,30 @@ SFML의 드로우 명령, 기초적 폰트 출력 등. 기반 인스트럭션을
 일단 함수들을 쓰고..
 그 함수를 어디에 asm 어디에 배치할지 결정
 extern 을 써서 extend_inst 배열을 조종 (ushort)
+
+일단 포인터 연산과 값 연산의 차이 때문에 일어나는 오류들은 
+포인터 연산 > (ptr state = true) > 값연산(만약 매개변수의 ptr state가 true면 풀고 시작.)
+이렇게 처리하자.
+temp_mem 의 valuetype이 -1이면 ptrstate라 하자. (value type 이 아닌 상태니까..)
+
+ptr oper state 걸때
+result_ten->memsiz = result_ten->mem.size();
+result_ten->valuetype_detail = get_addpointer_type(member_td);
+result_ten->valuetype = - 1 - get_int_with_basictype(member_td); // ptr
+
+value 로 풀때
+result_ten->valuetype_detail = get_sub_type(member_td);
+result_ten->valuetype = - 1 - result_ten->valuetype; // ptr
+
+
+///////////////
+
+get_asm_from_sen 에 대한 정리가 다시 필요할듯?
+1. temp_mem 구조체 재정의
+ - memsiz 제거 mem.size로 대체.
+ - char registerMod = 'A' / 'B' ...
+ - char isValue = true / false
+2. 포인터연산 / 값연산 구분
+3. A > B, B > A
+ - PUSH_A_FROM_B, 
+ - PUSH_B_FROM_A 연산 만들기 > 근데 쓰일지는 모르겠음.
