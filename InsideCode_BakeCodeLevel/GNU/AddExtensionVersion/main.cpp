@@ -25,6 +25,5 @@ int main(){
 	exectxs.NULLState();
 	exectxs.Init(2, false);
     exectxs.push_back(ctx);
-	execute(exectxs, 1000, code_control, true);
+	execute(exectxs, 1, code_control, true);
 }
-//hello

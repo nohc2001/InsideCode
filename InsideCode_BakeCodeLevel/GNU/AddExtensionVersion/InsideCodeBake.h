@@ -5048,16 +5048,16 @@ int code_control(vecarr<ICB_Context *> *icbarr)
 	{
 		//cout << "thread[ " << i << " ] next instruction" << endl;
 		icbarr->at(i)->dbg_pc();
-		icbarr->at(i)->dbg_stack();
-		icbarr->at(i)->dbg_data();
-		icbarr->at(i)->dbg_registers();
+		//icbarr->at(i)->dbg_stack();
+		//icbarr->at(i)->dbg_data();
+		//icbarr->at(i)->dbg_registers();
 	}
 
 	char c = 1;
 	stack++;
 	if (stack >= 1)
 	{
-		scanf("%c", &c);
+		//scanf("%c", &c);
 		stack = 0;
 	}
 	switch (c)
@@ -6445,7 +6445,7 @@ IF:
 	tmptr_i = *pci;
 	++*pci;
 	if (!(bool)_as[0])
-		*pc = &mem[*tmptr_i];
+		*pc = &codemem[*tmptr_i];
 	goto INSTEND;
 
 JMP:
