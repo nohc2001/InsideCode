@@ -5034,10 +5034,12 @@ class ICB_Context{
 vecarr<ICB_Context *> icbarr;
 
 bool isBreaking = false;
-int stopnum = 0;
+int stopnum = -1;
+
 
 int code_control(vecarr<ICB_Context *> *icbarr)
 {
+	cout << "\033[2J\033[1;1H";
 	static int stack = 0;
 
 	if(isBreaking == false){
@@ -5046,11 +5048,11 @@ int code_control(vecarr<ICB_Context *> *icbarr)
 
 	for (int i = 0; i < icbarr->size(); ++i)
 	{
-		//cout << "thread[ " << i << " ] next instruction" << endl;
+		cout << "thread[ " << i << " ] next instruction" << endl;
 		icbarr->at(i)->dbg_pc();
-		//icbarr->at(i)->dbg_stack();
-		//icbarr->at(i)->dbg_data();
-		//icbarr->at(i)->dbg_registers();
+		icbarr->at(i)->dbg_stack();
+		icbarr->at(i)->dbg_data();
+		icbarr->at(i)->dbg_registers();
 	}
 
 	char c = 1;
