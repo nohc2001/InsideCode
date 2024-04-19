@@ -2153,7 +2153,7 @@ public:
 				}
 			}
 			else{
-				if(tm->valuetype >= 0){
+				if(tm->isValue){
 					//WARN : imposible task. waring.
 				}
 				else{
@@ -3556,6 +3556,95 @@ public:
 		if (segs.size() == 1)
 		{
 			tm = reinterpret_cast<temp_mem *>(segs[0]->at(0).data.str);
+			if (isvalue)
+			{
+				if (tm->isValue == false)
+				{
+					tm->valuetype_detail = get_sub_type(tm->valuetype_detail);
+					tm->valuetype = get_int_with_basictype(tm->valuetype_detail);
+					tm->isValue = true;
+					switch (tm->registerMod)
+					{
+					case 'A':
+					{
+						if (is_a)
+						{
+							tm->mem.push_back(205); // a = *a
+						}
+						else
+						{
+							tm->mem.push_back(223); // b = a
+							tm->mem.push_back(206); // b = *b
+						}
+					}
+					break;
+					case 'B':
+					{
+						if (is_a)
+						{
+							tm->mem.push_back(222); // a = b
+							tm->mem.push_back(205); // a = *a
+						}
+						else
+						{
+							tm->mem.push_back(206); // b = *b
+						}
+					}
+					break;
+					}
+				}
+				else
+				{
+					switch (tm->registerMod)
+					{
+					case 'A':
+					{
+						if (is_a == false)
+						{
+							tm->mem.push_back(223); // b = a
+						}
+					}
+					break;
+					case 'B':
+					{
+						if (is_a)
+						{
+							tm->mem.push_back(222); // a = b
+						}
+					}
+					break;
+					}
+				}
+			}
+			else
+			{
+				if (tm->isValue)
+				{
+					// WARN : imposible task. waring.
+				}
+				else
+				{
+					switch (tm->registerMod)
+					{
+					case 'A':
+					{
+						if (is_a == false)
+						{
+							tm->mem.push_back(223); // b = a
+						}
+					}
+					break;
+					case 'B':
+					{
+						if (is_a)
+						{
+							tm->mem.push_back(222); // a = b
+						}
+					}
+					break;
+					}
+				}
+			}
 			return tm;
 		}
 
@@ -6708,49 +6797,50 @@ DBG_END:
 	goto INSTEND;
 
 DBG_A_BYTE:
-	//printf("%c", (char)_as[0]);
-	cout << (char)_as[0] << flush;
+	printf("%c", (char)_as[0]);
+	//cout << (char)_as[0];
 	goto DBG_END;
 
 DBG_A_UBYTE:
-	//printf("%d", (byte8)_as[0]);
-	cout << (byte8)_as[0] << flush;
+	printf("%d", (byte8)_as[0]);
+	//cout << (byte8)_as[0];
 	goto DBG_END;
 
 DBG_A_SHORT:
-	//printf("%d", (short)_as[0]);
-	cout << (short)_as[0] << flush;
+	printf("%d", (short)_as[0]);
+	//cout << (short)_as[0];
 	goto DBG_END;
 
 DBG_A_USHORT:
-	//printf("%d", (ushort)_as[0]);
-	cout << (ushort)_as[0] << flush;
+	printf("%d", (ushort)_as[0]);
+	//cout << (ushort)_as[0];
 	goto DBG_END;
 
 DBG_A_INT:
-	//printf("%d", (int)_as[0]);
-	cout << (int)_as[0] << flush;
+	printf("%d", (int)_as[0]);
+	//cout << (int)_as[0];
 	goto DBG_END;
 
 DBG_A_UINT:
-	//printf("%d", (uint)_as[0]);
-	cout << (uint)_as[0] << flush;
+	printf("%d", (uint)_as[0]);
+	//cout << (uint)_as[0];;
 	goto DBG_END;
 
 DBG_A_BOOL:
-	//printf((bool)_as[0] ? "true" : "false");
-	cout << (((bool)_as[0]) ? "true" : "false") << flush;
+	printf((bool)_as[0] ? "true" : "false");
+	//cout << (((bool)_as[0]) ? "true" : "false");
 	goto DBG_END;
 
 DBG_A_FLOAT:
 	*reinterpret_cast<uint*>(&fmem) = (uint)_as[0];
-	//printf("%g", fmem);
-	cout << fmem << flush;
+	printf("%g", fmem);
+	fflush(stdout);
+	//cout << fmem;;
 	goto DBG_END;
 
 DBG_A_STRING:
 	//printf("%s", reinterpret_cast<char *>(mem + (int)_as[0]));
-	cout << reinterpret_cast<char *>(mem + (int)_as[0]) << flush;
+	//cout << reinterpret_cast<char *>(mem + (int)_as[0]) << flush;
 	goto DBG_END;
 
 INP_A_PTR:

@@ -28,10 +28,8 @@ int main(){
 	int bSiz = 100;
 	vec2f* bezierCurve = get_poses_in_Bezier1F(circross, pos2, cross, bSiz);
 	int i=0;while(i<bSiz){
-		dbg("pos ["); dbg(i); dbg("] : (");
-		dbg(bezierCurve[i].x); dbg(", "); dbg(bezierCurve[i].y);
-		dbg(")");
-		dbg("\n");
+		dbg(bezierCurve[i].x);
+		dbg(bezierCurve[i].y);
 		i+=1;
 	}
 	return 0;

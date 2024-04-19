@@ -22,6 +22,7 @@ int main(){
     ICB_Context* ctx = (ICB_Context*)fm->_New(sizeof(ICB_Context), true);
     ctx->SetICB(&icb, 40960); // 40KB
     
+    cout << endl;
 	exectxs.NULLState();
 	exectxs.Init(2, false);
     exectxs.push_back(ctx);
