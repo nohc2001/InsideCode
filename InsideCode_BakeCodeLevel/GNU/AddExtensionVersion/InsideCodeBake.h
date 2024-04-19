@@ -6708,40 +6708,49 @@ DBG_END:
 	goto INSTEND;
 
 DBG_A_BYTE:
-	printf("%c", (char)_as[0]);
+	//printf("%c", (char)_as[0]);
+	cout << (char)_as[0] << flush;
 	goto DBG_END;
 
 DBG_A_UBYTE:
-	printf("%d", (byte8)_as[0]);
+	//printf("%d", (byte8)_as[0]);
+	cout << (byte8)_as[0] << flush;
 	goto DBG_END;
 
 DBG_A_SHORT:
-	printf("%d", (short)_as[0]);
+	//printf("%d", (short)_as[0]);
+	cout << (short)_as[0] << flush;
 	goto DBG_END;
 
 DBG_A_USHORT:
-	printf("%d", (ushort)_as[0]);
+	//printf("%d", (ushort)_as[0]);
+	cout << (ushort)_as[0] << flush;
 	goto DBG_END;
 
 DBG_A_INT:
-	printf("%d", (int)_as[0]);
+	//printf("%d", (int)_as[0]);
+	cout << (int)_as[0] << flush;
 	goto DBG_END;
 
 DBG_A_UINT:
-	printf("%d", (uint)_as[0]);
+	//printf("%d", (uint)_as[0]);
+	cout << (uint)_as[0] << flush;
 	goto DBG_END;
 
 DBG_A_BOOL:
-	printf((bool)_as[0] ? "true" : "false");
+	//printf((bool)_as[0] ? "true" : "false");
+	cout << (((bool)_as[0]) ? "true" : "false") << flush;
 	goto DBG_END;
 
 DBG_A_FLOAT:
 	*reinterpret_cast<uint*>(&fmem) = (uint)_as[0];
-	printf("%g", fmem);
+	//printf("%g", fmem);
+	cout << fmem << flush;
 	goto DBG_END;
 
 DBG_A_STRING:
-	printf("%s", reinterpret_cast<char *>(mem + (int)_as[0]));
+	//printf("%s", reinterpret_cast<char *>(mem + (int)_as[0]));
+	cout << reinterpret_cast<char *>(mem + (int)_as[0]) << flush;
 	goto DBG_END;
 
 INP_A_PTR:
