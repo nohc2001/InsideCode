@@ -9,6 +9,7 @@
         "vector": "cpp",
         "*.tcc": "cpp",
         "unordered_map": "cpp",
-        "random": "cpp"
+        "random": "cpp",
+        "iostream": "cpp"
     }
 }

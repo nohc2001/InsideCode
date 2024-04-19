@@ -6834,7 +6834,7 @@ DBG_A_BOOL:
 DBG_A_FLOAT:
 	*reinterpret_cast<uint*>(&fmem) = (uint)_as[0];
 	printf("%g", fmem);
-	fflush(stdout);
+	//fflush(stdout);
 	//cout << fmem;;
 	goto DBG_END;
 

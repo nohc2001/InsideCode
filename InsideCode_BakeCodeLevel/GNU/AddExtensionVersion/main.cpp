@@ -21,9 +21,8 @@ int main(){
 	vecarr<ICB_Context *> exectxs;
     ICB_Context* ctx = (ICB_Context*)fm->_New(sizeof(ICB_Context), true);
     ctx->SetICB(&icb, 40960); // 40KB
-    
-    cout << endl;
-	exectxs.NULLState();
+	
+    exectxs.NULLState();
 	exectxs.Init(2, false);
     exectxs.push_back(ctx);
 	execute(exectxs, 1, code_control, true);
