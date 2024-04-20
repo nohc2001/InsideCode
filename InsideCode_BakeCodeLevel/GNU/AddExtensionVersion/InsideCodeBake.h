@@ -2232,6 +2232,49 @@ public:
 				release_tempmem(rtm);
 				return tm;
 			}
+			if (strcmp(funcname, "dbg") == 0)
+			{
+				inner_params->pop_back();
+				inner_params->erase(0);
+				wbss.dbg_sen(inner_params);
+				int coma = wbss.search_word_first_in_specific_oc_layer(inner_params, 0, "(", ")", 0, ",");
+				int savecomma = -1;
+				while (coma != -1)
+				{
+					sen *param_sen = wbss.sen_cut(inner_params, savecomma + 1, coma - 1);
+					wbss.dbg_sen(param_sen);
+					temp_mem *rtm = get_asm_from_sen(param_sen, true, true);
+					for (int k = 0; k < rtm->mem.size(); ++k)
+					{
+						tm->mem.push_back(rtm->mem[k]);
+					}
+					tm->mem.push_back(209);
+					tm->mem.push_back((byte8)rtm->valuetype);
+					savecomma = coma;
+					coma = wbss.search_word_first_in_specific_oc_layer(inner_params, savecomma + 1, "(", ")", 0, ",");
+					release_tempmem(rtm);
+					param_sen->release();
+					fm->_Delete((byte8 *)param_sen, sizeof(sen));
+				}
+
+				sen *param_sen = wbss.sen_cut(inner_params, savecomma + 1, inner_params->size() - 1);
+				wbss.dbg_sen(param_sen);
+				temp_mem *rtm = get_asm_from_sen(param_sen, true, true);
+
+				for (int k = 0; k < rtm->mem.size(); ++k)
+				{
+					tm->mem.push_back(rtm->mem[k]);
+				}
+				tm->mem.push_back(209);
+				tm->mem.push_back((byte8)rtm->valuetype);
+
+				inner_params->release();
+				fm->_Delete((byte8 *)inner_params, sizeof(sen));
+				param_sen->release();
+				fm->_Delete((byte8 *)param_sen, sizeof(sen));
+				release_tempmem(rtm);
+				return;
+			}
 			else if (strcmp(funcname, "inp") == 0)
 			{
 				inner_params->pop_back();
