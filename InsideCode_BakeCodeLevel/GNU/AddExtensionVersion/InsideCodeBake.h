@@ -2706,11 +2706,44 @@ public:
 					{
 						tm->mem.push_back(cc[k]);
 					}
+					int stack = 1;
 					for (int k = 1; k < max; ++k)
 					{
+						if (str[k] == '\\')
+						{
+							stack += 1;
+							k+=1;
+							switch (str[k])
+							{
+							case 'n':
+								tm->mem.push_back('\n');
+								break;
+							case '0':
+								tm->mem.push_back(0);
+								break;
+							case 't':
+								tm->mem.push_back('\t');
+								break;
+							case '\\':
+								tm->mem.push_back('\\');
+								break;
+							case '\'':
+								tm->mem.push_back('\'');
+								break;
+							case '\"':
+								tm->mem.push_back('\"');
+								break;
+							default:
+								tm->mem.push_back(0);
+								break;
+							}
+							continue;
+						}
 						tm->mem.push_back(str[k]);
 					}
-					tm->mem.push_back(0);
+					for(int k=0;k<stack;++k){
+						tm->mem.push_back(0);
+					}
 					tm->valuetype = 8;
 				}
 				break;
@@ -4471,7 +4504,27 @@ public:
 			inner_params->pop_back();
 			inner_params->erase(0);
 			wbss.dbg_sen(inner_params);
-			temp_mem *tm = get_asm_from_sen(inner_params, true, true);
+			int coma = wbss.search_word_first_in_specific_oc_layer(inner_params, 0, "(", ")", 0, ",");
+			int savecomma = -1;
+			while (coma != -1)
+			{
+				sen *param_sen = wbss.sen_cut(inner_params, savecomma+1, coma - 1);
+				wbss.dbg_sen(param_sen);
+				temp_mem *tm = get_asm_from_sen(param_sen, true, true);
+				for (int k = 0; k < tm->mem.size(); ++k)
+				{
+					mem[writeup++] = tm->mem[k];
+				}
+				mem[writeup++] = 209;
+				mem[writeup++] = (byte8)tm->valuetype;
+				savecomma = coma;
+				coma = wbss.search_word_first_in_specific_oc_layer(inner_params, savecomma+1, "(", ")", 0, ",");
+			}
+
+			sen *param_sen = wbss.sen_cut(inner_params, savecomma+1, inner_params->size() - 1);
+			wbss.dbg_sen(param_sen);
+			temp_mem *tm = get_asm_from_sen(param_sen, true, true);
+
 			for (int k = 0; k < tm->mem.size(); ++k)
 			{
 				mem[writeup++] = tm->mem[k];
@@ -6833,7 +6886,7 @@ DBG_A_BOOL:
 
 DBG_A_FLOAT:
 	*reinterpret_cast<uint*>(&fmem) = (uint)_as[0];
-	printf("%g", fmem);
+	printf("%lf", fmem);
 	//fflush(stdout);
 	//cout << fmem;;
 	goto DBG_END;

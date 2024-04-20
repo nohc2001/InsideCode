@@ -3,6 +3,9 @@ int main(){
 	vec2f pos1 = _vec2f(10, 20);
 	vec2f pos2 = _vec2f(3, 4);
 
+	dbg("pos1 : (", pos1.x, ", ", pos1.y, ")\n");
+	dbg("pos2 : (", pos2.x, ", ", pos2.y, ")\n");
+
 	line2d line1 = _line2d(pos1, pos2);
 
 	float len = get_distance2d(line1);
@@ -26,10 +29,9 @@ int main(){
 	}
 
 	int bSiz = 100;
-	vec2f* bezierCurve = get_poses_in_Bezier1F(circross, pos2, cross, bSiz);
+	vec2f[100] bezierCurve = get_poses_in_Bezier1F(circross, pos2, cross, bSiz);
 	int i=0;while(i<bSiz){
-		dbg(bezierCurve[i].x);
-		dbg(bezierCurve[i].y);
+		dbg("pos[, i, "] : (", bezierCurve[i].x, ", ", bezierCurve[i].y, ")\n");
 		i+=1;
 	}
 	return 0;
