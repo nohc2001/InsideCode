@@ -222,7 +222,7 @@
 :B=&Global_VID+4;
 :A=B;
 :B=A;
-:Unallocated;
+:*LA=*A_N+4;
 :Unallocated;
 :Unallocated;
 :Unallocated;

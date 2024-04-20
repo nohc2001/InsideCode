@@ -303,6 +303,7 @@ void exGeometry_get_distance2d(int* pcontext){
     float distx = (L.lp.x - L.fp.x);
     float disty = (L.lp.y - L.fp.y);
     float dist = sqrtf(distx*distx + disty*disty);
+
     *reinterpret_cast<float*>(&icc->_as[0]) = dist;
     icc->_as.move_pivot(-1);
 }

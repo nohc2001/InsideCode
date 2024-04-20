@@ -2273,7 +2273,7 @@ public:
 				param_sen->release();
 				fm->_Delete((byte8 *)param_sen, sizeof(sen));
 				release_tempmem(rtm);
-				return;
+				return tm;
 			}
 			else if (strcmp(funcname, "inp") == 0)
 			{
@@ -4044,7 +4044,7 @@ public:
 			{
 				mem[writeup++] = left_tm->mem[i];
 			}
-			mem[writeup++] = (byte8)199;
+			mem[writeup++] = (byte8)199; // LA = A;
 
 			switch (lstd->typesiz)
 			{
@@ -4059,6 +4059,14 @@ public:
 				break;
 			default:
 				cout << "typesiz is more than 4." << endl;
+				{
+					mem[writeup++] = (byte8)224;
+					byte8 cc[4];
+					*reinterpret_cast<uint*>(&cc[0]) = (uint)lstd->typesiz;
+					for(int i=0;i<4;++i){
+						mem[writeup++] = cc[i];
+					}
+				}
 				break;
 			}
 
@@ -7089,6 +7097,19 @@ PUSH_B_FROM_A:
 	_bs[0] = _as[0];
     goto INSTEND;
 
+SET_ADDRESS_LA_FROM_ADRESS_A_N:
+	++*pc;
+{
+	byte8* bptr = reinterpret_cast<byte8 *>(mem + (int)_la);
+	byte8* aptr = reinterpret_cast<byte8 *>(mem + (int)_as[0]);
+	uint ValueSiz = **pci;
+	++*pci;
+	for(uint k=0;k<ValueSiz;++k){
+		bptr[k] = aptr[k];
+	}
+}
+	goto INSTEND;
+
 EXTENSION_INST:
 	*lfsp = *rfsp;
 	fsp->push_back(saveSP->last());
@@ -7383,7 +7404,8 @@ INST_INIT:
 		inst[i++] = &&PUSH_A_FROM_B;
 		inst[i++] = &&PUSH_B_FROM_A;
 
-		inst[i++] = &&WAIT;
+		inst[i++] = &&SET_ADDRESS_LA_FROM_ADRESS_A_N;
+
 		inst[i++] = &&WAIT;
 		inst[i++] = &&WAIT;
 		inst[i++] = &&WAIT;
