@@ -6839,7 +6839,7 @@ DBG_A_FLOAT:
 	goto DBG_END;
 
 DBG_A_STRING:
-	printf("%s", reinterpret_cast<char *>(mem + (int)_as[0]));
+	printf("%s", reinterpret_cast<char *>(mem + (unsigned long long)_as[0]));
 	//cout << reinterpret_cast<char *>(mem + (int)_as[0]) << flush;
 	goto DBG_END;
 
