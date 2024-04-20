@@ -5128,7 +5128,7 @@ int stopnum = -1;
 
 int code_control(vecarr<ICB_Context *> *icbarr)
 {
-	cout << "\033[2J\033[1;1H";
+	//cout << "\033[2J\033[1;1H";
 	static int stack = 0;
 
 	if(isBreaking == false){
@@ -5166,11 +5166,11 @@ void execute(vecarr<ICB_Context *> icbarr, int execodenum,
 	byte8 *tmptr_b;
 	ushort *tmptr_s;
 	uint *tmptr_i;
-	register uint64_t _a = 0;
-	register uint64_t _b = 0;
-	register uint64_t _x = 0;
-	register uint64_t _y = 0;
-	register uint64_t _la = 0;
+	uint64_t _a = 0;
+	uint64_t _b = 0;
+	uint64_t _x = 0;
+	uint64_t _y = 0;
+	uint64_t _la = 0;
 	uint64_t casting_value = 0;
 	uint64_t casted_value = 0;
 	void *castend_label = nullptr;
@@ -6839,7 +6839,7 @@ DBG_A_FLOAT:
 	goto DBG_END;
 
 DBG_A_STRING:
-	//printf("%s", reinterpret_cast<char *>(mem + (int)_as[0]));
+	printf("%s", reinterpret_cast<char *>(mem + (int)_as[0]));
 	//cout << reinterpret_cast<char *>(mem + (int)_as[0]) << flush;
 	goto DBG_END;
 
@@ -6928,7 +6928,7 @@ SET_A_CONST_STRING:
 	strmax = *reinterpret_cast<uint *>(*pci);
 	++*pci;
 	_as.move_pivot(-1);
-	_as[0] = *pc - codemem;
+	_as[0] = *pc - mem;
 	*pc += strmax;
 	goto INSTEND;
 
@@ -6937,7 +6937,7 @@ SET_B_CONST_STRING:
 	strmax = *reinterpret_cast<uint *>(*pci);
 	++*pci;
 	_bs.move_pivot(-1);
-	_bs[0] = *pc - codemem;
+	_bs[0] = *pc - mem;
 	*pc += strmax;
 	goto INSTEND;
 
