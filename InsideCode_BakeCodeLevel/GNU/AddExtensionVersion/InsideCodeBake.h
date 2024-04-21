@@ -107,6 +107,76 @@ bool bCanBeTextblock(lcstr &a)
 	return true;
 }
 
+bool bCanBeTextblock_notAllowNeg(lcstr &a)
+{
+	bool num = false;
+	bool oper = false;
+	if (a.at(0) == '\"')
+	{
+		if (a.size() > 1 && a.at(a.size() - 1) == '\"')
+		{
+			return true;
+		}
+		else
+			return false;
+	}
+
+	if (a.size() == 2 && (a[0] == '&' && a[1] == '&'))
+	{
+		return true;
+	}
+
+	if (a.size() == 2 && (a[0] == '&' && a[1] == '&'))
+	{
+		return true;
+	}
+
+	//heloo!
+	bool isdot = false;
+	bool isn = false;
+	if (a.at(0) == '-'){
+		if(a.size() == 1){
+			return true;
+		}
+		else return false;
+	} 
+	
+
+	for (int i = 0; i < (int)a.size(); i++)
+	{
+		char c = a.at(i);
+		bool b1 = 33 <= c && c <= 126;
+		if (b1 == false)
+		{
+			return false;
+		}
+
+		bool n1 = (('0' <= c && c <= '9') || ('a' <= c && c <= 'z')) || (('A' <= c && c <= 'Z') || c == '_');
+		if (n1)
+		{
+			if (oper == true)
+			{
+				return false;
+			}
+			num = true;
+		}
+		else
+		{
+			if (num == true)
+			{
+				return false;
+			}
+			if (oper == true)
+			{
+				return false;
+			}
+			oper = true;
+		}
+	}
+	return true;
+}
+
+
 typedef enum class TBT
 {
 	_value_bool = 0,
@@ -1208,7 +1278,7 @@ public:
 		for (int i = 0; i < (int)codetxt.size(); i++)
 		{
 			insstr.push_back(codetxt.at(i));
-			if (bCanBeTextblock(insstr))
+			if (bCanBeTextblock_notAllowNeg(insstr))
 			{
 				if (i == codetxt.size() - 1)
 				{
@@ -1217,7 +1287,7 @@ public:
 					continue;
 				}
 				insstr.push_back(codetxt.at(i + 1));
-				if (bCanBeTextblock(insstr) == false)
+				if (bCanBeTextblock_notAllowNeg(insstr) == false)
 				{
 					insstr.pop_back();
 					cout << "siz : " << i << "-" << codetxt.size() << " str : " << insstr.c_str() << endl;
@@ -3791,37 +3861,62 @@ public:
 			{
 				if (tm->isValue == false)
 				{
-					tm->valuetype_detail = get_sub_type(tm->valuetype_detail);
-					tm->valuetype = get_int_with_basictype(tm->valuetype_detail);
-					tm->isValue = true;
-					switch (tm->registerMod)
-					{
-					case 'A':
-					{
-						if (is_a)
+					type_data* std = get_sub_type(tm->valuetype_detail);
+					if(std->typetype == 's' || std->typetype == 'a'){
+						switch (tm->registerMod)
 						{
-							tm->mem.push_back(205); // a = *a
+						case 'A':
+						{
+							if (is_a == false)
+							{
+								tm->mem.push_back(223); // b = a
+							}
 						}
-						else
+						break;
+						case 'B':
 						{
-							tm->mem.push_back(223); // b = a
-							tm->mem.push_back(206); // b = *b
+							if (is_a)
+							{
+								tm->mem.push_back(222); // a = b
+							}
 						}
-					}
-					break;
-					case 'B':
-					{
-						if (is_a)
-						{
-							tm->mem.push_back(222); // a = b
-							tm->mem.push_back(205); // a = *a
-						}
-						else
-						{
-							tm->mem.push_back(206); // b = *b
+						break;
 						}
 					}
-					break;
+					else
+					{
+						tm->valuetype_detail = get_sub_type(tm->valuetype_detail);
+						tm->valuetype = get_int_with_basictype(tm->valuetype_detail);
+						tm->isValue = true;
+						switch (tm->registerMod)
+						{
+						case 'A':
+						{
+							if (is_a)
+							{
+								tm->mem.push_back(205); // a = *a
+							}
+							else
+							{
+								tm->mem.push_back(223); // b = a
+								tm->mem.push_back(206); // b = *b
+							}
+						}
+						break;
+						case 'B':
+						{
+							if (is_a)
+							{
+								tm->mem.push_back(222); // a = b
+								tm->mem.push_back(205); // a = *a
+							}
+							else
+							{
+								tm->mem.push_back(206); // b = *b
+							}
+						}
+						break;
+						}
 					}
 				}
 				else
@@ -5905,7 +6000,7 @@ class ICB_Context{
 vecarr<ICB_Context *> icbarr;
 
 bool isBreaking = false;
-int stopnum = -1;
+int stopnum = 1028;
 
 
 int code_control(vecarr<ICB_Context *> *icbarr)
@@ -7553,12 +7648,12 @@ CAST_FLOAT_TO_UINT:
 	goto *castend_label;
 
 GET_VALUE_A:
-	_as[0] = *reinterpret_cast<uint *>(mem + (int)_as[0]);
+	_as[0] = *reinterpret_cast<uint *>(mem + (int64_t)_as[0]);
 	++*pc;
 	goto INSTEND;
 
 GET_VALUE_B:
-	_bs[0] = *reinterpret_cast<uint *>(mem + (int)_bs[0]);
+	_bs[0] = *reinterpret_cast<uint *>(mem + _bs[0]);
 	++*pc;
 	goto INSTEND;
 
@@ -7752,14 +7847,14 @@ PARAM_N_COPY_BY_ADDRESS:
 PUSH_A_GLOBAL_VARIABLE_ADDRESS:
 	++*pc;
 	_as.move_pivot(-1);
-	_as[0] = **pci;
+	_as[0] = &icb->datamem.at(**pci) - mem;
 	++*pci;
 	goto INSTEND;
 
 PUSH_B_GLOBAL_VARIABLE_ADDRESS:
 	++*pc;
 	_bs.move_pivot(-1);
-	_bs[0] = **pci;
+	_bs[0] = &icb->datamem.at(**pci) - mem;
 	++*pci;
 	goto INSTEND;
 

@@ -20,13 +20,20 @@ int main(){
 	dbg("ratePos : (", ratePos.x, ", ", ratePos.y, ")\n");
 
 	angle2d ang1 = _angle2d_delta(pos1.x - pos2.x, pos1.y - pos2.y);
+	dbg("angle1( rad : ", ang1.radian, ", delta : (", ang1.delta.x, ", ", ang1.delta.y, "))\n");
 	angle2d ang2 = _angle2d(PI / 3);
+	dbg("angle2( rad : ", ang2.radian, ", delta : (", ang2.delta.x, ", ", ang2.delta.y, "))\n");
 	angle2d rang = addAngle(ang1, ang2);
+	dbg("rang( rad : ", rang.radian, ", delta : (", rang.delta.x, ", ", rang.delta.y, "))\n");
 
 	pos1 = _vec2f(pos1.x + rang.delta.x * 30, pos1.y + rang.delta.y * 30);
-	vec2f cross = get_cross_line(_line2d(pos1, ratePos), _line2d(pos2, cir1.center));
+	dbg("pos1 : (", pos1.x, ", ", pos1.y, ")\n");
+	vec2f cross = get_cross_line(_line2d(pos1, _vec2f(10, 0)), _line2d(pos2, _vec2f(cir1.center.x-15, cir1.center.y)));
+	dbg("cross : (", cross.x, ", ", cross.y, ")\n");
 
-	vec2f[2] circross = get_cross_CircleAndLine(cir1, _line2d(cross, _vec2f(100, 200)));
+	vec2f[2] circross = get_cross_CircleAndLine(cir1, _line2d(cross, _vec2f(20, 0)));
+	dbg("circross[0] : (", circross[0].x, ", ", circross[0].y, ")\n");
+	dbg("circross[1] : (", circross[1].x, ", ", circross[1].y, ")\n");
 	vec2f enableCross = _vec2f(0, 0);
 	if(isNAN(circross[0].x)){
 		dbg("cross 0 is nan!!\n");
@@ -36,9 +43,10 @@ int main(){
 		dbg("cross 1 is nan!!\n");
 		enableCross = circross[0];
 	}
+	dbg("enableCross : (", enableCross.x, ", ", enableCross.y, ")\n");
 
 	int bSiz = 100;
-	vec2f[100] bezierCurve = get_poses_in_Bezier1F(enableCross, pos2, cross, bSiz);
+	vec2f[100] bezierCurve = get_poses_in_Bezier1F(enableCross, pos2, pos1, bSiz);
 	int i=0;while(i<bSiz){
 		dbg("pos[", i, "] : (", bezierCurve[i].x, ", ", bezierCurve[i].y, ")\n");
 		i+=1;
