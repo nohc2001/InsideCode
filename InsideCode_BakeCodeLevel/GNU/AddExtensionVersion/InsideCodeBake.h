@@ -2219,23 +2219,6 @@ public:
 			{
 				inner_params->pop_back();
 				inner_params->erase(0);
-				temp_mem *rtm = get_asm_from_sen(inner_params, true, true);
-				for (int k = 0; k < rtm->mem.size(); ++k)
-				{
-					tm->mem.push_back(rtm->mem[k]);
-				}
-				tm->mem.push_back(209);
-				tm->mem.push_back((byte8)rtm->valuetype);
-
-				inner_params->release();
-				fm->_Delete((byte8 *)inner_params, sizeof(sen));
-				release_tempmem(rtm);
-				return tm;
-			}
-			if (strcmp(funcname, "dbg") == 0)
-			{
-				inner_params->pop_back();
-				inner_params->erase(0);
 				wbss.dbg_sen(inner_params);
 				int coma = wbss.search_word_first_in_specific_oc_layer(inner_params, 0, "(", ")", 0, ",");
 				int savecomma = -1;
@@ -2311,46 +2294,114 @@ public:
 
 			if(isext == false){
 				fd = get_func_with_name(code->at(nameloc).data.str);
-			}
-			// mem[writeup++] = fd->start_pc; // func
 
-			sen *params_sen = wbss.sen_cut(code, nameloc + 2, loc - 1);
-			if (params_sen->size() == 0)
-			{
-				tm->mem.push_back(189); // FUNC
-				tm->mem.push_back(200); // jmp
-				byte8 bb[4] = {};
-				*reinterpret_cast<uint *>(bb) = (uint)(fd->start_pc - &mem[0]);
-				for (int u = 0; u < 4; ++u)
+				sen *params_sen = wbss.sen_cut(code, nameloc + 2, loc - 1);
+				if (params_sen->size() == 0)
 				{
-					tm->mem.push_back(bb[u]);
+					tm->mem.push_back(189); // FUNC
+					tm->mem.push_back(200); // jmp
+					byte8 bb[4] = {};
+					*reinterpret_cast<uint *>(bb) = (uint)(fd->start_pc - &mem[0]);
+					for (int u = 0; u < 4; ++u)
+					{
+						tm->mem.push_back(bb[u]);
+					}
+
+					inner_params->release();
+					fm->_Delete((byte8 *)inner_params, sizeof(sen));
+
+					params_sen->release();
+					fm->_Delete((byte8 *)params_sen, sizeof(sen));
+					return tm;
 				}
 
-				inner_params->release();
-				fm->_Delete((byte8 *)inner_params, sizeof(sen));
+				wbss.dbg_sen(params_sen);
+				int coma = wbss.search_word_first_in_specific_oc_layer(params_sen, 0, "(", ")", 0, ",");
+				int savecoma = -1;
+				int last = params_sen->size() - 1;
 
-				params_sen->release();
-				fm->_Delete((byte8 *)params_sen, sizeof(sen));
-				return tm;
-			}
+				int addadd = 0;
+				int paramid = 0;
+				int paramCount = 0;
 
-			wbss.dbg_sen(params_sen);
-			int coma = wbss.search_word_first_in_specific_oc_layer(params_sen, 0, "(", ")", 0, ",");
-			int savecoma = -1;
-			int last = params_sen->size() - 1;
+				tm->mem.push_back(189);
 
-			int addadd = 0;
-			int paramid = 0;
-			int paramCount = 0;
+				while (coma != -1)
+				{
+					sen *param_sen = wbss.sen_cut(params_sen, savecoma + 1, coma - 1);
+					wbss.dbg_sen(param_sen);
+					temp_mem *rtm = get_asm_from_sen(param_sen, true, true);
 
-			tm->mem.push_back(189);
+					if (rtm->valuetype_detail->typetype == 's')
+					{
+						temp_mem *ptrtm = get_asm_from_sen(param_sen, true, false);
+						for (int i = 0; i < ptrtm->mem.size(); ++i)
+						{
+							tm->mem.push_back(ptrtm->mem[i]);
+						}
+					}
+					else
+					{
+						for (int i = 0; i < rtm->mem.size(); ++i)
+						{
+							tm->mem.push_back(rtm->mem[i]);
+						}
 
-			while (coma != -1)
-			{
-				sen *param_sen = wbss.sen_cut(params_sen, savecoma + 1, coma - 1);
+						casting_type ct = get_cast_type(rtm->valuetype, get_int_with_basictype(fd->param_data.at(paramCount).td));
+						tm->mem.push_back(201);
+						tm->mem.push_back((byte8)ct);
+						/*
+						int ll = tm->mem.size();
+						for(int k=0;k<4;++k){
+							tm->mem.push_back(0);
+						}
+						*reinterpret_cast<uint*>(&mem[ll]) = (uint)ct;
+						*/
+					}
+
+					if (fd->param_data[paramid].td->typetype != 's')
+					{
+						switch (fd->param_data[paramid].td->typesiz)
+						{
+						case 1:
+							tm->mem.push_back(190); // param
+							break;
+						case 2:
+							tm->mem.push_back(191); // param
+							break;
+						case 4:
+							tm->mem.push_back(192); // param
+							break;
+						}
+					}
+					else
+					{
+						tm->mem.push_back(219); // param N by address(a)
+						byte8 *N = (byte8 *)&fd->param_data[paramid].td->typesiz;
+						// write siz of struct type
+						for (int i = 0; i < 4; ++i)
+						{
+							tm->mem.push_back(N[i]);
+						}
+					}
+
+					++paramid;
+
+					param_sen->release();
+					fm->_Delete((byte8 *)param_sen, sizeof(sen));
+
+					release_tempmem(rtm);
+
+					savecoma = coma;
+					coma = wbss.search_word_first_in_specific_oc_layer(params_sen, coma + 1, "(", ")", 0, ",");
+					// coma = wbss.search_word_first(coma + 1, params_sen, ",");
+					paramCount += 1;
+				}
+
+				wbss.dbg_sen(params_sen);
+				sen *param_sen = wbss.sen_cut(params_sen, savecoma + 1, last);
 				wbss.dbg_sen(param_sen);
 				temp_mem *rtm = get_asm_from_sen(param_sen, true, true);
-
 				if (rtm->valuetype_detail->typetype == 's')
 				{
 					temp_mem *ptrtm = get_asm_from_sen(param_sen, true, false);
@@ -2365,7 +2416,6 @@ public:
 					{
 						tm->mem.push_back(rtm->mem[i]);
 					}
-
 					casting_type ct = get_cast_type(rtm->valuetype, get_int_with_basictype(fd->param_data.at(paramCount).td));
 					tm->mem.push_back(201);
 					tm->mem.push_back((byte8)ct);
@@ -2404,76 +2454,190 @@ public:
 					}
 				}
 
-				++paramid;
+				tm->mem.push_back(200); // jmp
+				int ll = tm->mem.size();
+				for (int k = 0; k < 4; ++k)
+				{
+					tm->mem.push_back(0);
+				}
+				*reinterpret_cast<uint *>(&tm->mem[ll]) = (uint)(fd->start_pc - &mem[0]);
+
+				tm->valuetype = get_int_with_basictype(fd->returntype);
+				tm->valuetype_detail = fd->returntype;
+
+				inner_params->release();
+				fm->_Delete((byte8 *)inner_params, sizeof(sen));
+
+				params_sen->release();
+				fm->_Delete((byte8 *)params_sen, sizeof(sen));
 
 				param_sen->release();
 				fm->_Delete((byte8 *)param_sen, sizeof(sen));
 
 				release_tempmem(rtm);
 
-				savecoma = coma;
-				coma = wbss.search_word_first_in_specific_oc_layer(params_sen, coma+1, "(", ")", 0, ",");
-				//coma = wbss.search_word_first(coma + 1, params_sen, ",");
-				paramCount += 1;
-			}
-
-			wbss.dbg_sen(params_sen);
-			sen *param_sen = wbss.sen_cut(params_sen, savecoma + 1, last);
-			wbss.dbg_sen(param_sen);
-			temp_mem *rtm = get_asm_from_sen(param_sen, true, true);
-			if (rtm->valuetype_detail->typetype == 's')
-			{
-				temp_mem *ptrtm = get_asm_from_sen(param_sen, true, false);
-				for (int i = 0; i < ptrtm->mem.size(); ++i)
-				{
-					tm->mem.push_back(ptrtm->mem[i]);
-				}
+				return tm;
 			}
 			else
 			{
-				for (int i = 0; i < rtm->mem.size(); ++i)
+				sen *params_sen = wbss.sen_cut(code, nameloc + 2, loc - 1);
+				if (params_sen->size() == 0)
 				{
-					tm->mem.push_back(rtm->mem[i]);
-				}
-				casting_type ct = get_cast_type(rtm->valuetype, get_int_with_basictype(fd->param_data.at(paramCount).td));
-				tm->mem.push_back(201);
-				tm->mem.push_back((byte8)ct);
-				/*
-				int ll = tm->mem.size();
-				for(int k=0;k<4;++k){
-					tm->mem.push_back(0);
-				}
-				*reinterpret_cast<uint*>(&mem[ll]) = (uint)ct;
-				*/
-			}
+					tm->mem.push_back(189); // FUNC
+					tm->mem.push_back(200); // jmp
+					byte8 bb[4] = {};
+					*reinterpret_cast<uint *>(bb) = (uint)(fd->start_pc - &mem[0]);
+					for (int u = 0; u < 4; ++u)
+					{
+						tm->mem.push_back(bb[u]);
+					}
 
-			if (fd->param_data[paramid].td->typetype != 's')
-			{
-				switch (fd->param_data[paramid].td->typesiz)
-				{
-				case 1:
-					tm->mem.push_back(190); // param
-					break;
-				case 2:
-					tm->mem.push_back(191); // param
-					break;
-				case 4:
-					tm->mem.push_back(192); // param
-					break;
-				}
-			}
-			else
-			{
-				tm->mem.push_back(219); // param N by address(a)
-				byte8 *N = (byte8 *)&fd->param_data[paramid].td->typesiz;
-				// write siz of struct type
-				for (int i = 0; i < 4; ++i)
-				{
-					tm->mem.push_back(N[i]);
-				}
-			}
+					inner_params->release();
+					fm->_Delete((byte8 *)inner_params, sizeof(sen));
 
-			if(isext){
+					params_sen->release();
+					fm->_Delete((byte8 *)params_sen, sizeof(sen));
+					return tm;
+				}
+
+				wbss.dbg_sen(params_sen);
+				int last = params_sen->size() - 1;
+
+				int coma = wbss.search_word_end_in_specific_oc_layer(params_sen, last, "(", ")", 0, ",");
+				int savecoma = last+1;
+
+				int paramCount = fd->param_data.size() - 1;
+
+				tm->mem.push_back(189);
+
+				while (coma != -1)
+				{
+					sen *param_sen = wbss.sen_cut(params_sen, coma + 1, savecoma - 1);
+					wbss.dbg_sen(param_sen);
+					temp_mem *rtm = get_asm_from_sen(param_sen, true, true);
+
+					if (rtm->valuetype_detail->typetype == 's')
+					{
+						temp_mem *ptrtm = get_asm_from_sen(param_sen, true, false);
+						for (int i = 0; i < ptrtm->mem.size(); ++i)
+						{
+							tm->mem.push_back(ptrtm->mem[i]);
+						}
+					}
+					else
+					{
+						for (int i = 0; i < rtm->mem.size(); ++i)
+						{
+							tm->mem.push_back(rtm->mem[i]);
+						}
+
+						casting_type ct = get_cast_type(rtm->valuetype, get_int_with_basictype(fd->param_data.at(paramCount).td));
+						tm->mem.push_back(201);
+						tm->mem.push_back((byte8)ct);
+						/*
+						int ll = tm->mem.size();
+						for(int k=0;k<4;++k){
+							tm->mem.push_back(0);
+						}
+						*reinterpret_cast<uint*>(&mem[ll]) = (uint)ct;
+						*/
+					}
+
+					if (fd->param_data[paramCount].td->typetype != 's')
+					{
+						switch (fd->param_data[paramCount].td->typesiz)
+						{
+						case 1:
+							tm->mem.push_back(190); // param
+							break;
+						case 2:
+							tm->mem.push_back(191); // param
+							break;
+						case 4:
+							tm->mem.push_back(192); // param
+							break;
+						}
+					}
+					else
+					{
+						tm->mem.push_back(219); // param N by address(a)
+						byte8 *N = (byte8 *)&fd->param_data[paramCount].td->typesiz;
+						// write siz of struct type
+						for (int i = 0; i < 4; ++i)
+						{
+							tm->mem.push_back(N[i]);
+						}
+					}
+
+					
+
+					param_sen->release();
+					fm->_Delete((byte8 *)param_sen, sizeof(sen));
+
+					release_tempmem(rtm);
+
+					savecoma = coma;
+					coma = wbss.search_word_end_in_specific_oc_layer(params_sen, savecoma - 1, "(", ")", 0, ",");
+					// coma = wbss.search_word_first(coma + 1, params_sen, ",");
+					--paramCount;
+				}
+
+				wbss.dbg_sen(params_sen);
+				sen *param_sen = wbss.sen_cut(params_sen, 0, savecoma-1);
+				wbss.dbg_sen(param_sen);
+				temp_mem *rtm = get_asm_from_sen(param_sen, true, true);
+				if (rtm->valuetype_detail->typetype == 's')
+				{
+					temp_mem *ptrtm = get_asm_from_sen(param_sen, true, false);
+					for (int i = 0; i < ptrtm->mem.size(); ++i)
+					{
+						tm->mem.push_back(ptrtm->mem[i]);
+					}
+				}
+				else
+				{
+					for (int i = 0; i < rtm->mem.size(); ++i)
+					{
+						tm->mem.push_back(rtm->mem[i]);
+					}
+					casting_type ct = get_cast_type(rtm->valuetype, get_int_with_basictype(fd->param_data.at(paramCount).td));
+					tm->mem.push_back(201);
+					tm->mem.push_back((byte8)ct);
+					/*
+					int ll = tm->mem.size();
+					for(int k=0;k<4;++k){
+						tm->mem.push_back(0);
+					}
+					*reinterpret_cast<uint*>(&mem[ll]) = (uint)ct;
+					*/
+				}
+
+				if (fd->param_data[paramCount].td->typetype != 's')
+				{
+					switch (fd->param_data[paramCount].td->typesiz)
+					{
+					case 1:
+						tm->mem.push_back(190); // param
+						break;
+					case 2:
+						tm->mem.push_back(191); // param
+						break;
+					case 4:
+						tm->mem.push_back(192); // param
+						break;
+					}
+				}
+				else
+				{
+					tm->mem.push_back(219); // param N by address(a)
+					byte8 *N = (byte8 *)&fd->param_data[paramCount].td->typesiz;
+					// write siz of struct type
+					for (int i = 0; i < 4; ++i)
+					{
+						tm->mem.push_back(N[i]);
+					}
+				}
+
 				tm->mem.push_back(255); // ext instruction
 				int ll = tm->mem.size();
 				for (int k = 0; k < 4; ++k)
@@ -2487,32 +2651,23 @@ public:
 					tm->mem.push_back(0);
 				}
 				*reinterpret_cast<uint *>(&tm->mem[ll]) = (uint)(exfuncID); // byte8* but real value is function pointer of extension.
+
+				tm->valuetype = get_int_with_basictype(fd->returntype);
+				tm->valuetype_detail = fd->returntype;
+
+				inner_params->release();
+				fm->_Delete((byte8 *)inner_params, sizeof(sen));
+
+				params_sen->release();
+				fm->_Delete((byte8 *)params_sen, sizeof(sen));
+
+				param_sen->release();
+				fm->_Delete((byte8 *)param_sen, sizeof(sen));
+
+				release_tempmem(rtm);
+
+				return tm;
 			}
-			else{
-				tm->mem.push_back(200); // jmp
-				int ll = tm->mem.size();
-				for (int k = 0; k < 4; ++k)
-				{
-					tm->mem.push_back(0);
-				}
-				*reinterpret_cast<uint *>(&tm->mem[ll]) = (uint)(fd->start_pc - &mem[0]);
-			}
-
-			tm->valuetype = get_int_with_basictype(fd->returntype);
-			tm->valuetype_detail = fd->returntype;
-
-			inner_params->release();
-			fm->_Delete((byte8 *)inner_params, sizeof(sen));
-
-			params_sen->release();
-			fm->_Delete((byte8 *)params_sen, sizeof(sen));
-
-			param_sen->release();
-			fm->_Delete((byte8 *)param_sen, sizeof(sen));
-
-			release_tempmem(rtm);
-
-			return tm;
 		}
 
 		if (ten->size() == 1)
@@ -4625,56 +4780,206 @@ public:
 		{
 		}
 
-		if(isext == false){
+		if (isext == false)
+		{
 			fd = get_func_with_name(code->at(nameloc).data.str);
-		}
-		
-		// mem[writeup++] = fd->start_pc; // func
+			// mem[writeup++] = fd->start_pc; // func
 
-		sen *typen = wbss.sen_cut(code, 0, nameloc - 1);
+			sen *typen = wbss.sen_cut(code, 0, nameloc - 1);
 
-		sen *params_sen = wbss.sen_cut(code, nameloc + 2, loc - 1);
-		if (params_sen->size() == 0)
-		{
+			sen *params_sen = wbss.sen_cut(code, nameloc + 2, loc - 1);
+			if (params_sen->size() == 0)
+			{
+				mem[writeup++] = 189; // FUNC
+				mem[writeup++] = 200; // jmp
+				*reinterpret_cast<uint *>(&mem[writeup]) = (uint)(fd->start_pc - &mem[0]);
+				writeup += 4;
+
+				code->release();
+				fm->_Delete((byte8 *)code, sizeof(sen));
+
+				inner_params->release();
+				fm->_Delete((byte8 *)inner_params, sizeof(sen));
+
+				params_sen->release();
+				fm->_Delete((byte8 *)params_sen, sizeof(sen));
+				return;
+			}
+			int last = params_sen->size() - 1;
+			wbss.dbg_sen(params_sen);
+			int coma = wbss.search_word_first_in_specific_oc_layer(params_sen, 0, "(", ")", 0, ",");
+			int savecoma = -1;
+
+			int addadd = 0;
+			int paramid = 0;
+			int paramCount = 0;
+
 			mem[writeup++] = 189; // FUNC
-			mem[writeup++] = 200; // jmp
-			*reinterpret_cast<uint *>(&mem[writeup]) = (uint)(fd->start_pc - &mem[0]);
-			writeup += 4;
 
-			code->release();
-			fm->_Delete((byte8 *)code, sizeof(sen));
+			while (coma != -1)
+			{
+				sen *param_sen = wbss.sen_cut(params_sen, savecoma + 1, coma - 1);
+				wbss.dbg_sen(param_sen);
+				temp_mem *tm = get_asm_from_sen(param_sen, true, true);
+				if (tm->valuetype_detail->typetype == 's')
+				{
+					temp_mem *ptrtm = get_asm_from_sen(param_sen, true, false);
+					for (int i = 0; i < ptrtm->mem.size(); ++i)
+					{
+						mem[writeup++] = ptrtm->mem[i];
+					}
+				}
+				else
+				{
+					for (int i = 0; i < tm->mem.size(); ++i)
+					{
+						mem[writeup++] = tm->mem[i];
+					}
 
-			inner_params->release();
-			fm->_Delete((byte8 *)inner_params, sizeof(sen));
+					casting_type ct = get_cast_type(tm->valuetype, get_int_with_basictype(fd->param_data.at(paramCount).td));
+					mem[writeup++] = 201;
+					mem[writeup++] = (byte8)ct;
+					/*
+					*reinterpret_cast<uint*>(&mem[writeup]) = (uint)ct;
+					writeup += 4;
+					*/
+				}
 
-			params_sen->release();
-			fm->_Delete((byte8 *)params_sen, sizeof(sen));
-			return;
-		}
-		int last = params_sen->size() - 1;
-		wbss.dbg_sen(params_sen);
-		int coma = wbss.search_word_first_in_specific_oc_layer(params_sen, 0, "(", ")", 0, ",");
-		int savecoma = -1;
-
-		int addadd = 0;
-		int paramid = 0;
-		int paramCount = 0;
-
-		mem[writeup++] = 189; // FUNC
-
-		while (coma != -1)
+				if (fd->param_data[paramid].td->typetype != 's')
+				{
+					switch (fd->param_data[paramid].td->typesiz)
+					{
+					case 1:
+						mem[writeup++] = 190; // param
+						break;
+					case 2:
+						mem[writeup++] = 191; // param
+						break;
+					case 4:
+						mem[writeup++] = 192; // param
+						break;
+					}
+				}
+				else
+				{if (isext == false)
 		{
-			sen *param_sen = wbss.sen_cut(params_sen, savecoma+1, coma - 1);
+			fd = get_func_with_name(code->at(nameloc).data.str);
+			// mem[writeup++] = fd->start_pc; // func
+
+			sen *typen = wbss.sen_cut(code, 0, nameloc - 1);
+
+			sen *params_sen = wbss.sen_cut(code, nameloc + 2, loc - 1);
+			if (params_sen->size() == 0)
+			{
+				mem[writeup++] = 189; // FUNC
+				mem[writeup++] = 200; // jmp
+				*reinterpret_cast<uint *>(&mem[writeup]) = (uint)(fd->start_pc - &mem[0]);
+				writeup += 4;
+
+				code->release();
+				fm->_Delete((byte8 *)code, sizeof(sen));
+
+				inner_params->release();
+				fm->_Delete((byte8 *)inner_params, sizeof(sen));
+
+				params_sen->release();
+				fm->_Delete((byte8 *)params_sen, sizeof(sen));
+				return;
+			}
+			int last = params_sen->size() - 1;
+			wbss.dbg_sen(params_sen);
+			int coma = wbss.search_word_first_in_specific_oc_layer(params_sen, 0, "(", ")", 0, ",");
+			int savecoma = -1;
+
+			int addadd = 0;
+			int paramid = 0;
+			int paramCount = 0;
+
+			mem[writeup++] = 189; // FUNC
+
+			while (coma != -1)
+			{
+				sen *param_sen = wbss.sen_cut(params_sen, savecoma + 1, coma - 1);
+				wbss.dbg_sen(param_sen);
+				temp_mem *tm = get_asm_from_sen(param_sen, true, true);
+				if (tm->valuetype_detail->typetype == 's')
+				{
+					temp_mem *ptrtm = get_asm_from_sen(param_sen, true, false);
+					for (int i = 0; i < ptrtm->mem.size(); ++i)
+					{
+						mem[writeup++] = ptrtm->mem[i];
+					}
+				}
+				else
+				{
+					for (int i = 0; i < tm->mem.size(); ++i)
+					{
+						mem[writeup++] = tm->mem[i];
+					}
+
+					casting_type ct = get_cast_type(tm->valuetype, get_int_with_basictype(fd->param_data.at(paramCount).td));
+					mem[writeup++] = 201;
+					mem[writeup++] = (byte8)ct;
+					/*
+					*reinterpret_cast<uint*>(&mem[writeup]) = (uint)ct;
+					writeup += 4;
+					*/
+				}
+
+				if (fd->param_data[paramid].td->typetype != 's')
+				{
+					switch (fd->param_data[paramid].td->typesiz)
+					{
+					case 1:
+						mem[writeup++] = 190; // param
+						break;
+					case 2:
+						mem[writeup++] = 191; // param
+						break;
+					case 4:
+						mem[writeup++] = 192; // param
+						break;
+					}
+				}
+				else
+				{
+					mem[writeup++] = 219; // param N by address(a)
+					byte8 *N = (byte8 *)&fd->param_data[paramid].td->typesiz;
+					// write siz of struct type
+					for (int i = 0; i < 4; ++i)
+					{
+						mem[writeup++] = N[i];
+					}
+				}
+
+				savecoma = coma;
+				coma = wbss.search_word_first_in_specific_oc_layer(params_sen, savecoma + 1, "(", ")", 0, ",");
+				// coma = wbss.search_word_first(savecoma+1, params_sen, ",");
+
+				++paramid;
+
+				param_sen->release();
+				fm->_Delete((byte8 *)param_sen, sizeof(sen));
+
+				release_tempmem(tm);
+				++paramCount;
+			}
+
+			wbss.dbg_sen(params_sen);
+
+			sen *param_sen = wbss.sen_cut(params_sen, savecoma + 1, last);
 			wbss.dbg_sen(param_sen);
 			temp_mem *tm = get_asm_from_sen(param_sen, true, true);
-			if(tm->valuetype_detail->typetype == 's'){
+			if (tm->valuetype_detail->typetype == 's')
+			{
 				temp_mem *ptrtm = get_asm_from_sen(param_sen, true, false);
 				for (int i = 0; i < ptrtm->mem.size(); ++i)
 				{
 					mem[writeup++] = ptrtm->mem[i];
 				}
 			}
-			else{
+			else
+			{
 				for (int i = 0; i < tm->mem.size(); ++i)
 				{
 					mem[writeup++] = tm->mem[i];
@@ -4704,113 +5009,486 @@ public:
 					break;
 				}
 			}
-			else{
+			else
+			{
 				mem[writeup++] = 219; // param N by address(a)
-				byte8* N = (byte8*)&fd->param_data[paramid].td->typesiz;
-				//write siz of struct type
-				for(int i=0;i<4;++i){
+				byte8 *N = (byte8 *)&fd->param_data[paramid].td->typesiz;
+				// write siz of struct type
+				for (int i = 0; i < 4; ++i)
+				{
 					mem[writeup++] = N[i];
 				}
 			}
 
-			savecoma = coma;
-			coma = wbss.search_word_first_in_specific_oc_layer(params_sen, savecoma+1, "(", ")", 0, ",");
-			//coma = wbss.search_word_first(savecoma+1, params_sen, ",");
+			mem[writeup++] = 200; // jmp
+			*reinterpret_cast<uint *>(&mem[writeup]) = (uint)(fd->start_pc - &mem[0]);
+			writeup += 4;
 
-			++paramid;
+			code->release();
+			fm->_Delete((byte8 *)code, sizeof(sen));
+
+			inner_params->release();
+			fm->_Delete((byte8 *)inner_params, sizeof(sen));
+
+			typen->release();
+			fm->_Delete((byte8 *)typen, sizeof(sen));
+
+			params_sen->release();
+			fm->_Delete((byte8 *)params_sen, sizeof(sen));
 
 			param_sen->release();
 			fm->_Delete((byte8 *)param_sen, sizeof(sen));
 
 			release_tempmem(tm);
-			++paramCount;
 		}
+		else{
+			sen *typen = wbss.sen_cut(code, 0, nameloc - 1);
 
-		wbss.dbg_sen(params_sen);
-
-		sen *param_sen = wbss.sen_cut(params_sen, savecoma+1, last);
-		wbss.dbg_sen(param_sen);
-		temp_mem *tm = get_asm_from_sen(param_sen, true, true);
-		if (tm->valuetype_detail->typetype == 's')
-		{
-			temp_mem *ptrtm = get_asm_from_sen(param_sen, true, false);
-			for (int i = 0; i < ptrtm->mem.size(); ++i)
+			sen *params_sen = wbss.sen_cut(code, nameloc + 2, loc - 1);
+			if (params_sen->size() == 0)
 			{
-				mem[writeup++] = ptrtm->mem[i];
+				mem[writeup++] = 189; // FUNC
+				mem[writeup++] = 200; // jmp
+				*reinterpret_cast<uint *>(&mem[writeup]) = (uint)(fd->start_pc - &mem[0]);
+				writeup += 4;
+
+				code->release();
+				fm->_Delete((byte8 *)code, sizeof(sen));
+
+				inner_params->release();
+				fm->_Delete((byte8 *)inner_params, sizeof(sen));
+
+				params_sen->release();
+				fm->_Delete((byte8 *)params_sen, sizeof(sen));
+				return;
 			}
-		}
-		else
-		{
-			for (int i = 0; i < tm->mem.size(); ++i)
+			int last = params_sen->size() - 1;
+			wbss.dbg_sen(params_sen);
+			int coma = wbss.search_word_end_in_specific_oc_layer(params_sen, last, "(", ")", 0, ",");
+			int savecoma = last+1;
+
+			int addadd = 0;
+			int paramCount = fd->param_data.size() - 1;
+
+			mem[writeup++] = 189; // FUNC
+
+			while (coma != -1)
 			{
-				mem[writeup++] = tm->mem[i];
+				sen *param_sen = wbss.sen_cut(params_sen, coma + 1, savecoma - 1);
+				wbss.dbg_sen(param_sen);
+				temp_mem *tm = get_asm_from_sen(param_sen, true, true);
+				if (tm->valuetype_detail->typetype == 's')
+				{
+					temp_mem *ptrtm = get_asm_from_sen(param_sen, true, false);
+					for (int i = 0; i < ptrtm->mem.size(); ++i)
+					{
+						mem[writeup++] = ptrtm->mem[i];
+					}
+				}
+				else
+				{
+					for (int i = 0; i < tm->mem.size(); ++i)
+					{
+						mem[writeup++] = tm->mem[i];
+					}
+
+					casting_type ct = get_cast_type(tm->valuetype, get_int_with_basictype(fd->param_data.at(paramCount).td));
+					mem[writeup++] = 201;
+					mem[writeup++] = (byte8)ct;
+					/*
+					*reinterpret_cast<uint*>(&mem[writeup]) = (uint)ct;
+					writeup += 4;
+					*/
+				}
+
+				if (fd->param_data[paramCount].td->typetype != 's')
+				{
+					switch (fd->param_data[paramCount].td->typesiz)
+					{
+					case 1:
+						mem[writeup++] = 190; // param
+						break;
+					case 2:
+						mem[writeup++] = 191; // param
+						break;
+					case 4:
+						mem[writeup++] = 192; // param
+						break;
+					}
+				}
+				else
+				{
+					mem[writeup++] = 219; // param N by address(a)
+					byte8 *N = (byte8 *)&fd->param_data[paramCount].td->typesiz;
+					// write siz of struct type
+					for (int i = 0; i < 4; ++i)
+					{
+						mem[writeup++] = N[i];
+					}
+				}
+
+				savecoma = coma;
+				coma = wbss.search_word_end_in_specific_oc_layer(params_sen, savecoma - 1, "(", ")", 0, ",");
+				// coma = wbss.search_word_first(savecoma+1, params_sen, ",");
+
+				param_sen->release();
+				fm->_Delete((byte8 *)param_sen, sizeof(sen));
+
+				release_tempmem(tm);
+				--paramCount;
 			}
 
-			casting_type ct = get_cast_type(tm->valuetype, get_int_with_basictype(fd->param_data.at(paramCount).td));
-			mem[writeup++] = 201;
-			mem[writeup++] = (byte8)ct;
-			/*
-			*reinterpret_cast<uint*>(&mem[writeup]) = (uint)ct;
-			writeup += 4;
-			*/
-		}
+			wbss.dbg_sen(params_sen);
 
-		if (fd->param_data[paramid].td->typetype != 's')
-		{
-			switch (fd->param_data[paramid].td->typesiz)
+			sen *param_sen = wbss.sen_cut(params_sen, 0, savecoma-1);
+			wbss.dbg_sen(param_sen);
+			temp_mem *tm = get_asm_from_sen(param_sen, true, true);
+			if (tm->valuetype_detail->typetype == 's')
 			{
-			case 1:
-				mem[writeup++] = 190; // param
-				break;
-			case 2:
-				mem[writeup++] = 191; // param
-				break;
-			case 4:
-				mem[writeup++] = 192; // param
-				break;
+				temp_mem *ptrtm = get_asm_from_sen(param_sen, true, false);
+				for (int i = 0; i < ptrtm->mem.size(); ++i)
+				{
+					mem[writeup++] = ptrtm->mem[i];
+				}
 			}
-		}
-		else
-		{
-			mem[writeup++] = 219; // param N by address(a)
-			byte8 *N = (byte8 *)&fd->param_data[paramid].td->typesiz;
-			// write siz of struct type
-			for (int i = 0; i < 4; ++i)
+			else
 			{
-				mem[writeup++] = N[i];
-			}
-		}
+				for (int i = 0; i < tm->mem.size(); ++i)
+				{
+					mem[writeup++] = tm->mem[i];
+				}
 
-		if(isext){
+				casting_type ct = get_cast_type(tm->valuetype, get_int_with_basictype(fd->param_data.at(paramCount).td));
+				mem[writeup++] = 201;
+				mem[writeup++] = (byte8)ct;
+				/*
+				*reinterpret_cast<uint*>(&mem[writeup]) = (uint)ct;
+				writeup += 4;
+				*/
+			}
+
+			if (fd->param_data[paramCount].td->typetype != 's')
+			{
+				switch (fd->param_data[paramCount].td->typesiz)
+				{
+				case 1:
+					mem[writeup++] = 190; // param
+					break;
+				case 2:
+					mem[writeup++] = 191; // param
+					break;
+				case 4:
+					mem[writeup++] = 192; // param
+					break;
+				}
+			}
+			else
+			{
+				mem[writeup++] = 219; // param N by address(a)
+				byte8 *N = (byte8 *)&fd->param_data[paramCount].td->typesiz;
+				// write siz of struct type
+				for (int i = 0; i < 4; ++i)
+				{
+					mem[writeup++] = N[i];
+				}
+			}
+
 			mem[writeup++] = 255; // ext instruction
 			*reinterpret_cast<uint *>(&mem[writeup]) = (uint)(extID);
 			writeup += 4;
 			*reinterpret_cast<uint *>(&mem[writeup]) = (uint)(exfuncID); // byte8* but real value is function pointer of extension.
 			writeup += 4;
+
+			code->release();
+			fm->_Delete((byte8 *)code, sizeof(sen));
+
+			inner_params->release();
+			fm->_Delete((byte8 *)inner_params, sizeof(sen));
+
+			typen->release();
+			fm->_Delete((byte8 *)typen, sizeof(sen));
+
+			params_sen->release();
+			fm->_Delete((byte8 *)params_sen, sizeof(sen));
+
+			param_sen->release();
+			fm->_Delete((byte8 *)param_sen, sizeof(sen));
+
+			release_tempmem(tm);
 		}
-		else{
+					mem[writeup++] = 219; // param N by address(a)
+					byte8 *N = (byte8 *)&fd->param_data[paramid].td->typesiz;
+					// write siz of struct type
+					for (int i = 0; i < 4; ++i)
+					{
+						mem[writeup++] = N[i];
+					}
+				}
+
+				savecoma = coma;
+				coma = wbss.search_word_first_in_specific_oc_layer(params_sen, savecoma + 1, "(", ")", 0, ",");
+				// coma = wbss.search_word_first(savecoma+1, params_sen, ",");
+
+				++paramid;
+
+				param_sen->release();
+				fm->_Delete((byte8 *)param_sen, sizeof(sen));
+
+				release_tempmem(tm);
+				++paramCount;
+			}
+
+			wbss.dbg_sen(params_sen);
+
+			sen *param_sen = wbss.sen_cut(params_sen, savecoma + 1, last);
+			wbss.dbg_sen(param_sen);
+			temp_mem *tm = get_asm_from_sen(param_sen, true, true);
+			if (tm->valuetype_detail->typetype == 's')
+			{
+				temp_mem *ptrtm = get_asm_from_sen(param_sen, true, false);
+				for (int i = 0; i < ptrtm->mem.size(); ++i)
+				{
+					mem[writeup++] = ptrtm->mem[i];
+				}
+			}
+			else
+			{
+				for (int i = 0; i < tm->mem.size(); ++i)
+				{
+					mem[writeup++] = tm->mem[i];
+				}
+
+				casting_type ct = get_cast_type(tm->valuetype, get_int_with_basictype(fd->param_data.at(paramCount).td));
+				mem[writeup++] = 201;
+				mem[writeup++] = (byte8)ct;
+				/*
+				*reinterpret_cast<uint*>(&mem[writeup]) = (uint)ct;
+				writeup += 4;
+				*/
+			}
+
+			if (fd->param_data[paramid].td->typetype != 's')
+			{
+				switch (fd->param_data[paramid].td->typesiz)
+				{
+				case 1:
+					mem[writeup++] = 190; // param
+					break;
+				case 2:
+					mem[writeup++] = 191; // param
+					break;
+				case 4:
+					mem[writeup++] = 192; // param
+					break;
+				}
+			}
+			else
+			{
+				mem[writeup++] = 219; // param N by address(a)
+				byte8 *N = (byte8 *)&fd->param_data[paramid].td->typesiz;
+				// write siz of struct type
+				for (int i = 0; i < 4; ++i)
+				{
+					mem[writeup++] = N[i];
+				}
+			}
+
 			mem[writeup++] = 200; // jmp
 			*reinterpret_cast<uint *>(&mem[writeup]) = (uint)(fd->start_pc - &mem[0]);
 			writeup += 4;
+
+			code->release();
+			fm->_Delete((byte8 *)code, sizeof(sen));
+
+			inner_params->release();
+			fm->_Delete((byte8 *)inner_params, sizeof(sen));
+
+			typen->release();
+			fm->_Delete((byte8 *)typen, sizeof(sen));
+
+			params_sen->release();
+			fm->_Delete((byte8 *)params_sen, sizeof(sen));
+
+			param_sen->release();
+			fm->_Delete((byte8 *)param_sen, sizeof(sen));
+
+			release_tempmem(tm);
 		}
-		
+		else{
+			sen *typen = wbss.sen_cut(code, 0, nameloc - 1);
 
-		code->release();
-		fm->_Delete((byte8 *)code, sizeof(sen));
+			sen *params_sen = wbss.sen_cut(code, nameloc + 2, loc - 1);
+			if (params_sen->size() == 0)
+			{
+				mem[writeup++] = 189; // FUNC
+				mem[writeup++] = 200; // jmp
+				*reinterpret_cast<uint *>(&mem[writeup]) = (uint)(fd->start_pc - &mem[0]);
+				writeup += 4;
 
-		inner_params->release();
-		fm->_Delete((byte8 *)inner_params, sizeof(sen));
+				code->release();
+				fm->_Delete((byte8 *)code, sizeof(sen));
 
-		typen->release();
-		fm->_Delete((byte8 *)typen, sizeof(sen));
+				inner_params->release();
+				fm->_Delete((byte8 *)inner_params, sizeof(sen));
 
-		params_sen->release();
-		fm->_Delete((byte8 *)params_sen, sizeof(sen));
+				params_sen->release();
+				fm->_Delete((byte8 *)params_sen, sizeof(sen));
+				return;
+			}
+			int last = params_sen->size() - 1;
+			wbss.dbg_sen(params_sen);
+			int coma = wbss.search_word_end_in_specific_oc_layer(params_sen, last, "(", ")", 0, ",");
+			int savecoma = last+1;
 
-		param_sen->release();
-		fm->_Delete((byte8 *)param_sen, sizeof(sen));
+			int addadd = 0;
+			int paramCount = fd->param_data.size() - 1;
 
-		release_tempmem(tm);
+			mem[writeup++] = 189; // FUNC
+
+			while (coma != -1)
+			{
+				sen *param_sen = wbss.sen_cut(params_sen, coma + 1, savecoma - 1);
+				wbss.dbg_sen(param_sen);
+				temp_mem *tm = get_asm_from_sen(param_sen, true, true);
+				if (tm->valuetype_detail->typetype == 's')
+				{
+					temp_mem *ptrtm = get_asm_from_sen(param_sen, true, false);
+					for (int i = 0; i < ptrtm->mem.size(); ++i)
+					{
+						mem[writeup++] = ptrtm->mem[i];
+					}
+				}
+				else
+				{
+					for (int i = 0; i < tm->mem.size(); ++i)
+					{
+						mem[writeup++] = tm->mem[i];
+					}
+
+					casting_type ct = get_cast_type(tm->valuetype, get_int_with_basictype(fd->param_data.at(paramCount).td));
+					mem[writeup++] = 201;
+					mem[writeup++] = (byte8)ct;
+					/*
+					*reinterpret_cast<uint*>(&mem[writeup]) = (uint)ct;
+					writeup += 4;
+					*/
+				}
+
+				if (fd->param_data[paramCount].td->typetype != 's')
+				{
+					switch (fd->param_data[paramCount].td->typesiz)
+					{
+					case 1:
+						mem[writeup++] = 190; // param
+						break;
+					case 2:
+						mem[writeup++] = 191; // param
+						break;
+					case 4:
+						mem[writeup++] = 192; // param
+						break;
+					}
+				}
+				else
+				{
+					mem[writeup++] = 219; // param N by address(a)
+					byte8 *N = (byte8 *)&fd->param_data[paramCount].td->typesiz;
+					// write siz of struct type
+					for (int i = 0; i < 4; ++i)
+					{
+						mem[writeup++] = N[i];
+					}
+				}
+
+				savecoma = coma;
+				coma = wbss.search_word_end_in_specific_oc_layer(params_sen, savecoma - 1, "(", ")", 0, ",");
+				// coma = wbss.search_word_first(savecoma+1, params_sen, ",");
+
+				param_sen->release();
+				fm->_Delete((byte8 *)param_sen, sizeof(sen));
+
+				release_tempmem(tm);
+				--paramCount;
+			}
+
+			wbss.dbg_sen(params_sen);
+
+			sen *param_sen = wbss.sen_cut(params_sen, 0, savecoma-1);
+			wbss.dbg_sen(param_sen);
+			temp_mem *tm = get_asm_from_sen(param_sen, true, true);
+			if (tm->valuetype_detail->typetype == 's')
+			{
+				temp_mem *ptrtm = get_asm_from_sen(param_sen, true, false);
+				for (int i = 0; i < ptrtm->mem.size(); ++i)
+				{
+					mem[writeup++] = ptrtm->mem[i];
+				}
+			}
+			else
+			{
+				for (int i = 0; i < tm->mem.size(); ++i)
+				{
+					mem[writeup++] = tm->mem[i];
+				}
+
+				casting_type ct = get_cast_type(tm->valuetype, get_int_with_basictype(fd->param_data.at(paramCount).td));
+				mem[writeup++] = 201;
+				mem[writeup++] = (byte8)ct;
+				/*
+				*reinterpret_cast<uint*>(&mem[writeup]) = (uint)ct;
+				writeup += 4;
+				*/
+			}
+
+			if (fd->param_data[paramCount].td->typetype != 's')
+			{
+				switch (fd->param_data[paramCount].td->typesiz)
+				{
+				case 1:
+					mem[writeup++] = 190; // param
+					break;
+				case 2:
+					mem[writeup++] = 191; // param
+					break;
+				case 4:
+					mem[writeup++] = 192; // param
+					break;
+				}
+			}
+			else
+			{
+				mem[writeup++] = 219; // param N by address(a)
+				byte8 *N = (byte8 *)&fd->param_data[paramCount].td->typesiz;
+				// write siz of struct type
+				for (int i = 0; i < 4; ++i)
+				{
+					mem[writeup++] = N[i];
+				}
+			}
+
+			mem[writeup++] = 255; // ext instruction
+			*reinterpret_cast<uint *>(&mem[writeup]) = (uint)(extID);
+			writeup += 4;
+			*reinterpret_cast<uint *>(&mem[writeup]) = (uint)(exfuncID); // byte8* but real value is function pointer of extension.
+			writeup += 4;
+
+			code->release();
+			fm->_Delete((byte8 *)code, sizeof(sen));
+
+			inner_params->release();
+			fm->_Delete((byte8 *)inner_params, sizeof(sen));
+
+			typen->release();
+			fm->_Delete((byte8 *)typen, sizeof(sen));
+
+			params_sen->release();
+			fm->_Delete((byte8 *)params_sen, sizeof(sen));
+
+			param_sen->release();
+			fm->_Delete((byte8 *)param_sen, sizeof(sen));
+
+			release_tempmem(tm);
+		}
 	}
 
 	void compile_returnInFunction(code_sen *cs)

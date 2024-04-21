@@ -468,4 +468,30 @@ class word_base_sen_sys
 
 		return -1;
 	}
+
+	int search_word_end_in_specific_oc_layer(sen* arr, int end, const char* open, const char* close, int layer, const char* word){
+		int stack = 0;
+		for (int i = end; i >= 0; --i)
+		{
+			if (strcmp(arr->at(i).data.str, close)==0)
+			{
+				++stack;
+				continue;
+			}
+
+			if (strcmp(arr->at(i).data.str, open)==0)
+			{
+				--stack;
+				continue;
+			}
+
+			if(stack == layer){
+				if(strcmp(arr->at(i).data.str, word)==0){
+					return i;
+				}
+			}
+		}
+
+		return -1;
+	}
 };
