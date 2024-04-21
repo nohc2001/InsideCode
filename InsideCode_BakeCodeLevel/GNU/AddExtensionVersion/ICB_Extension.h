@@ -610,8 +610,10 @@ void compile_addFunction(code_sen *cs, ICB_Extension *ext)
     int nameloc = loc - inner_params->size();
 
     fd->name = code->at(nameloc).data.str;
+    cout << fd->name.c_str() << endl;
 
     sen *typen = InsideCode_Bake::wbss.sen_cut(code, 0, nameloc - 1);
+    type_data* td = get_type_with_namesen(typen, ext);
     sen *params_sen = InsideCode_Bake::wbss.sen_cut(code, nameloc + 2, loc - 1);
     InsideCode_Bake::wbss.dbg_sen(params_sen);
     int coma = InsideCode_Bake::wbss.search_word_first(0, params_sen, ",");
@@ -620,7 +622,7 @@ void compile_addFunction(code_sen *cs, ICB_Extension *ext)
 
     fd->param_data.NULLState();
     fd->param_data.Init(2, false);
-    fd->returntype = InsideCode_Bake::basictype[0];
+    fd->returntype = td;
     fd->start_pc = nullptr;
 
     int addadd = 0;
