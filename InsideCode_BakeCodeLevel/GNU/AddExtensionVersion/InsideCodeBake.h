@@ -7847,7 +7847,7 @@ PARAM_N_COPY_BY_ADDRESS:
 PUSH_A_GLOBAL_VARIABLE_ADDRESS:
 	++*pc;
 	_as.move_pivot(-1);
-	_as[0] = &icb->datamem.at(**pci) - mem;
+	_as[0] = &(icb->datamem.at(**pci)) - mem;
 	++*pci;
 	goto INSTEND;
 
