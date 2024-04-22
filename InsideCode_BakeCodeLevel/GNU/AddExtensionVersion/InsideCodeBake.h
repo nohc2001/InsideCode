@@ -2187,6 +2187,7 @@ public:
 							}
 							else{
 								tm->mem.push_back(223); // b = a
+								tm->mem.push_back(216); // pop a
 								tm->mem.push_back(206); // b = *b
 							}
 						}
@@ -2195,6 +2196,7 @@ public:
 						{
 							if(is_a){
 								tm->mem.push_back(222); // a = b
+								tm->mem.push_back(217); // pop b
 								tm->mem.push_back(205); // a = *a
 							}
 							else{
@@ -2210,6 +2212,7 @@ public:
 						{
 							if(is_a == false){
 								tm->mem.push_back(223); // b = a
+								tm->mem.push_back(216); // pop a
 							}
 						}
 						break;
@@ -2217,6 +2220,7 @@ public:
 						{
 							if(is_a){
 								tm->mem.push_back(222); // a = b
+								tm->mem.push_back(217); // pop b
 							}
 						}
 						break;
@@ -2233,6 +2237,7 @@ public:
 						{
 							if(is_a == false){
 								tm->mem.push_back(223); // b = a
+								tm->mem.push_back(216); // pop a
 							}
 						}
 						break;
@@ -2240,6 +2245,7 @@ public:
 						{
 							if(is_a){
 								tm->mem.push_back(222); // a = b
+								tm->mem.push_back(217); // pop b
 							}
 						}
 						break;
@@ -3871,6 +3877,7 @@ public:
 							if (is_a == false)
 							{
 								tm->mem.push_back(223); // b = a
+								tm->mem.push_back(216); // pop a
 							}
 						}
 						break;
@@ -3879,6 +3886,7 @@ public:
 							if (is_a)
 							{
 								tm->mem.push_back(222); // a = b
+								tm->mem.push_back(217); // pop b
 							}
 						}
 						break;
@@ -3900,6 +3908,7 @@ public:
 							else
 							{
 								tm->mem.push_back(223); // b = a
+								tm->mem.push_back(216); // pop a
 								tm->mem.push_back(206); // b = *b
 							}
 						}
@@ -3909,6 +3918,7 @@ public:
 							if (is_a)
 							{
 								tm->mem.push_back(222); // a = b
+								tm->mem.push_back(217); // pop b
 								tm->mem.push_back(205); // a = *a
 							}
 							else
@@ -3929,6 +3939,7 @@ public:
 						if (is_a == false)
 						{
 							tm->mem.push_back(223); // b = a
+							tm->mem.push_back(216); // pop a
 						}
 					}
 					break;
@@ -3937,6 +3948,7 @@ public:
 						if (is_a)
 						{
 							tm->mem.push_back(222); // a = b
+							tm->mem.push_back(217); // pop b
 						}
 					}
 					break;
@@ -3958,6 +3970,7 @@ public:
 						if (is_a == false)
 						{
 							tm->mem.push_back(223); // b = a
+							tm->mem.push_back(216); // pop a
 						}
 					}
 					break;
@@ -3966,6 +3979,7 @@ public:
 						if (is_a)
 						{
 							tm->mem.push_back(222); // a = b
+							tm->mem.push_back(217); // pop b
 						}
 					}
 					break;
@@ -6145,7 +6159,7 @@ class ICB_Context{
 vecarr<ICB_Context *> icbarr;
 
 bool isBreaking = false;
-int stopnum = 1028;
+int stopnum = -1;
 
 
 int code_control(vecarr<ICB_Context *> *icbarr)
