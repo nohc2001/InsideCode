@@ -6145,7 +6145,7 @@ class ICB_Context{
 vecarr<ICB_Context *> icbarr;
 
 bool isBreaking = false;
-int stopnum = -1;
+int stopnum = 1028;
 
 
 int code_control(vecarr<ICB_Context *> *icbarr)
@@ -6170,7 +6170,7 @@ int code_control(vecarr<ICB_Context *> *icbarr)
 	stack++;
 	if (stack >= 1)
 	{
-		//scanf("%c", &c);
+		scanf("%c", &c);
 		stack = 0;
 	}
 	switch (c)
@@ -6819,13 +6819,15 @@ AU_UINT_ADD_B:
 
 AU_FLOAT_ADD_A:
 	_as.move_pivot(-1);
-	_as[0] = (float)((float)_x + (float)_y);
+	*reinterpret_cast<float*>(&_as[0]) = (float)(*reinterpret_cast<float*>(&_x) + *reinterpret_cast<float*>(&_y));
+	//_as[0] = (float)((float)_x + (float)_y);
 	++*pc;
 	goto INSTEND;
 
 AU_FLOAT_ADD_B:
 	_bs.move_pivot(-1);
-	_bs[0] = (float)((float)_x + (float)_y);
+	*reinterpret_cast<float*>(&_bs[0]) = (float)(*reinterpret_cast<float*>(&_x) + *reinterpret_cast<float*>(&_y));
+	//_bs[0] = (float)((float)_x + (float)_y);
 	++*pc;
 	goto INSTEND;
 
@@ -6904,13 +6906,15 @@ AU_UINT_MIN_B:
 
 AU_FLOAT_MIN_A:
 	_as.move_pivot(-1);
-	_as[0] = (float)((float)_x - (float)_y);
+	*reinterpret_cast<float*>(&_as[0]) = (float)(*reinterpret_cast<float*>(&_x) - *reinterpret_cast<float*>(&_y));
+	//_as[0] = (float)((float)_x - (float)_y);
 	++*pc;
 	goto INSTEND;
 
 AU_FLOAT_MIN_B:
 	_bs.move_pivot(-1);
-	_bs[0] = (float)((float)_x - (float)_y);
+	*reinterpret_cast<float*>(&_bs[0]) = (float)(*reinterpret_cast<float*>(&_x) - *reinterpret_cast<float*>(&_y));
+	//_bs[0] = (float)((float)_x - (float)_y);
 	++*pc;
 	goto INSTEND;
 
@@ -6989,13 +6993,15 @@ AU_UINT_MUL_B:
 
 AU_FLOAT_MUL_A:
 	_as.move_pivot(-1);
-	_as[0] = (float)((float)_x * (float)_y);
+	*reinterpret_cast<float*>(&_as[0]) = (float)((*reinterpret_cast<float*>(&_x)) * (*reinterpret_cast<float*>(&_y)));
+	//_as[0] = (float)((float)_x * (float)_y);
 	++*pc;
 	goto INSTEND;
 
 AU_FLOAT_MUL_B:
 	_bs.move_pivot(-1);
-	_bs[0] = (float)((float)_x * (float)_y);
+	*reinterpret_cast<float*>(&_bs[0]) = (float)((*reinterpret_cast<float*>(&_x)) * (*reinterpret_cast<float*>(&_y)));
+	//_bs[0] = (float)((float)_x * (float)_y);
 	++*pc;
 	goto INSTEND;
 
@@ -7074,13 +7080,13 @@ AU_UINT_DIV_B:
 
 AU_FLOAT_DIV_A:
 	_as.move_pivot(-1);
-	_as[0] = (float)((float)_x / (float)_y);
+	*reinterpret_cast<float*>(&_as[0]) = (float)(*reinterpret_cast<float*>(&_x) / *reinterpret_cast<float*>(&_y));
 	++*pc;
 	goto INSTEND;
 
 AU_FLOAT_DIV_B:
 	_bs.move_pivot(-1);
-	_bs[0] = (float)((float)_x / (float)_y);
+	*reinterpret_cast<float*>(&_bs[0]) = (float)(*reinterpret_cast<float*>(&_x) / *reinterpret_cast<float*>(&_y));
 	++*pc;
 	goto INSTEND;
 
@@ -7291,13 +7297,14 @@ CM_BOOL_UINT_LBIG_B:
 
 CM_BOOL_FLOAT_LBIG_A:
 	_as.move_pivot(-1);
-	_as[0] = (float)_x > (float)_y;
+	//*reinterpret_cast<float*>(&_as[0]) = (float)((*reinterpret_cast<float*>(&_x)) * (*reinterpret_cast<float*>(&_y)));
+	_as[0] = *reinterpret_cast<float*>(&_x) > *reinterpret_cast<float*>(&_y);
 	++*pc;
 	goto INSTEND;
 
 CM_BOOL_FLOAT_LBIG_B:
 	_bs.move_pivot(-1);
-	_bs[0] = (float)_x > (float)_y;
+	_bs[0] = *reinterpret_cast<float*>(&_x) > *reinterpret_cast<float*>(&_y);
 	++*pc;
 	goto INSTEND;
 
@@ -7375,13 +7382,13 @@ CM_BOOL_UINT_LBIGSAME_B:
 
 CM_BOOL_FLOAT_LBIGSAME_A:
 	_as.move_pivot(-1);
-	_as[0] = (float)_x >= (float)_y;
+	_as[0] = *reinterpret_cast<float*>(&_x) >= *reinterpret_cast<float*>(&_y);
 	++*pc;
 	goto INSTEND;
 
 CM_BOOL_FLOAT_LBIGSAME_B:
 	_bs.move_pivot(-1);
-	_bs[0] = (float)_x >= (float)_y;
+	_bs[0] = *reinterpret_cast<float*>(&_x) >= *reinterpret_cast<float*>(&_y);
 	++*pc;
 	goto INSTEND;
 
@@ -7459,13 +7466,13 @@ CM_BOOL_UINT_RBIG_B:
 
 CM_BOOL_FLOAT_RBIG_A:
 	_as.move_pivot(-1);
-	_as[0] = (float)_x < (float)_y;
+	_as[0] = *reinterpret_cast<float*>(&_x) < *reinterpret_cast<float*>(&_y);
 	++*pc;
 	goto INSTEND;
 
 CM_BOOL_FLOAT_RBIG_B:
 	_bs.move_pivot(-1);
-	_bs[0] = (float)_x < (float)_y;
+	_bs[0] = *reinterpret_cast<float*>(&_x) < *reinterpret_cast<float*>(&_y);
 	++*pc;
 	goto INSTEND;
 
@@ -7543,13 +7550,13 @@ CM_BOOL_UINT_RBIGSAME_B:
 
 CM_BOOL_FLOAT_RBIGSAME_A:
 	_as.move_pivot(-1);
-	_as[0] = (float)_x <= (float)_y;
+	_as[0] = *reinterpret_cast<float*>(_x) <= *reinterpret_cast<float*>(_y);
 	++*pc;
 	goto INSTEND;
 
 CM_BOOL_FLOAT_RBIGSAME_B:
 	_bs.move_pivot(-1);
-	_bs[0] = (float)_x <= (float)_y;
+	_bs[0] = *reinterpret_cast<float*>(_x) <= *reinterpret_cast<float*>(_y);
 	++*pc;
 	goto INSTEND;
 
