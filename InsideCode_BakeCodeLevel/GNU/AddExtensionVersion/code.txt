@@ -28,7 +28,7 @@ int main(){
 
 	pos1 = _vec2f(pos1.x + rang.delta.x * 30, pos1.y + rang.delta.y * 30);
 	dbg("pos1 : (", pos1.x, ", ", pos1.y, ")\n");
-	vec2f cross = get_cross_line(_line2d(pos1, _vec2f(10, 0)), _line2d(pos2, _vec2f(cir1.center.x-15, cir1.center.y)));
+	vec2f cross = get_cross_line(_line2d(pos1, _vec2f(10, 0)), _line2d(pos2, cir1.center));
 	dbg("cross : (", cross.x, ", ", cross.y, ")\n");
 
 	vec2f[2] circross = get_cross_CircleAndLine(cir1, _line2d(cross, _vec2f(20, 0)));
