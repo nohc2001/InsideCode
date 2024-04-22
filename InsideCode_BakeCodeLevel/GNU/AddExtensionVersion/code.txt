@@ -46,7 +46,7 @@ int main(){
 	dbg("enableCross : (", enableCross.x, ", ", enableCross.y, ")\n");
 
 	int bSiz = 100;
-	vec2f[100] bezierCurve = get_poses_in_Bezier1F(enableCross, pos2, pos1, bSiz);
+	vec2f[100] bezierCurve = get_poses_in_Bezier1F(pos1, cross, pos2, bSiz);
 	int i=0;while(i<bSiz){
 		dbg("pos[", i, "] : (", bezierCurve[i].x, ", ", bezierCurve[i].y, ")\n");
 		i+=1;
