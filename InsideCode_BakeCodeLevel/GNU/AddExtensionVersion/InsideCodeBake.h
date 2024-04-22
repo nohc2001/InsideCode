@@ -4542,7 +4542,8 @@ public:
 						continue;
 					}
 					code_sen *css2 = reinterpret_cast<code_sen *>(cs->codeblocks->at(i + 2));
-					while (css2 != nullptr && css2->ck == codeKind::ck_if)
+					sen* css2sen = get_sen_from_codesen(css2);
+					while ((css2 != nullptr && css2->ck == codeKind::ck_if) && strcmp(css2sen->at(0).data.str, "else") == 0)
 					{
 						stack += 1;
 						css2 = reinterpret_cast<code_sen *>(cs->codeblocks->at(ifi + 2));
