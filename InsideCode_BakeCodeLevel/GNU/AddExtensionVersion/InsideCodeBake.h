@@ -697,6 +697,7 @@ public:
     //code memory
     uint32_t max_mem_byte = 40960; // 40KB
 	byte8 *mem = nullptr;
+	vecarr<byte8> init_datamem;
 
 	vecarr<func_data *> functions;
 	vecarr<type_data *> types;
@@ -5809,6 +5810,8 @@ public:
 		cout << endl;
 
 		int gs = 0;
+		init_datamem.NULLState();
+		init_datamem.Init(8, false);
 
 		for (int i = 0; i < senptr->size(); ++i)
 		{
@@ -5816,11 +5819,150 @@ public:
 			if (cs->ck == codeKind::ck_addVariable || cs->ck == codeKind::ck_addsetVariable)
 			{
 				// global var count
-				gs += get_typesiz_with_addVariableCs(cs);
+				int siz = get_typesiz_with_addVariableCs(cs);
+				for(int k=0;k<siz;++k)
+				{
+					init_datamem.push_back(0);
+				}
+				byte8 *bptr = &init_datamem.at(gs);
+				gs += siz;
+
+				if (cs->ck == codeKind::ck_addsetVariable)
+				{
+					sen *code = get_sen_from_codesen(cs);
+					int loc = wbss.search_word_first(0, code, "=");
+
+					lcstr str;
+					str.NULLState();
+					str.Init(2, false);
+					str = code->at(loc + 1).data.str;
+					TBT t = DecodeTextBlock(str);
+					switch (t)
+					{
+					case TBT::_value_bool:
+					{
+						bool b = true;
+						if (strcmp(str.c_str(), "true") == 0)
+							b = true;
+						else
+							b = false;
+						*reinterpret_cast<bool *>(bptr) = b;
+					}
+					break;
+					case TBT::_value_integer:
+					{
+						int a = 0;
+						a = atoi(str.c_str());
+						*reinterpret_cast<int *>(bptr) = a;
+					}
+					break;
+					case TBT::_value_float:
+					{
+						float a = 0;
+						a = stof(str.c_str());
+						*reinterpret_cast<float *>(bptr) = a;
+					}
+					break;
+					case TBT::_value_char:
+					{
+						char c = 0;
+						if (str[1] != '\\')
+						{
+							c = str[1];
+						}
+						else
+						{
+							switch (str[2])
+							{
+							case 'n':
+								c = '\n';
+								break;
+							case '0':
+								c = 0;
+								break;
+							case 't':
+								c = '\t';
+								break;
+							case '\\':
+								c = '\\';
+								break;
+							case '\'':
+								c = '\'';
+								break;
+							case '\"':
+								c = '\"';
+								break;
+							default:
+								c = 0;
+								break;
+							}
+						}
+						*reinterpret_cast<char *>(bptr) = c;
+					}
+					break;
+					case TBT::_value_str:
+					{
+						int max = strlen(str.c_str()) - 1;
+						max = max > siz ? siz : max;
+						int stack = 1;
+						int sup = 0;
+						for (int k = 1; k < max; ++k)
+						{
+							if (str[k] == '\\')
+							{
+								stack += 1;
+								k += 1;
+								switch (str[k])
+								{
+								case 'n':
+									*(char *)bptr = '\n';
+									++bptr;
+									break;
+								case '0':
+									*(char *)bptr = 0;
+									++bptr;
+									break;
+								case 't':
+									*(char *)bptr = '\t';
+									++bptr;
+									break;
+								case '\\':
+									*(char *)bptr = '\\';
+									++bptr;
+									break;
+								case '\'':
+									*(char *)bptr = '\'';
+									++bptr;
+									break;
+								case '\"':
+									*(char *)bptr = '\"';
+									++bptr;
+									break;
+								default:
+									*(char *)bptr = 0;
+									++bptr;
+									break;
+								}
+								continue;
+							}
+							*(char *)bptr = str[k];
+							++bptr;
+						}
+						for (int k = 0; k < stack; ++k)
+						{
+							*(char *)bptr = 0;
+							++bptr;
+						}
+					}
+					break;
+					}
+					// tm->valuetype_detail = get_basic_type_with_int(tm->valuetype);
+					str.islocal = true;
+				}
 			}
 			dbg_codesen(cs);
 		}
-        datamem_up = gs;
+		datamem_up = gs;
 
 		mem[writeup++] = 189; // func
 		mem[writeup++] = 200; // jmp
@@ -5903,8 +6045,11 @@ class ICB_Context{
 		call_stack.Init(2, false);
 
 		datamem.NULLState();
-        datamem.Init(icb->datamem_up+8, false);
-		datamem.up = icb->datamem_up;
+        datamem.Init(icb->init_datamem.size()+8, false);
+		datamem.up = icb->init_datamem.size();
+		for(int i=0;i<datamem.up;++i){
+			datamem[i] = icb->init_datamem.at(i);
+		}
 
 		saveSP.NULLState();
 		saveSP.Init(32, false);
@@ -6000,7 +6145,7 @@ class ICB_Context{
 vecarr<ICB_Context *> icbarr;
 
 bool isBreaking = false;
-int stopnum = 1028;
+int stopnum = -1;
 
 
 int code_control(vecarr<ICB_Context *> *icbarr)
