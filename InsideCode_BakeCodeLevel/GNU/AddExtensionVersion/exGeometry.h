@@ -5,11 +5,23 @@
 #include "ICB_Extension.h"
 #include <math.h>
 
+#define __isin(A, B, C) ((A < B && B < C) || (C < B && B < A))
+
 constexpr float PI = 3.141592f;
 
 struct vec2f{
     float x;
     float y;
+
+    vec2f(){
+        x = 0;
+        y = 0;
+    }
+
+    vec2f(float X, float Y){
+        x = X;
+        y = Y;
+    }
 };
 
 struct circle{
@@ -161,84 +173,98 @@ void exGeometry_get_cross_CircleAndLine(int* pcontext){
     circle cir = *reinterpret_cast<circle*>(icc->rfsp - (sizeof(circle) + sizeof(line2d)));
     line2d l = *reinterpret_cast<line2d*>(icc->rfsp - sizeof(line2d));
 
-    vec2f p1;
-    vec2f p2;
+    vec2f p1, p2;
 
     float xr = l.lp.x - l.fp.x;
     float yr = l.lp.y - l.fp.y;
     if(fabsf(xr) > fabsf(yr)){
-        float yrxr = yr / xr;
-        float a = yrxr*yrxr+1;
-        float temp = yrxr * l.fp.x - l.fp.y + cir.radius;
-        float b = -2.0f*(temp - cir.center.x);
-        float c = cir.center.x*cir.center.x + temp*temp - cir.radius*cir.radius;
-        float isnanf = b*b - 4*a*c;
-        if(isnanf > 0){
-            float sn = sqrtf(isnanf);
-            p1.x = -0.5f * (b - sn) / a;
-            p1.y = yrxr*(p1.x-l.fp.x)+l.fp.y;
-            p2.x = -0.5f * (b + sn) / a;
-            p2.y = yrxr*(p2.x-l.fp.x)+l.fp.y;
-
-            float min = (p1.x > p2.x) ? p2.x : p1.x;
-            float max = (p1.x > p2.x) ? p1.x : p2.x;
-            bool b1 = min < p1.x && p1.x < max;
-            bool b2 = min < p2.x && p2.x < max;
-            if(!b1){
-                p1.x = NAN;
-                p1.y = NAN;
-            }
-            if(!b2){
-                p2.x = NAN;
-                p2.y = NAN;
-            }
+        float yrDxr = yr / xr;
+        float ycy = yrDxr * l.fp.x - l.fp.y + cir.center.y;
+        float A = yrDxr*yrDxr + 1;
+        float B = -2.0f * (cir.center.x + ycy * yrDxr);
+        float C = cir.center.x*cir.center.x + ycy*ycy - cir.radius*cir.radius;
+        float inSqrt = B*B - 4.0f*A*C;
+        if(inSqrt < 0){
+            p1 = vec2f(NAN, NAN);
+            p2 = vec2f(NAN, NAN);
         }
-        else if(isnanf == 0){
-            p1.x = -0.5f * b / a;
-            p1.y = yrxr*(p1.x-l.fp.x)+l.fp.y;
-            p2.x = NAN;
-            p2.y = NAN;
-
-            float min = (p1.x > p2.x) ? p2.x : p1.x;
-            float max = (p1.x > p2.x) ? p1.x : p2.x;
-            bool b1 = min < p1.x && p1.x < max;
-            if(!b1){
-                p1.x = NAN;
-                p1.y = NAN;
+        else if(inSqrt == 0){
+            float rx1 = -B*(2.0f*A);
+            float ry1 = yrDxr * (rx1 - l.fp.x) + l.fp.y;
+            if(__isin(l.fp.x, rx1, l.lp.x) && __isin(l.fp.y, ry1, l.lp.y)){
+                p1 = vec2f(rx1, ry1);
+                p2 = vec2f(NAN, NAN);
+            }
+            else{
+                p1 = vec2f(NAN, NAN);
+                p2 = vec2f(NAN, NAN);
             }
         }
         else{
-            p1.x = NAN;
-            p1.y = NAN;
-            p2.x = NAN;
-            p2.y = NAN;
+            float sqrtv = sqrtf(inSqrt);
+            vec2f rp1 = vec2f((-B + sqrtv) / (2*A), 0);
+            rp1.y = yrDxr*(rp1.x-l.fp.x)+l.fp.y;
+            vec2f rp2 = vec2f((-B - sqrtv) / (2*A), 0);
+            rp2.y = yrDxr*(rp2.x-l.fp.x)+l.fp.y;
+
+            if(__isin(l.fp.x, rp1.x, l.lp.x) && __isin(l.fp.y, rp1.y, l.lp.y)){
+                p1 = rp1;
+            }
+            else{
+                p1 = vec2f(NAN, NAN);
+            }
+
+            if(__isin(l.fp.x, rp2.x, l.lp.x) && __isin(l.fp.y, rp2.y, l.lp.y)){
+                p2 = rp1;
+            }
+            else{
+                p2 = vec2f(NAN, NAN);
+            }
         }
     }
     else{
-        float xryr = xr / yr;
-        float a = xryr*xryr+1;
-        float temp = xryr * l.fp.y - l.fp.x + cir.radius;
-        float b = -2.0f*(temp - cir.center.y);
-        float c = cir.center.y*cir.center.y + temp*temp - cir.radius*cir.radius;
-        float isnanf = b*b - 4*a*c;
-        if(isnanf > 0){
-            float sn = sqrtf(isnanf);
-            p1.y = -0.5f * (b - sn) / a;
-            p1.x = xryr*(p1.x-l.fp.x)+l.fp.y;
-            p2.y = -0.5f * (b + sn) / a;
-            p2.x = xryr*(p2.x-l.fp.x)+l.fp.y;
+        float xrDyr = xr / yr;
+        float xcx = xrDyr * l.fp.y - l.fp.x + cir.center.x;
+        float A = xrDyr*xrDyr + 1;
+        float B = -2.0f * (cir.center.y + xcx * xrDyr);
+        float C = cir.center.y*cir.center.y + xcx*xcx - cir.radius*cir.radius;
+        float inSqrt = B*B - 4.0f*A*C;
+        if(inSqrt < 0){
+            p1 = vec2f(NAN, NAN);
+            p2 = vec2f(NAN, NAN);
         }
-        else if(isnanf == 0){
-            p1.y = -0.5f * b / a;
-            p1.x = xryr*(p1.x-l.fp.x)+l.fp.y;
-            p2.y = NAN;
-            p2.x = NAN;
+        else if(inSqrt == 0){
+            float ry1 = -B*(2.0f*A);
+            float rx1 = xrDyr * (ry1 - l.fp.y) + l.fp.x;
+            if(__isin(l.fp.x, rx1, l.lp.x) && __isin(l.fp.y, ry1, l.lp.y)){
+                p1 = vec2f(rx1, ry1);
+                p2 = vec2f(NAN, NAN);
+            }
+            else{
+                p1 = vec2f(NAN, NAN);
+                p2 = vec2f(NAN, NAN);
+            }
         }
         else{
-            p1.x = NAN;
-            p1.y = NAN;
-            p2.x = NAN;
-            p2.y = NAN;
+            float sqrtv = sqrtf(inSqrt);
+            vec2f rp1 = vec2f(0, (-B + sqrtv) / (2*A));
+            rp1.x = xrDyr*(rp1.y-l.fp.y)+l.fp.x;
+            vec2f rp2 = vec2f(0, (-B - sqrtv) / (2*A));
+            rp2.x = xrDyr*(rp2.y-l.fp.y)+l.fp.x;
+
+            if(__isin(l.fp.x, rp1.x, l.lp.x) && __isin(l.fp.y, rp1.y, l.lp.y)){
+                p1 = rp1;
+            }
+            else{
+                p1 = vec2f(NAN, NAN);
+            }
+
+            if(__isin(l.fp.x, rp2.x, l.lp.x) && __isin(l.fp.y, rp2.y, l.lp.y)){
+                p2 = rp1;
+            }
+            else{
+                p2 = vec2f(NAN, NAN);
+            }
         }
     }
 
@@ -410,9 +436,7 @@ void exGeometry_isNAN(int* pcontext){
     else{
         r = false;
     }
-    icc->sp -= sizeof(bool);
-    *reinterpret_cast<bool*>(icc->sp) = r;
-    icc->_as[0] = icc->sp - icc->mem;
+    icc->_as[0] = (uint64_t)(r);
     icc->_as.move_pivot(-1);
 }
 
