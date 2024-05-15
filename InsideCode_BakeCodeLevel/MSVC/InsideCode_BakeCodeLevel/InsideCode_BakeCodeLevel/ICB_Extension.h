@@ -318,7 +318,21 @@ vecarr<code_sen *> *AddCodeFromBlockData(vecarr<char *> &allcodesen, const char 
                 }
                 if (IsTypeString(allcodesen[i], ext))
                 {
-                    if (strcmp(allcodesen[i + 2], "(") == 0)
+                    int typeS = i;
+                    int typeE = i;
+                    while (true) {
+                        if (strcmp(allcodesen[typeE + 1], "*") == 0) {
+                            typeE += 1;
+                        }
+                        else if (strcmp(allcodesen[typeE + 1], "[") == 0) {
+                            typeE += 3;
+                        }
+                        else {
+                            break;
+                        }
+                    }
+
+                    if (strcmp(allcodesen[typeE + 2], "(") == 0)
                     {
                         // addfunction
                         code_sen *cs = (code_sen *)fm->_New(sizeof(code_sen), true);
@@ -327,10 +341,11 @@ vecarr<code_sen *> *AddCodeFromBlockData(vecarr<char *> &allcodesen, const char 
                         vecarr<char *> cbs;
                         cbs.NULLState();
                         cbs.Init(3, true);
-                        cbs.push_back(allcodesen[i]);
-                        cbs.push_back(allcodesen[i + 1]);
+                        for (int k = typeS; k < typeE + 2; ++k) {
+                            cbs.push_back(allcodesen[k]);
+                        }
 
-                        int startI = i + 2;
+                        int startI = typeE + 2;
                         int count = 0;
                         while (1)
                         {
@@ -607,6 +622,7 @@ void compile_addFunction(code_sen *cs, ICB_Extension *ext)
     fd->name = code->at(nameloc).data.str;
 
     sen *typen = InsideCode_Bake::wbss.sen_cut(code, 0, nameloc - 1);
+    type_data* td = get_type_with_namesen(typen, ext);
     sen *params_sen = InsideCode_Bake::wbss.sen_cut(code, nameloc + 2, loc - 1);
     InsideCode_Bake::wbss.dbg_sen(params_sen);
     int coma = InsideCode_Bake::wbss.search_word_first(0, params_sen, ",");
@@ -615,7 +631,7 @@ void compile_addFunction(code_sen *cs, ICB_Extension *ext)
 
     fd->param_data.NULLState();
     fd->param_data.Init(2, false);
-    fd->returntype = InsideCode_Bake::basictype[0];
+    fd->returntype = td;
     fd->start_pc = nullptr;
 
     int addadd = 0;
@@ -728,7 +744,10 @@ void bake_Extension(const char* filename, ICB_Extension* ext){
 	{
 		// fm->dbg_fm1_lifecheck();
 		code_sen *cs = senptr->at(i);
-        if (cs->ck == codeKind::ck_addFunction) compile_addFunction(cs, ext);
+        dbg_codesen(cs);
+        if (cs->ck == codeKind::ck_addFunction) {
+            compile_addFunction(cs, ext);
+        }
 	}
 }
 

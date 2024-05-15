@@ -1,6 +1,7 @@
 #include "InsideCodeBake.h"
 #include "ICB_Extension.h"
 #include "exAdd.h"
+#include "exGeometry.h"
 
 using namespace std;
 
@@ -17,7 +18,7 @@ int main(){
     InsideCode_Bake::StaticInit();
     InsideCode_Bake* icb = (InsideCode_Bake*)fm->_New(sizeof(InsideCode_Bake), true);
 	icb->init(40960);
-    ICB_Extension* ext = Init_exAdd();
+    ICB_Extension* ext = Init_exGeometry();
     icb->extension.push_back(ext);
 	icb->bake_code("code.txt");
 

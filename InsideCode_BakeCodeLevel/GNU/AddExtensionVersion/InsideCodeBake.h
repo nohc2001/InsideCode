@@ -176,7 +176,6 @@ bool bCanBeTextblock_notAllowNeg(lcstr &a)
 	return true;
 }
 
-
 typedef enum class TBT
 {
 	_value_bool = 0,

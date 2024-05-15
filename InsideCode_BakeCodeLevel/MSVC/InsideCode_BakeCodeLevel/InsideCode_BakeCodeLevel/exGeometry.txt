@@ -18,7 +18,7 @@ struct angle2d{
 	float radian;
 };
 
-struct rectf4{
+struct rect4f{
     vec2f fp;
     vec2f lp;
 };
@@ -62,3 +62,5 @@ float get_distance2d(line2d l);
 bool isPosInRect2d(vec2f pos, rect4f rt);
 angle2d addAngle(angle2d A, angle2d B);
 vec2f get_cross_line(line2d A, line2d B);
+
+bool isNAN(float f);

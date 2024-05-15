@@ -137,6 +137,7 @@
     <ClInclude Include="arr_expend.h" />
     <ClInclude Include="dbg.h" />
     <ClInclude Include="exAdd.h" />
+    <ClInclude Include="exGeometry.h" />
     <ClInclude Include="ICB_Extension.h" />
     <ClInclude Include="infArray_fm_v0.h" />
     <ClInclude Include="InsideCodeBake.h" />
@@ -147,6 +148,7 @@
   <ItemGroup>
     <Text Include="code.txt" />
     <Text Include="exAdd.txt" />
+    <Text Include="exGeometry.txt" />
     <Text Include="instruction_table.txt" />
     <Text Include="memo.txt" />
   </ItemGroup>

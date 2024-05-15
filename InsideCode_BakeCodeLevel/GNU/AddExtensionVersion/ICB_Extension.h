@@ -375,6 +375,7 @@ vecarr<code_sen *> *AddCodeFromBlockData(vecarr<char *> &allcodesen, const char 
                 else if (allcodesen.size() > i + 2 && (strcmp(allcodesen[i + 2], "(") == 0 && strcmp(allcodesen[i], "void") == 0))
                 {
                     code_sen *cs = (code_sen *)fm->_New(sizeof(code_sen), true);
+                    *cs = code_sen();
                     cs->ck = codeKind::ck_addFunction;
                     vecarr<char *> cbs;
                     cbs.NULLState();
@@ -610,7 +611,7 @@ void compile_addFunction(code_sen *cs, ICB_Extension *ext)
     int nameloc = loc - inner_params->size();
 
     fd->name = code->at(nameloc).data.str;
-    cout << fd->name.c_str() << endl;
+    //cout << fd->name.c_str() << endl;
 
     sen *typen = InsideCode_Bake::wbss.sen_cut(code, 0, nameloc - 1);
     type_data* td = get_type_with_namesen(typen, ext);

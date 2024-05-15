@@ -50,6 +50,9 @@
     <ClInclude Include="InsideCodeBake.h">
       <Filter>헤더 파일</Filter>
     </ClInclude>
+    <ClInclude Include="exGeometry.h">
+      <Filter>헤더 파일</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <Text Include="code.txt">
@@ -60,6 +63,9 @@
     </Text>
     <Text Include="memo.txt" />
     <Text Include="exAdd.txt">
+      <Filter>헤더 파일</Filter>
+    </Text>
+    <Text Include="exGeometry.txt">
       <Filter>헤더 파일</Filter>
     </Text>
   </ItemGroup>
