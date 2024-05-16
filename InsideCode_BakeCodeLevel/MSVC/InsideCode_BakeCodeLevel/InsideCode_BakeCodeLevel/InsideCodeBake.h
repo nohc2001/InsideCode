@@ -985,6 +985,7 @@ public:
     //code memory
     uint32_t max_mem_byte = 40960; // 40KB
 	byte8 *mem = nullptr;
+	vecarr<byte8> init_datamem;
 
 	vecarr<func_data *> functions;
 	vecarr<type_data *> types;
@@ -4695,7 +4696,7 @@ public:
 
 			temp_mem *left_tm = get_asm_from_sen(left_expr, true, false);
 			temp_mem *right_tm = get_asm_from_sen(right_expr, true, true);
-			dbg_temp_codemem(right_tm);
+			//dbg_temp_codemem(right_tm);
 
 			bool need_casting = false;
 			casting_type castt;
@@ -4739,6 +4740,14 @@ public:
 				break;
 			default:
 				cout << "typesiz is more than 4." << endl;
+				{
+					mem[writeup++] = (byte8)224;
+					byte8 cc[4];
+					*reinterpret_cast<uint*>(&cc[0]) = (uint)lstd->typesiz;
+					for (int i = 0; i < 4; ++i) {
+						mem[writeup++] = cc[i];
+					}
+				}
 				break;
 			}
 
@@ -4949,7 +4958,8 @@ public:
 						continue;
 					}
 					code_sen *css2 = reinterpret_cast<code_sen *>(cs->codeblocks->at(i + 2));
-					while (css2 != nullptr && css2->ck == codeKind::ck_if)
+					sen* css2sen = get_sen_from_codesen(css2);
+					while (css2 != nullptr && css2->ck == codeKind::ck_if && strcmp(css2sen->at(0).data.str, "else") == 0)
 					{
 						stack += 1;
 						css2 = reinterpret_cast<code_sen *>(cs->codeblocks->at(ifi + 2));
@@ -5703,6 +5713,8 @@ public:
 		cout << endl;
 
 		int gs = 0;
+		init_datamem.NULLState();
+		init_datamem.Init(8, false);
 
 		for (int i = 0; i < senptr->size(); ++i)
 		{
@@ -5710,7 +5722,147 @@ public:
 			if (cs->ck == codeKind::ck_addVariable || cs->ck == codeKind::ck_addsetVariable)
 			{
 				// global var count
-				gs += get_typesiz_with_addVariableCs(cs);
+				// global var count
+				int siz = get_typesiz_with_addVariableCs(cs);
+				for (int k = 0; k < siz; ++k)
+				{
+					init_datamem.push_back(0);
+				}
+				byte8* bptr = &init_datamem.at(gs);
+				gs += siz;
+
+				if (cs->ck == codeKind::ck_addsetVariable)
+				{
+					sen* code = get_sen_from_codesen(cs);
+					int loc = wbss.search_word_first(0, code, "=");
+
+					lcstr str;
+					str.NULLState();
+					str.Init(2, false);
+					str = code->at(loc + 1).data.str;
+					TBT t = DecodeTextBlock(str);
+					switch (t)
+					{
+					case TBT::_value_bool:
+					{
+						bool b = true;
+						if (strcmp(str.c_str(), "true") == 0)
+							b = true;
+						else
+							b = false;
+						*reinterpret_cast<bool*>(bptr) = b;
+					}
+					break;
+					case TBT::_value_integer:
+					{
+						int a = 0;
+						a = atoi(str.c_str());
+						*reinterpret_cast<int*>(bptr) = a;
+					}
+					break;
+					case TBT::_value_float:
+					{
+						float a = 0;
+						a = stof(str.c_str());
+						*reinterpret_cast<float*>(bptr) = a;
+					}
+					break;
+					case TBT::_value_char:
+					{
+						char c = 0;
+						if (str[1] != '\\')
+						{
+							c = str[1];
+						}
+						else
+						{
+							switch (str[2])
+							{
+							case 'n':
+								c = '\n';
+								break;
+							case '0':
+								c = 0;
+								break;
+							case 't':
+								c = '\t';
+								break;
+							case '\\':
+								c = '\\';
+								break;
+							case '\'':
+								c = '\'';
+								break;
+							case '\"':
+								c = '\"';
+								break;
+							default:
+								c = 0;
+								break;
+							}
+						}
+						*reinterpret_cast<char*>(bptr) = c;
+					}
+					break;
+					case TBT::_value_str:
+					{
+						int max = strlen(str.c_str()) - 1;
+						max = max > siz ? siz : max;
+						int stack = 1;
+						int sup = 0;
+						for (int k = 1; k < max; ++k)
+						{
+							if (str[k] == '\\')
+							{
+								stack += 1;
+								k += 1;
+								switch (str[k])
+								{
+								case 'n':
+									*(char*)bptr = '\n';
+									++bptr;
+									break;
+								case '0':
+									*(char*)bptr = 0;
+									++bptr;
+									break;
+								case 't':
+									*(char*)bptr = '\t';
+									++bptr;
+									break;
+								case '\\':
+									*(char*)bptr = '\\';
+									++bptr;
+									break;
+								case '\'':
+									*(char*)bptr = '\'';
+									++bptr;
+									break;
+								case '\"':
+									*(char*)bptr = '\"';
+									++bptr;
+									break;
+								default:
+									*(char*)bptr = 0;
+									++bptr;
+									break;
+								}
+								continue;
+							}
+							*(char*)bptr = str[k];
+							++bptr;
+						}
+						for (int k = 0; k < stack; ++k)
+						{
+							*(char*)bptr = 0;
+							++bptr;
+						}
+					}
+					break;
+					}
+					// tm->valuetype_detail = get_basic_type_with_int(tm->valuetype);
+					str.islocal = true;
+				}
 			}
 			dbg_codesen(cs);
 		}
@@ -5725,7 +5877,7 @@ public:
 		{
 			// fm->dbg_fm1_lifecheck();
 			code_sen *cs = senptr->at(i);
-			dbg_codesen(cs);
+			//dbg_codesen(cs);
 			compile_code(cs);
 		}
 
@@ -5767,7 +5919,7 @@ class ICB_Context{
 
 	byte8 *rfsp = 0; // function stack pos
 	byte8 *lfsp = 0; // last function stack pos
-	byte8* saveSP = 0; // function save stack pos
+	vecarr<byte8*> saveSP; // function save stack pos
 
 	byte8 **rfspb = nullptr;
 	ushort **rfsps = nullptr;
@@ -5799,8 +5951,14 @@ class ICB_Context{
 		call_stack.Init(2, false);
 
 		datamem.NULLState();
-        datamem.Init(icb->datamem_up+8, false);
-		datamem.up = icb->datamem_up;
+		datamem.Init(icb->init_datamem.size() + 8, false);
+		datamem.up = icb->init_datamem.size();
+		for (int i = 0; i < datamem.up; ++i) {
+			datamem[i] = icb->init_datamem.at(i);
+		}
+
+		saveSP.NULLState();
+		saveSP.Init(32, false);
 
 		max_mem_byte = maxmembyte;
 		mem = (byte8*)fm->_New(max_mem_byte, true);
@@ -5897,8 +6055,8 @@ class ICB_Context{
 vecarr<ICB_Context *> icbarr;
 
 bool isBreaking = false;
-int stopnum = 0;
-bool isDbg = false;
+int stopnum = 805;
+bool isDbg = true;
 
 int code_control(vecarr<ICB_Context *> *icbarr)
 {
@@ -5978,7 +6136,7 @@ void execute(vecarr<ICB_Context*> icbarr, int execodenum,
 
 	byte8** rfsp = 0; // function stack pos
 	byte8** lfsp = 0; // last function stack pos
-	byte8** saveSP = 0; // function save stack pos
+	vecarr<byte8*>* saveSP = nullptr; // function save stack pos
 
 	byte8** rfspb = nullptr;
 	ushort** rfsps = nullptr;
@@ -6087,10 +6245,16 @@ CAST_SWITCH:
 		casted_value = (uint) * reinterpret_cast<char*>(&casting_value);
 		break;
 	case casttype::CAST_BYTE_TO_FLOAT:
-		casted_value = (float)*reinterpret_cast<char*>(&casting_value);
+	{
+		float fmem = (char)casting_value;
+		*reinterpret_cast<float*>(&casted_value) = fmem;
+	}
 		break;
 	case casttype::CAST_UBYTE_TO_FLOAT:
-		casted_value = (float)*reinterpret_cast<byte8*>(&casting_value);
+	{
+		float fmem = (unsigned char)casting_value;
+		*reinterpret_cast<float*>(&casted_value) = fmem;
+	}
 		break;
 	case casttype::CAST_SHORT_TO_BYTE:
 		casted_value = (char)*reinterpret_cast<short*>(&casting_value);
@@ -6099,10 +6263,16 @@ CAST_SWITCH:
 		casted_value = (int)*reinterpret_cast<short*>(&casting_value);
 		break;
 	case casttype::CAST_SHORT_TO_FLOAT:
-		casted_value = (float)*reinterpret_cast<short*>(&casting_value);
+	{
+		float fmem = (short)casting_value;
+		*reinterpret_cast<float*>(&casted_value) = fmem;
+	}
 		break;
 	case casttype::CAST_USHORT_TO_FLOAT:
-		casted_value = (float)*reinterpret_cast<ushort*>(&casting_value);
+	{
+		float fmem = (ushort)casting_value;
+		*reinterpret_cast<float*>(&casted_value) = fmem;
+	}
 		break;
 	case casttype::CAST_INT_TO_BYTE:
 		casted_value = (char)*reinterpret_cast<int*>(&casting_value);
@@ -6111,10 +6281,16 @@ CAST_SWITCH:
 		casted_value = (short)*reinterpret_cast<int*>(&casting_value);
 		break;
 	case casttype::CAST_INT_TO_FLOAT:
-		casted_value = (float)*reinterpret_cast<int*>(&casting_value);
+	{
+		float fmem = (int)casting_value;
+		*reinterpret_cast<float*>(&casted_value) = fmem;
+	}
 		break;
 	case casttype::CAST_UINT_TO_FLOAT:
-		casted_value = (float)*reinterpret_cast<uint*>(&casting_value);
+	{
+		float fmem = (unsigned int)casting_value;
+		*reinterpret_cast<float*>(&casted_value) = fmem;
+	}
 		break;
 	case casttype::CAST_FLOAT_TO_BYTE:
 		casted_value = (char)*reinterpret_cast<float*>(&casting_value);
@@ -6178,13 +6354,14 @@ DBG_SWITCH:
 		printf("%d", (uint)_as[0]);
 		break;
 	case dbgtype::DBG_A_FLOAT:
-		printf("%g", (float)_as[0]);
+		*reinterpret_cast<uint*>(&fmem) = (uint)_as[0];
+		printf("%lf", fmem);
 		break;
 	case dbgtype::DBG_A_BOOL:
 		printf((bool)_as[0] ? "true" : "false");
 		break;
 	case dbgtype::DBG_A_STRING:
-		printf("%s", reinterpret_cast<char*>(mem + (int)_as[0]));
+		printf("%s", reinterpret_cast<char*>(mem + (unsigned long long)_as[0]));
 		break;
 	}
 
@@ -6194,37 +6371,37 @@ DBG_SWITCH:
 INP_SWITCH:
 	switch (inp_type) {
 	case inptype::INP_BYTE:
-		scanf_s("%c", reinterpret_cast<char*>(mem + (int)_as[0]));
+		scanf_s("%c", reinterpret_cast<char*>(mem + _as[0]));
 		break;
 	case inptype::INP_UBYTE:
 	{
 		unsigned int in;
 		scanf_s("%u", &in);
-		*reinterpret_cast<byte8*>(mem + (int)_as[0]) = (byte8)in;
+		*reinterpret_cast<byte8*>(mem + _as[0]) = (byte8)in;
 		break;
 	}
 	case inptype::INP_SHORT:
 	{
 		int in;
 		scanf_s("%d", &in);
-		*reinterpret_cast<short*>(mem + (int)_as[0]) = (short)in;
+		*reinterpret_cast<short*>(mem + _as[0]) = (short)in;
 		break;
 	}
 	case inptype::INP_USHORT:
 	{
 		unsigned int in;
 		scanf_s("%u", &in);
-		*reinterpret_cast<ushort*>(mem + (int)_as[0]) = (ushort)in;
+		*reinterpret_cast<ushort*>(mem + _as[0]) = (ushort)in;
 		break;
 	}
 	case inptype::INP_INT:
-		scanf_s("%d", reinterpret_cast<int*>(mem + (int)_as[0]));
+		scanf_s("%d", reinterpret_cast<int*>(mem + _as[0]));
 		break;
 	case inptype::INP_UINT:
-		scanf_s("%u", reinterpret_cast<uint*>(mem + (int)_as[0]));
+		scanf_s("%u", reinterpret_cast<uint*>(mem + _as[0]));
 		break;
 	case inptype::INP_FLOAT:
-		scanf_s("%f", reinterpret_cast<float*>(mem + (int)_as[0]));
+		scanf_s("%f", reinterpret_cast<float*>(mem + _as[0]));
 		break;
 	case inptype::INP_BOOL:
 	{
@@ -6232,16 +6409,16 @@ INP_SWITCH:
 		scanf_s("%s", str);
 		if (strcmp(str, "true"))
 		{
-			*reinterpret_cast<bool*>(mem + (int)_as[0]) = true;
+			*reinterpret_cast<bool*>(mem + _as[0]) = true;
 		}
 		else
 		{
-			*reinterpret_cast<bool*>(mem + (int)_as[0]) = false;
+			*reinterpret_cast<bool*>(mem + _as[0]) = false;
 		}
 		break;
 	}
 	case inptype::INP_STRING:
-		scanf_s("%s", reinterpret_cast<char*>(mem + (int)_as[0]));
+		scanf_s("%s", reinterpret_cast<char*>(mem + _as[0]));
 		break;
 	}
 
@@ -6633,12 +6810,14 @@ INST_SWITCH:
 		goto INST_SWITCH;
 	case insttype::IT_AU_FLOAT_ADD_A:
 		_as.move_pivot(-1);
-		_as[0] = (float)((float)_x + (float)_y);
+		*reinterpret_cast<float*>(&_as[0]) = (float)(*reinterpret_cast<float*>(&_x) + *reinterpret_cast<float*>(&_y));
+		//_as[0] = (float)((float)_x + (float)_y);
 		++*pc;
 		goto INST_SWITCH;
 	case insttype::IT_AU_FLOAT_ADD_B:
 		_bs.move_pivot(-1);
-		_bs[0] = (float)((float)_x + (float)_y);
+		*reinterpret_cast<float*>(&_bs[0]) = (float)(*reinterpret_cast<float*>(&_x) + *reinterpret_cast<float*>(&_y));
+		//_bs[0] = (float)((float)_x + (float)_y);
 		++*pc;
 		goto INST_SWITCH;
 	case insttype::IT_AU_BYTE_MIN_A:
@@ -7255,7 +7434,7 @@ INST_SWITCH:
 		*pc = &codemem[*tmptr_i];
 		goto INST_SWITCH;
 	case insttype::IT_FUNC:
-		*saveSP = *sp;
+		saveSP->push_back(*sp);
 		++*pc;
 		goto INST_SWITCH;
 	case insttype::IT_PARAM_1:
@@ -7318,7 +7497,8 @@ INST_SWITCH:
 		goto INST_SWITCH;
 	case insttype::IT_FUNCJMP:
 		*lfsp = *rfsp;
-		fsp->push_back(*saveSP);
+		fsp->push_back(saveSP->last());
+		saveSP->pop_back();
 		*rfsp = fsp->last();
 
 		++*pc;
@@ -7459,7 +7639,8 @@ INST_SWITCH:
 		goto INST_SWITCH;
 	case insttype::EXTENSION_INST:
 		*lfsp = *rfsp;
-		fsp->push_back(*saveSP);
+		fsp->push_back(saveSP->last());
+		saveSP->pop_back();
 		*rfsp = fsp->last();
 
 		++*pc;

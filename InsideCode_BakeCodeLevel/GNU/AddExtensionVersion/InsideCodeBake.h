@@ -5978,6 +5978,7 @@ public:
 		}
 		datamem_up = gs;
 
+		writeup = 0;
 		mem[writeup++] = 189; // func
 		mem[writeup++] = 200; // jmp
 		writeup += 4;		  // start function address
@@ -6076,6 +6077,10 @@ class ICB_Context{
 
 		_as.Init(32, fm);
 		_bs.Init(32, fm);
+		for (int i = 0; i < 32; ++i) {
+			_as[i] = 0;
+			_bs[i] = 0;
+		}
     }
 
     void dbg_registers()
@@ -6241,7 +6246,7 @@ void execute(vecarr<ICB_Context *> icbarr, int execodenum,
 
 	byte8 **rfsp = 0; // function stack pos
 	byte8 **lfsp = 0; // last function stack pos
-	vecarr<byte8*>* saveSP; // function save stack pos
+	vecarr<byte8*>* saveSP = nullptr; // function save stack pos
 
 	byte8 **rfspb = nullptr;
 	ushort **rfsps = nullptr;
@@ -7814,7 +7819,7 @@ CAST_FLOAT_TO_UINT:
 	goto *castend_label;
 
 GET_VALUE_A:
-	_as[0] = *reinterpret_cast<uint *>(mem + (int64_t)_as[0]);
+	_as[0] = *reinterpret_cast<uint *>(mem + _as[0]);
 	++*pc;
 	goto INSTEND;
 
@@ -7824,12 +7829,12 @@ GET_VALUE_B:
 	goto INSTEND;
 
 GET_VALUE_X:
-	_x = *reinterpret_cast<uint *>(mem + (int)_x);
+	_x = *reinterpret_cast<uint *>(mem + _x);
 	++*pc;
 	goto INSTEND;
 
 GET_VALUE_Y:
-	_y = *reinterpret_cast<uint *>(mem + (int)_y);
+	_y = *reinterpret_cast<uint *>(mem + _y);
 	++*pc;
 	goto INSTEND;
 
@@ -7893,14 +7898,14 @@ INP_A_END:
 	goto INSTEND;
 
 INP_BYTE:
-	scanf("%c", reinterpret_cast<char *>(mem + (int)_as[0]));
+	scanf("%c", reinterpret_cast<char *>(mem + (unsigned long long)_as[0]));
 	goto INP_A_END;
 
 INP_UBYTE:
 {
 	unsigned int in;
 	scanf("%u", &in);
-	*reinterpret_cast<byte8 *>(mem + (int)_as[0]) = (byte8)in;
+	*reinterpret_cast<byte8 *>(mem + (unsigned long long)_as[0]) = (byte8)in;
 }
 	goto INP_A_END;
 
@@ -7908,7 +7913,7 @@ INP_SHORT:
 {
 	int in;
 	scanf("%d", &in);
-	*reinterpret_cast<short *>(mem + (int)_as[0]) = (short)in;
+	*reinterpret_cast<short *>(mem + (unsigned long long)_as[0]) = (short)in;
 }
 	goto INP_A_END;
 
@@ -7916,20 +7921,20 @@ INP_USHORT:
 {
 	unsigned int in;
 	scanf("%u", &in);
-	*reinterpret_cast<ushort *>(mem + (int)_as[0]) = (ushort)in;
+	*reinterpret_cast<ushort *>(mem + (unsigned long long)_as[0]) = (ushort)in;
 }
 	goto INP_A_END;
 
 INP_INT:
-	scanf("%d", reinterpret_cast<int *>(mem + (int)_as[0]));
+	scanf("%d", reinterpret_cast<int *>(mem + (unsigned long long)_as[0]));
 	goto INP_A_END;
 
 INP_UINT:
-	scanf("%u", reinterpret_cast<uint *>(mem + (int)_as[0]));
+	scanf("%u", reinterpret_cast<uint *>(mem + (unsigned long long)_as[0]));
 	goto INP_A_END;
 
 INP_FLOAT:
-	scanf("%f", reinterpret_cast<float *>(mem + (int)_as[0]));
+	scanf("%f", reinterpret_cast<float *>(mem + (unsigned long long)_as[0]));
 	goto INP_A_END;
 
 INP_BOOL:
@@ -7938,31 +7943,31 @@ INP_BOOL:
 	scanf("%s", str);
 	if (strcmp(str, "true"))
 	{
-		*reinterpret_cast<bool *>(mem + (int)_as[0]) = true;
+		*reinterpret_cast<bool *>(mem + (unsigned long long)_as[0]) = true;
 	}
 	else
 	{
-		*reinterpret_cast<bool *>(mem + (int)_as[0]) = false;
+		*reinterpret_cast<bool *>(mem + (unsigned long long)_as[0]) = false;
 	}
 }
 	goto INP_A_END;
 
 INP_STRING:
-	scanf("%s", reinterpret_cast<char *>(mem + (int)_as[0]));
+	scanf("%s", reinterpret_cast<char *>(mem + (unsigned long long)_as[0]));
 	goto INP_A_END;
 
 SET_ADDRESS_LA_FROM_A_1:
-	*reinterpret_cast<byte8*>(mem + (int)_la) = _as[0];
+	*reinterpret_cast<byte8*>(mem + (unsigned long long)_la) = _as[0];
 	++*pc;
 	goto INSTEND;
 
 SET_ADDRESS_LA_FROM_A_2:
-	*reinterpret_cast<ushort *>(mem + (int)_la) = _as[0];
+	*reinterpret_cast<ushort *>(mem + (unsigned long long)_la) = _as[0];
 	++*pc;
 	goto INSTEND;
 
 SET_ADDRESS_LA_FROM_A_4:
-	*reinterpret_cast<uint *>(mem + (int)_la) = _as[0];
+	*reinterpret_cast<uint *>(mem + (unsigned long long)_la) = _as[0];
 	++*pc;
 	goto INSTEND;
 
@@ -8006,7 +8011,7 @@ PARAM_N_COPY_BY_ADDRESS:
 	*sp -= paramSiz;
 	++*pci;
 	for(int i=0;i<paramSiz;++i){
-		*(*sp+i) = *(mem + (int)_as[0] + i);
+		*(*sp+i) = *(mem + (unsigned long long)_as[0] + i);
 	}
 	goto INSTEND;
 
@@ -8039,8 +8044,8 @@ PUSH_B_FROM_A:
 SET_ADDRESS_LA_FROM_ADRESS_A_N:
 	++*pc;
 {
-	byte8* bptr = reinterpret_cast<byte8 *>(mem + (int)_la);
-	byte8* aptr = reinterpret_cast<byte8 *>(mem + (int)_as[0]);
+	byte8* bptr = reinterpret_cast<byte8 *>(mem + (unsigned long long)_la);
+	byte8* aptr = reinterpret_cast<byte8 *>(mem + (unsigned long long)_as[0]);
 	uint ValueSiz = **pci;
 	++*pci;
 	for(uint k=0;k<ValueSiz;++k){
