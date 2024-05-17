@@ -6056,7 +6056,7 @@ vecarr<ICB_Context *> icbarr;
 
 bool isBreaking = false;
 int stopnum = 805;
-bool isDbg = true;
+bool isDbg = false;
 
 int code_control(vecarr<ICB_Context *> *icbarr)
 {
@@ -6882,12 +6882,14 @@ INST_SWITCH:
 		goto INST_SWITCH;
 	case insttype::IT_AU_FLOAT_MIN_A:
 		_as.move_pivot(-1);
-		_as[0] = (float)((float)_x - (float)_y);
+		*reinterpret_cast<float*>(&_as[0]) = (float)(*reinterpret_cast<float*>(&_x) - *reinterpret_cast<float*>(&_y));
+		//_as[0] = (float)((float)_x - (float)_y);
 		++*pc;
 		goto INST_SWITCH;
 	case insttype::IT_AU_FLOAT_MIN_B:
 		_bs.move_pivot(-1);
-		_bs[0] = (float)((float)_x - (float)_y);
+		*reinterpret_cast<float*>(&_bs[0]) = (float)(*reinterpret_cast<float*>(&_x) - *reinterpret_cast<float*>(&_y));
+		//_bs[0] = (float)((float)_x - (float)_y);
 		++*pc;
 		goto INST_SWITCH;
 	case insttype::IT_AU_BYTE_MUL_A:
@@ -6952,12 +6954,14 @@ INST_SWITCH:
 		goto INST_SWITCH;
 	case insttype::IT_AU_FLOAT_MUL_A:
 		_as.move_pivot(-1);
-		_as[0] = (float)((float)_x * (float)_y);
+		*reinterpret_cast<float*>(&_as[0]) = (float)((*reinterpret_cast<float*>(&_x)) * (*reinterpret_cast<float*>(&_y)));
+		//_as[0] = (float)((float)_x * (float)_y);
 		++*pc;
 		goto INST_SWITCH;
 	case insttype::IT_AU_FLOAT_MUL_B:
 		_bs.move_pivot(-1);
-		_bs[0] = (float)((float)_x * (float)_y);
+		*reinterpret_cast<float*>(&_bs[0]) = (float)((*reinterpret_cast<float*>(&_x)) * (*reinterpret_cast<float*>(&_y)));
+		//_bs[0] = (float)((float)_x * (float)_y);
 		++*pc;
 		goto INST_SWITCH;
 	case insttype::IT_AU_BYTE_DIV_A:
@@ -7022,12 +7026,14 @@ INST_SWITCH:
 		goto INST_SWITCH;
 	case insttype::IT_AU_FLOAT_DIV_A:
 		_as.move_pivot(-1);
-		_as[0] = (float)((float)_x / (float)_y);
+		*reinterpret_cast<float*>(&_as[0]) = (float)(*reinterpret_cast<float*>(&_x) / *reinterpret_cast<float*>(&_y));
+		//_as[0] = (float)((float)_x / (float)_y);
 		++*pc;
 		goto INST_SWITCH;
 	case insttype::IT_AU_FLOAT_DIV_B:
 		_bs.move_pivot(-1);
-		_bs[0] = (float)((float)_x / (float)_y);
+		*reinterpret_cast<float*>(&_bs[0]) = (float)(*reinterpret_cast<float*>(&_x) / *reinterpret_cast<float*>(&_y));
+		//_bs[0] = (float)((float)_x / (float)_y);
 		++*pc;
 		goto INST_SWITCH;
 	case insttype::IT_AU_BYTE_PER_A:
@@ -7202,12 +7208,14 @@ INST_SWITCH:
 		goto INST_SWITCH;
 	case insttype::IT_CM_BOOL_FLOAT_LBIG_A:
 		_as.move_pivot(-1);
-		_as[0] = (float)_x > (float)_y;
+		_as[0] = *reinterpret_cast<float*>(&_x) > *reinterpret_cast<float*>(&_y);
+		//_as[0] = (float)_x > (float)_y;
 		++*pc;
 		goto INST_SWITCH;
 	case insttype::IT_CM_BOOL_FLOAT_LBIG_B:
 		_bs.move_pivot(-1);
-		_bs[0] = (float)_x > (float)_y;
+		_bs[0] = *reinterpret_cast<float*>(&_x) > *reinterpret_cast<float*>(&_y);
+		//_bs[0] = (float)_x > (float)_y;
 		++*pc;
 		goto INST_SWITCH;
 	case insttype::IT_CM_BOOL_BYTE_LBIGSAME_A:
@@ -7272,12 +7280,14 @@ INST_SWITCH:
 		goto INST_SWITCH;
 	case insttype::IT_CM_BOOL_FLOAT_LBIGSAME_A:
 		_as.move_pivot(-1);
-		_as[0] = (float)_x >= (float)_y;
+		_as[0] = *reinterpret_cast<float*>(&_x) >= *reinterpret_cast<float*>(&_y);
+		//_as[0] = (float)_x >= (float)_y;
 		++*pc;
 		goto INST_SWITCH;
 	case insttype::IT_CM_BOOL_FLOAT_LBIGSAME_B:
 		_bs.move_pivot(-1);
-		_bs[0] = (float)_x >= (float)_y;
+		_bs[0] = *reinterpret_cast<float*>(&_x) >= *reinterpret_cast<float*>(&_y);
+		//_bs[0] = (float)_x >= (float)_y;
 		++*pc;
 		goto INST_SWITCH;
 	case insttype::IT_CM_BOOL_BYTE_RBIG_A:
@@ -7342,12 +7352,14 @@ INST_SWITCH:
 		goto INST_SWITCH;
 	case insttype::IT_CM_BOOL_FLOAT_RBIG_A:
 		_as.move_pivot(-1);
-		_as[0] = (float)_x < (float)_y;
+		_as[0] = *reinterpret_cast<float*>(&_x) < *reinterpret_cast<float*>(&_y);
+		//_as[0] = (float)_x < (float)_y;
 		++*pc;
 		goto INST_SWITCH;
 	case insttype::IT_CM_BOOL_FLOAT_RBIG_B:
 		_bs.move_pivot(-1);
-		_bs[0] = (float)_x < (float)_y;
+		_bs[0] = *reinterpret_cast<float*>(&_x) < *reinterpret_cast<float*>(&_y);
+		//_bs[0] = (float)_x < (float)_y;
 		++*pc;
 		goto INST_SWITCH;
 	case insttype::IT_CM_BOOL_BYTE_RBIGSAME_A:
@@ -7412,12 +7424,14 @@ INST_SWITCH:
 		goto INST_SWITCH;
 	case insttype::IT_CM_BOOL_FLOAT_RBIGSAME_A:
 		_as.move_pivot(-1);
-		_as[0] = (float)_x <= (float)_y;
+		_as[0] = *reinterpret_cast<float*>(_x) <= *reinterpret_cast<float*>(_y);
+		//_as[0] = (float)_x <= (float)_y;
 		++*pc;
 		goto INST_SWITCH;
 	case insttype::IT_CM_BOOL_FLOAT_RBIGSAME_B:
 		_bs.move_pivot(-1);
-		_bs[0] = (float)_x <= (float)_y;
+		_bs[0] = *reinterpret_cast<float*>(_x) <= *reinterpret_cast<float*>(_y);
+		//_bs[0] = (float)_x <= (float)_y;
 		++*pc;
 		goto INST_SWITCH;
 	case insttype::IT_IF:
