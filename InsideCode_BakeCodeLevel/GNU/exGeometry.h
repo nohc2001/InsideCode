@@ -442,6 +442,9 @@ void exGeometry_isNAN(int* pcontext){
 
 ICB_Extension* Init_exGeometry(){
     //확장을 입력.
+    ofstream& icl = InsideCode_Bake::icl;
+    icl << "New ICB Extension : exGeometry Initialization...";
+
     ICB_Extension* ext = (ICB_Extension*)fm->_New(sizeof(ICB_Extension), true);
     ext->exfuncArr.NULLState();
     ext->exfuncArr.Init(32, false);
@@ -465,6 +468,7 @@ ICB_Extension* Init_exGeometry(){
     ext->exfuncArr[++i]->start_pc = reinterpret_cast<byte8*>(exGeometry_get_cross_line);//11
     ext->exfuncArr[++i]->start_pc = reinterpret_cast<byte8*>(exGeometry_isNAN);//12
     
+    icl << "finish" << endl;
     return ext;
 }
 

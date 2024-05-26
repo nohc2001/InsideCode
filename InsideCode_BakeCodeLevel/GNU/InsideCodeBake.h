@@ -717,6 +717,8 @@ public:
 	static constexpr int basicoper_max = 19;
 	static operator_data basicoper[basicoper_max];
 
+	static ofstream icl; // icb log
+
 	vecarr<ICB_Extension*> extension; // 확장코드
 
 	void release_tempmem(temp_mem *ptr)
@@ -1123,7 +1125,9 @@ public:
 
 	static void StaticInit(){
 		wbss.Init();
-
+		icl.open("icb_dbg.txt");
+		icl << "Inside Code Bake System Start" << endl;
+		icl << "InsideCode_BakeCode_Static Init...";
 		char *name[8] = {};
 		name[0] = (char *)fm->_New(4, true);
 		strcpy(name[0], "int");
@@ -1176,10 +1180,13 @@ public:
 		basicoper[16] = create_oper("!", 'o', 125, 126);
 		basicoper[17] = create_oper("&&", 'o', 121, 122);
 		basicoper[18] = create_oper("||", 'o', 123, 124);
+
+		icl << "finish" << endl;
 	}
 
 	void init()
 	{
+		icl << "New InsideCodeBake[" << this << "] Initialization...";
 		allcode_sen.NULLState();
 		allcode_sen.Init(2, false);
 		allcode_sen.islocal = false;
@@ -1217,6 +1224,7 @@ public:
 
 		globalVariables.NULLState();
 		globalVariables.Init(2, false);
+		icl << "finish" << endl;
 	}
 
 	void push_word(lcstr &str)
@@ -5802,12 +5810,23 @@ public:
 
 	void bake_code(const char *filename)
 	{
+		icl << "InsideCodeBake[" << this << "] BakeCode start." << endl;
+
+		icl << "InsideCodeBake[" << this << "] BakeCode_GetCodeFromText...";
 		lcstr *allcodeptr = GetCodeTXT(filename, fm);
+		icl << "finish" << endl;
+
 		lcstr &allcode = *allcodeptr;
+
+		icl << "InsideCodeBake[" << this << "] BakeCode_AddTextBlocks...";
 		AddTextBlocks(allcode);
+		icl << "finish" << endl;
 
+		icl << "InsideCodeBake[" << this << "] BakeCode_Scan Struct Types...";
 		vecarr<code_sen *> *senstptr = AddCodeFromBlockData(allcode_sen, "struct");
+		icl << "finish" << endl;
 
+		icl << "InsideCodeBake[" << this << "] BakeCode_Add Struct Types...";
 		for (int i = 0; i < senstptr->size(); ++i)
 		{
 			code_sen *cs = senstptr->at(i);
@@ -5815,14 +5834,18 @@ public:
 
 			dbg_codesen(cs);
 		}
+		icl << "finish" << endl;
 
+		icl << "InsideCodeBake[" << this << "] BakeCode_Scan All Codes...";
 		vecarr<code_sen *> *senptr = AddCodeFromBlockData(allcode_sen, "none");
+		icl << "finish" << endl;
 		senptr->islocal = false;
 
 		csarr = senptr;
 
 		cout << endl;
 
+		icl << "InsideCodeBake[" << this << "] BakeCode_Global Memory Init...";
 		int gs = 0;
 		init_datamem.NULLState();
 		init_datamem.Init(8, false);
@@ -5977,18 +6000,21 @@ public:
 			dbg_codesen(cs);
 		}
 		datamem_up = gs;
+		icl << "finish" << endl;
 
 		writeup = 0;
 		mem[writeup++] = 189; // func
 		mem[writeup++] = 200; // jmp
 		writeup += 4;		  // start function address
 
+		icl << "InsideCodeBake[" << this << "] BakeCode_Compile Codes...";
 		for (int i = 0; i < senptr->size(); ++i)
 		{
 			// fm->dbg_fm1_lifecheck();
 			code_sen *cs = senptr->at(i);
 			compile_code(cs);
 		}
+		icl << "finish" << endl;
 
 		cout << endl;
 

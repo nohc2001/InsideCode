@@ -10,6 +10,7 @@
         "*.tcc": "cpp",
         "unordered_map": "cpp",
         "random": "cpp",
-        "iostream": "cpp"
+        "iostream": "cpp",
+        "iosfwd": "cpp"
     }
 }
