@@ -445,29 +445,77 @@ ICB_Extension* Init_exGeometry(){
     ofstream& icl = InsideCode_Bake::icl;
     icl << "Create_New_ICB_Extension_Init : exGeometry Initialization...";
 
+    bool icldetail = InsideCode_Bake::GetICLFlag(ICL_FLAG::Create_New_ICB_Extension_Init);
+    if(icldetail) icl << "start" << endl;
+
+    if(icldetail) icl << "Create_New_ICB_Extension_Init Allocate Extension Data Memory...";
     ICB_Extension* ext = (ICB_Extension*)fm->_New(sizeof(ICB_Extension), true);
     ext->exfuncArr.NULLState();
     ext->exfuncArr.Init(32, false);
     ext->exstructArr.NULLState();
     ext->exstructArr.Init(32, false);
+    if(icldetail) icl << "finish" << endl;
 
+    if(icldetail) icl << "Create_New_ICB_Extension_Init__Bake_Extension...";
     bake_Extension("exGeometry.txt", ext);
-    
+    if(icldetail) icl << "finish" << endl;
+
+    if(icldetail) icl << "Create_New_ICB_Extension_Init Set_Function_Pointers start" << endl;
     int i = -1;
+
+    if(icldetail) icl << "Create_New_ICB_Extension_Init Set_Function_Pointers function name : "<< ext->exfuncArr[i+1]->name.c_str() << "...";
     ext->exfuncArr[++i]->start_pc = reinterpret_cast<byte8*>(exGeometry__vec2f);//0
+    if(icldetail) icl << "finish" << endl;
+
+    if(icldetail) icl << "Create_New_ICB_Extension_Init Set_Function_Pointers function name : "<< ext->exfuncArr[i+1]->name.c_str() << "...";
     ext->exfuncArr[++i]->start_pc = reinterpret_cast<byte8*>(exGeometry__circle);//1
+    if(icldetail) icl << "finish" << endl;
+
+    if(icldetail) icl << "Create_New_ICB_Extension_Init Set_Function_Pointers function name : "<< ext->exfuncArr[i+1]->name.c_str() << "...";
     ext->exfuncArr[++i]->start_pc = reinterpret_cast<byte8*>(exGeometry__line2d);//2
+    if(icldetail) icl << "finish" << endl;
+
+    if(icldetail) icl << "Create_New_ICB_Extension_Init Set_Function_Pointers function name : "<< ext->exfuncArr[i+1]->name.c_str() << "...";
     ext->exfuncArr[++i]->start_pc = reinterpret_cast<byte8*>(exGeometry__angle2d_delta);//3
+    if(icldetail) icl << "finish" << endl;
+
+    if(icldetail) icl << "Create_New_ICB_Extension_Init Set_Function_Pointers function name : "<< ext->exfuncArr[i+1]->name.c_str() << "...";
     ext->exfuncArr[++i]->start_pc = reinterpret_cast<byte8*>(exGeometry__angle2d);//4
+    if(icldetail) icl << "finish" << endl;
+
+    if(icldetail) icl << "Create_New_ICB_Extension_Init Set_Function_Pointers function name : "<< ext->exfuncArr[i+1]->name.c_str() << "...";
     ext->exfuncArr[++i]->start_pc = reinterpret_cast<byte8*>(exGeometry_get_cross_CircleAndLine);//5
+    if(icldetail) icl << "finish" << endl;
+
+    if(icldetail) icl << "Create_New_ICB_Extension_Init Set_Function_Pointers function name : "<< ext->exfuncArr[i+1]->name.c_str() << "...";
     ext->exfuncArr[++i]->start_pc = reinterpret_cast<byte8*>(exGeometry_get_pos_in_LineAndRatioAB);//6
+    if(icldetail) icl << "finish" << endl;
+
+    if(icldetail) icl << "Create_New_ICB_Extension_Init Set_Function_Pointers function name : "<< ext->exfuncArr[i+1]->name.c_str() << "...";
     ext->exfuncArr[++i]->start_pc = reinterpret_cast<byte8*>(exGeometry_get_poses_in_Bezier1F);//7
+    if(icldetail) icl << "finish" << endl;
+
+    if(icldetail) icl << "Create_New_ICB_Extension_Init Set_Function_Pointers function name : "<< ext->exfuncArr[i+1]->name.c_str() << "...";
     ext->exfuncArr[++i]->start_pc = reinterpret_cast<byte8*>(exGeometry_get_distance2d);//8
+    if(icldetail) icl << "finish" << endl;
+
+    if(icldetail) icl << "Create_New_ICB_Extension_Init Set_Function_Pointers function name : "<< ext->exfuncArr[i+1]->name.c_str() << "...";
     ext->exfuncArr[++i]->start_pc = reinterpret_cast<byte8*>(exGeometry_isPosInRect2d);//9
+    if(icldetail) icl << "finish" << endl;
+
+    if(icldetail) icl << "Create_New_ICB_Extension_Init Set_Function_Pointers function name : "<< ext->exfuncArr[i+1]->name.c_str() << "...";
     ext->exfuncArr[++i]->start_pc = reinterpret_cast<byte8*>(exGeometry_addAngle2d);//10
+    if(icldetail) icl << "finish" << endl;
+
+    if(icldetail) icl << "Create_New_ICB_Extension_Init Set_Function_Pointers function name : "<< ext->exfuncArr[i+1]->name.c_str() << "...";
     ext->exfuncArr[++i]->start_pc = reinterpret_cast<byte8*>(exGeometry_get_cross_line);//11
+    if(icldetail) icl << "finish" << endl;
+
+    if(icldetail) icl << "Create_New_ICB_Extension_Init Set_Function_Pointers function name : "<< ext->exfuncArr[i+1]->name.c_str() << "...";
     ext->exfuncArr[++i]->start_pc = reinterpret_cast<byte8*>(exGeometry_isNAN);//12
-    
+    if(icldetail) icl << "finish" << endl;
+
+    if(icldetail) icl << "Create_New_ICB_Extension_Init Allocate Extension Data Memory ";
     icl << "finish" << endl;
     return ext;
 }

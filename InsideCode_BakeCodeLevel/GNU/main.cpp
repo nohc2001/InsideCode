@@ -14,7 +14,9 @@ int main(){
     fm = new FM_System0();
 	fm->SetHeapData(4096, 4096, 65536, 1048576);
 
-    InsideCode_Bake::SetICLFlag(ICL_FLAG::ICB_StaticInit, true);
+    InsideCode_Bake::SetICLFlag(ICL_FLAG::ICB_StaticInit, false);
+    InsideCode_Bake::SetICLFlag(ICL_FLAG::Create_New_ICB_Extension_Init, false);
+    InsideCode_Bake::SetICLFlag(ICL_FLAG::Create_New_ICB_Extension_Init__Bake_Extension, false);
 
     InsideCode_Bake::StaticInit();
     ICB_Extension* ext = Init_exGeometry();

@@ -672,7 +672,8 @@ enum class ICL_FLAG{
 	BakeCode_ScanCodes = 7,
 	BakeCode_GlobalMemoryInit = 8,
 	BakeCode_CompileCodes = 9,
-	Create_New_ICB_Context = 10
+	Create_New_ICB_Context = 10,
+	Create_New_ICB_Extension_Init__Bake_Extension = 11
 };
 
 class InsideCode_Bake
