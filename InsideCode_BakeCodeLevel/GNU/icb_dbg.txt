@@ -1,8 +1,40 @@
-ICB System Start
-ICB_StaticInit...finish
+Inside Code Bake System Start
+ICB_StaticInit...start
+ICB_StaticInit create basic types start
+ICB_StaticInit Create Type : int...finish
+ICB_StaticInit Create Type : char...finish
+ICB_StaticInit Create Type : short...finish
+ICB_StaticInit Create Type : float...finish
+ICB_StaticInit Create Type : bool...finish
+ICB_StaticInit Create Type : uint...finish
+ICB_StaticInit Create Type : ushort...finish
+ICB_StaticInit Create Type : uchar...finish
+create basic types finish
+create basic operation start
+ICB_StaticInit Create Operation : [[]...finish
+ICB_StaticInit Create Operation : [.]...finish
+ICB_StaticInit Create Operation : [->]...finish
+ICB_StaticInit Create Operation : [&]...finish
+ICB_StaticInit Create Operation : [*]...finish
+ICB_StaticInit Create Operation : [*]...finish
+ICB_StaticInit Create Operation : [/]...finish
+ICB_StaticInit Create Operation : [%]...finish
+ICB_StaticInit Create Operation : [+]...finish
+ICB_StaticInit Create Operation : [-]...finish
+ICB_StaticInit Create Operation : [==]...finish
+ICB_StaticInit Create Operation : [<]...finish
+ICB_StaticInit Create Operation : [>]...finish
+ICB_StaticInit Create Operation : [<=]...finish
+ICB_StaticInit Create Operation : [>=]...finish
+ICB_StaticInit Create Operation : [!=]...finish
+ICB_StaticInit Create Operation : [!]...finish
+ICB_StaticInit Create Operation : [&&]...finish
+ICB_StaticInit Create Operation : [||]...finish
+create basic operation finish
+ICB_StaticInit finish
 Create_New_ICB_Extension_Init : exGeometry Initialization...finish
 Create_New_ICB[0x7fffffff71e0] Initialization...finish
-ICB[0x7fffffff71e0] BakeCode start. [filename :code.txt]
+ICB[0x7fffffff71e0] BakeCode start. filename : [code.txt]
 ICB[0x7fffffff71e0] BakeCode_GetCodeFromText...finish
 ICB[0x7fffffff71e0] BakeCode_AddTextBlocks...finish
 ICB[0x7fffffff71e0] BakeCode_ScanStructTypes...finish

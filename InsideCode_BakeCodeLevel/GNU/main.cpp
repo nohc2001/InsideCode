@@ -13,7 +13,9 @@ uint32_t InsideCode_Bake::icl_optionFlag;
 int main(){
     fm = new FM_System0();
 	fm->SetHeapData(4096, 4096, 65536, 1048576);
-    
+
+    InsideCode_Bake::SetICLFlag(ICL_FLAG::ICB_StaticInit, true);
+
     InsideCode_Bake::StaticInit();
     ICB_Extension* ext = Init_exGeometry();
     InsideCode_Bake icb;

@@ -473,16 +473,6 @@ struct operator_data
 	int endop = 0;
 };
 
-operator_data create_oper(const char *symbo, char mo, int starto, int endo)
-{
-	operator_data op;
-	op.symbol = symbo;
-	op.mod = mo;
-	op.startop = starto;
-	op.endop = endo;
-	return op;
-}
-
 enum class blockstate
 {
 	bs_if,
@@ -757,6 +747,20 @@ public:
 		ptr->mem.release();
 		fm->_Delete((byte8 *)ptr, sizeof(temp_mem));
 		// type_data memeory management reqired.. but how?
+	}
+
+	static operator_data create_oper(const char *symbo, char mo, int starto, int endo)
+	{
+		ofstream& icl = InsideCode_Bake::icl;
+		bool icldetail = InsideCode_Bake::GetICLFlag(ICL_FLAG::ICB_StaticInit);
+		if(icldetail) icl << "ICB_StaticInit Create Operation : [" << symbo << "]...";
+		operator_data op;
+		op.symbol = symbo;
+		op.mod = mo;
+		op.startop = starto;
+		op.endop = endo;
+		if(icldetail) icl << "finish" << endl;
+		return op;
 	}
 
 	static type_data *create_type(char *nam, int tsiz, char typ, int *strptr)
@@ -1156,42 +1160,65 @@ public:
 
 	static void StaticInit(){
 		wbss.Init();
-		icl_optionFlag = 0;
 		icl.open("icb_dbg.txt");
 		icl << "Inside Code Bake System Start" << endl;
 		icl << "ICB_StaticInit...";
+
+		bool icldetail = GetICLFlag(ICL_FLAG::ICB_StaticInit);
+		if(icldetail) icl << "start" << endl;
+		if(icldetail) icl << "ICB_StaticInit create basic types start" << endl;
+
 		char *name[8] = {};
 		name[0] = (char *)fm->_New(4, true);
 		strcpy(name[0], "int");
+		if(icldetail) icl << "ICB_StaticInit Create Type : " << name[0] << "...";
 		basictype[0] = create_type(name[0], 4, 'b', nullptr);
+		if(icldetail) icl << "finish" << endl;
 
 		name[1] = (char *)fm->_New(5, true);
 		strcpy(name[1], "char");
+		if(icldetail) icl << "ICB_StaticInit Create Type : " << name[1] << "...";
 		basictype[1] = create_type(name[1], 1, 'b', nullptr);
+		if(icldetail) icl << "finish" << endl;
 
 		name[2] = (char *)fm->_New(6, true);
 		strcpy(name[2], "short");
+		if(icldetail) icl << "ICB_StaticInit Create Type : " << name[2] << "...";
 		basictype[2] = create_type(name[2], 2, 'b', nullptr);
+		if(icldetail) icl << "finish" << endl;
 
 		name[3] = (char *)fm->_New(6, true);
 		strcpy(name[3], "float");
+		if(icldetail) icl << "ICB_StaticInit Create Type : " << name[3] << "...";
 		basictype[3] = create_type(name[3], 4, 'b', nullptr);
+		if(icldetail) icl << "finish" << endl;
 
 		name[4] = (char *)fm->_New(5, true);
 		strcpy(name[4], "bool");
+		if(icldetail) icl << "ICB_StaticInit Create Type : " << name[4] << "...";
 		basictype[4] = create_type(name[4], 4, 'b', nullptr);
+		if(icldetail) icl << "finish" << endl;
 
 		name[5] = (char *)fm->_New(5, true);
 		strcpy(name[5], "uint");
+		if(icldetail) icl << "ICB_StaticInit Create Type : " << name[5] << "...";
 		basictype[5] = create_type(name[5], 4, 'b', nullptr);
+		if(icldetail) icl << "finish" << endl;
 
 		name[6] = (char *)fm->_New(7, true);
 		strcpy(name[6], "ushort");
+		if(icldetail) icl << "ICB_StaticInit Create Type : " << name[6] << "...";
 		basictype[6] = create_type(name[6], 2, 'b', nullptr);
+		if(icldetail) icl << "finish" << endl;
 
 		name[7] = (char *)fm->_New(6, true);
 		strcpy(name[7], "uchar");
+		if(icldetail) icl << "ICB_StaticInit Create Type : " << name[7] << "...";
 		basictype[7] = create_type(name[7], 1, 'b', nullptr);
+		if(icldetail) icl << "finish" << endl;
+		if(icldetail) icl << "ICB_StaticInit create basic types finish" << endl;
+
+		if(icldetail) icl << "ICB_StaticInit create basic operation start" << endl;
 
 		basicoper[0] = create_oper("[", 'f', 0, 0);
 		basicoper[1] = create_oper(".", 'f', 0, 0);
@@ -1212,7 +1239,9 @@ public:
 		basicoper[16] = create_oper("!", 'o', 125, 126);
 		basicoper[17] = create_oper("&&", 'o', 121, 122);
 		basicoper[18] = create_oper("||", 'o', 123, 124);
+		if(icldetail) icl << "ICB_StaticInit create basic operation finish" << endl;
 
+		if(icldetail) icl << "ICB_StaticInit ";
 		icl << "finish" << endl;
 	}
 
