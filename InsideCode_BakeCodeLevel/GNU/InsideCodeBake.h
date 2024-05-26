@@ -664,16 +664,14 @@ struct ICB_Extension{
 enum class ICL_FLAG{
 	ICB_StaticInit = 0,
 	Create_New_ICB_Extension_Init = 1,
-	Create_New_ICB = 2,
-	BakeCode_GetCodeFromText = 3,
-	BakeCode_AddTextBlocks = 4,
-	BakeCode_ScanStructTypes = 5,
-	BakeCode_AddStructTypes = 6,
-	BakeCode_ScanCodes = 7,
-	BakeCode_GlobalMemoryInit = 8,
-	BakeCode_CompileCodes = 9,
-	Create_New_ICB_Context = 10,
-	Create_New_ICB_Extension_Init__Bake_Extension = 11
+	BakeCode_AddTextBlocks = 2,
+	BakeCode_ScanStructTypes = 3,
+	BakeCode_AddStructTypes = 4,
+	BakeCode_ScanCodes = 5,
+	BakeCode_GlobalMemoryInit = 6,
+	BakeCode_CompileCodes = 7,
+	Create_New_ICB_Context = 8,
+	Create_New_ICB_Extension_Init__Bake_Extension = 9
 };
 
 class InsideCode_Bake
@@ -1343,8 +1341,8 @@ public:
 		insstr.NULLState();
 		insstr.Init(2, false);
 
-		cout << "\n\ntext : \n"
-			 << codetxt.c_str() << endl;
+		bool icldetail = GetICLFlag(ICL_FLAG::BakeCode_AddTextBlocks);
+		if(icldetail) icl << "-----------------------------------------\n\n full text : \n" << codetxt.c_str() << endl;
 		for (int i = 0; i < (int)codetxt.size(); i++)
 		{
 			insstr.push_back(codetxt.at(i));
@@ -1352,7 +1350,7 @@ public:
 			{
 				if (i == codetxt.size() - 1)
 				{
-					cout << "siz : " << i << "-" << codetxt.size() << " str : " << insstr.c_str() << endl;
+					if(icldetail) icl << i << "/" << codetxt.size() << " : \"" << insstr.c_str() << "\""<< endl;
 					push_word(insstr);
 					continue;
 				}
@@ -1360,7 +1358,7 @@ public:
 				if (bCanBeTextblock_notAllowNeg(insstr) == false)
 				{
 					insstr.pop_back();
-					cout << "siz : " << i << "-" << codetxt.size() << " str : " << insstr.c_str() << endl;
+					if(icldetail) icl << i << "/" << codetxt.size() << " : \"" << insstr.c_str() << "\""<< endl;
 					push_word(insstr);
 					insstr.clear();
 				}
@@ -1372,11 +1370,11 @@ public:
 					if (bnor == false)
 					{
 						insstr.pop_back();
-						cout << "siz : " << i << "-" << codetxt.size() << " str : " << insstr.c_str() << endl;
+						if(icldetail) icl << i << "/" << codetxt.size() << " : \"" << insstr.c_str() << "\""<< endl;
 						push_word(insstr);
 						insstr.clear();
 						insstr.push_back(c);
-						cout << "siz : " << i << "-" << codetxt.size() << " str : " << insstr.c_str() << endl;
+						if(icldetail) icl << i << "/" << codetxt.size() << " : \"" << insstr.c_str() << "\""<< endl;
 						push_word(insstr);
 						insstr.clear();
 						i++;
@@ -1416,12 +1414,14 @@ public:
 				{
 					lcstr insstr;
 					insstr = allcode_sen[i];
+					if(icldetail) icl << "combine block : " << i << " : \"" << insstr.c_str() << "\" + ";
 					for (int k = 0; k < t1.size(); k++)
 					{
 						insstr.push_back(t1[k]);
 					}
 
 					set_word(i, insstr);
+					if(icldetail) icl << i+1 << " : \"" << t1.c_str() << "\" => "<< insstr.c_str() << endl;
 					allcode_sen.erase(i + 1);
 				}
 			}
@@ -1439,8 +1439,10 @@ public:
 				{
 					lcstr insstr;
 					insstr = allcode_sen[i - 1];
+					if(icldetail) icl << "combine block : " << i-1 << " : \"" << insstr.c_str() << "\" + ";
 					insstr.push_back('=');
 					set_word(i - 1, insstr);
+					if(icldetail) icl << i << " : \"" << allcode_sen[i] << "\" => "<< insstr.c_str() << endl;
 					allcode_sen.erase(i);
 				}
 			}
@@ -1454,8 +1456,10 @@ public:
 				{
 					lcstr insstr;
 					insstr = allcode_sen[i];
+					if(icldetail) icl << "combine block : " << i-1 << " : \"" << insstr.c_str() << "\" + ";
 					insstr.push_back('|');
 					set_word(i, insstr);
+					if(icldetail) icl << i << " : \"" << allcode_sen[i] << "\" => "<< insstr.c_str() << endl;
 					allcode_sen.erase(i + 1);
 				}
 			}

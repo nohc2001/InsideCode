@@ -17,6 +17,7 @@ int main(){
     InsideCode_Bake::SetICLFlag(ICL_FLAG::ICB_StaticInit, false);
     InsideCode_Bake::SetICLFlag(ICL_FLAG::Create_New_ICB_Extension_Init, false);
     InsideCode_Bake::SetICLFlag(ICL_FLAG::Create_New_ICB_Extension_Init__Bake_Extension, false);
+    InsideCode_Bake::SetICLFlag(ICL_FLAG::BakeCode_AddTextBlocks, true);
 
     InsideCode_Bake::StaticInit();
     ICB_Extension* ext = Init_exGeometry();
