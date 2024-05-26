@@ -1442,7 +1442,7 @@ public:
 					if(icldetail) icl << "combine block : " << i-1 << " : \"" << insstr.c_str() << "\" + ";
 					insstr.push_back('=');
 					set_word(i - 1, insstr);
-					if(icldetail) icl << i << " : \"" << allcode_sen[i] << "\" => "<< insstr.c_str() << endl;
+					if(icldetail) icl << i << " : \"" << allcode_sen[i] << "\" => \""<< insstr.c_str() << "\"" << endl;
 					allcode_sen.erase(i);
 				}
 			}
@@ -1459,7 +1459,7 @@ public:
 					if(icldetail) icl << "combine block : " << i-1 << " : \"" << insstr.c_str() << "\" + ";
 					insstr.push_back('|');
 					set_word(i, insstr);
-					if(icldetail) icl << i << " : \"" << allcode_sen[i] << "\" => "<< insstr.c_str() << endl;
+					if(icldetail) icl << i << " : \"" << allcode_sen[i] << "\" => \""<< insstr.c_str() << "\"" << endl;
 					allcode_sen.erase(i + 1);
 				}
 			}
@@ -1473,8 +1473,10 @@ public:
 				{
 					lcstr insstr;
 					insstr = allcode_sen[i];
+					if(icldetail) icl << "combine block : " << i << " : \"" << insstr.c_str() << "\" + ";
 					insstr.push_back('&');
 					set_word(i, insstr);
+					if(icldetail) icl << i+1 << " : \"" << allcode_sen[i+1] << "\" => \""<< insstr.c_str() << "\"" << endl;
 					allcode_sen.erase(i + 1);
 				}
 			}
@@ -1507,12 +1509,14 @@ public:
 				{
 					lcstr insstr;
 					insstr = allcode_sen[i - 1];
+					if(icldetail) icl << "combine block : " << i-1 << " : \"" << insstr.c_str() << "\" + \".\" + ";
 					insstr.push_back('.');
 					for (int k = 0; k < back.size(); k++)
 					{
 						insstr.push_back(back[k]);
 					}
 					set_word(i - 1, insstr);
+					if(icldetail) icl << i+1 << " : \"" << back.c_str() << "\" => \""<< insstr.c_str() << "\"" << endl;
 					allcode_sen.erase(i);
 					allcode_sen.erase(i);
 				}
@@ -1541,6 +1545,8 @@ public:
 					set_word(i, insstr);
 					allcode_sen.erase(i + 1);
 					allcode_sen.erase(i + 1);
+
+					if(icldetail) icl << "combine block : " << i << " ~ " << i + 2 << "\"" << insstr.c_str() << "\"" << endl;
 				}
 				else if (strcmp(allcode_sen[i + 1], "\\") == 0 && strcmp(allcode_sen[i + 3], "\'") == 0)
 				{
@@ -1568,6 +1574,7 @@ public:
 					}
 
 					set_word(i, insstr);
+					if(icldetail) icl << "combine block : " << i << " ~ " << i + 2 << "\"" << insstr.c_str() << "\"" << endl;
 					allcode_sen.erase(i + 1);
 					allcode_sen.erase(i + 1);
 					allcode_sen.erase(i + 1);

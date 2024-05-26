@@ -690,7 +690,8 @@ int main(){
 2021/2025 : "0"
 2022/2025 : ";"
 2024/2025 : "}"
-combine block : 617 : "+" + 618 : "=" => +=
+combine block : 3 : "3" + "." + 5 : "141592" => "3.141592"
+combine block : 617 : "+" + 618 : "=" => "+="
 finish
 ICB[0x7fffffff71e0] BakeCode_ScanStructTypes...finish
 ICB[0x7fffffff71e0] BakeCode_AddStructTypes...finish
