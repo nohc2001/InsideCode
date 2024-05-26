@@ -443,7 +443,7 @@ void exGeometry_isNAN(int* pcontext){
 ICB_Extension* Init_exGeometry(){
     //확장을 입력.
     ofstream& icl = InsideCode_Bake::icl;
-    icl << "New ICB Extension : exGeometry Initialization...";
+    icl << "Create_New_ICB_Extension_Init : exGeometry Initialization...";
 
     ICB_Extension* ext = (ICB_Extension*)fm->_New(sizeof(ICB_Extension), true);
     ext->exfuncArr.NULLState();

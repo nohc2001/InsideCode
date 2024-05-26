@@ -671,6 +671,20 @@ struct ICB_Extension{
     vecarr<func_data*> exfuncArr;
 };
 
+enum class ICL_FLAG{
+	ICB_StaticInit = 0,
+	Create_New_ICB_Extension_Init = 1,
+	Create_New_ICB = 2,
+	BakeCode_GetCodeFromText = 3,
+	BakeCode_AddTextBlocks = 4,
+	BakeCode_ScanStructTypes = 5,
+	BakeCode_AddStructTypes = 6,
+	BakeCode_ScanCodes = 7,
+	BakeCode_GlobalMemoryInit = 8,
+	BakeCode_CompileCodes = 9,
+	Create_New_ICB_Context = 10
+};
+
 class InsideCode_Bake
 {
 private:
@@ -718,6 +732,23 @@ public:
 	static operator_data basicoper[basicoper_max];
 
 	static ofstream icl; // icb log
+	static uint32_t icl_optionFlag;
+
+	static void SetICLFlag(ICL_FLAG flag, bool enable){
+		if(enable){
+			uint32_t temp = 1 << (unsigned int)flag;
+			icl_optionFlag = icl_optionFlag | (temp);
+		}
+		else{
+			uint32_t temp = ~(1 << (unsigned int)flag);
+			icl_optionFlag = icl_optionFlag & (temp);
+		}
+	}
+
+	static bool GetICLFlag(ICL_FLAG flag){
+		uint32_t temp = 1 << (unsigned int)flag;
+		return icl_optionFlag & temp;
+	}
 
 	vecarr<ICB_Extension*> extension; // 확장코드
 
@@ -1125,9 +1156,10 @@ public:
 
 	static void StaticInit(){
 		wbss.Init();
+		icl_optionFlag = 0;
 		icl.open("icb_dbg.txt");
 		icl << "Inside Code Bake System Start" << endl;
-		icl << "InsideCode_BakeCode_Static Init...";
+		icl << "ICB_StaticInit...";
 		char *name[8] = {};
 		name[0] = (char *)fm->_New(4, true);
 		strcpy(name[0], "int");
@@ -1186,7 +1218,7 @@ public:
 
 	void init()
 	{
-		icl << "New InsideCodeBake[" << this << "] Initialization...";
+		icl << "Create_New_ICB[" << this << "] Initialization...";
 		allcode_sen.NULLState();
 		allcode_sen.Init(2, false);
 		allcode_sen.islocal = false;
@@ -5810,23 +5842,23 @@ public:
 
 	void bake_code(const char *filename)
 	{
-		icl << "InsideCodeBake[" << this << "] BakeCode start." << endl;
+		icl << "ICB[" << this << "] BakeCode start. filename : [" << filename << "]" << endl;
 
-		icl << "InsideCodeBake[" << this << "] BakeCode_GetCodeFromText...";
+		icl << "ICB[" << this << "] BakeCode_GetCodeFromText...";
 		lcstr *allcodeptr = GetCodeTXT(filename, fm);
 		icl << "finish" << endl;
 
 		lcstr &allcode = *allcodeptr;
 
-		icl << "InsideCodeBake[" << this << "] BakeCode_AddTextBlocks...";
+		icl << "ICB[" << this << "] BakeCode_AddTextBlocks...";
 		AddTextBlocks(allcode);
 		icl << "finish" << endl;
 
-		icl << "InsideCodeBake[" << this << "] BakeCode_Scan Struct Types...";
+		icl << "ICB[" << this << "] BakeCode_ScanStructTypes...";
 		vecarr<code_sen *> *senstptr = AddCodeFromBlockData(allcode_sen, "struct");
 		icl << "finish" << endl;
 
-		icl << "InsideCodeBake[" << this << "] BakeCode_Add Struct Types...";
+		icl << "ICB[" << this << "] BakeCode_AddStructTypes...";
 		for (int i = 0; i < senstptr->size(); ++i)
 		{
 			code_sen *cs = senstptr->at(i);
@@ -5836,7 +5868,7 @@ public:
 		}
 		icl << "finish" << endl;
 
-		icl << "InsideCodeBake[" << this << "] BakeCode_Scan All Codes...";
+		icl << "ICB[" << this << "] BakeCode_ScanCodes...";
 		vecarr<code_sen *> *senptr = AddCodeFromBlockData(allcode_sen, "none");
 		icl << "finish" << endl;
 		senptr->islocal = false;
@@ -5845,7 +5877,7 @@ public:
 
 		cout << endl;
 
-		icl << "InsideCodeBake[" << this << "] BakeCode_Global Memory Init...";
+		icl << "ICB[" << this << "] BakeCode_GlobalMemoryInit...";
 		int gs = 0;
 		init_datamem.NULLState();
 		init_datamem.Init(8, false);
@@ -6007,7 +6039,7 @@ public:
 		mem[writeup++] = 200; // jmp
 		writeup += 4;		  // start function address
 
-		icl << "InsideCodeBake[" << this << "] BakeCode_Compile Codes...";
+		icl << "ICB[" << this << "] BakeCode_CompileCodes...";
 		for (int i = 0; i < senptr->size(); ++i)
 		{
 			// fm->dbg_fm1_lifecheck();
@@ -6021,6 +6053,8 @@ public:
 		mem[writeup++] = 194;
 
 		dbg_bakecode(csarr, 0);
+
+		icl << "ICB[" << this << "] BakeCode finish." << endl;
 	}
 };
 
@@ -6074,6 +6108,8 @@ class ICB_Context{
     ~ICB_Context(){}
 
     void SetICB(InsideCode_Bake* picb, uint maxmembyte){
+		ofstream& icl = InsideCode_Bake::icl;
+		icl << "Create_New_ICB_Context From ICB["<< picb << "], with "<< maxmembyte << " size memory...";
         icb = picb;
 		
 		codemem = icb->mem;
@@ -6107,6 +6143,8 @@ class ICB_Context{
 			_as[i] = 0;
 			_bs[i] = 0;
 		}
+
+		icl << "finish.";
     }
 
     void dbg_registers()

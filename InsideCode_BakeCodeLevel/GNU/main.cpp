@@ -7,10 +7,13 @@ extern FM_System0 *fm;
 word_base_sen_sys InsideCode_Bake::wbss;
 type_data *InsideCode_Bake::basictype[basictype_max];
 operator_data InsideCode_Bake::basicoper[basicoper_max];
+ofstream InsideCode_Bake::icl;
+uint32_t InsideCode_Bake::icl_optionFlag;
 
 int main(){
     fm = new FM_System0();
 	fm->SetHeapData(4096, 4096, 65536, 1048576);
+    
     InsideCode_Bake::StaticInit();
     ICB_Extension* ext = Init_exGeometry();
     InsideCode_Bake icb;

@@ -1,0 +1,14 @@
+ICB System Start
+ICB_StaticInit...finish
+Create_New_ICB_Extension_Init : exGeometry Initialization...finish
+Create_New_ICB[0x7fffffff71e0] Initialization...finish
+ICB[0x7fffffff71e0] BakeCode start. [filename :code.txt]
+ICB[0x7fffffff71e0] BakeCode_GetCodeFromText...finish
+ICB[0x7fffffff71e0] BakeCode_AddTextBlocks...finish
+ICB[0x7fffffff71e0] BakeCode_ScanStructTypes...finish
+ICB[0x7fffffff71e0] BakeCode_AddStructTypes...finish
+ICB[0x7fffffff71e0] BakeCode_ScanCodes...finish
+ICB[0x7fffffff71e0] BakeCode_GlobalMemoryInit...finish
+ICB[0x7fffffff71e0] BakeCode_CompileCodes...finish
+ICB[0x7fffffff71e0] BakeCode finish.
+Create_New_ICB_Context From ICB[0x7fffffff71e0], with 40960 size memory...finish.
