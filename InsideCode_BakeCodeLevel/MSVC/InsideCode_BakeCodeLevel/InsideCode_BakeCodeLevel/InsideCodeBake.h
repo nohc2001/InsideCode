@@ -2835,8 +2835,10 @@ public:
 						}
 
 						casting_type ct = get_cast_type(rtm->valuetype, get_int_with_basictype(fd->param_data.at(paramCount).td));
-						tm->mem.push_back(201);
-						tm->mem.push_back((byte8)ct);
+						if (ct != casting_type::nocasting) {
+							tm->mem.push_back(201);
+							tm->mem.push_back((byte8)ct);
+						}
 						/*
 						int ll = tm->mem.size();
 						for(int k=0;k<4;++k){
@@ -2904,8 +2906,10 @@ public:
 						tm->mem.push_back(rtm->mem[i]);
 					}
 					casting_type ct = get_cast_type(rtm->valuetype, get_int_with_basictype(fd->param_data.at(paramCount).td));
-					tm->mem.push_back(201);
-					tm->mem.push_back((byte8)ct);
+					if (ct != casting_type::nocasting) {
+						tm->mem.push_back(201);
+						tm->mem.push_back((byte8)ct);
+					}
 					/*
 					int ll = tm->mem.size();
 					for(int k=0;k<4;++k){
@@ -3019,8 +3023,10 @@ public:
 						}
 
 						casting_type ct = get_cast_type(rtm->valuetype, get_int_with_basictype(fd->param_data.at(paramCount).td));
-						tm->mem.push_back(201);
-						tm->mem.push_back((byte8)ct);
+						if (ct != casting_type::nocasting) {
+							tm->mem.push_back(201);
+							tm->mem.push_back((byte8)ct);
+						}
 						/*
 						int ll = tm->mem.size();
 						for(int k=0;k<4;++k){
@@ -3088,8 +3094,11 @@ public:
 						tm->mem.push_back(rtm->mem[i]);
 					}
 					casting_type ct = get_cast_type(rtm->valuetype, get_int_with_basictype(fd->param_data.at(paramCount).td));
-					tm->mem.push_back(201);
-					tm->mem.push_back((byte8)ct);
+					if (ct != casting_type::nocasting) {
+						tm->mem.push_back(201);
+						tm->mem.push_back((byte8)ct);
+					}
+					
 					/*
 					int ll = tm->mem.size();
 					for(int k=0;k<4;++k){
@@ -5363,8 +5372,10 @@ public:
 				}
 
 				casting_type ct = get_cast_type(tm->valuetype, get_int_with_basictype(fd->param_data.at(paramCount).td));
-				mem[writeup++] = 201;
-				mem[writeup++] = (byte8)ct;
+				if (ct != casting_type::nocasting) {
+					mem[writeup++] = 201;
+					mem[writeup++] = (byte8)ct;
+				}
 				//*reinterpret_cast<uint*>(&mem[writeup]) = (uint)ct;
 				//writeup += 4;
 			}
@@ -5426,8 +5437,10 @@ public:
 			}
 
 			casting_type ct = get_cast_type(tm->valuetype, get_int_with_basictype(fd->param_data.at(paramCount).td));
-			mem[writeup++] = 201;
-			mem[writeup++] = (byte8)ct;
+			if (ct != casting_type::nocasting) {
+				mem[writeup++] = 201;
+				mem[writeup++] = (byte8)ct;
+			}
 			//*reinterpret_cast<uint*>(&mem[writeup]) = (uint)ct;
 			//writeup += 4;
 		}
@@ -6055,7 +6068,7 @@ class ICB_Context{
 vecarr<ICB_Context *> icbarr;
 
 bool isBreaking = false;
-int stopnum = 805;
+int stopnum = 1024;
 bool isDbg = false;
 
 int code_control(vecarr<ICB_Context *> *icbarr)
@@ -7620,13 +7633,13 @@ INST_SWITCH:
 	case insttype::PUSH_A_GLOBAL_VARIABLE_ADDRESS:
 		++*pc;
 		_as.move_pivot(-1);
-		_as[0] = **pci;
+		_as[0] = &(icb->datamem.at(**pci)) - mem;
 		++*pci;
 		goto INST_SWITCH;
 	case insttype::PUSH_B_GLOBAL_VARIABLE_ADDRESS:
 		++*pc;
 		_bs.move_pivot(-1);
-		_bs[0] = **pci;
+		_bs[0] = &icb->datamem.at(**pci) - mem;
 		++*pci;
 		goto INST_SWITCH;
 	case insttype::PUSH_A_FROM_B:
