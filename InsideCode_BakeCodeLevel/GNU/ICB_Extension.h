@@ -753,7 +753,7 @@ void bake_Extension(const char* filename, ICB_Extension* ext){
 	{
 		// fm->dbg_fm1_lifecheck();
 		code_sen *cs = senptr->at(i);
-        dbg_codesen(cs);
+        InsideCode_Bake::dbg_codesen(cs);
         if (cs->ck == codeKind::ck_addFunction){
             compile_addFunction(cs, ext);
         } 

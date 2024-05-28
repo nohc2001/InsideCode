@@ -380,69 +380,6 @@ struct code_sen
 	int end_line = 0;
 };
 
-void dbg_codesen(code_sen *cs)
-{
-	switch (cs->ck)
-	{
-	case codeKind::ck_addVariable:
-		cout << "add var : ";
-		break;
-	case codeKind::ck_setVariable:
-		cout << "set var : ";
-		break;
-	case codeKind::ck_if:
-		cout << "if_ sen : ";
-		break;
-	case codeKind::ck_while:
-		cout << "while__ : ";
-		break;
-	case codeKind::ck_blocks:
-		cout << "block__ : ";
-		break;
-	case codeKind::ck_addFunction:
-		cout << "addfunc : ";
-		break;
-	case codeKind::ck_useFunction:
-		cout << "usefunc : ";
-		break;
-	case codeKind::ck_returnInFunction:
-		cout << "return_ : ";
-		break;
-	case codeKind::ck_addStruct:
-		cout << "struct__ : ";
-		break;
-	case codeKind::ck_break:
-		cout << "break__ : ";
-		break;
-	case codeKind::ck_continue:
-		cout << "continue: ";
-		break;
-	case codeKind::ck_addsetVariable:
-		cout << "adsetvar: ";
-		break;
-	default:
-		break;
-	}
-
-	if (cs->ck != codeKind::ck_blocks)
-	{
-		for (int i = 0; i < cs->maxlen; ++i)
-		{
-			cout << cs->sen[i] << " ";
-		}
-		cout << endl;
-	}
-	else
-	{
-		cout << "{" << endl;
-		for (int i = 0; i < cs->codeblocks->size(); ++i)
-		{
-			dbg_codesen(reinterpret_cast<code_sen *>(cs->codeblocks->at(i)));
-		}
-		cout << "closed_ : }" << endl;
-	}
-}
-
 struct type_data
 {
 	lcstr name;
@@ -671,7 +608,19 @@ enum class ICL_FLAG{
 	BakeCode_GlobalMemoryInit = 6,
 	BakeCode_CompileCodes = 7,
 	Create_New_ICB_Context = 8,
-	Create_New_ICB_Extension_Init__Bake_Extension = 9
+	Create_New_ICB_Extension_Init__Bake_Extension = 9,
+	BakeCode_CompileCodes__add_var,
+	BakeCode_CompileCodes__set_var,
+	BakeCode_CompileCodes__if__sen,
+	BakeCode_CompileCodes__while__,
+	BakeCode_CompileCodes__block__,
+	BakeCode_CompileCodes__addfunc,
+	BakeCode_CompileCodes__usefunc,
+	BakeCode_CompileCodes__return_,
+	BakeCode_CompileCodes__struct__,
+	BakeCode_CompileCodes__break__,
+	BakeCode_CompileCodes__continue,
+	BakeCode_CompileCodes__adsetvar,
 };
 
 class InsideCode_Bake
@@ -772,6 +721,75 @@ public:
 		td->typesiz = tsiz;
 		td->typetype = typ;
 		return td;
+	}
+
+	static void dbg_codesen(code_sen *cs, bool coutstream = true)
+	{
+		ofstream* ptr = nullptr;
+		if(coutstream) ptr = (ofstream*)&cout;
+		else{
+			ptr = &InsideCode_Bake::icl;
+		}
+		ofstream &ofs = *ptr;
+		switch (cs->ck)
+		{
+		case codeKind::ck_addVariable:
+			ofs << "add_var : ";
+			break;
+		case codeKind::ck_setVariable:
+			ofs << "set_var : ";
+			break;
+		case codeKind::ck_if:
+			ofs << "if__sen : ";
+			break;
+		case codeKind::ck_while:
+			ofs << "while__ : ";
+			break;
+		case codeKind::ck_blocks:
+			ofs << "block__ : ";
+			break;
+		case codeKind::ck_addFunction:
+			ofs << "addfunc : ";
+			break;
+		case codeKind::ck_useFunction:
+			ofs << "usefunc : ";
+			break;
+		case codeKind::ck_returnInFunction:
+			ofs << "return_ : ";
+			break;
+		case codeKind::ck_addStruct:
+			ofs << "struct__ : ";
+			break;
+		case codeKind::ck_break:
+			ofs << "break__ : ";
+			break;
+		case codeKind::ck_continue:
+			ofs << "continue: ";
+			break;
+		case codeKind::ck_addsetVariable:
+			ofs << "adsetvar: ";
+			break;
+		default:
+			break;
+		}
+
+		if (cs->ck != codeKind::ck_blocks)
+		{
+			for (int i = 0; i < cs->maxlen; ++i)
+			{
+				ofs << cs->sen[i] << " ";
+			}
+			ofs << endl;
+		}
+		else
+		{
+			ofs << "{" << endl;
+			for (int i = 0; i < cs->codeblocks->size(); ++i)
+			{
+				dbg_codesen(reinterpret_cast<code_sen *>(cs->codeblocks->at(i)), coutstream);
+			}
+			ofs << "closed_ : }" << endl;
+		}
 	}
 
 	func_data *get_func_with_name(char *name)
@@ -1342,6 +1360,8 @@ public:
 		insstr.Init(2, false);
 
 		bool icldetail = GetICLFlag(ICL_FLAG::BakeCode_AddTextBlocks);
+		unsigned int textper = 4;
+		unsigned int ti = 0;
 		if(icldetail) icl << "-----------------------------------------\n\n full text : \n" << codetxt.c_str() << endl;
 		for (int i = 0; i < (int)codetxt.size(); i++)
 		{
@@ -1350,7 +1370,15 @@ public:
 			{
 				if (i == codetxt.size() - 1)
 				{
-					if(icldetail) icl << i << "/" << codetxt.size() << " : \"" << insstr.c_str() << "\""<< endl;
+					if(icldetail) {
+						if(ti & ((1 << (textper+1))-1) == 0){
+							icl << i << "\"" << insstr.c_str() << "\""<< endl;
+						}
+						else{
+							icl << i << "\"" << insstr.c_str() << "\"\t";
+						}
+						++ti;
+					}
 					push_word(insstr);
 					continue;
 				}
@@ -1358,7 +1386,15 @@ public:
 				if (bCanBeTextblock_notAllowNeg(insstr) == false)
 				{
 					insstr.pop_back();
-					if(icldetail) icl << i << "/" << codetxt.size() << " : \"" << insstr.c_str() << "\""<< endl;
+					if(icldetail) {
+						if(ti % textper == 0){
+							icl << i << "\"" << insstr.c_str() << "\""<< endl;
+						}
+						else{
+							icl << i << "\"" << insstr.c_str() << "\" \t";
+						}
+						++ti;
+					}
 					push_word(insstr);
 					insstr.clear();
 				}
@@ -1370,11 +1406,33 @@ public:
 					if (bnor == false)
 					{
 						insstr.pop_back();
-						if(icldetail) icl << i << "/" << codetxt.size() << " : \"" << insstr.c_str() << "\""<< endl;
+						if (icldetail)
+						{
+							if (ti % textper == 0)
+							{
+								icl << i << "\"" << insstr.c_str() << "\"" << endl;
+							}
+							else
+							{
+								icl << i << "\"" << insstr.c_str() << "\"\t";
+							}
+							++ti;
+						}
 						push_word(insstr);
 						insstr.clear();
 						insstr.push_back(c);
-						if(icldetail) icl << i << "/" << codetxt.size() << " : \"" << insstr.c_str() << "\""<< endl;
+						if (icldetail)
+						{
+							if (ti % textper == 0)
+							{
+								icl << i << "\"" << insstr.c_str() << "\"" << endl;
+							}
+							else
+							{
+								icl << i << "\"" << insstr.c_str() << "\"\t";
+							}
+							++ti;
+						}
 						push_word(insstr);
 						insstr.clear();
 						i++;
@@ -1395,6 +1453,8 @@ public:
 				}
 			}
 		}
+
+		if(icldetail) icl << endl;
 
 		for (int i = 0; i < (int)allcode_sen.size(); ++i)
 		{
@@ -1608,13 +1668,14 @@ public:
 
 		bool readytoStart = true;
 		int StartI = 0;
-		for (int i = 0; i < (int)allcodesen.size() - 1; i++)
+		if (readytoStart)
 		{
-			// codeKind ����
-			if (readytoStart)
+			if (strcmp(ScanMod, "none") == 0)
 			{
-				if (strcmp(ScanMod, "none") == 0)
+				for (int i = 0; i < (int)allcodesen.size() - 1; i++)
 				{
+					// codeKind ����
+
 					if (strcmp(allcodesen[i], "struct") == 0)
 					{
 						int open = 0;
@@ -2011,8 +2072,13 @@ public:
 						StartI = i + 1;
 					}
 				}
-
-				if (strcmp(ScanMod, "struct") == 0)
+			}
+			else if (strcmp(ScanMod, "struct") == 0)
+			{
+				bool icldetail = GetICLFlag(ICL_FLAG::BakeCode_ScanStructTypes);
+				if(icldetail) icl << "start" << endl;
+				
+				for (int i = 0; i < (int)allcodesen.size() - 1; i++)
 				{
 					if (strcmp(allcodesen[i], "struct") == 0)
 					{
@@ -2024,6 +2090,10 @@ public:
 
 						int open = 0;
 						int h = 0;
+
+						if(icldetail) icl << "BakeCode_ScanStructTypes : discover struct in " << i << "..finish" << endl;
+
+						if(icldetail) icl << "BakeCode_ScanStructTypes : read struct inside..." << endl;
 						cbs.push_back(allcodesen[i]);
 						while (strcmp(allcodesen[i + h], "}") != 0 || open != 1)
 						{
@@ -2034,7 +2104,16 @@ public:
 							h++;
 							cbs.push_back(allcodesen[i + h]);
 						}
+						if(icldetail){
+							for(int i=0;i<cbs.size();++i){
+								icl << cbs.at(i) << " ";
+							}
+							icl << endl;
 
+							icl << "BakeCode_ScanStructTypes : ...finish" << endl;
+						}
+
+						if(icldetail) icl << "BakeCode_ScanStructTypes : read struct member..." << endl;
 						vecarr<char *> bd;
 						bd.NULLState();
 						bd.Init(10, false);
@@ -2050,8 +2129,18 @@ public:
 						}
 						bd.erase(0);
 						bd.pop_back();
+						if(icldetail){
+							for(int i=0;i<bd.size();++i){
+								icl << bd.at(i) << " ";
+							}
+							icl << endl;
 
+							icl << "BakeCode_ScanStructTypes : ...finish" << endl;
+						}
+
+						if(icldetail) icl << "BakeCode_ScanStructTypes : add struct member code block...";
 						vecarr<code_sen *> *cbv = AddCodeFromBlockData(bd, "none");
+						if(icldetail) icl << "finish" << endl;
 
 						cs->codeblocks = (vecarr<int *> *)fm->_New(sizeof(vecarr<int *>), true);
 						cs->fm = fm;
@@ -2069,6 +2158,8 @@ public:
 						senarr->push_back(cs);
 					}
 				}
+
+				if(icldetail) icl << "BakeCode_ScanStructTypes...";
 			}
 		}
 
@@ -2376,13 +2467,13 @@ public:
 			{
 				inner_params->pop_back();
 				inner_params->erase(0);
-				wbss.dbg_sen(inner_params);
+				//wbss.dbg_sen(inner_params);
 				int coma = wbss.search_word_first_in_specific_oc_layer(inner_params, 0, "(", ")", 0, ",");
 				int savecomma = -1;
 				while (coma != -1)
 				{
 					sen *param_sen = wbss.sen_cut(inner_params, savecomma + 1, coma - 1);
-					wbss.dbg_sen(param_sen);
+					//wbss.dbg_sen(param_sen);
 					temp_mem *rtm = get_asm_from_sen(param_sen, true, true);
 					for (int k = 0; k < rtm->mem.size(); ++k)
 					{
@@ -2398,7 +2489,7 @@ public:
 				}
 
 				sen *param_sen = wbss.sen_cut(inner_params, savecomma + 1, inner_params->size() - 1);
-				wbss.dbg_sen(param_sen);
+				//wbss.dbg_sen(param_sen);
 				temp_mem *rtm = get_asm_from_sen(param_sen, true, true);
 
 				for (int k = 0; k < rtm->mem.size(); ++k)
@@ -2472,7 +2563,7 @@ public:
 					return tm;
 				}
 
-				wbss.dbg_sen(params_sen);
+				//wbss.dbg_sen(params_sen);
 				int coma = wbss.search_word_first_in_specific_oc_layer(params_sen, 0, "(", ")", 0, ",");
 				int savecoma = -1;
 				int last = params_sen->size() - 1;
@@ -2486,7 +2577,7 @@ public:
 				while (coma != -1)
 				{
 					sen *param_sen = wbss.sen_cut(params_sen, savecoma + 1, coma - 1);
-					wbss.dbg_sen(param_sen);
+					//wbss.dbg_sen(param_sen);
 					temp_mem *rtm = get_asm_from_sen(param_sen, true, true);
 
 					if (rtm->valuetype_detail->typetype == 's')
@@ -2555,9 +2646,9 @@ public:
 					paramCount += 1;
 				}
 
-				wbss.dbg_sen(params_sen);
+				//wbss.dbg_sen(params_sen);
 				sen *param_sen = wbss.sen_cut(params_sen, savecoma + 1, last);
-				wbss.dbg_sen(param_sen);
+				//wbss.dbg_sen(param_sen);
 				temp_mem *rtm = get_asm_from_sen(param_sen, true, true);
 				if (rtm->valuetype_detail->typetype == 's')
 				{
@@ -2657,7 +2748,7 @@ public:
 					return tm;
 				}
 
-				wbss.dbg_sen(params_sen);
+				//wbss.dbg_sen(params_sen);
 				int last = params_sen->size() - 1;
 
 				int coma = wbss.search_word_end_in_specific_oc_layer(params_sen, last, "(", ")", 0, ",");
@@ -2670,7 +2761,7 @@ public:
 				while (coma != -1)
 				{
 					sen *param_sen = wbss.sen_cut(params_sen, coma + 1, savecoma - 1);
-					wbss.dbg_sen(param_sen);
+					//wbss.dbg_sen(param_sen);
 					temp_mem *rtm = get_asm_from_sen(param_sen, true, true);
 
 					if (rtm->valuetype_detail->typetype == 's')
@@ -2739,9 +2830,9 @@ public:
 					--paramCount;
 				}
 
-				wbss.dbg_sen(params_sen);
+				//wbss.dbg_sen(params_sen);
 				sen *param_sen = wbss.sen_cut(params_sen, 0, savecoma-1);
-				wbss.dbg_sen(param_sen);
+				//wbss.dbg_sen(param_sen);
 				temp_mem *rtm = get_asm_from_sen(param_sen, true, true);
 				if (rtm->valuetype_detail->typetype == 's')
 				{
@@ -2879,7 +2970,7 @@ public:
 				}
 			}
 
-			wbss.dbg_sen(ten);
+			//wbss.dbg_sen(ten);
 			int varid = get_address_with_name(ten->at(0).data.str);
 			if (varid >= 0)
 			{
@@ -3700,7 +3791,7 @@ public:
 									(temp_mem *)fm->_New(sizeof(temp_mem), true);
 
 								temp_mem *left_ten = nullptr;
-								wbss.dbg_sen(segs.at(i-1));
+								//wbss.dbg_sen(segs.at(i-1));
 								left_ten = get_asm_from_sen(segs.at(i - 1), true, false);
 								type_data *member_td;
 								int add_address = 0;
@@ -4089,7 +4180,7 @@ public:
 		while(cpivot < code->size() - 1){
 			int loc = wbss.search_word_first(cpivot, code, ";");
 			sen* member_sen = wbss.sen_cut(code, cpivot, loc-1);
-			wbss.dbg_sen(member_sen);
+			//wbss.dbg_sen(member_sen);
 			NamingData nd;
 			cname = member_sen->last().data.str;
 			nd.name = (char*)fm->_New(strlen(cname)+1, true);
@@ -4109,7 +4200,7 @@ public:
 	void compile_addVariable(code_sen *cs)
 	{
 		sen *code = get_sen_from_codesen(cs);
-		wbss.dbg_sen(code);
+		//wbss.dbg_sen(code);
 		int loc = code->up - 1;
 		char *variable_name = code->at(loc).data.str;
 		sen *type_name = wbss.sen_cut(code, 0, loc - 1);
@@ -4356,7 +4447,7 @@ public:
 			sen *left_expr = wbss.sen_cut(code, 0, loc - 1);
 			sen *right_expr = wbss.sen_cut(code, loc + 1, code->size() - 1);
 
-			wbss.dbg_sen(left_expr);
+			//wbss.dbg_sen(left_expr);
 			// wbss.dbg_sen(right_expr);
 
 			temp_mem *left_tm = get_asm_from_sen(left_expr, true, false);
@@ -4432,7 +4523,7 @@ public:
 	void compile_if(code_sen *cs)
 	{
 		sen *code = get_sen_from_codesen(cs);
-		wbss.dbg_sen(code);
+		//wbss.dbg_sen(code);
 		int loc = wbss.search_word_first(0, code, "if");
 		if (loc == -1){
 			//else
@@ -4470,13 +4561,13 @@ public:
 		// fm->dbg_fm1_lifecheck();
 		sen *code = get_sen_from_codesen(cs);
 		// fm->dbg_fm1_lifecheck();
-		wbss.dbg_sen(code);
+		//wbss.dbg_sen(code);
 		int loc = wbss.search_word_first(0, code, "while");
 		sen *inner_expr = wbss.oc_search(code, loc, "(", ")");
 
 		inner_expr->pop_back();
 		inner_expr->erase(0);
-		wbss.dbg_sen(inner_expr);
+		//wbss.dbg_sen(inner_expr);
 		int save = writeup;
 		temp_mem *inner_tm = get_asm_from_sen(inner_expr, true, true);
 		for (int i = 0; i < inner_tm->mem.size(); ++i)
@@ -4607,7 +4698,7 @@ public:
 			for (int i = 0; i < cs->codeblocks->size(); ++i)
 			{
 				code_sen *css = reinterpret_cast<code_sen *>(cs->codeblocks->at(i));
-				dbg_codesen(css);
+				//dbg_codesen(css);
 				if (css->ck == codeKind::ck_if)
 				{
 					vecarr<int> ifptr_arr;
@@ -4776,7 +4867,7 @@ public:
 
 		sen *typen = wbss.sen_cut(code, 0, nameloc - 1);
 		sen *params_sen = wbss.sen_cut(code, nameloc + 2, loc - 1);
-		wbss.dbg_sen(params_sen);
+		//wbss.dbg_sen(params_sen);
 		int coma = wbss.search_word_first(0, params_sen, ",");
 		int savecoma = -1;
 		int last = params_sen->size() - 1;
@@ -4833,7 +4924,7 @@ public:
 		}
 
 		sen *param_sen = wbss.sen_cut(params_sen, savecoma+1, last);
-		wbss.dbg_sen(param_sen);
+		//wbss.dbg_sen(param_sen);
 		NamingData nd;
 
 		sen *typestr = (sen *)fm->_New(sizeof(sen), true);
@@ -4844,7 +4935,7 @@ public:
 			typestr->push_back(param_sen->at(i));
 		}
 
-		wbss.dbg_sen(typestr);
+		//wbss.dbg_sen(typestr);
 		nd.td = get_type_with_namesen(typestr);
 		nd.name = param_sen->last().data.str;
 
@@ -4900,13 +4991,13 @@ public:
 		{
 			inner_params->pop_back();
 			inner_params->erase(0);
-			wbss.dbg_sen(inner_params);
+			//wbss.dbg_sen(inner_params);
 			int coma = wbss.search_word_first_in_specific_oc_layer(inner_params, 0, "(", ")", 0, ",");
 			int savecomma = -1;
 			while (coma != -1)
 			{
 				sen *param_sen = wbss.sen_cut(inner_params, savecomma+1, coma - 1);
-				wbss.dbg_sen(param_sen);
+				//wbss.dbg_sen(param_sen);
 				temp_mem *tm = get_asm_from_sen(param_sen, true, true);
 				for (int k = 0; k < tm->mem.size(); ++k)
 				{
@@ -4919,7 +5010,7 @@ public:
 			}
 
 			sen *param_sen = wbss.sen_cut(inner_params, savecomma+1, inner_params->size() - 1);
-			wbss.dbg_sen(param_sen);
+			//wbss.dbg_sen(param_sen);
 			temp_mem *tm = get_asm_from_sen(param_sen, true, true);
 
 			for (int k = 0; k < tm->mem.size(); ++k)
@@ -4940,7 +5031,7 @@ public:
 		{
 			inner_params->pop_back();
 			inner_params->erase(0);
-			wbss.dbg_sen(inner_params);
+			//wbss.dbg_sen(inner_params);
 			temp_mem *tm = get_asm_from_sen(inner_params, true, true);
 			for (int k = 0; k < tm->mem.size(); ++k)
 			{
@@ -4997,7 +5088,7 @@ public:
 				return;
 			}
 			int last = params_sen->size() - 1;
-			wbss.dbg_sen(params_sen);
+			//wbss.dbg_sen(params_sen);
 			int coma = wbss.search_word_first_in_specific_oc_layer(params_sen, 0, "(", ")", 0, ",");
 			int savecoma = -1;
 
@@ -5010,7 +5101,7 @@ public:
 			while (coma != -1)
 			{
 				sen *param_sen = wbss.sen_cut(params_sen, savecoma + 1, coma - 1);
-				wbss.dbg_sen(param_sen);
+				//wbss.dbg_sen(param_sen);
 				temp_mem *tm = get_asm_from_sen(param_sen, true, true);
 				if (tm->valuetype_detail->typetype == 's')
 				{
@@ -5078,7 +5169,7 @@ public:
 				return;
 			}
 			int last = params_sen->size() - 1;
-			wbss.dbg_sen(params_sen);
+			//wbss.dbg_sen(params_sen);
 			int coma = wbss.search_word_first_in_specific_oc_layer(params_sen, 0, "(", ")", 0, ",");
 			int savecoma = -1;
 
@@ -5091,7 +5182,7 @@ public:
 			while (coma != -1)
 			{
 				sen *param_sen = wbss.sen_cut(params_sen, savecoma + 1, coma - 1);
-				wbss.dbg_sen(param_sen);
+				//wbss.dbg_sen(param_sen);
 				temp_mem *tm = get_asm_from_sen(param_sen, true, true);
 				if (tm->valuetype_detail->typetype == 's')
 				{
@@ -5156,10 +5247,10 @@ public:
 				++paramCount;
 			}
 
-			wbss.dbg_sen(params_sen);
+			//wbss.dbg_sen(params_sen);
 
 			sen *param_sen = wbss.sen_cut(params_sen, savecoma + 1, last);
-			wbss.dbg_sen(param_sen);
+			//wbss.dbg_sen(param_sen);
 			temp_mem *tm = get_asm_from_sen(param_sen, true, true);
 			if (tm->valuetype_detail->typetype == 's')
 			{
@@ -5254,7 +5345,7 @@ public:
 				return;
 			}
 			int last = params_sen->size() - 1;
-			wbss.dbg_sen(params_sen);
+			//wbss.dbg_sen(params_sen);
 			int coma = wbss.search_word_end_in_specific_oc_layer(params_sen, last, "(", ")", 0, ",");
 			int savecoma = last+1;
 
@@ -5266,7 +5357,7 @@ public:
 			while (coma != -1)
 			{
 				sen *param_sen = wbss.sen_cut(params_sen, coma + 1, savecoma - 1);
-				wbss.dbg_sen(param_sen);
+				//wbss.dbg_sen(param_sen);
 				temp_mem *tm = get_asm_from_sen(param_sen, true, true);
 				if (tm->valuetype_detail->typetype == 's')
 				{
@@ -5329,10 +5420,10 @@ public:
 				--paramCount;
 			}
 
-			wbss.dbg_sen(params_sen);
+			//wbss.dbg_sen(params_sen);
 
 			sen *param_sen = wbss.sen_cut(params_sen, 0, savecoma-1);
-			wbss.dbg_sen(param_sen);
+			//wbss.dbg_sen(param_sen);
 			temp_mem *tm = get_asm_from_sen(param_sen, true, true);
 			if (tm->valuetype_detail->typetype == 's')
 			{
@@ -5429,10 +5520,10 @@ public:
 				++paramCount;
 			}
 
-			wbss.dbg_sen(params_sen);
+			//wbss.dbg_sen(params_sen);
 
 			sen *param_sen = wbss.sen_cut(params_sen, savecoma + 1, last);
-			wbss.dbg_sen(param_sen);
+			//wbss.dbg_sen(param_sen);
 			temp_mem *tm = get_asm_from_sen(param_sen, true, true);
 			if (tm->valuetype_detail->typetype == 's')
 			{
@@ -5527,7 +5618,7 @@ public:
 				return;
 			}
 			int last = params_sen->size() - 1;
-			wbss.dbg_sen(params_sen);
+			//wbss.dbg_sen(params_sen);
 			int coma = wbss.search_word_end_in_specific_oc_layer(params_sen, last, "(", ")", 0, ",");
 			int savecoma = last+1;
 
@@ -5539,7 +5630,7 @@ public:
 			while (coma != -1)
 			{
 				sen *param_sen = wbss.sen_cut(params_sen, coma + 1, savecoma - 1);
-				wbss.dbg_sen(param_sen);
+				//wbss.dbg_sen(param_sen);
 				temp_mem *tm = get_asm_from_sen(param_sen, true, true);
 				if (tm->valuetype_detail->typetype == 's')
 				{
@@ -5602,10 +5693,10 @@ public:
 				--paramCount;
 			}
 
-			wbss.dbg_sen(params_sen);
+			//wbss.dbg_sen(params_sen);
 
 			sen *param_sen = wbss.sen_cut(params_sen, 0, savecoma-1);
-			wbss.dbg_sen(param_sen);
+			//wbss.dbg_sen(param_sen);
 			temp_mem *tm = get_asm_from_sen(param_sen, true, true);
 			if (tm->valuetype_detail->typetype == 's')
 			{
@@ -5820,7 +5911,7 @@ public:
 			}
 
 			sen *code2 = get_sen_from_codesen(cs0);
-			wbss.dbg_sen(code2);
+			//wbss.dbg_sen(code2);
 			int loc2 = code2->up - 1;
 			char *variable_name = code2->at(loc2).data.str;
 			sen *type_name = wbss.sen_cut(code2, 0, loc2 - 1);
@@ -5833,10 +5924,15 @@ public:
 
 	void compile_code(code_sen *cs)
 	{
+		bool icldetail = GetICLFlag(ICL_FLAG::BakeCode_CompileCodes);
 		cs->start_line = writeup;
-		if (cs->ck != codeKind::ck_blocks)
+		if (icldetail && cs->ck != codeKind::ck_blocks)
 		{
-			dbg_codesen(cs);
+			icl << "BakeCode_CompileCodes__";
+			dbg_codesen(cs, false);
+		}
+		else if (icldetail){
+			icl << "BakeCode_CompileCodes Block Start {" << endl;
 		}
 		switch (cs->ck)
 		{
@@ -5878,6 +5974,11 @@ public:
 			break;
 		}
 		cs->end_line = writeup - 1;
+
+		if (icldetail && cs->ck == codeKind::ck_blocks)
+		{
+			icl << "}; BakeCode_CompileCodes Block Finish" << endl;
+		}
 		//dbg_bakecode(csarr, 0);
 	}
 
@@ -5900,13 +6001,18 @@ public:
 		icl << "finish" << endl;
 
 		icl << "ICB[" << this << "] BakeCode_AddStructTypes...";
+		bool astdetail = GetICLFlag(ICL_FLAG::BakeCode_AddStructTypes);
+		if(astdetail) icl << "start" << endl;
 		for (int i = 0; i < senstptr->size(); ++i)
 		{
+			if(astdetail) icl << "BakeCode_AddStructTypes interpret" << endl;
 			code_sen *cs = senstptr->at(i);
+			dbg_codesen(cs, false);
+			if(astdetail) icl << "...start" << endl;
 			interpret_AddStruct(cs);
-
-			dbg_codesen(cs);
+			if(astdetail) icl << "BakeCode_AddStructTypes interpret finish" << endl;
 		}
+		if(astdetail) icl << "BakeCode_AddStructTypes...";
 		icl << "finish" << endl;
 
 		icl << "ICB[" << this << "] BakeCode_ScanCodes...";
@@ -6070,7 +6176,7 @@ public:
 					str.islocal = true;
 				}
 			}
-			dbg_codesen(cs);
+			//dbg_codesen(cs);
 		}
 		datamem_up = gs;
 		icl << "finish" << endl;
@@ -6081,12 +6187,15 @@ public:
 		writeup += 4;		  // start function address
 
 		icl << "ICB[" << this << "] BakeCode_CompileCodes...";
+		bool ccdetail = GetICLFlag(ICL_FLAG::BakeCode_CompileCodes);
+		if(ccdetail) icl << "start" << endl;
 		for (int i = 0; i < senptr->size(); ++i)
 		{
 			// fm->dbg_fm1_lifecheck();
 			code_sen *cs = senptr->at(i);
 			compile_code(cs);
 		}
+		if(ccdetail) icl << "BakeCode_CompileCodes...";
 		icl << "finish" << endl;
 
 		cout << endl;
@@ -6234,7 +6343,7 @@ class ICB_Context{
 		code_sen *cs = icb->find_codesen_with_linenum(icb->csarr, (int)(pc - codemem));
 		if (cs != nullptr)
 		{
-			dbg_codesen(cs);
+			InsideCode_Bake::dbg_codesen(cs);
 		}
 		cout << (int)(pc - codemem) << " : " << icb->inst_meta[*pc].name << "(" << (uint)*pc << ")";
 		instruct_data id = icb->inst_meta[*pc];
