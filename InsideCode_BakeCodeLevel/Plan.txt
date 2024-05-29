@@ -1,0 +1,33 @@
+version 0.2 목표
+2. half jit 만들기
+3. 힙 메모리 연산 만들기
+4. Single Instruction Multiple Thread 만들기
+5. 많이 보이는 명령 패턴 요약하기
+
+1. a = a + b;
+2569    :AXBY(52)
+2570    :POP_AB(218)
+2571    :AU_UINT_MUL_B(92)
+> A <- A*B
+
+2. variable.member, variable[constindex], variable[varindex]
+A=&VID 68;
+PUSH_B_CONST_4 10;
+A = A+B;
+> A<=(&vid+const) 68, 10;
+
+A=&VID 68;
+B=&VID 8;
+B=*B;
+A = A+B;
+> A<=(&vid+const) 68, 10;
+
+3. variable = <expression>
+// A에 어떤 값을 담음.
+892     :A=&VID(195) > 68(68, 0, 0, 0)
+897     :LA=A(199)
+898     :*LA=*A_N(224) > 12(12, 0, 0, 0)
+> VID = A and pop A;
+
+-> 뭔가 결국 X와 Y를 없애는 방향으로 가는게 좋을 것 같다. -> 없애도 문제가 없는가?
+-> 애초에 AXBY 하고 연산을 하면 결국 A와 B의 값을 A로 쓰는 것이고, X와 Y의 용도는 그것 뿐이다.
