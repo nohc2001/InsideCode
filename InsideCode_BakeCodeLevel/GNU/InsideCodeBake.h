@@ -598,7 +598,7 @@ struct ICB_Extension{
     vecarr<func_data*> exfuncArr;
 };
 
-enum class ICL_FLAG{
+enum class ICL_FLAG {
 	ICB_StaticInit = 0,
 	Create_New_ICB_Extension_Init = 1,
 	BakeCode_AddTextBlocks = 2,
@@ -609,18 +609,18 @@ enum class ICL_FLAG{
 	BakeCode_CompileCodes = 7,
 	Create_New_ICB_Context = 8,
 	Create_New_ICB_Extension_Init__Bake_Extension = 9,
-	BakeCode_CompileCodes__add_var,
-	BakeCode_CompileCodes__set_var,
-	BakeCode_CompileCodes__if__sen,
-	BakeCode_CompileCodes__while__,
-	BakeCode_CompileCodes__block__,
-	BakeCode_CompileCodes__addfunc,
-	BakeCode_CompileCodes__usefunc,
-	BakeCode_CompileCodes__return_,
-	BakeCode_CompileCodes__struct__,
-	BakeCode_CompileCodes__break__,
-	BakeCode_CompileCodes__continue,
-	BakeCode_CompileCodes__adsetvar,
+	BakeCode_CompileCodes__add_var = 10,
+	BakeCode_CompileCodes__set_var = 11,
+	BakeCode_CompileCodes__if__sen = 12,
+	BakeCode_CompileCodes__while__ = 13,
+	BakeCode_CompileCodes__block__ = 14,
+	BakeCode_CompileCodes__addfunc = 15,
+	BakeCode_CompileCodes__usefunc = 16,
+	BakeCode_CompileCodes__return_ = 17,
+	BakeCode_CompileCodes__struct__ = 18,
+	BakeCode_CompileCodes__break__ = 19,
+	BakeCode_CompileCodes__continue = 20,
+	BakeCode_CompileCodes__adsetvar = 21,
 };
 
 class InsideCode_Bake
@@ -779,7 +779,6 @@ public:
 			{
 				ofs << cs->sen[i] << " ";
 			}
-			ofs << endl;
 		}
 		else
 		{
@@ -787,6 +786,7 @@ public:
 			for (int i = 0; i < cs->codeblocks->size(); ++i)
 			{
 				dbg_codesen(reinterpret_cast<code_sen *>(cs->codeblocks->at(i)), coutstream);
+				ofs << endl;
 			}
 			ofs << "closed_ : }" << endl;
 		}
@@ -1045,8 +1045,15 @@ public:
 		return nullptr;
 	}
 
-	void print_asm(int start, int end)
+	void print_asm(int start, int end, bool coutstream = true)
 	{
+		ofstream* ptr = nullptr;
+		if(coutstream) ptr = (ofstream*)&cout;
+		else{
+			ptr = &InsideCode_Bake::icl;
+		}
+		ofstream &ofs = *ptr;
+
 		for (int i = start; i <= end; ++i)
 		{
 			if (inst_meta[mem[i]].param_num < 0)
@@ -1055,7 +1062,7 @@ public:
 			}
 			if (mem[i] == 214 || mem[i] == 215)
 			{
-				cout << i << "\t:" << inst_meta[mem[i]].name << "(" << (uint)mem[i] << ")";
+				ofs << i << "\t:" << inst_meta[mem[i]].name << "(" << (uint)mem[i] << ")";
 				uint strmax = 0;
 				instruct_data id = inst_meta[mem[i]];
 				int n;
@@ -1066,19 +1073,19 @@ public:
 					case 1:
 						++i;
 						n = (uint)mem[i];
-						cout << " > " << n;
+						ofs << " > " << n;
 						break;
 					case 2:
 						++i;
 						n = *reinterpret_cast<ushort *>(&mem[i]);
-						cout << " > " << n << "(" << (uint)mem[i] << ", " << (uint)mem[i + 1] << ")";
+						ofs << " > " << n << "(" << (uint)mem[i] << ", " << (uint)mem[i + 1] << ")";
 						i += 1;
 						break;
 					case 4:
 						++i;
 						n = *reinterpret_cast<uint *>(&mem[i]);
 						strmax = n;
-						cout << " > " << n << "(" << (uint)mem[i] << ", " << (uint)mem[i + 1] << ", "
+						ofs << " > " << n << "(" << (uint)mem[i] << ", " << (uint)mem[i + 1] << ", "
 							 << (uint)mem[i + 2] << ", " << (uint)mem[i + 3] << ")";
 						i += 3;
 						break;
@@ -1086,7 +1093,7 @@ public:
 						++i;
 						n = *reinterpret_cast<uint *>(&mem[i]);
 						strmax = n;
-						cout << " > " << n << "(" << (uint)mem[i] << ", " << (uint)mem[i + 1] << ", "
+						ofs << " > " << n << "(" << (uint)mem[i] << ", " << (uint)mem[i + 1] << ", "
 							 << (uint)mem[i + 2] << ", " << (uint)mem[i + 3]
 							 << (uint)mem[i + 4] << ", " << (uint)mem[i + 5] << ", "
 							 << (uint)mem[i + 6] << ", " << (uint)mem[i + 7] << ")";
@@ -1094,16 +1101,21 @@ public:
 						break;
 					}
 				}
-				cout << "\"";
+				ofs << "\"";
 				for (int k = 1; k < strmax; ++k)
 				{
-					cout << mem[i + k];
+					if(mem[i+k] == 0){
+						continue;
+					}
+					else{
+						ofs << mem[i + k];
+					}
 				}
-				cout << "\"";
-				cout << endl;
+				ofs << "\"";
+				ofs << endl;
 				i += strmax + 1;
 			}
-			cout << i << "\t:" << inst_meta[mem[i]].name << "(" << (uint)mem[i] << ")";
+			ofs << i << "\t:" << inst_meta[mem[i]].name << "(" << (uint)mem[i] << ")";
 			instruct_data id = inst_meta[mem[i]];
 			int n;
 			for (int k = 0; k < id.param_num; ++k)
@@ -1113,30 +1125,30 @@ public:
 				case 1:
 					++i;
 					n = (uint)mem[i];
-					cout << " > " << n;
+					ofs << " > " << n;
 					break;
 				case 2:
 					++i;
 					n = *reinterpret_cast<ushort *>(&mem[i]);
-					cout << " > " << n << "(" << (uint)mem[i] << ", " << (uint)mem[i + 1] << ")";
+					ofs << " > " << n << "(" << (uint)mem[i] << ", " << (uint)mem[i + 1] << ")";
 					i += 1;
 					break;
 				case 4:
 					++i;
 					n = *reinterpret_cast<uint *>(&mem[i]);
-					cout << " > " << n << "(" << (uint)mem[i] << ", " << (uint)mem[i + 1] << ", " << (uint)mem[i + 2] << ", " << (uint)mem[i + 3] << ")";
+					ofs << " > " << n << "(" << (uint)mem[i] << ", " << (uint)mem[i + 1] << ", " << (uint)mem[i + 2] << ", " << (uint)mem[i + 3] << ")";
 					i += 3;
 					break;
 				case 8:
 					++i;
 					n = *reinterpret_cast<uint *>(&mem[i]);
-					cout << " > " << n << "(" << (uint)mem[i] << ", " << (uint)mem[i + 1] << ", " << (uint)mem[i + 2] << ", " << (uint)mem[i + 3]
+					ofs << " > " << n << "(" << (uint)mem[i] << ", " << (uint)mem[i + 1] << ", " << (uint)mem[i + 2] << ", " << (uint)mem[i + 3]
 					<< (uint)mem[i+4] << ", " << (uint)mem[i + 5] << ", " << (uint)mem[i + 6] << ", " << (uint)mem[i + 7] << ")";
 					i += 7;
 					break;
 				}
 			}
-			cout << endl;
+			ofs << endl;
 		}
 	}
 
@@ -1167,7 +1179,7 @@ public:
 			{
 				cout << "\033[0;36m";
 				dbg_codesen(cs);
-				cout << "\033[0;37m";
+				cout << "\033[0;37m" << endl;
 				print_asm(cs->start_line, cs->end_line);
 				save = cs->end_line + 1;
 				cout << endl;
@@ -1672,12 +1684,17 @@ public:
 		{
 			if (strcmp(ScanMod, "none") == 0)
 			{
+				bool icldetail = GetICLFlag(ICL_FLAG::BakeCode_ScanCodes);
+				if (icldetail) icl << "start" << endl;
+
 				for (int i = 0; i < (int)allcodesen.size() - 1; i++)
 				{
 					// codeKind ����
+					if (icldetail) icl << "[" << i << "] ~ ";
 
 					if (strcmp(allcodesen[i], "struct") == 0)
 					{
+						if (icldetail) icl << "struct code jump";
 						int open = 0;
 						int h = 0;
 						while (strcmp(allcodesen[i + h], "}") != 0 || open != 1)
@@ -1697,6 +1714,7 @@ public:
 						if (strcmp(allcodesen[i + 2], "(") == 0)
 						{
 							// addfunction
+							if (icldetail) icl << "addfunction : ";
 							code_sen *cs = (code_sen *)fm->_New(sizeof(code_sen), true);
 							cs->ck = codeKind::ck_addFunction;
 							vecarr<char *> cbs;
@@ -1725,6 +1743,7 @@ public:
 							}
 
 							set_codesen(cs, cbs);
+							if (icldetail) dbg_codesen(cs, false);
 
 							senarr->push_back(cs);
 							i = startI - 1;
@@ -1770,6 +1789,7 @@ public:
 
 							if (addset == false)
 							{
+								if (icldetail) icl << "add variable : ";
 								code_sen *cs = (code_sen *)fm->_New(sizeof(code_sen), true);
 								cs->ck = codeKind::ck_addVariable;
 								vecarr<char *> cbs;
@@ -1782,11 +1802,13 @@ public:
 
 								set_codesen(cs, cbs);
 								senarr->push_back(cs);
+								if (icldetail) dbg_codesen(cs, false);
 								i += k;
 								StartI = i + 1;
 							}
 							else
 							{
+								if (icldetail) icl << "add and set variable : ";
 								code_sen *cs = (code_sen *)fm->_New(sizeof(code_sen), true);
 								cs->ck = codeKind::ck_addsetVariable;
 								vecarr<char *> cbs;
@@ -1799,6 +1821,7 @@ public:
 
 								set_codesen(cs, cbs);
 								senarr->push_back(cs);
+								if (icldetail) dbg_codesen(cs, false);
 								i += v;
 								StartI = i + 1;
 							}
@@ -1806,6 +1829,7 @@ public:
 					}
 					else if (allcodesen.size() > i + 2 && (strcmp(allcodesen[i + 2], "(") == 0 && strcmp(allcodesen[i], "void") == 0))
 					{
+						if (icldetail) icl << "add Function : ";
 						code_sen *cs = (code_sen *)fm->_New(sizeof(code_sen), true);
 						cs->ck = codeKind::ck_addFunction;
 						vecarr<char *> cbs;
@@ -1835,11 +1859,13 @@ public:
 
 						set_codesen(cs, cbs);
 						senarr->push_back(cs);
+						if (icldetail) dbg_codesen(cs, false);
 						i = startI - 1;
 						StartI = i + 1;
 					}
 					else if (strcmp(allcodesen[i], "{") == 0)
 					{
+						if (icldetail) icl << "blocks : ";
 						code_sen *cs = (code_sen *)fm->_New(sizeof(code_sen), true);
 						cs->ck = codeKind::ck_blocks;
 						vecarr<char *> cbs;
@@ -1878,6 +1904,7 @@ public:
 						{
 							cs->codeblocks->push_back(reinterpret_cast<int *>((*cbv)[u]));
 						}
+						if (icldetail) dbg_codesen(cs, false);
 
 						cbv->release();
 						fm->_Delete((byte8 *)cbv, sizeof(cbv));
@@ -1889,6 +1916,7 @@ public:
 					}
 					else if (strcmp(allcodesen[i], "=") == 0 || (strlen(allcodesen[i]) == 2 && allcodesen[i][1] == '='))
 					{
+						if (icldetail) icl << "set Variable : ";
 						code_sen *cs = (code_sen *)fm->_New(sizeof(code_sen), true);
 						cs->ck = codeKind::ck_setVariable;
 						vecarr<char *> cbs;
@@ -1909,18 +1937,14 @@ public:
 
 						set_codesen(cs, cbs);
 						senarr->push_back(cs);
+						if (icldetail) dbg_codesen(cs, false);
 
 						i += h;
 						StartI = i + 1;
 					}
 					else if (strcmp(allcodesen[i], "if") == 0)
 					{
-						// if�� �Ұ�ȣ������,
-						// codeblock�� ��´�. if��
-						// �۵������ true�� ����
-						// �ڵ������ ����,
-						// �ƴϸ�
-						// �ǳʶٴ� ���̴�.
+						if (icldetail) icl << "IF : ";
 						code_sen *cs = (code_sen *)fm->_New(sizeof(code_sen), true);
 						cs->ck = codeKind::ck_if;
 						vecarr<char *> cbs;
@@ -1941,6 +1965,7 @@ public:
 
 						set_codesen(cs, cbs);
 						senarr->push_back(cs);
+						if (icldetail) dbg_codesen(cs, false);
 						i += h;
 						StartI = i + 1;
 					}
@@ -1948,6 +1973,7 @@ public:
 					{
 						if (allcodesen.size() > i + 1 && strcmp(allcodesen[i + 1], "if") == 0)
 						{
+							if (icldetail) icl << "IF : ";
 							code_sen *cs = (code_sen *)fm->_New(sizeof(code_sen), true);
 							cs->ck = codeKind::ck_if;
 							vecarr<char *> cbs;
@@ -1970,12 +1996,14 @@ public:
 
 							set_codesen(cs, cbs);
 							senarr->push_back(cs);
+							if (icldetail) dbg_codesen(cs, false);
 							i += h;
 							StartI = i + 1;
 							// else if �� ���
 						}
 						else
 						{
+							if (icldetail) icl << "IF : ";
 							code_sen *cs = (code_sen *)fm->_New(sizeof(code_sen), true);
 							cs->ck = codeKind::ck_if;
 							vecarr<char *> cbs;
@@ -1985,10 +2013,12 @@ public:
 							cbs.push_back(allcodesen[i]);
 							set_codesen(cs, cbs);
 							senarr->push_back(cs);
+							if (icldetail) dbg_codesen(cs, false);
 						}
 					}
 					else if (strcmp(allcodesen[i], "while") == 0)
 					{
+						if (icldetail) icl << "while : ";
 						code_sen *cs = (code_sen *)fm->_New(sizeof(code_sen), true);
 						cs->ck = codeKind::ck_while;
 						vecarr<char *> cbs;
@@ -2008,11 +2038,13 @@ public:
 						}
 						set_codesen(cs, cbs);
 						senarr->push_back(cs);
+						if (icldetail) dbg_codesen(cs, false);
 						i += h;
 						StartI = i + 1;
 					}
 					else if (strcmp(allcodesen[i + 1], "(") == 0)
 					{
+						if (icldetail) icl << "use Function : ";
 						code_sen *cs = (code_sen *)fm->_New(sizeof(code_sen), true);
 						cs->ck = codeKind::ck_useFunction;
 						vecarr<char *> cbs;
@@ -2026,11 +2058,13 @@ public:
 						}
 						set_codesen(cs, cbs);
 						senarr->push_back(cs);
+						if (icldetail) dbg_codesen(cs, false);
 						i += h;
 						StartI = i + 1;
 					}
 					else if (strcmp(allcodesen[i], "return") == 0)
 					{
+						if (icldetail) icl << "return in Function : ";
 						code_sen *cs = (code_sen *)fm->_New(sizeof(code_sen), true);
 						cs->ck = codeKind::ck_returnInFunction;
 						vecarr<char *> cbs;
@@ -2044,11 +2078,13 @@ public:
 						}
 						set_codesen(cs, cbs);
 						senarr->push_back(cs);
+						if (icldetail) dbg_codesen(cs, false);
 						i += h;
 						StartI = i + 1;
 					}
 					else if (strcmp(allcodesen[i], "break") == 0)
 					{
+						if (icldetail) icl << "break : ";
 						code_sen *cs = (code_sen *)fm->_New(sizeof(code_sen), true);
 						cs->ck = codeKind::ck_break;
 						vecarr<char *> cbs;
@@ -2057,10 +2093,12 @@ public:
 						cbs.push_back(allcodesen[i]);
 						set_codesen(cs, cbs);
 						senarr->push_back(cs);
+						if (icldetail) dbg_codesen(cs, false);
 						StartI = i + 1;
 					}
 					else if (strcmp(allcodesen[i], "continue") == 0)
 					{
+						if (icldetail) icl << "continue : ";
 						code_sen *cs = (code_sen *)fm->_New(sizeof(code_sen), true);
 						cs->ck = codeKind::ck_continue;
 						vecarr<char *> cbs;
@@ -2069,9 +2107,13 @@ public:
 						cbs.push_back(allcodesen[i]);
 						set_codesen(cs, cbs);
 						senarr->push_back(cs);
+						if (icldetail) dbg_codesen(cs, false);
 						StartI = i + 1;
 					}
+				
+					if (icldetail) icl << " ~ [" << i << "]" << endl;
 				}
+				if (icldetail) icl << "BakeCode_ScanCodes...";
 			}
 			else if (strcmp(ScanMod, "struct") == 0)
 			{
@@ -5930,50 +5972,75 @@ public:
 		{
 			icl << "BakeCode_CompileCodes__";
 			dbg_codesen(cs, false);
+			icl << endl;
 		}
 		else if (icldetail){
 			icl << "BakeCode_CompileCodes Block Start {" << endl;
 		}
+
 		switch (cs->ck)
 		{
 		case codeKind::ck_addVariable:
 			compile_addVariable(cs);
+			cs->end_line = writeup - 1;
+			if (GetICLFlag(ICL_FLAG::BakeCode_CompileCodes__add_var)) print_asm(cs->start_line, cs->end_line, false);
 			break;
 		case codeKind::ck_setVariable:
 			compile_setVariable(cs);
+			cs->end_line = writeup - 1;
+			if (GetICLFlag(ICL_FLAG::BakeCode_CompileCodes__set_var)) print_asm(cs->start_line, cs->end_line, false);
 			break;
 		case codeKind::ck_if:
 			compile_if(cs);
+			cs->end_line = writeup - 1;
+			if (GetICLFlag(ICL_FLAG::BakeCode_CompileCodes__if__sen)) print_asm(cs->start_line, cs->end_line, false);
 			break;
 		case codeKind::ck_while:
 			compile_while(cs);
+			cs->end_line = writeup - 1;
+			if (GetICLFlag(ICL_FLAG::BakeCode_CompileCodes__while__)) print_asm(cs->start_line, cs->end_line, false);
 			break;
 		case codeKind::ck_blocks:
 			compile_block(cs);
+			cs->end_line = writeup - 1;
+			//if (GetICLFlag(ICL_FLAG::BakeCode_CompileCodes__add_var)) print_asm(cs->start_line, cs->end_line, false);
 			break;
 		case codeKind::ck_addFunction:
 			compile_addFunction(cs);
+			cs->end_line = writeup - 1;
+			if (GetICLFlag(ICL_FLAG::BakeCode_CompileCodes__addfunc)) print_asm(cs->start_line, cs->end_line, false);
 			break;
 		case codeKind::ck_useFunction:
 			compile_useFunction(cs);
+			cs->end_line = writeup - 1;
+			if (GetICLFlag(ICL_FLAG::BakeCode_CompileCodes__usefunc)) print_asm(cs->start_line, cs->end_line, false);
 			break;
 		case codeKind::ck_returnInFunction:
 			compile_returnInFunction(cs);
+			cs->end_line = writeup - 1;
+			if (GetICLFlag(ICL_FLAG::BakeCode_CompileCodes__return_)) print_asm(cs->start_line, cs->end_line, false);
 			break;
 		case codeKind::ck_addStruct:
 			compile_addStruct(cs);
+			cs->end_line = writeup - 1;
+			//if (GetICLFlag(ICL_FLAG::addS)) print_asm(cs->start_line, cs->end_line, false);
 			break;
 		case codeKind::ck_break:
 			compile_break(cs);
+			cs->end_line = writeup - 1;
+			if (GetICLFlag(ICL_FLAG::BakeCode_CompileCodes__break__)) print_asm(cs->start_line, cs->end_line, false);
 			break;
 		case codeKind::ck_continue:
 			compile_continue(cs);
+			cs->end_line = writeup - 1;
+			if (GetICLFlag(ICL_FLAG::BakeCode_CompileCodes__continue)) print_asm(cs->start_line, cs->end_line, false);
 			break;
 		case codeKind::ck_addsetVariable:
 			compile_addsetVariable(cs);
+			cs->end_line = writeup - 1;
+			if (GetICLFlag(ICL_FLAG::BakeCode_CompileCodes__adsetvar)) print_asm(cs->start_line, cs->end_line, false);
 			break;
 		}
-		cs->end_line = writeup - 1;
 
 		if (icldetail && cs->ck == codeKind::ck_blocks)
 		{
@@ -6007,7 +6074,8 @@ public:
 		{
 			if(astdetail) icl << "BakeCode_AddStructTypes interpret" << endl;
 			code_sen *cs = senstptr->at(i);
-			dbg_codesen(cs, false);
+			if(astdetail) dbg_codesen(cs, false);
+			if(astdetail) icl << endl;
 			if(astdetail) icl << "...start" << endl;
 			interpret_AddStruct(cs);
 			if(astdetail) icl << "BakeCode_AddStructTypes interpret finish" << endl;
@@ -6029,13 +6097,19 @@ public:
 		init_datamem.NULLState();
 		init_datamem.Init(8, false);
 
+		bool gmidetail = GetICLFlag(ICL_FLAG::BakeCode_GlobalMemoryInit);
+		if (gmidetail) icl << "start" << endl;
 		for (int i = 0; i < senptr->size(); ++i)
 		{
 			code_sen *cs = senptr->at(i);
 			if (cs->ck == codeKind::ck_addVariable || cs->ck == codeKind::ck_addsetVariable)
 			{
 				// global var count
+				if (gmidetail) icl << "BakeCode_GlobalMemoryInit Scan Global Memory Code (in datamem["<< gs << "]) : ";
+				if (gmidetail) { dbg_codesen(cs, false); icl << endl; }
+				if (gmidetail) icl << "BakeCode_GlobalMemoryInit Find Type Size : ...";
 				int siz = get_typesiz_with_addVariableCs(cs);
+				if (gmidetail) icl << siz << endl;
 				for(int k=0;k<siz;++k)
 				{
 					init_datamem.push_back(0);
@@ -6045,6 +6119,7 @@ public:
 
 				if (cs->ck == codeKind::ck_addsetVariable)
 				{
+					if (gmidetail) icl << "BakeCode_GlobalMemoryInit addsetvar set initial value : ...";
 					sen *code = get_sen_from_codesen(cs);
 					int loc = wbss.search_word_first(0, code, "=");
 
@@ -6063,6 +6138,7 @@ public:
 						else
 							b = false;
 						*reinterpret_cast<bool *>(bptr) = b;
+						if (gmidetail) icl << "(bool)" << b << endl;
 					}
 					break;
 					case TBT::_value_integer:
@@ -6070,6 +6146,7 @@ public:
 						int a = 0;
 						a = atoi(str.c_str());
 						*reinterpret_cast<int *>(bptr) = a;
+						if (gmidetail) icl << "(int)" << a << endl;
 					}
 					break;
 					case TBT::_value_float:
@@ -6077,6 +6154,7 @@ public:
 						float a = 0;
 						a = stof(str.c_str());
 						*reinterpret_cast<float *>(bptr) = a;
+						if (gmidetail) icl << "(float)" << a << endl;
 					}
 					break;
 					case TBT::_value_char:
@@ -6114,10 +6192,12 @@ public:
 							}
 						}
 						*reinterpret_cast<char *>(bptr) = c;
+						if (gmidetail) icl << "(char)" << c << endl;
 					}
 					break;
 					case TBT::_value_str:
 					{
+						char* initbptr = (char*)bptr;
 						int max = strlen(str.c_str()) - 1;
 						max = max > siz ? siz : max;
 						int stack = 1;
@@ -6169,8 +6249,13 @@ public:
 							*(char *)bptr = 0;
 							++bptr;
 						}
+
+						if (gmidetail) icl << "(char*)" << initbptr << endl;
 					}
 					break;
+					default:
+						if (gmidetail) icl << "ERROR : Invailabe Value : " << bptr << endl;
+						break;
 					}
 					// tm->valuetype_detail = get_basic_type_with_int(tm->valuetype);
 					str.islocal = true;
@@ -6179,6 +6264,7 @@ public:
 			//dbg_codesen(cs);
 		}
 		datamem_up = gs;
+		if (gmidetail) icl << "BakeCode_GlobalMemoryInit...";
 		icl << "finish" << endl;
 
 		writeup = 0;
@@ -6344,6 +6430,7 @@ class ICB_Context{
 		if (cs != nullptr)
 		{
 			InsideCode_Bake::dbg_codesen(cs);
+			cout << endl;
 		}
 		cout << (int)(pc - codemem) << " : " << icb->inst_meta[*pc].name << "(" << (uint)*pc << ")";
 		instruct_data id = icb->inst_meta[*pc];

@@ -2403,13 +2403,7 @@ public:
 					}
 					else if (strcmp(allcodesen[i], "if") == 0)
 					{
-						// if�� �Ұ�ȣ������,
-						// codeblock�� ��´�. if��
-						// �۵������ true�� ����
-						// �ڵ������ ����,
-						// �ƴϸ�
-						// �ǳʶٴ� ���̴�.
-						if (icldetail) icl << "If : ";
+						if (icldetail) icl << "IF : ";
 						code_sen* cs = (code_sen*)fm->_New(sizeof(code_sen), true);
 						*cs = code_sen();
 						cs->ck = codeKind::ck_if;
@@ -6073,7 +6067,6 @@ public:
 			{
 				if (gmidetail) icl << "BakeCode_GlobalMemoryInit Scan Global Memory Code (in datamem["<< gs << "]) : ";
 				if (gmidetail) { dbg_codesen(cs, false); icl << endl; }
-				// global var count
 				// global var count
 				if (gmidetail) icl << "BakeCode_GlobalMemoryInit Find Type Size : ...";
 				int siz = get_typesiz_with_addVariableCs(cs);
