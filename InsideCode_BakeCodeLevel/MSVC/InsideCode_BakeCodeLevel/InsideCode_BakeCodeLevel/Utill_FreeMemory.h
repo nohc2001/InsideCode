@@ -1108,33 +1108,42 @@ namespace freemem
 		byte8* _New(unsigned int size, int fmlayer = -1)
 		{
 			vecarr<FM_Model0*>* tm;
-			if (fmlayer < 0 || fmlayer >= tempFM.up) tm = tempFM.last();
-			else tm = tempFM.at(fmlayer);
-			unsigned int tsize = tm->size();
+			vecarr<large_alloc>* larr;
 
-			for (int i = 0; i < tsize; ++i)
+			if (size <= 4096)
 			{
-				//watch("i", i);
-				int remain = tempPageSize - tm->at(i)->Fup + 1;
-				if (remain >= size)
+				if (fmlayer < 0 || fmlayer >= tempFM.up)
+					tm = tempFM.last();
+				else
+					tm = tempFM.at(fmlayer);
+				unsigned int tsize = tm->size();
+
+				for (int i = 0; i < tsize; ++i)
 				{
-					return tm->at(i)->_New(size);
+					//watch("i", i);
+					int remain = 4096 - tm->at(i)->Fup + 1;
+					if (remain >= size)
+					{
+						return tm->at(i)->_New(size);
+					}
 				}
-			}
 
-			if (size <= tempPageSize)
-			{
 				FM_Model0* fm0 = new FM_Model0();
-				fm0->SetHeapData(new byte8[tempPageSize], tempPageSize);
+				fm0->SetHeapData(new byte8[4096], 4096);
 				tm->push_back(fm0);
 				return tm->last()->_New(size);
 			}
 			else
 			{
+				if (fmlayer < 0 || fmlayer >= large.up)
+					larr = large.last();
+				else
+					larr = large.at(fmlayer);
+
 				large_alloc la;
 				la.ptr = (int*)new byte8[size];
 				la.size = size;
-				large.last()->push_back(la);
+				larr->push_back(la);
 				return reinterpret_cast <byte8*>(la.ptr);
 			}
 		}

@@ -722,14 +722,26 @@ void compile_code(code_sen *cs, ICB_Extension *ext)
 }
 
 void bake_Extension(const char* filename, ICB_Extension* ext){
+    ofstream& icl = InsideCode_Bake::icl;
+    bool icldetail = InsideCode_Bake::GetICLFlag(ICL_FLAG::Create_New_ICB_Extension_Init__Bake_Extension);
+    if (icldetail) icl << "start" << endl;
+    if (icldetail) icl << "Create_New_ICB_Extension_Init__Bake_Extension__GetCodeFromText...";
     lcstr *allcodeptr = GetCodeTXT(filename, fm);
+    if (icldetail) icl << "finish" << endl;
 	lcstr &allcode = *allcodeptr;
     vecarr<char*> codesen;
     codesen.NULLState();
     codesen.Init(8, false);
-	AddTextBlocks(allcode, &codesen);
 
+    if (icldetail) icl << "Create_New_ICB_Extension_Init__Bake_Extension__AddTextBlocks...";
+	AddTextBlocks(allcode, &codesen);
+    if (icldetail) icl << "finish" << endl;
+
+    if (icldetail) icl << "Create_New_ICB_Extension_Init__Bake_Extension__ScanStructTypes...";
 	vecarr<code_sen *> *senstptr = AddCodeFromBlockData(codesen, "struct", ext);
+    if (icldetail) icl << "finish" << endl;
+
+    if (icldetail) icl << "Create_New_ICB_Extension_Init__Bake_Extension__AddStructTypes...";
     for (int i = 0; i < senstptr->size(); ++i)
 	{
 		code_sen *cs = senstptr->at(i);
@@ -737,9 +749,13 @@ void bake_Extension(const char* filename, ICB_Extension* ext){
             interpret_AddStruct(cs, ext);
         }
 	}
+    if (icldetail) icl << "finish" << endl;
 
+    if (icldetail) icl << "Create_New_ICB_Extension_Init__Bake_Extension__ScanFunctions...";
     vecarr<code_sen *> *senptr = AddCodeFromBlockData(codesen, "none", ext);
+    if (icldetail) icl << "finish" << endl;
 
+    if (icldetail) icl << "Create_New_ICB_Extension_Init__Bake_Extension__AddFunctions...";
     for (int i = 0; i < senptr->size(); ++i)
 	{
 		// fm->dbg_fm1_lifecheck();
@@ -749,6 +765,8 @@ void bake_Extension(const char* filename, ICB_Extension* ext){
             compile_addFunction(cs, ext);
         }
 	}
+    if (icldetail) icl << "finish" << endl;
+    if (icldetail) icl << "Create_New_ICB_Extension_Init__Bake_Extension ";
 }
 
 #endif

@@ -763,16 +763,6 @@ struct operator_data
 	int endop = 0;
 };
 
-operator_data create_oper(const char *symbo, char mo, int starto, int endo)
-{
-	operator_data op;
-	op.symbol = symbo;
-	op.mod = mo;
-	op.startop = starto;
-	op.endop = endo;
-	return op;
-}
-
 enum class blockstate
 {
 	bs_if,
@@ -960,6 +950,31 @@ struct ICB_Extension{
     vecarr<func_data*> exfuncArr;
 };
 
+enum class ICL_FLAG {
+	ICB_StaticInit = 0,
+	Create_New_ICB_Extension_Init = 1,
+	BakeCode_AddTextBlocks = 2,
+	BakeCode_ScanStructTypes = 3,
+	BakeCode_AddStructTypes = 4,
+	BakeCode_ScanCodes = 5,
+	BakeCode_GlobalMemoryInit = 6,
+	BakeCode_CompileCodes = 7,
+	Create_New_ICB_Context = 8,
+	Create_New_ICB_Extension_Init__Bake_Extension = 9,
+	BakeCode_CompileCodes__add_var,
+	BakeCode_CompileCodes__set_var,
+	BakeCode_CompileCodes__if__sen,
+	BakeCode_CompileCodes__while__,
+	BakeCode_CompileCodes__block__,
+	BakeCode_CompileCodes__addfunc,
+	BakeCode_CompileCodes__usefunc,
+	BakeCode_CompileCodes__return_,
+	BakeCode_CompileCodes__struct__,
+	BakeCode_CompileCodes__break__,
+	BakeCode_CompileCodes__continue,
+	BakeCode_CompileCodes__adsetvar,
+};
+
 class InsideCode_Bake
 {
 private:
@@ -1006,13 +1021,47 @@ public:
 	static constexpr int basicoper_max = 19;
 	static operator_data basicoper[basicoper_max];
 
+	static ofstream icl; // icb log
+	static uint32_t icl_optionFlag;
+
 	vecarr<ICB_Extension*> extension; // 확장코드
+
+	static void SetICLFlag(ICL_FLAG flag, bool enable) {
+		if (enable) {
+			uint32_t temp = 1 << (unsigned int)flag;
+			icl_optionFlag = icl_optionFlag | (temp);
+		}
+		else {
+			uint32_t temp = ~(1 << (unsigned int)flag);
+			icl_optionFlag = icl_optionFlag & (temp);
+		}
+	}
+
+	static bool GetICLFlag(ICL_FLAG flag) {
+		uint32_t temp = 1 << (unsigned int)flag;
+		return icl_optionFlag & temp;
+	}
+
 
 	void release_tempmem(temp_mem *ptr)
 	{
 		ptr->mem.release();
 		fm->_Delete((byte8 *)ptr, sizeof(temp_mem));
 		// type_data memeory management reqired.. but how?
+	}
+
+	static operator_data create_oper(const char* symbo, char mo, int starto, int endo)
+	{
+		ofstream& icl = InsideCode_Bake::icl;
+		bool icldetail = InsideCode_Bake::GetICLFlag(ICL_FLAG::ICB_StaticInit);
+		if (icldetail) icl << "ICB_StaticInit Create Operation : [" << symbo << "]...";
+		operator_data op;
+		op.symbol = symbo;
+		op.mod = mo;
+		op.startop = starto;
+		op.endop = endo;
+		if (icldetail) icl << "finish" << endl;
+		return op;
 	}
 
 	static type_data *create_type(char *nam, int tsiz, char typ, int *strptr)
@@ -1025,6 +1074,75 @@ public:
 		td->typesiz = tsiz;
 		td->typetype = typ;
 		return td;
+	}
+
+	static void dbg_codesen(code_sen* cs, bool coutstream = true)
+	{
+		ofstream* ptr = nullptr;
+		if (coutstream) ptr = (ofstream*)&cout;
+		else {
+			ptr = &InsideCode_Bake::icl;
+		}
+		ofstream& ofs = *ptr;
+		switch (cs->ck)
+		{
+		case codeKind::ck_addVariable:
+			ofs << "add_var : ";
+			break;
+		case codeKind::ck_setVariable:
+			ofs << "set_var : ";
+			break;
+		case codeKind::ck_if:
+			ofs << "if__sen : ";
+			break;
+		case codeKind::ck_while:
+			ofs << "while__ : ";
+			break;
+		case codeKind::ck_blocks:
+			ofs << "block__ : ";
+			break;
+		case codeKind::ck_addFunction:
+			ofs << "addfunc : ";
+			break;
+		case codeKind::ck_useFunction:
+			ofs << "usefunc : ";
+			break;
+		case codeKind::ck_returnInFunction:
+			ofs << "return_ : ";
+			break;
+		case codeKind::ck_addStruct:
+			ofs << "struct__ : ";
+			break;
+		case codeKind::ck_break:
+			ofs << "break__ : ";
+			break;
+		case codeKind::ck_continue:
+			ofs << "continue: ";
+			break;
+		case codeKind::ck_addsetVariable:
+			ofs << "adsetvar: ";
+			break;
+		default:
+			break;
+		}
+
+		if (cs->ck != codeKind::ck_blocks)
+		{
+			for (int i = 0; i < cs->maxlen; ++i)
+			{
+				ofs << cs->sen[i] << " ";
+			}
+			ofs << endl;
+		}
+		else
+		{
+			ofs << "{" << endl;
+			for (int i = 0; i < cs->codeblocks->size(); ++i)
+			{
+				dbg_codesen(reinterpret_cast<code_sen*>(cs->codeblocks->at(i)), coutstream);
+			}
+			ofs << "closed_ : }" << endl;
+		}
 	}
 
 	func_data *get_func_with_name(char *name)
@@ -1507,39 +1625,65 @@ public:
 
 	static void StaticInit(){
 		wbss.Init();
+		icl.open("icb_dbg.txt");
+		icl << "Inside Code Bake System Start" << endl;
+		icl << "ICB_StaticInit...";
 
-		char *name[8] = {};
-		name[0] = (char *)fm->_New(4, true);
+		bool icldetail = GetICLFlag(ICL_FLAG::ICB_StaticInit);
+		if (icldetail) icl << "start" << endl;
+		if (icldetail) icl << "ICB_StaticInit create basic types start" << endl;
+
+		char* name[8] = {};
+		name[0] = (char*)fm->_New(4, true);
 		strcpy_s(name[0], 4, "int");
+		if (icldetail) icl << "ICB_StaticInit Create Type : " << name[0] << "...";
 		basictype[0] = create_type(name[0], 4, 'b', nullptr);
+		if (icldetail) icl << "finish" << endl;
 
-		name[1] = (char *)fm->_New(5, true);
+		name[1] = (char*)fm->_New(5, true);
 		strcpy_s(name[1], 5, "char");
+		if (icldetail) icl << "ICB_StaticInit Create Type : " << name[1] << "...";
 		basictype[1] = create_type(name[1], 1, 'b', nullptr);
+		if (icldetail) icl << "finish" << endl;
 
-		name[2] = (char *)fm->_New(6, true);
+		name[2] = (char*)fm->_New(6, true);
 		strcpy_s(name[2], 6, "short");
+		if (icldetail) icl << "ICB_StaticInit Create Type : " << name[2] << "...";
 		basictype[2] = create_type(name[2], 2, 'b', nullptr);
+		if (icldetail) icl << "finish" << endl;
 
-		name[3] = (char *)fm->_New(6, true);
+		name[3] = (char*)fm->_New(6, true);
 		strcpy_s(name[3], 6, "float");
+		if (icldetail) icl << "ICB_StaticInit Create Type : " << name[3] << "...";
 		basictype[3] = create_type(name[3], 4, 'b', nullptr);
+		if (icldetail) icl << "finish" << endl;
 
-		name[4] = (char *)fm->_New(5, true);
+		name[4] = (char*)fm->_New(5, true);
 		strcpy_s(name[4], 5, "bool");
+		if (icldetail) icl << "ICB_StaticInit Create Type : " << name[4] << "...";
 		basictype[4] = create_type(name[4], 4, 'b', nullptr);
+		if (icldetail) icl << "finish" << endl;
 
-		name[5] = (char *)fm->_New(5, true);
+		name[5] = (char*)fm->_New(5, true);
 		strcpy_s(name[5], 5, "uint");
+		if (icldetail) icl << "ICB_StaticInit Create Type : " << name[5] << "...";
 		basictype[5] = create_type(name[5], 4, 'b', nullptr);
+		if (icldetail) icl << "finish" << endl;
 
-		name[6] = (char *)fm->_New(7, true);
+		name[6] = (char*)fm->_New(7, true);
 		strcpy_s(name[6], 7, "ushort");
+		if (icldetail) icl << "ICB_StaticInit Create Type : " << name[6] << "...";
 		basictype[6] = create_type(name[6], 2, 'b', nullptr);
+		if (icldetail) icl << "finish" << endl;
 
-		name[7] = (char *)fm->_New(6, true);
+		name[7] = (char*)fm->_New(6, true);
 		strcpy_s(name[7], 6, "uchar");
+		if (icldetail) icl << "ICB_StaticInit Create Type : " << name[7] << "...";
 		basictype[7] = create_type(name[7], 1, 'b', nullptr);
+		if (icldetail) icl << "finish" << endl;
+		if (icldetail) icl << "ICB_StaticInit create basic types finish" << endl;
+
+		if (icldetail) icl << "ICB_StaticInit create basic operation start" << endl;
 
 		basicoper[0] = create_oper("[", 'f', 0, 0);
 		basicoper[1] = create_oper(".", 'f', 0, 0);
@@ -1560,10 +1704,15 @@ public:
 		basicoper[16] = create_oper("!", 'o', 125, 126);
 		basicoper[17] = create_oper("&&", 'o', 121, 122);
 		basicoper[18] = create_oper("||", 'o', 123, 124);
+		if (icldetail) icl << "ICB_StaticInit create basic operation finish" << endl;
+
+		if (icldetail) icl << "ICB_StaticInit ";
+		icl << "finish" << endl;
 	}
 
 	void init(int maxmem_byte)
 	{
+		icl << "Create_New_ICB[" << this << "] Initialization...";
 		max_mem_byte = maxmem_byte;
 		allcode_sen.NULLState();
 		allcode_sen.Init(2, false);
@@ -1612,6 +1761,7 @@ public:
 
 		extension.NULLState();
 		extension.Init(8, false);
+		icl << "finish" << endl;
 	}
 
 	void push_word(lcstr &str)
@@ -5654,10 +5804,15 @@ public:
 
 	void compile_code(code_sen *cs)
 	{
+		bool icldetail = GetICLFlag(ICL_FLAG::BakeCode_CompileCodes);
 		cs->start_line = writeup;
-		if (cs->ck != codeKind::ck_blocks)
+		if (icldetail && cs->ck != codeKind::ck_blocks)
 		{
-			dbg_codesen(cs);
+			icl << "BakeCode_CompileCodes__";
+			dbg_codesen(cs, false);
+		}
+		else if (icldetail) {
+			icl << "BakeCode_CompileCodes Block Start {" << endl;
 		}
 		switch (cs->ck)
 		{
@@ -5700,30 +5855,55 @@ public:
 		}
 		cs->end_line = writeup - 1;
 		//dbg_bakecode(csarr, 0);
+		if (icldetail && cs->ck == codeKind::ck_blocks)
+		{
+			icl << "}; BakeCode_CompileCodes Block Finish" << endl;
+		}
 	}
 
 	void bake_code(const char *filename)
 	{
+		icl << "ICB[" << this << "] BakeCode start. filename : [" << filename << "]" << endl;
+
+		icl << "ICB[" << this << "] BakeCode_GetCodeFromText...";
 		lcstr *allcodeptr = GetCodeTXT(filename, fm);
+		icl << "finish" << endl;
 		lcstr &allcode = *allcodeptr;
+
+		icl << "ICB[" << this << "] BakeCode_AddTextBlocks...";
 		AddTextBlocks(allcode);
+		icl << "finish" << endl;
 
+		icl << "ICB[" << this << "] BakeCode_ScanStructTypes...";
 		vecarr<code_sen *> *senstptr = AddCodeFromBlockData(allcode_sen, "struct");
+		icl << "finish" << endl;
 
+		icl << "ICB[" << this << "] BakeCode_AddStructTypes...";
+		bool astdetail = GetICLFlag(ICL_FLAG::BakeCode_AddStructTypes);
+		if (astdetail) icl << "start" << endl;
 		for (int i = 0; i < senstptr->size(); ++i)
 		{
+			if (astdetail) icl << "BakeCode_AddStructTypes interpret" << endl;
 			code_sen *cs = senstptr->at(i);
+			dbg_codesen(cs, false);
+			if (astdetail) icl << "...start" << endl;
 			interpret_AddStruct(cs);
 
-			dbg_codesen(cs);
+			if (astdetail) icl << "BakeCode_AddStructTypes interpret finish" << endl;
 		}
+		if (astdetail) icl << "BakeCode_AddStructTypes...";
+		icl << "finish" << endl;
 
+		icl << "ICB[" << this << "] BakeCode_ScanCodes...";
 		vecarr<code_sen *> *senptr = AddCodeFromBlockData(allcode_sen, "none");
+		icl << "finish" << endl;
 		senptr->islocal = false;
 
 		csarr = senptr;
 
 		cout << endl;
+
+		icl << "ICB[" << this << "] BakeCode_GlobalMemoryInit...";
 
 		int gs = 0;
 		init_datamem.NULLState();
@@ -5880,12 +6060,16 @@ public:
 			dbg_codesen(cs);
 		}
         datamem_up = gs;
+		icl << "finish" << endl;
 
 		writeup = 0;
 		mem[writeup++] = 189; // func
 		mem[writeup++] = 200; // jmp
 		writeup += 4;		  // start function address
 
+		icl << "ICB[" << this << "] BakeCode_CompileCodes...";
+		bool ccdetail = GetICLFlag(ICL_FLAG::BakeCode_CompileCodes);
+		if (ccdetail) icl << "start" << endl;
 		for (int i = 0; i < senptr->size(); ++i)
 		{
 			// fm->dbg_fm1_lifecheck();
@@ -5893,12 +6077,16 @@ public:
 			//dbg_codesen(cs);
 			compile_code(cs);
 		}
+		if (ccdetail) icl << "BakeCode_CompileCodes...";
+		icl << "finish" << endl;
 
 		cout << endl;
 
 		mem[writeup++] = 194;
 
 		dbg_bakecode(csarr, 0);
+
+		icl << "ICB[" << this << "] BakeCode finish." << endl;
 	}
 };
 

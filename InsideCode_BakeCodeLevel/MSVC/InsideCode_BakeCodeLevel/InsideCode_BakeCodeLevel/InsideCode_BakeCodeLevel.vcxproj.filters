@@ -68,6 +68,7 @@
     <Text Include="exGeometry.txt">
       <Filter>헤더 파일</Filter>
     </Text>
+    <Text Include="icb_dbg.txt" />
   </ItemGroup>
   <ItemGroup>
     <None Include="fm1_sizetable.bin">
