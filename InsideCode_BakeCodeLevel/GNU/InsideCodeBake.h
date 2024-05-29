@@ -1573,7 +1573,7 @@ public:
 		mem = new byte8[max_mem_byte];
 		for (int i = 0; i < max_mem_byte; ++i)
 		{
-			mem[i] = 255;
+			mem[i] = 254;
 		}
 
 		cout << "instruction table" << endl;
@@ -2676,7 +2676,7 @@ public:
 								tm->mem.push_back(205); // a = *a
 							}
 							else{
-								tm->mem.push_back(223); // b = a
+								tm->mem.push_back((byte8)insttype::PUSH_B_FROM_A); // b = a
 								tm->mem.push_back(216); // pop a
 								tm->mem.push_back(206); // b = *b
 							}
@@ -2685,7 +2685,7 @@ public:
 						case 'B':
 						{
 							if(is_a){
-								tm->mem.push_back(222); // a = b
+								tm->mem.push_back((byte8)insttype::PUSH_A_FROM_B); // a = b
 								tm->mem.push_back(217); // pop b
 								tm->mem.push_back(205); // a = *a
 							}
@@ -2701,7 +2701,7 @@ public:
 						case 'A':
 						{
 							if(is_a == false){
-								tm->mem.push_back(223); // b = a
+								tm->mem.push_back((byte8)insttype::PUSH_B_FROM_A); // b = a
 								tm->mem.push_back(216); // pop a
 							}
 						}
@@ -2709,7 +2709,7 @@ public:
 						case 'B':
 						{
 							if(is_a){
-								tm->mem.push_back(222); // a = b
+								tm->mem.push_back((byte8)insttype::PUSH_A_FROM_B); // a = b
 								tm->mem.push_back(217); // pop b
 							}
 						}
@@ -2726,7 +2726,7 @@ public:
 						case 'A':
 						{
 							if(is_a == false){
-								tm->mem.push_back(223); // b = a
+								tm->mem.push_back((byte8)insttype::PUSH_B_FROM_A); // b = a
 								tm->mem.push_back(216); // pop a
 							}
 						}
@@ -2734,7 +2734,7 @@ public:
 						case 'B':
 						{
 							if(is_a){
-								tm->mem.push_back(222); // a = b
+								tm->mem.push_back((byte8)insttype::PUSH_A_FROM_B); // a = b
 								tm->mem.push_back(217); // pop b
 							}
 						}
@@ -2946,7 +2946,7 @@ public:
 					}
 					else
 					{
-						tm->mem.push_back(219); // param N by address(a)
+						tm->mem.push_back((byte8)insttype::PARAM_N_COPY_BY_ADDRESS); // param N by address(a)
 						byte8 *N = (byte8 *)&fd->param_data[paramid].td->typesiz;
 						// write siz of struct type
 						for (int i = 0; i < 4; ++i)
@@ -3017,7 +3017,7 @@ public:
 				}
 				else
 				{
-					tm->mem.push_back(219); // param N by address(a)
+					tm->mem.push_back((byte8)insttype::PARAM_N_COPY_BY_ADDRESS); // param N by address(a)
 					byte8 *N = (byte8 *)&fd->param_data[paramid].td->typesiz;
 					// write siz of struct type
 					for (int i = 0; i < 4; ++i)
@@ -3134,7 +3134,7 @@ public:
 					}
 					else
 					{
-						tm->mem.push_back(219); // param N by address(a)
+						tm->mem.push_back((byte8)insttype::PARAM_N_COPY_BY_ADDRESS); // param N by address(a)
 						byte8 *N = (byte8 *)&fd->param_data[paramCount].td->typesiz;
 						// write siz of struct type
 						for (int i = 0; i < 4; ++i)
@@ -3205,7 +3205,7 @@ public:
 				}
 				else
 				{
-					tm->mem.push_back(219); // param N by address(a)
+					tm->mem.push_back((byte8)insttype::PARAM_N_COPY_BY_ADDRESS); // param N by address(a)
 					byte8 *N = (byte8 *)&fd->param_data[paramCount].td->typesiz;
 					// write siz of struct type
 					for (int i = 0; i < 4; ++i)
@@ -3214,7 +3214,7 @@ public:
 					}
 				}
 
-				tm->mem.push_back(255); // ext instruction
+				tm->mem.push_back((byte8)insttype::EXTENSION_INST); // ext instruction
 				int ll = tm->mem.size();
 				for (int k = 0; k < 4; ++k)
 				{
@@ -3255,7 +3255,7 @@ public:
 				type_data *td = get_type_with_global_vname(ten->at(0).data.str);
 				if (is_a)
 				{
-					tm->mem.push_back(220);
+					tm->mem.push_back((byte8)insttype::PUSH_A_GLOBAL_VARIABLE_ADDRESS);
 					byte8 add[4];
 					*reinterpret_cast<uint *>(&add[0]) = gvarid;
 					for (int i = 0; i < 4; ++i)
@@ -3265,7 +3265,7 @@ public:
 				}
 				else
 				{
-					tm->mem.push_back(221);
+					tm->mem.push_back((byte8)insttype::PUSH_B_GLOBAL_VARIABLE_ADDRESS);
 					byte8 add[4];
 					*reinterpret_cast<uint *>(&add[0]) = gvarid;
 					for (int i = 0; i < 4; ++i)
@@ -4375,7 +4375,7 @@ public:
 						{
 							if (is_a == false)
 							{
-								tm->mem.push_back(223); // b = a
+								tm->mem.push_back((byte8)insttype::PUSH_B_FROM_A); // b = a
 								tm->mem.push_back(216); // pop a
 							}
 						}
@@ -4384,7 +4384,7 @@ public:
 						{
 							if (is_a)
 							{
-								tm->mem.push_back(222); // a = b
+								tm->mem.push_back((byte8)insttype::PUSH_A_FROM_B); // a = b
 								tm->mem.push_back(217); // pop b
 							}
 						}
@@ -4406,7 +4406,7 @@ public:
 							}
 							else
 							{
-								tm->mem.push_back(223); // b = a
+								tm->mem.push_back((byte8)insttype::PUSH_B_FROM_A); // b = a
 								tm->mem.push_back(216); // pop a
 								tm->mem.push_back(206); // b = *b
 							}
@@ -4416,7 +4416,7 @@ public:
 						{
 							if (is_a)
 							{
-								tm->mem.push_back(222); // a = b
+								tm->mem.push_back((byte8)insttype::PUSH_A_FROM_B); // a = b
 								tm->mem.push_back(217); // pop b
 								tm->mem.push_back(205); // a = *a
 							}
@@ -4437,7 +4437,7 @@ public:
 					{
 						if (is_a == false)
 						{
-							tm->mem.push_back(223); // b = a
+							tm->mem.push_back((byte8)insttype::PUSH_B_FROM_A); // b = a
 							tm->mem.push_back(216); // pop a
 						}
 					}
@@ -4446,7 +4446,7 @@ public:
 					{
 						if (is_a)
 						{
-							tm->mem.push_back(222); // a = b
+							tm->mem.push_back((byte8)insttype::PUSH_A_FROM_B); // a = b
 							tm->mem.push_back(217); // pop b
 						}
 					}
@@ -4468,7 +4468,7 @@ public:
 					{
 						if (is_a == false)
 						{
-							tm->mem.push_back(223); // b = a
+							tm->mem.push_back((byte8)insttype::PUSH_B_FROM_A); // b = a
 							tm->mem.push_back(216); // pop a
 						}
 					}
@@ -4477,7 +4477,7 @@ public:
 					{
 						if (is_a)
 						{
-							tm->mem.push_back(222); // a = b
+							tm->mem.push_back((byte8)insttype::PUSH_A_FROM_B); // a = b
 							tm->mem.push_back(217); // pop b
 						}
 					}
@@ -4824,7 +4824,7 @@ public:
 			default:
 				cout << "typesiz is more than 4." << endl;
 				{
-					mem[writeup++] = (byte8)224;
+					mem[writeup++] = (byte8)insttype::SET_ADDRESS_LA_FROM_ADRESS_A_N;
 					byte8 cc[4];
 					*reinterpret_cast<uint*>(&cc[0]) = (uint)lstd->typesiz;
 					for(int i=0;i<4;++i){
@@ -5557,7 +5557,7 @@ public:
 				}
 				else
 				{
-					mem[writeup++] = 219; // param N by address(a)
+					mem[writeup++] = (byte8)insttype::PARAM_N_COPY_BY_ADDRESS; // param N by address(a)
 					byte8 *N = (byte8 *)&fd->param_data[paramid].td->typesiz;
 					// write siz of struct type
 					for (int i = 0; i < 4; ++i)
@@ -5627,7 +5627,7 @@ public:
 			}
 			else
 			{
-				mem[writeup++] = 219; // param N by address(a)
+				mem[writeup++] = (byte8)insttype::PARAM_N_COPY_BY_ADDRESS; // param N by address(a)
 				byte8 *N = (byte8 *)&fd->param_data[paramid].td->typesiz;
 				// write siz of struct type
 				for (int i = 0; i < 4; ++i)
@@ -5736,7 +5736,7 @@ public:
 				}
 				else
 				{
-					mem[writeup++] = 219; // param N by address(a)
+					mem[writeup++] = (byte8)insttype::PARAM_N_COPY_BY_ADDRESS; // param N by address(a)
 					byte8 *N = (byte8 *)&fd->param_data[paramCount].td->typesiz;
 					// write siz of struct type
 					for (int i = 0; i < 4; ++i)
@@ -5804,7 +5804,7 @@ public:
 			}
 			else
 			{
-				mem[writeup++] = 219; // param N by address(a)
+				mem[writeup++] = (byte8)insttype::PARAM_N_COPY_BY_ADDRESS; // param N by address(a)
 				byte8 *N = (byte8 *)&fd->param_data[paramCount].td->typesiz;
 				// write siz of struct type
 				for (int i = 0; i < 4; ++i)
@@ -5813,7 +5813,7 @@ public:
 				}
 			}
 
-			mem[writeup++] = 255; // ext instruction
+			mem[writeup++] = (byte8)insttype::EXTENSION_INST; // ext instruction
 			*reinterpret_cast<uint *>(&mem[writeup]) = (uint)(extID);
 			writeup += 4;
 			*reinterpret_cast<uint *>(&mem[writeup]) = (uint)(exfuncID); // byte8* but real value is function pointer of extension.
@@ -5836,7 +5836,7 @@ public:
 
 			release_tempmem(tm);
 		}
-					mem[writeup++] = 219; // param N by address(a)
+					mem[writeup++] = (byte8)insttype::PARAM_N_COPY_BY_ADDRESS; // param N by address(a)
 					byte8 *N = (byte8 *)&fd->param_data[paramid].td->typesiz;
 					// write siz of struct type
 					for (int i = 0; i < 4; ++i)
@@ -5906,7 +5906,7 @@ public:
 			}
 			else
 			{
-				mem[writeup++] = 219; // param N by address(a)
+				mem[writeup++] = (byte8)insttype::PARAM_N_COPY_BY_ADDRESS; // param N by address(a)
 				byte8 *N = (byte8 *)&fd->param_data[paramid].td->typesiz;
 				// write siz of struct type
 				for (int i = 0; i < 4; ++i)
@@ -6015,7 +6015,7 @@ public:
 				}
 				else
 				{
-					mem[writeup++] = 219; // param N by address(a)
+					mem[writeup++] = (byte8)insttype::PARAM_N_COPY_BY_ADDRESS; // param N by address(a)
 					byte8 *N = (byte8 *)&fd->param_data[paramCount].td->typesiz;
 					// write siz of struct type
 					for (int i = 0; i < 4; ++i)
@@ -6083,7 +6083,7 @@ public:
 			}
 			else
 			{
-				mem[writeup++] = 219; // param N by address(a)
+				mem[writeup++] = (byte8)insttype::PARAM_N_COPY_BY_ADDRESS; // param N by address(a)
 				byte8 *N = (byte8 *)&fd->param_data[paramCount].td->typesiz;
 				// write siz of struct type
 				for (int i = 0; i < 4; ++i)
@@ -6092,7 +6092,7 @@ public:
 				}
 			}
 
-			mem[writeup++] = 255; // ext instruction
+			mem[writeup++] = (byte8)insttype::EXTENSION_INST; // ext instruction
 			*reinterpret_cast<uint *>(&mem[writeup]) = (uint)(extID);
 			writeup += 4;
 			*reinterpret_cast<uint *>(&mem[writeup]) = (uint)(exfuncID); // byte8* but real value is function pointer of extension.
