@@ -14,16 +14,40 @@ int main() {
     fm = new FM_System0();
     fm->SetHeapData(4096, 4096, 65536, 1048576);
 
-    InsideCode_Bake::SetICLFlag(ICL_FLAG::ICB_StaticInit, false);
-    InsideCode_Bake::SetICLFlag(ICL_FLAG::Create_New_ICB_Extension_Init, false);
-    InsideCode_Bake::SetICLFlag(ICL_FLAG::Create_New_ICB_Extension_Init__Bake_Extension, false);
-    InsideCode_Bake::SetICLFlag(ICL_FLAG::BakeCode_AddTextBlocks, false);
-    InsideCode_Bake::SetICLFlag(ICL_FLAG::BakeCode_ScanStructTypes, false);
+    InsideCode_Bake::SetICLFlag(ICL_FLAG::ICB_StaticInit, true);
+
+    InsideCode_Bake::SetICLFlag(ICL_FLAG::Create_New_ICB_Extension_Init, true);
+    {
+        InsideCode_Bake::SetICLFlag(ICL_FLAG::Create_New_ICB_Extension_Init__Bake_Extension, true);
+    }
+    
+    InsideCode_Bake::SetICLFlag(ICL_FLAG::BakeCode_AddTextBlocks, true);
+
+    InsideCode_Bake::SetICLFlag(ICL_FLAG::BakeCode_ScanStructTypes, true);
+
     InsideCode_Bake::SetICLFlag(ICL_FLAG::BakeCode_AddStructTypes, true);
-    InsideCode_Bake::SetICLFlag(ICL_FLAG::BakeCode_ScanCodes, false);
-    InsideCode_Bake::SetICLFlag(ICL_FLAG::BakeCode_GlobalMemoryInit, false);
+
+    InsideCode_Bake::SetICLFlag(ICL_FLAG::BakeCode_ScanCodes, true);
+
+    InsideCode_Bake::SetICLFlag(ICL_FLAG::BakeCode_GlobalMemoryInit, true);
+
     InsideCode_Bake::SetICLFlag(ICL_FLAG::BakeCode_CompileCodes, true);
-    InsideCode_Bake::SetICLFlag(ICL_FLAG::Create_New_ICB_Context, false);
+    {
+        InsideCode_Bake::SetICLFlag(ICL_FLAG::BakeCode_CompileCodes__add_var, true);
+        InsideCode_Bake::SetICLFlag(ICL_FLAG::BakeCode_CompileCodes__set_var, true);
+        InsideCode_Bake::SetICLFlag(ICL_FLAG::BakeCode_CompileCodes__if__sen, true);
+        InsideCode_Bake::SetICLFlag(ICL_FLAG::BakeCode_CompileCodes__while__, true);
+        InsideCode_Bake::SetICLFlag(ICL_FLAG::BakeCode_CompileCodes__block__, true);
+        InsideCode_Bake::SetICLFlag(ICL_FLAG::BakeCode_CompileCodes__addfunc, true);
+        InsideCode_Bake::SetICLFlag(ICL_FLAG::BakeCode_CompileCodes__usefunc, true);
+        InsideCode_Bake::SetICLFlag(ICL_FLAG::BakeCode_CompileCodes__return_, true);
+        InsideCode_Bake::SetICLFlag(ICL_FLAG::BakeCode_CompileCodes__struct__, true);
+        InsideCode_Bake::SetICLFlag(ICL_FLAG::BakeCode_CompileCodes__break__, true);
+        InsideCode_Bake::SetICLFlag(ICL_FLAG::BakeCode_CompileCodes__continue, true);
+        InsideCode_Bake::SetICLFlag(ICL_FLAG::BakeCode_CompileCodes__adsetvar, true);
+    }
+
+    InsideCode_Bake::SetICLFlag(ICL_FLAG::Create_New_ICB_Context, true);
 
     InsideCode_Bake::StaticInit();
     ICB_Extension* ext = Init_exGeometry();
