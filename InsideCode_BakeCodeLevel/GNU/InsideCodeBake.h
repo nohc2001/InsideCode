@@ -3940,7 +3940,7 @@ public:
 								result_ten->mem.push_back((byte8)insttype::IT_AXBY);	// axby
 								result_ten->mem.push_back((byte8)insttype::IT_POP_AB); // POP
 								// b=x*y uint
-								result_ten->mem.push_back(92);
+								result_ten->mem.push_back((byte8)insttype::IT_AU_UINT_MUL_B);
 
 								for (int u = 0; u < left_ten->mem.size(); ++u)
 								{
@@ -6726,8 +6726,8 @@ class ICB_Context{
 vecarr<ICB_Context *> icbarr;
 
 bool isBreaking = false;
-int stopnum = 0;
-bool isDbg = true;
+int stopnum = -1;
+bool isDbg = false;
 
 
 int code_control(vecarr<ICB_Context *> *icbarr)
