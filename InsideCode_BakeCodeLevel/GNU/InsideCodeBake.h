@@ -30,7 +30,7 @@ enum class insttype {
 	IT_PUSH_B_VARIABLE_1 = 13, // not using but later
 	IT_PUSH_B_VARIABLE_2 = 14,
 	IT_PUSH_B_VARIABLE_4 = 15, // ? > seem good
-	IT_AXBY = 16,
+	//IT_AXBY = 16,
 	IT_AU_BYTE_ADD_A = 17,
 	IT_AU_BYTE_ADD_B = 18,
 	IT_AU_UBYTE_ADD_A = 19,
@@ -3641,8 +3641,8 @@ public:
 									result_ten->mem.push_back((byte8)rightcast);
 								}
 
-								result_ten->mem.push_back((byte8)insttype::IT_AXBY);
-								result_ten->mem.push_back((byte8)insttype::IT_POP_AB); // POP
+								//result_ten->mem.push_back((byte8)insttype::IT_AXBY);
+								//result_ten->mem.push_back((byte8)insttype::IT_POP_AB); // POP
 
 								if (is_a)
 								{
@@ -3728,8 +3728,8 @@ public:
 										result_ten->mem.push_back((byte8)rightcast);
 									}
 
-									result_ten->mem.push_back((byte8)insttype::IT_AXBY);
-									result_ten->mem.push_back((byte8)insttype::IT_POP_AB); // POP
+									//result_ten->mem.push_back((byte8)insttype::IT_AXBY);
+									//result_ten->mem.push_back((byte8)insttype::IT_POP_AB); // POP
 
 									if (is_a)
 									{
@@ -3781,8 +3781,8 @@ public:
 										result_ten->mem.push_back(right_ten->mem[u]);
 									}
 
-									result_ten->mem.push_back((byte8)insttype::IT_AXBY); // AXBY
-									result_ten->mem.push_back((byte8)insttype::IT_POP_A); // POP A
+									//result_ten->mem.push_back((byte8)insttype::IT_AXBY); // AXBY
+									//result_ten->mem.push_back((byte8)insttype::IT_POP_A); // POP A
 
 									if (is_a)
 									{
@@ -3829,8 +3829,8 @@ public:
 										result_ten->mem.push_back(right_ten->mem[u]);
 									}
 
-									result_ten->mem.push_back((byte8)insttype::IT_AXBY);
-									result_ten->mem.push_back((byte8)insttype::IT_POP_AB); // POP
+									//result_ten->mem.push_back((byte8)insttype::IT_AXBY);
+									//result_ten->mem.push_back((byte8)insttype::IT_POP_AB); // POP
 
 									if (is_a)
 									{
@@ -3937,8 +3937,8 @@ public:
 								for (int u = 0; u < 4; ++u)
 									result_ten->mem.push_back(cc[u]);
 
-								result_ten->mem.push_back((byte8)insttype::IT_AXBY);	// axby
-								result_ten->mem.push_back((byte8)insttype::IT_POP_AB); // POP
+								//result_ten->mem.push_back((byte8)insttype::IT_AXBY);	// axby
+								//result_ten->mem.push_back((byte8)insttype::IT_POP_AB); // POP
 								// b=x*y uint
 								result_ten->mem.push_back((byte8)insttype::IT_AU_UINT_MUL_B);
 
@@ -3947,8 +3947,8 @@ public:
 									result_ten->mem.push_back(left_ten->mem[u]);
 								}
 
-								result_ten->mem.push_back((byte8)insttype::IT_AXBY);	// axby
-								result_ten->mem.push_back((byte8)insttype::IT_POP_AB); // POP
+								//result_ten->mem.push_back((byte8)insttype::IT_AXBY);	// axby
+								//result_ten->mem.push_back((byte8)insttype::IT_POP_AB); // POP
 
 								if (is_a)
 								{
@@ -4107,8 +4107,8 @@ public:
 										result_ten->mem.push_back(barr[u]);
 									}
 									// axby
-									result_ten->mem.push_back((byte8)insttype::IT_AXBY);
-									result_ten->mem.push_back((byte8)insttype::IT_POP_AB); // POP
+									//result_ten->mem.push_back((byte8)insttype::IT_AXBY);
+									//result_ten->mem.push_back((byte8)insttype::IT_POP_AB); // POP
 									if(is_a){
 										result_ten->mem.push_back((byte8)insttype::IT_AU_INT_ADD_A);
 										result_ten->registerMod = 'A';
@@ -4207,8 +4207,8 @@ public:
 											result_ten->mem.push_back(cc[u]);
 										
 										// axby
-										result_ten->mem.push_back((byte8)insttype::IT_AXBY);
-										result_ten->mem.push_back((byte8)insttype::IT_POP_AB); // POP
+										//result_ten->mem.push_back((byte8)insttype::IT_AXBY);
+										//result_ten->mem.push_back((byte8)insttype::IT_POP_AB); // POP
 										// set y const4
 										//result_ten->mem.push_back((byte8)insttype::IT_SET_Y_CONST_4);
 
@@ -4683,7 +4683,7 @@ public:
 			{
 				mem[writeup++] = left_tm_v->mem[i];
 			}
-			mem[writeup++] = (byte8)insttype::IT_AXBY;
+			//mem[writeup++] = (byte8)insttype::IT_AXBY;
 
 			for (int k = 0; k < basicoper_max; ++k)
 			{
@@ -6646,20 +6646,20 @@ class ICB_Context{
 
     void dbg_registers()
 	{
-		cout << "a : " << (uint)_as[0] << "(";
-		for (int i = 1; i < _as.maxsiz; ++i)
+		cout << "a : " << (uint)_as[0] << "\t(";
+		for (int i = 1; i < 4; ++i)
 		{
-			cout << "|" << _as[i];
+			cout << " | " << _as[i];
 		}
 		cout << endl;
-		cout << "b : " << (uint)_bs[0] << "(";
-		for (int i = 1; i < _bs.maxsiz; ++i)
+		cout << "b : " << (uint)_bs[0] << "\t(";
+		for (int i = 1; i < 4; ++i)
 		{
-			cout << "|" << _bs[i];
+			cout << " | " << _bs[i];
 		}
 		cout << endl;
-		cout << "x : " << (uint)_x << endl;
-		cout << "y : " << (uint)_y << endl;
+		//cout << "x : " << (uint)_x << endl;
+		//cout << "y : " << (uint)_y << endl;
 	}
 
 	void dbg_stack()
@@ -9387,80 +9387,6 @@ INST_SWITCH:
 		*tmptr_i = **pci;
 		++*pc;
 		goto INST_SWITCH;
-/*
-	case insttype::IT_SET_STACK_VARIABLE_FROMX_1:
-		++*pc;
-		*(*rfsp - (**pci)) = (byte8)_x;
-		++*pci;
-		goto INST_SWITCH;
-	case insttype::IT_SET_STACK_VARIABLE_FROMX_2:
-		++*pc;
-		*reinterpret_cast<ushort*>(*rfsp - (**pci)) = (ushort)_x;
-		++*pci;
-		goto INST_SWITCH;
-	case insttype::IT_SET_STACK_VARIABLE_FROMX_4:
-		++*pc;
-		*reinterpret_cast<uint*>(*rfsp - (**pci)) = (uint)_x;
-		++*pci;
-		goto INST_SWITCH;
-	case insttype::IT_SET_STACK_VARIABLE_FROMY_1:
-		++*pc;
-		*(*rfsp - (**pci)) = (byte8)_y;
-		++*pci;
-		goto INST_SWITCH;
-	case insttype::IT_SET_STACK_VARIABLE_FROMY_2:
-		++*pc;
-		*reinterpret_cast<ushort*>(*rfsp - (**pci)) = (ushort)_y;
-		++*pci;
-		goto INST_SWITCH;
-	case insttype::IT_SET_STACK_VARIABLE_FROMY_4:
-		++*pc;
-		*reinterpret_cast<uint*>(*rfsp - (**pci)) = (uint)_y;
-		++*pci;
-		goto INST_SWITCH;
-	case insttype::IT_SET_STACK_VARIABLE_ADDRESS_1:
-		++*pc;
-		tmptr_b = (*rfsp - (**pci));
-		++*pci;
-		*tmptr_b = *reinterpret_cast<byte8*>(mem + (uint64_t)**pci);
-		++*pci;
-		goto INST_SWITCH;
-	case insttype::IT_SET_STACK_VARIABLE_ADDRESS_2:
-		++*pc;
-		tmptr_s = reinterpret_cast<ushort*>(*rfsp - (**pci));
-		++*pci;
-		*tmptr_s = *reinterpret_cast<ushort*>(mem + (uint64_t)**pci);
-		++*pci;
-		goto INST_SWITCH;
-	case insttype::IT_SET_STACK_VARIABLE_ADDRESS_4:
-		++*pc;
-		tmptr_i = reinterpret_cast<uint*>(*rfsp - (**pci));
-		++*pci;
-		*tmptr_i = *reinterpret_cast<uint*>(mem + (uint64_t)**pci);
-		++*pci;
-		goto INST_SWITCH;
-	case insttype::IT_SET_STACK_VARIABLE_VARIABLE_1:
-		++*pc;
-		tmptr_b = (*rfsp - (**pci));
-		++*pci;
-		*tmptr_b = *(*rfsp - (*++ * pci));
-		++*pci;
-		goto INST_SWITCH;
-	case insttype::IT_SET_STACK_VARIABLE_VARIABLE_2:
-		++*pc;
-		tmptr_s = reinterpret_cast<ushort*>(*rfsp - (**pci));
-		++*pci;
-		*tmptr_s = *reinterpret_cast<ushort*>(*rfsp - (**pci));
-		++*pci;
-		goto INST_SWITCH;
-	case insttype::IT_SET_STACK_VARIABLE_VARIABLE_4:
-		++*pc;
-		tmptr_i = reinterpret_cast<uint*>(*rfsp - (**pci));
-		++*pci;
-		*tmptr_i = *reinterpret_cast<uint*>(*rfsp - (**pci));
-		++*pci;
-		goto INST_SWITCH;
-*/
 	case insttype::IT_PUSH_A_CONST_1:
 		_as.move_pivot(-1);
 		_as[0] = *++ * pc;
@@ -9478,26 +9404,6 @@ INST_SWITCH:
 		_as[0] = **pci;
 		++*pci;
 		goto INST_SWITCH;
-/*
-	case insttype::IT_PUSH_A_ADDRESS_1:
-		++*pc;
-		_as.move_pivot(-1);
-		_as[0] = *reinterpret_cast<byte8*>(mem + (uint64_t)**pci);
-		++*pci;
-		goto INST_SWITCH;
-	case insttype::IT_PUSH_A_ADDRESS_2:
-		++*pc;
-		_as.move_pivot(-1);
-		_as[0] = *reinterpret_cast<ushort*>(mem + (uint64_t)**pci);
-		++pci;
-		goto INST_SWITCH;
-	case insttype::IT_PUSH_A_ADDRESS_4:
-		++*pc;
-		_as.move_pivot(-1);
-		_as[0] = *reinterpret_cast<uint*>(mem + (uint64_t)**pci);
-		++*pci;
-		goto INST_SWITCH;
-*/
 	case insttype::IT_PUSH_A_VARIABLE_1:
 		++*pc;
 		_as.move_pivot(-1);
@@ -9533,26 +9439,6 @@ INST_SWITCH:
 		_bs[0] = **pci;
 		++*pci;
 		goto INST_SWITCH;
-/*
-	case insttype::IT_PUSH_B_ADDRESS_1:
-		++*pc;
-		_bs.move_pivot(-1);
-		_bs[0] = *reinterpret_cast<byte8*>(mem + (uint64_t)**pci);
-		++*pci;
-		goto INST_SWITCH;
-	case insttype::IT_PUSH_B_ADDRESS_2:
-		++*pc;
-		_bs.move_pivot(-1);
-		_bs[0] = *reinterpret_cast<ushort*>(mem + (uint64_t)**pci);
-		++*pci;
-		goto INST_SWITCH;
-	case insttype::IT_PUSH_B_ADDRESS_4:
-		++*pc;
-		_bs.move_pivot(-1);
-		_bs[0] = *reinterpret_cast<uint*>(mem + (uint64_t)**pci);
-		++*pci;
-		goto INST_SWITCH;
-*/
 	case insttype::IT_PUSH_B_VARIABLE_1:
 		++*pc;
 		_bs.move_pivot(-1);
@@ -9571,784 +9457,673 @@ INST_SWITCH:
 		_bs[0] = *reinterpret_cast<uint*>(*rfsp - (**pci));
 		++*pci;
 		goto INST_SWITCH;
-/*
-	case insttype::IT_SET_X_CONST_1:
-		_x = *++ * pc;
-		++*pc;
-		goto INST_SWITCH;
-	case insttype::IT_SET_X_CONST_2:
-		++*pc;
-		_x = **pcs;
-		++*pcs;
-		goto INST_SWITCH;
-	case insttype::IT_SET_X_CONST_4:
-		++*pc;
-		_x = **pci;
-		++*pci;
-		goto INST_SWITCH;
-	case insttype::IT_SET_X_ADDRESS_1:
-		++*pc;
-		_x = *reinterpret_cast<byte8*>(mem + (uint64_t)**pci);
-		++*pci;
-		goto INST_SWITCH;
-	case insttype::IT_SET_X_ADDRESS_2:
-		++*pc;
-		_x = *reinterpret_cast<ushort*>(mem + (uint64_t)**pci);
-		++*pci;
-		goto INST_SWITCH;
-	case insttype::IT_SET_X_ADDRESS_4:
-		++*pc;
-		_x = *reinterpret_cast<uint*>(mem + (uint64_t)**pci);
-		++*pci;
-		goto INST_SWITCH;
-	case insttype::IT_SET_X_VARIABLE_1:
-		++*pc;
-		_x = *(*rfsp - (**pci));
-		++*pci;
-		goto INST_SWITCH;
-	case insttype::IT_SET_X_VARIABLE_2:
-		++*pc;
-		_x = *reinterpret_cast<ushort*>(*rfsp - (**pci));
-		++*pci;
-		goto INST_SWITCH;
-	case insttype::IT_SET_X_VARIABLE_4:
-		++*pc;
-		_x = *reinterpret_cast<uint*>(*rfsp - (**pci));
-		++*pci;
-		goto INST_SWITCH;
-	case insttype::IT_SET_Y_CONST_1:
-		_y = *++ * pc;
-		++*pc;
-		goto INST_SWITCH;
-	case insttype::IT_SET_Y_CONST_2:
-		++*pc;
-		_y = **pcs;
-		++*pcs;
-		goto INST_SWITCH;
-	case insttype::IT_SET_Y_CONST_4:
-		++*pc;
-		_y = **pci;
-		++*pci;
-		goto INST_SWITCH;
-	case insttype::IT_SET_Y_ADDRESS_1:
-		++*pc;
-		_y = *reinterpret_cast<byte8*>(mem + (uint64_t)**pci);
-		++*pci;
-		goto INST_SWITCH;
-	case insttype::IT_SET_Y_ADDRESS_2:
-		++*pc;
-		_y = *reinterpret_cast<ushort*>(mem + (uint64_t)**pci);
-		++*pci;
-		goto INST_SWITCH;
-	case insttype::IT_SET_Y_ADDRESS_4:
-		++*pc;
-		_y = *reinterpret_cast<uint*>(mem + (uint64_t)**pci);
-		++*pci;
-		goto INST_SWITCH;
-	case insttype::IT_SET_Y_VARIABLE_1:
-		++*pc;
-		_y = *(*rfsp - (**pci));
-		++*pci;
-		goto INST_SWITCH;
-	case insttype::IT_SET_Y_VARIABLE_2:
-		++*pc;
-		_y = *reinterpret_cast<ushort*>(*rfsp - (**pci));
-		++*pci;
-		goto INST_SWITCH;
-	case insttype::IT_SET_Y_VARIABLE_4:
-		++*pc;
-		_y = *reinterpret_cast<uint*>(*rfsp - (**pci));
-		++*pci;
-		goto INST_SWITCH;
-*/
-	case insttype::IT_AXBY:
-		_x = _as[0];
-		_y = _bs[0];
-		++*pc;
-		goto INST_SWITCH;
 	case insttype::IT_AU_BYTE_ADD_A:
-		_as.move_pivot(-1);
-		_as[0] = (char)((char)_x + (char)_y);
+		//_as.move_pivot(-1);
+		_as[0] = (char)((char)_as[0] + (char)_bs[0]);
 		++*pc;
 		goto INST_SWITCH;
 	case insttype::IT_AU_BYTE_ADD_B:
-		_b = (char)((char)_x + (char)_y);
+		_b = (char)((char)_as[0] + (char)_bs[0]);
 		++*pc;
 		goto INST_SWITCH;
 	case insttype::IT_AU_UBYTE_ADD_A:
-		_as.move_pivot(-1);
-		_as[0] = (byte8)((byte8)_x + (byte8)_y);
+		//_as.move_pivot(-1);
+		_as[0] = (byte8)((byte8)_as[0] + (byte8)_bs[0]);
 		++*pc;
 		goto INST_SWITCH;
 	case insttype::IT_AU_UBYTE_ADD_B:
-		_bs.move_pivot(-1);
-		_bs[0] = (byte8)((byte8)_x + (byte8)_y);
+		//_bs.move_pivot(-1);
+		_bs[0] = (byte8)((byte8)_as[0] + (byte8)_bs[0]);
 		++*pc;
 		goto INST_SWITCH;
 	case insttype::IT_AU_SHORT_ADD_A:
-		_as.move_pivot(-1);
-		_as[0] = (short)((short)_x + (short)_y);
+		//_as.move_pivot(-1);
+		_as[0] = (short)((short)_as[0] + (short)_bs[0]);
 		++*pc;
 		goto INST_SWITCH;
 	case insttype::IT_AU_SHORT_ADD_B:
-		_bs.move_pivot(-1);
-		_bs[0] = (short)((short)_x + (short)_y);
+		//_bs.move_pivot(-1);
+		_bs[0] = (short)((short)_as[0] + (short)_bs[0]);
 		++*pc;
 		goto INST_SWITCH;
 	case insttype::IT_AU_USHORT_ADD_A:
-		_as.move_pivot(-1);
-		_as[0] = (ushort)((ushort)_x + (ushort)_y);
+		//_as.move_pivot(-1);
+		_as[0] = (ushort)((ushort)_as[0] + (ushort)_bs[0]);
 		++*pc;
 		goto INST_SWITCH;
 	case insttype::IT_AU_USHORT_ADD_B:
-		_bs.move_pivot(-1);
-		_bs[0] = (ushort)((ushort)_x + (ushort)_y);
+		//_bs.move_pivot(-1);
+		_bs[0] = (ushort)((ushort)_as[0] + (ushort)_bs[0]);
 		++*pc;
 		goto INST_SWITCH;
 	case insttype::IT_AU_INT_ADD_A:
-		_as.move_pivot(-1);
-		_as[0] = (int)((int)_x + (int)_y);
+		//_as.move_pivot(-1);
+		_as[0] = (int)((int)_as[0] + (int)_bs[0]);
 		++*pc;
 		goto INST_SWITCH;
 	case insttype::IT_AU_INT_ADD_B:
-		_bs.move_pivot(-1);
-		_bs[0] = (int)((int)_x + (int)_y);
+		//_bs.move_pivot(-1);
+		_bs[0] = (int)((int)_as[0] + (int)_bs[0]);
 		++*pc;
 		goto INST_SWITCH;
 	case insttype::IT_AU_UINT_ADD_A:
-		_as.move_pivot(-1);
-		_as[0] = (uint)((uint)_x + (uint)_y);
+		//_as.move_pivot(-1);
+		_as[0] = (uint)((uint)_as[0] + (uint)_bs[0]);
 		++*pc;
 		goto INST_SWITCH;
 	case insttype::IT_AU_UINT_ADD_B:
-		_bs.move_pivot(-1);
-		_bs[0] = (uint)((uint)_x + (uint)_y);
+		//_bs.move_pivot(-1);
+		_bs[0] = (uint)((uint)_as[0] + (uint)_bs[0]);
 		++*pc;
 		goto INST_SWITCH;
 	case insttype::IT_AU_FLOAT_ADD_A:
-		_as.move_pivot(-1);
-		*reinterpret_cast<float*>(&_as[0]) = (float)(*reinterpret_cast<float*>(&_x) + *reinterpret_cast<float*>(&_y));
-		//_as[0] = (float)((float)_x + (float)_y);
+		//_as.move_pivot(-1);
+		*reinterpret_cast<float*>(&_as[0]) = (float)(*reinterpret_cast<float*>(&_as[0]) + *reinterpret_cast<float*>(&_bs[0]));
 		++*pc;
 		goto INST_SWITCH;
 	case insttype::IT_AU_FLOAT_ADD_B:
-		_bs.move_pivot(-1);
-		*reinterpret_cast<float*>(&_bs[0]) = (float)(*reinterpret_cast<float*>(&_x) + *reinterpret_cast<float*>(&_y));
-		//_bs[0] = (float)((float)_x + (float)_y);
+		//_bs.move_pivot(-1);
+		*reinterpret_cast<float*>(&_bs[0]) = (float)(*reinterpret_cast<float*>(&_as[0]) + *reinterpret_cast<float*>(&_bs[0]));
 		++*pc;
 		goto INST_SWITCH;
 	case insttype::IT_AU_BYTE_MIN_A:
-		_as.move_pivot(-1);
-		_as[0] = (char)((char)_x - (char)_y);
+		//_as.move_pivot(-1);
+		_as[0] = (char)((char)_as[0] - (char)_bs[0]);
 		++*pc;
 		goto INST_SWITCH;
 	case insttype::IT_AU_BYTE_MIN_B:
-		_bs.move_pivot(-1);
-		_bs[0] = (char)((char)_x - (char)_y);
+		//_bs.move_pivot(-1);
+		_bs[0] = (char)((char)_as[0] - (char)_bs[0]);
 		++*pc;
 		goto INST_SWITCH;
 	case insttype::IT_AU_UBYTE_MIN_A:
-		_as.move_pivot(-1);
-		_as[0] = (byte8)((byte8)_x - (byte8)_y);
+		//_as.move_pivot(-1);
+		_as[0] = (byte8)((byte8)_as[0] - (byte8)_bs[0]);
 		++*pc;
 		goto INST_SWITCH;
 	case insttype::IT_AU_UBYTE_MIN_B:
-		_bs.move_pivot(-1);
-		_bs[0] = (byte8)((byte8)_x - (byte8)_y);
+		//_bs.move_pivot(-1);
+		_bs[0] = (byte8)((byte8)_as[0] - (byte8)_bs[0]);
 		++*pc;
 		goto INST_SWITCH;
 	case insttype::IT_AU_SHORT_MIN_A:
-		_as.move_pivot(-1);
-		_as[0] = (short)((short)_x - (short)_y);
+		//_as.move_pivot(-1);
+		_as[0] = (short)((short)_as[0] - (short)_bs[0]);
 		++*pc;
 		goto INST_SWITCH;
 	case insttype::IT_AU_SHORT_MIN_B:
-		_bs.move_pivot(-1);
-		_bs[0] = (short)((short)_x - (short)_y);
+		//_bs.move_pivot(-1);
+		_bs[0] = (short)((short)_as[0] - (short)_bs[0]);
 		++*pc;
 		goto INST_SWITCH;
 	case insttype::IT_AU_USHORT_MIN_A:
-		_as.move_pivot(-1);
-		_as[0] = (ushort)((ushort)_x - (ushort)_y);
+		//_as.move_pivot(-1);
+		_as[0] = (ushort)((ushort)_as[0] - (ushort)_bs[0]);
 		++*pc;
 		goto INST_SWITCH;
 	case insttype::IT_AU_USHORT_MIN_B:
-		_bs.move_pivot(-1);
-		_bs[0] = (ushort)((ushort)_x - (ushort)_y);
+		//_bs.move_pivot(-1);
+		_bs[0] = (ushort)((ushort)_as[0] - (ushort)_bs[0]);
 		++*pc;
 		goto INST_SWITCH;
 	case insttype::IT_AU_INT_MIN_A:
-		_as.move_pivot(-1);
-		_as[0] = (int)((int)_x - (int)_y);
+		//_as.move_pivot(-1);
+		_as[0] = (int)((int)_as[0] - (int)_bs[0]);
 		++*pc;
 		goto INST_SWITCH;
 	case insttype::IT_AU_INT_MIN_B:
-		_bs.move_pivot(-1);
-		_bs[0] = (int)((int)_x - (int)_y);
+		//_bs.move_pivot(-1);
+		_bs[0] = (int)((int)_as[0] - (int)_bs[0]);
 		++*pc;
 		goto INST_SWITCH;
 	case insttype::IT_AU_UINT_MIN_A:
-		_as.move_pivot(-1);
-		_as[0] = (uint)((uint)_x - (uint)_y);
+		//_as.move_pivot(-1);
+		_as[0] = (uint)((uint)_as[0] - (uint)_bs[0]);
 		++*pc;
 		goto INST_SWITCH;
 	case insttype::IT_AU_UINT_MIN_B:
-		_bs.move_pivot(-1);
-		_bs[0] = (uint)((uint)_x - (uint)_y);
+		//_bs.move_pivot(-1);
+		_bs[0] = (uint)((uint)_as[0] - (uint)_bs[0]);
 		++*pc;
 		goto INST_SWITCH;
 	case insttype::IT_AU_FLOAT_MIN_A:
-		_as.move_pivot(-1);
-		*reinterpret_cast<float*>(&_as[0]) = (float)(*reinterpret_cast<float*>(&_x) - *reinterpret_cast<float*>(&_y));
-		//_as[0] = (float)((float)_x - (float)_y);
+		//_as.move_pivot(-1);
+		*reinterpret_cast<float*>(&_as[0]) = (float)(*reinterpret_cast<float*>(&_as[0]) - *reinterpret_cast<float*>(&_bs[0]));
 		++*pc;
 		goto INST_SWITCH;
 	case insttype::IT_AU_FLOAT_MIN_B:
-		_bs.move_pivot(-1);
-		*reinterpret_cast<float*>(&_bs[0]) = (float)(*reinterpret_cast<float*>(&_x) - *reinterpret_cast<float*>(&_y));
-		//_bs[0] = (float)((float)_x - (float)_y);
+		//_bs.move_pivot(-1);
+		*reinterpret_cast<float*>(&_bs[0]) = (float)(*reinterpret_cast<float*>(&_as[0]) - *reinterpret_cast<float*>(&_bs[0]));
 		++*pc;
 		goto INST_SWITCH;
 	case insttype::IT_AU_BYTE_MUL_A:
-		_as.move_pivot(-1);
-		_as[0] = (char)((char)_x * (char)_y);
+		//_as.move_pivot(-1);
+		_as[0] = (char)((char)_as[0] * (char)_bs[0]);
 		++*pc;
 		goto INST_SWITCH;
 	case insttype::IT_AU_BYTE_MUL_B:
-		_bs.move_pivot(-1);
-		_bs[0] = (char)((char)_x * (char)_y);
+		//_bs.move_pivot(-1);
+		_bs[0] = (char)((char)_as[0] * (char)_bs[0]);
 		++*pc;
 		goto INST_SWITCH;
 	case insttype::IT_AU_UBYTE_MUL_A:
-		_as.move_pivot(-1);
-		_as[0] = (char)((byte8)_x * (byte8)_y);
+		//_as.move_pivot(-1);
+		_as[0] = (char)((byte8)_as[0] * (byte8)_bs[0]);
 		++*pc;
 		goto INST_SWITCH;
 	case insttype::IT_AU_UBYTE_MUL_B:
-		_bs.move_pivot(-1);
-		_bs[0] = (char)((byte8)_x * (byte8)_y);
+		//_bs.move_pivot(-1);
+		_bs[0] = (char)((byte8)_as[0] * (byte8)_bs[0]);
 		++*pc;
 		goto INST_SWITCH;
 	case insttype::IT_AU_SHORT_MUL_A:
-		_as.move_pivot(-1);
-		_as[0] = (short)((short)_x * (short)_y);
+		//_as.move_pivot(-1);
+		_as[0] = (short)((short)_as[0] * (short)_bs[0]);
 		++*pc;
 		goto INST_SWITCH;
 	case insttype::IT_AU_SHORT_MUL_B:
-		_bs.move_pivot(-1);
-		_bs[0] = (short)((short)_x * (short)_y);
+		//_bs.move_pivot(-1);
+		_bs[0] = (short)((short)_as[0] * (short)_bs[0]);
 		++*pc;
 		goto INST_SWITCH;
 	case insttype::IT_AU_USHORT_MUL_A:
-		_as.move_pivot(-1);
-		_as[0] = (ushort)((ushort)_x * (ushort)_y);
+		//_as.move_pivot(-1);
+		_as[0] = (ushort)((ushort)_as[0] * (ushort)_bs[0]);
 		++*pc;
 		goto INST_SWITCH;
 	case insttype::IT_AU_USHORT_MUL_B:
-		_bs.move_pivot(-1);
-		_bs[0] = (ushort)((ushort)_x * (ushort)_y);
+		//_bs.move_pivot(-1);
+		_bs[0] = (ushort)((ushort)_as[0] * (ushort)_bs[0]);
 		++*pc;
 		goto INST_SWITCH;
 	case insttype::IT_AU_INT_MUL_A:
-		_as.move_pivot(-1);
-		_as[0] = (int)((int)_x * (int)_y);
+		//_as.move_pivot(-1);
+		_as[0] = (int)((int)_as[0] * (int)_bs[0]);
 		++*pc;
 		goto INST_SWITCH;
 	case insttype::IT_AU_INT_MUL_B:
-		_bs.move_pivot(-1);
-		_bs[0] = (int)((int)_x * (int)_y);
+		//_bs.move_pivot(-1);
+		_bs[0] = (int)((int)_as[0] * (int)_bs[0]);
 		++*pc;
 		goto INST_SWITCH;
 	case insttype::IT_AU_UINT_MUL_A:
-		_as.move_pivot(-1);
-		_as[0] = (uint)((uint)_x * (uint)_y);
+		//_as.move_pivot(-1);
+		_as[0] = (uint)((uint)_as[0] * (uint)_bs[0]);
 		++*pc;
 		goto INST_SWITCH;
 	case insttype::IT_AU_UINT_MUL_B:
-		_bs.move_pivot(-1);
-		_bs[0] = (uint)((uint)_x * (uint)_y);
+		//_bs.move_pivot(-1);
+		_bs[0] = (uint)((uint)_as[0] * (uint)_bs[0]);
 		++*pc;
 		goto INST_SWITCH;
 	case insttype::IT_AU_FLOAT_MUL_A:
-		_as.move_pivot(-1);
-		*reinterpret_cast<float*>(&_as[0]) = (float)((*reinterpret_cast<float*>(&_x)) * (*reinterpret_cast<float*>(&_y)));
-		//_as[0] = (float)((float)_x * (float)_y);
+		//_as.move_pivot(-1);
+		*reinterpret_cast<float*>(&_as[0]) = (float)((*reinterpret_cast<float*>(&_as[0])) * (*reinterpret_cast<float*>(&_bs[0])));
 		++*pc;
 		goto INST_SWITCH;
 	case insttype::IT_AU_FLOAT_MUL_B:
-		_bs.move_pivot(-1);
-		*reinterpret_cast<float*>(&_bs[0]) = (float)((*reinterpret_cast<float*>(&_x)) * (*reinterpret_cast<float*>(&_y)));
-		//_bs[0] = (float)((float)_x * (float)_y);
+		//_bs.move_pivot(-1);
+		*reinterpret_cast<float*>(&_bs[0]) = (float)((*reinterpret_cast<float*>(&_as[0])) * (*reinterpret_cast<float*>(&_bs[0])));
 		++*pc;
 		goto INST_SWITCH;
 	case insttype::IT_AU_BYTE_DIV_A:
-		_as.move_pivot(-1);
-		_as[0] = (char)((char)_x / (char)_y);
+		//_as.move_pivot(-1);
+		_as[0] = (char)((char)_as[0] / (char)_bs[0]);
 		++*pc;
 		goto INST_SWITCH;
 	case insttype::IT_AU_BYTE_DIV_B:
-		_bs.move_pivot(-1);
-		_bs[0] = (char)((char)_x / (char)_y);
+		//_bs.move_pivot(-1);
+		_bs[0] = (char)((char)_as[0] / (char)_bs[0]);
 		++*pc;
 		goto INST_SWITCH;
 	case insttype::IT_AU_UBYTE_DIV_A:
-		_as.move_pivot(-1);
-		_as[0] = (byte8)((byte8)_x / (byte8)_y);
+		//_as.move_pivot(-1);
+		_as[0] = (byte8)((byte8)_as[0] / (byte8)_bs[0]);
 		++*pc;
 		goto INST_SWITCH;
 	case insttype::IT_AU_UBYTE_DIV_B:
-		_bs.move_pivot(-1);
-		_bs[0] = (byte8)((byte8)_x / (byte8)_y);
+		//_bs.move_pivot(-1);
+		_bs[0] = (byte8)((byte8)_as[0] / (byte8)_bs[0]);
 		++*pc;
 		goto INST_SWITCH;
 	case insttype::IT_AU_SHORT_DIV_A:
-		_as.move_pivot(-1);
-		_as[0] = (short)((short)_x / (short)_y);
+		//_as.move_pivot(-1);
+		_as[0] = (short)((short)_as[0] / (short)_bs[0]);
 		++*pc;
 		goto INST_SWITCH;
 	case insttype::IT_AU_SHORT_DIV_B:
-		_bs.move_pivot(-1);
-		_bs[0] = (short)((short)_x / (short)_y);
+		//_bs.move_pivot(-1);
+		_bs[0] = (short)((short)_as[0] / (short)_bs[0]);
 		++*pc;
 		goto INST_SWITCH;
 	case insttype::IT_AU_USHORT_DIV_A:
-		_as.move_pivot(-1);
-		_as[0] = (ushort)((ushort)_x / (ushort)_y);
+		//_as.move_pivot(-1);
+		_as[0] = (ushort)((ushort)_as[0] / (ushort)_bs[0]);
 		++*pc;
 		goto INST_SWITCH;
 	case insttype::IT_AU_USHORT_DIV_B:
-		_bs.move_pivot(-1);
-		_bs[0] = (ushort)((ushort)_x / (ushort)_y);
+		//_bs.move_pivot(-1);
+		_bs[0] = (ushort)((ushort)_as[0] / (ushort)_bs[0]);
 		++*pc;
 		goto INST_SWITCH;
 	case insttype::IT_AU_INT_DIV_A:
-		_as.move_pivot(-1);
-		_as[0] = (int)((int)_x / (int)_y);
+		//_as.move_pivot(-1);
+		_as[0] = (int)((int)_as[0] / (int)_bs[0]);
 		++*pc;
 		goto INST_SWITCH;
 	case insttype::IT_AU_INT_DIV_B:
-		_bs.move_pivot(-1);
-		_bs[0] = (int)((int)_x / (int)_y);
+		//_bs.move_pivot(-1);
+		_bs[0] = (int)((int)_as[0] / (int)_bs[0]);
 		++*pc;
 		goto INST_SWITCH;
 	case insttype::IT_AU_UINT_DIV_A:
-		_as.move_pivot(-1);
-		_as[0] = (uint)((uint)_x / (uint)_y);
+		//_as.move_pivot(-1);
+		_as[0] = (uint)((uint)_as[0] / (uint)_bs[0]);
 		++*pc;
 		goto INST_SWITCH;
 	case insttype::IT_AU_UINT_DIV_B:
-		_bs.move_pivot(-1);
-		_bs[0] = (uint)((uint)_x / (uint)_y);
+		//_bs.move_pivot(-1);
+		_bs[0] = (uint)((uint)_as[0] / (uint)_bs[0]);
 		++*pc;
 		goto INST_SWITCH;
 	case insttype::IT_AU_FLOAT_DIV_A:
-		_as.move_pivot(-1);
-		*reinterpret_cast<float*>(&_as[0]) = (float)(*reinterpret_cast<float*>(&_x) / *reinterpret_cast<float*>(&_y));
-		//_as[0] = (float)((float)_x / (float)_y);
+		//_as.move_pivot(-1);
+		*reinterpret_cast<float*>(&_as[0]) = (float)(*reinterpret_cast<float*>(&_as[0]) / *reinterpret_cast<float*>(&_bs[0]));
 		++*pc;
 		goto INST_SWITCH;
 	case insttype::IT_AU_FLOAT_DIV_B:
-		_bs.move_pivot(-1);
-		*reinterpret_cast<float*>(&_bs[0]) = (float)(*reinterpret_cast<float*>(&_x) / *reinterpret_cast<float*>(&_y));
-		//_bs[0] = (float)((float)_x / (float)_y);
+		//_bs.move_pivot(-1);
+		*reinterpret_cast<float*>(&_bs[0]) = (float)(*reinterpret_cast<float*>(&_as[0]) / *reinterpret_cast<float*>(&_bs[0]));
 		++*pc;
 		goto INST_SWITCH;
 	case insttype::IT_AU_BYTE_PER_A:
-		_as.move_pivot(-1);
-		_as[0] = (char)((char)_x % (char)_y);
+		//_as.move_pivot(-1);
+		_as[0] = (char)((char)_as[0] % (char)_bs[0]);
 		++*pc;
 		goto INST_SWITCH;
 	case insttype::IT_AU_BYTE_PER_B:
-		_bs.move_pivot(-1);
-		_bs[0] = (char)((char)_x % (char)_y);
+		//_bs.move_pivot(-1);
+		_bs[0] = (char)((char)_as[0] % (char)_bs[0]);
 		++*pc;
 		goto INST_SWITCH;
 	case insttype::IT_AU_UBYTE_PER_A:
-		_as.move_pivot(-1);
-		_as[0] = (char)((byte8)_x % (byte8)_y);
+		//_as.move_pivot(-1);
+		_as[0] = (char)((byte8)_as[0] % (byte8)_bs[0]);
 		++*pc;
 		goto INST_SWITCH;
 	case insttype::IT_AU_UBYTE_PER_B:
-		_bs.move_pivot(-1);
-		_bs[0] = (char)((byte8)_x % (byte8)_y);
+		//_bs.move_pivot(-1);
+		_bs[0] = (char)((byte8)_as[0] % (byte8)_bs[0]);
 		++*pc;
 		goto INST_SWITCH;
 	case insttype::IT_AU_SHORT_PER_A:
-		_as.move_pivot(-1);
-		_as[0] = (char)((short)_x % (short)_y);
+		//_as.move_pivot(-1);
+		_as[0] = (char)((short)_as[0] % (short)_bs[0]);
 		++*pc;
 		goto INST_SWITCH;
 	case insttype::IT_AU_SHORT_PER_B:
-		_bs.move_pivot(-1);
-		_bs[0] = (short)((short)_x % (short)_y);
+		//_bs.move_pivot(-1);
+		_bs[0] = (short)((short)_as[0] % (short)_bs[0]);
 		++*pc;
 		goto INST_SWITCH;
 	case insttype::IT_AU_USHORT_PER_A:
-		_as.move_pivot(-1);
-		_as[0] = (ushort)((ushort)_x % (ushort)_y);
+		//_as.move_pivot(-1);
+		_as[0] = (ushort)((ushort)_as[0] % (ushort)_bs[0]);
 		++*pc;
 		goto INST_SWITCH;
 	case insttype::IT_AU_USHORT_PER_B:
-		_bs.move_pivot(-1);
-		_bs[0] = (ushort)((ushort)_x % (ushort)_y);
+		//_bs.move_pivot(-1);
+		_bs[0] = (ushort)((ushort)_as[0] % (ushort)_bs[0]);
 		++*pc;
 		goto INST_SWITCH;
 	case insttype::IT_AU_INT_PER_A:
-		_as.move_pivot(-1);
-		_as[0] = (int)((int)_x % (int)_y);
+		//_as.move_pivot(-1);
+		_as[0] = (int)((int)_as[0] % (int)_bs[0]);
 		++*pc;
 		goto INST_SWITCH;
 	case insttype::IT_AU_INT_PER_B:
-		_bs.move_pivot(-1);
-		_bs[0] = (int)((int)_x % (int)_y);
+		//_bs.move_pivot(-1);
+		_bs[0] = (int)((int)_as[0] % (int)_bs[0]);
 		++*pc;
 		goto INST_SWITCH;
 	case insttype::IT_AU_UINT_PER_A:
-		_as.move_pivot(-1);
-		_as[0] = (uint)((uint)_x % (uint)_y);
+		//_as.move_pivot(-1);
+		_as[0] = (uint)((uint)_as[0] % (uint)_bs[0]);
 		++*pc;
 		goto INST_SWITCH;
 	case insttype::IT_AU_UINT_PER_B:
-		_bs.move_pivot(-1);
-		_bs[0] = (uint)((uint)_x % (uint)_y);
+		//_bs.move_pivot(-1);
+		_bs[0] = (uint)((uint)_as[0] % (uint)_bs[0]);
 		++*pc;
 		goto INST_SWITCH;
 	case insttype::IT_LU_BOOL_AND_A:
-		_as.move_pivot(-1);
-		_as[0] = (bool)((bool)_x && (bool)_y);
+		//_as.move_pivot(-1);
+		_as[0] = (bool)((bool)_as[0] && (bool)_bs[0]);
 		++*pc;
 		goto INST_SWITCH;
 	case insttype::IT_LU_BOOL_AND_B:
-		_bs.move_pivot(-1);
-		_bs[0] = (bool)((bool)_x && (bool)_y);
+		//_bs.move_pivot(-1);
+		_bs[0] = (bool)((bool)_as[0] && (bool)_bs[0]);
 		++*pc;
 		goto INST_SWITCH;
 	case insttype::IT_LU_BOOL_OR_A:
-		_as.move_pivot(-1);
-		_as[0] = (bool)((bool)_x || (bool)_y);
+		//_as.move_pivot(-1);
+		_as[0] = (bool)((bool)_as[0] || (bool)_bs[0]);
 		++*pc;
 		goto INST_SWITCH;
 	case insttype::IT_LU_BOOL_OR_B:
-		_bs.move_pivot(-1);
-		_bs[0] = (bool)((bool)_x || (bool)_y);
+		//_bs.move_pivot(-1);
+		_bs[0] = (bool)((bool)_as[0] || (bool)_bs[0]);
 		++*pc;
 		goto INST_SWITCH;
 	case insttype::IT_LU_BOOL_NOT_A:
-		_as.move_pivot(-1);
-		_as[0] = (bool)(!(bool)_x);
+		//_as.move_pivot(-1);
+		_as[0] = (bool)(!(bool)_as[0]);
 		++*pc;
 		goto INST_SWITCH;
 	case insttype::IT_LU_BOOL_NOT_B:
-		_bs.move_pivot(-1);
-		_bs[0] = (bool)(!(bool)_x);
+		//_bs.move_pivot(-1);
+		_bs[0] = (bool)(!(bool)_as[0]);
 		++*pc;
 		goto INST_SWITCH;
 	case insttype::IT_CM_BOOL_SAME_A:
-		_as.move_pivot(-1);
-		_as[0] = _x == _y;
+		//_as.move_pivot(-1);
+		_as[0] = _as[0] == _bs[0];
 		++*pc;
 		goto INST_SWITCH;
 	case insttype::IT_CM_BOOL_SAME_B:
-		_bs.move_pivot(-1);
-		_bs[0] = _x == _y;
+		//_bs.move_pivot(-1);
+		_bs[0] = _as[0] == _bs[0];
 		++*pc;
 		goto INST_SWITCH;
 	case insttype::IT_CM_BOOL_NOTSAME_A:
-		_as.move_pivot(-1);
-		_as[0] = _x != _y;
+		//_as.move_pivot(-1);
+		_as[0] = _as[0] != _bs[0];
 		++*pc;
 		goto INST_SWITCH;
 	case insttype::IT_CM_BOOL_NOTSAME_B:
-		_bs.move_pivot(-1);
-		_bs[0] = _x != _y;
+		//_bs.move_pivot(-1);
+		_bs[0] = _as[0] != _bs[0];
 		++*pc;
 		goto INST_SWITCH;
 	case insttype::IT_CM_BOOL_BYTE_LBIG_A:
-		_as.move_pivot(-1);
-		_as[0] = (char)_x > (char)_y;
+		//_as.move_pivot(-1);
+		_as[0] = (char)_as[0] > (char)_bs[0];
 		++*pc;
 		goto INST_SWITCH;
 	case insttype::IT_CM_BOOL_BYTE_LBIG_B:
-		_bs.move_pivot(-1);
-		_bs[0] = (char)_x > (char)_y;
+		//_bs.move_pivot(-1);
+		_bs[0] = (char)_as[0] > (char)_bs[0];
 		++*pc;
 		goto INST_SWITCH;
 	case insttype::IT_CM_BOOL_UBYTE_LBIG_A:
-		_as.move_pivot(-1);
-		_as[0] = (byte8)_x > (byte8)_y;
+		//_as.move_pivot(-1);
+		_as[0] = (byte8)_as[0] > (byte8)_bs[0];
 		++*pc;
 		goto INST_SWITCH;
 	case insttype::IT_CM_BOOL_UBYTE_LBIG_B:
-		_bs.move_pivot(-1);
-		_bs[0] = (byte8)_x > (byte8)_y;
+		//_bs.move_pivot(-1);
+		_bs[0] = (byte8)_as[0] > (byte8)_bs[0];
 		++*pc;
 		goto INST_SWITCH;
 	case insttype::IT_CM_BOOL_SHORT_LBIG_A:
-		_as.move_pivot(-1);
-		_as[0] = (short)_x > (short)_y;
+		//_as.move_pivot(-1);
+		_as[0] = (short)_as[0] > (short)_bs[0];
 		++*pc;
 		goto INST_SWITCH;
 	case insttype::IT_CM_BOOL_SHORT_LBIG_B:
-		_bs.move_pivot(-1);
-		_bs[0] = (short)_x > (short)_y;
+		//_bs.move_pivot(-1);
+		_bs[0] = (short)_as[0] > (short)_bs[0];
 		++*pc;
 		goto INST_SWITCH;
 	case insttype::IT_CM_BOOL_USHORT_LBIG_A:
-		_as.move_pivot(-1);
-		_as[0] = (ushort)_x > (ushort)_y;
+		//_as.move_pivot(-1);
+		_as[0] = (ushort)_as[0] > (ushort)_bs[0];
 		++*pc;
 		goto INST_SWITCH;
 	case insttype::IT_CM_BOOL_USHORT_LBIG_B:
-		_bs.move_pivot(-1);
-		_bs[0] = (ushort)_x > (ushort)_y;
+		//_bs.move_pivot(-1);
+		_bs[0] = (ushort)_as[0] > (ushort)_bs[0];
 		++*pc;
 		goto INST_SWITCH;
 	case insttype::IT_CM_BOOL_INT_LBIG_A:
-		_as.move_pivot(-1);
-		_as[0] = (int)_x > (int)_y;
+		//_as.move_pivot(-1);
+		_as[0] = (int)_as[0] > (int)_bs[0];
 		++*pc;
 		goto INST_SWITCH;
 	case insttype::IT_CM_BOOL_INT_LBIG_B:
-		_bs.move_pivot(-1);
-		_bs[0] = (int)_x > (int)_y;
+		//_bs.move_pivot(-1);
+		_bs[0] = (int)_as[0] > (int)_bs[0];
 		++*pc;
 		goto INST_SWITCH;
 	case insttype::IT_CM_BOOL_UINT_LBIG_A:
-		_as.move_pivot(-1);
-		_as[0] = (uint)_x > (uint)_y;
+		//_as.move_pivot(-1);
+		_as[0] = (uint)_as[0] > (uint)_bs[0];
 		++*pc;
 		goto INST_SWITCH;
 	case insttype::IT_CM_BOOL_UINT_LBIG_B:
-		_bs.move_pivot(-1);
-		_bs[0] = (uint)_x > (uint)_y;
+		//_bs.move_pivot(-1);
+		_bs[0] = (uint)_as[0] > (uint)_bs[0];
 		++*pc;
 		goto INST_SWITCH;
 	case insttype::IT_CM_BOOL_FLOAT_LBIG_A:
-		_as.move_pivot(-1);
-		_as[0] = *reinterpret_cast<float*>(&_x) > *reinterpret_cast<float*>(&_y);
-		//_as[0] = (float)_x > (float)_y;
+		//_as.move_pivot(-1);
+		_as[0] = *reinterpret_cast<float*>(&_as[0]) > *reinterpret_cast<float*>(&_bs[0]);
 		++*pc;
 		goto INST_SWITCH;
 	case insttype::IT_CM_BOOL_FLOAT_LBIG_B:
-		_bs.move_pivot(-1);
-		_bs[0] = *reinterpret_cast<float*>(&_x) > *reinterpret_cast<float*>(&_y);
-		//_bs[0] = (float)_x > (float)_y;
+		//_bs.move_pivot(-1);
+		_bs[0] = *reinterpret_cast<float*>(&_as[0]) > *reinterpret_cast<float*>(&_bs[0]);
 		++*pc;
 		goto INST_SWITCH;
 	case insttype::IT_CM_BOOL_BYTE_LBIGSAME_A:
-		_as.move_pivot(-1);
-		_as[0] = (char)_x >= (char)_y;
+		//_as.move_pivot(-1);
+		_as[0] = (char)_as[0] >= (char)_bs[0];
 		++*pc;
 		goto INST_SWITCH;
 	case insttype::IT_CM_BOOL_BYTE_LBIGSAME_B:
-		_bs.move_pivot(-1);
-		_bs[0] = (char)_x >= (char)_y;
+		//_bs.move_pivot(-1);
+		_bs[0] = (char)_as[0] >= (char)_bs[0];
 		++*pc;
 		goto INST_SWITCH;
 	case insttype::IT_CM_BOOL_UBYTE_LBIGSAME_A:
-		_as.move_pivot(-1);
-		_as[0] = (byte8)_x >= (byte8)_y;
+		//_as.move_pivot(-1);
+		_as[0] = (byte8)_as[0] >= (byte8)_bs[0];
 		++*pc;
 		goto INST_SWITCH;
 	case insttype::IT_CM_BOOL_UBYTE_LBIGSAME_B:
-		_bs.move_pivot(-1);
-		_bs[0] = (byte8)_x >= (byte8)_y;
+		//_bs.move_pivot(-1);
+		_bs[0] = (byte8)_as[0] >= (byte8)_bs[0];
 		++*pc;
 		goto INST_SWITCH;
 	case insttype::IT_CM_BOOL_SHORT_LBIGSAME_A:
-		_as.move_pivot(-1);
-		_as[0] = (short)_x >= (short)_y;
+		//_as.move_pivot(-1);
+		_as[0] = (short)_as[0] >= (short)_bs[0];
 		++*pc;
 		goto INST_SWITCH;
 	case insttype::IT_CM_BOOL_SHORT_LBIGSAME_B:
-		_bs.move_pivot(-1);
-		_bs[0] = (short)_x >= (short)_y;
+		//_bs.move_pivot(-1);
+		_bs[0] = (short)_as[0] >= (short)_bs[0];
 		++*pc;
 		goto INST_SWITCH;
 	case insttype::IT_CM_BOOL_USHORT_LBIGSAME_A:
-		_as.move_pivot(-1);
-		_as[0] = (ushort)_x >= (ushort)_y;
+		//_as.move_pivot(-1);
+		_as[0] = (ushort)_as[0] >= (ushort)_bs[0];
 		++*pc;
 		goto INST_SWITCH;
 	case insttype::IT_CM_BOOL_USHORT_LBIGSAME_B:
-		_bs.move_pivot(-1);
-		_bs[0] = (ushort)_x >= (ushort)_y;
+		//_bs.move_pivot(-1);
+		_bs[0] = (ushort)_as[0] >= (ushort)_bs[0];
 		++*pc;
 		goto INST_SWITCH;
 	case insttype::IT_CM_BOOL_INT_LBIGSAME_A:
-		_as.move_pivot(-1);
-		_as[0] = (int)_x >= (int)_y;
+		//_as.move_pivot(-1);
+		_as[0] = (int)_as[0] >= (int)_bs[0];
 		++*pc;
 		goto INST_SWITCH;
 	case insttype::IT_CM_BOOL_INT_LBIGSAME_B:
-		_bs.move_pivot(-1);
-		_bs[0] = (int)_x >= (int)_y;
+		//_bs.move_pivot(-1);
+		_bs[0] = (int)_as[0] >= (int)_bs[0];
 		++*pc;
 		goto INST_SWITCH;
 	case insttype::IT_CM_BOOL_UINT_LBIGSAME_A:
-		_as.move_pivot(-1);
-		_as[0] = (uint)_x >= (uint)_y;
+		//_as.move_pivot(-1);
+		_as[0] = (uint)_as[0] >= (uint)_bs[0];
 		++*pc;
 		goto INST_SWITCH;
 	case insttype::IT_CM_BOOL_UINT_LBIGSAME_B:
-		_bs.move_pivot(-1);
-		_bs[0] = (uint)_x >= (uint)_y;
+		//_bs.move_pivot(-1);
+		_bs[0] = (uint)_as[0] >= (uint)_bs[0];
 		++*pc;
 		goto INST_SWITCH;
 	case insttype::IT_CM_BOOL_FLOAT_LBIGSAME_A:
-		_as.move_pivot(-1);
-		_as[0] = *reinterpret_cast<float*>(&_x) >= *reinterpret_cast<float*>(&_y);
-		//_as[0] = (float)_x >= (float)_y;
+		//_as.move_pivot(-1);
+		_as[0] = *reinterpret_cast<float*>(&_as[0]) >= *reinterpret_cast<float*>(&_bs[0]);
 		++*pc;
 		goto INST_SWITCH;
 	case insttype::IT_CM_BOOL_FLOAT_LBIGSAME_B:
-		_bs.move_pivot(-1);
-		_bs[0] = *reinterpret_cast<float*>(&_x) >= *reinterpret_cast<float*>(&_y);
-		//_bs[0] = (float)_x >= (float)_y;
+		//_bs.move_pivot(-1);
+		_bs[0] = *reinterpret_cast<float*>(&_as[0]) >= *reinterpret_cast<float*>(&_bs[0]);
 		++*pc;
 		goto INST_SWITCH;
 	case insttype::IT_CM_BOOL_BYTE_RBIG_A:
-		_as.move_pivot(-1);
-		_as[0] = (char)_x < (char)_y;
+		//_as.move_pivot(-1);
+		_as[0] = (char)_as[0] < (char)_bs[0];
 		++*pc;
 		goto INST_SWITCH;
 	case insttype::IT_CM_BOOL_BYTE_RBIG_B:
-		_bs.move_pivot(-1);
-		_bs[0] = (char)_x < (char)_y;
+		//_bs.move_pivot(-1);
+		_bs[0] = (char)_as[0] < (char)_bs[0];
 		++*pc;
 		goto INST_SWITCH;
 	case insttype::IT_CM_BOOL_UBYTE_RBIG_A:
-		_as.move_pivot(-1);
-		_as[0] = (byte8)_x < (byte8)_y;
+		//_as.move_pivot(-1);
+		_as[0] = (byte8)_as[0] < (byte8)_bs[0];
 		++*pc;
 		goto INST_SWITCH;
 	case insttype::IT_CM_BOOL_UBYTE_RBIG_B:
-		_as.move_pivot(-1);
-		_as[0] = (byte8)_x < (byte8)_y;
+		//_as.move_pivot(-1);
+		_as[0] = (byte8)_as[0] < (byte8)_bs[0];
 		++*pc;
 		goto INST_SWITCH;
 	case insttype::IT_CM_BOOL_SHORT_RBIG_A:
-		_as.move_pivot(-1);
-		_as[0] = (short)_x < (short)_y;
+		//_as.move_pivot(-1);
+		_as[0] = (short)_as[0] < (short)_bs[0];
 		++*pc;
 		goto INST_SWITCH;
 	case insttype::IT_CM_BOOL_SHORT_RBIG_B:
-		_bs.move_pivot(-1);
-		_bs[0] = (short)_x < (short)_y;
+		//_bs.move_pivot(-1);
+		_bs[0] = (short)_as[0] < (short)_bs[0];
 		++*pc;
 		goto INST_SWITCH;
 	case insttype::IT_CM_BOOL_USHORT_RBIG_A:
-		_as.move_pivot(-1);
-		_as[0] = (ushort)_x < (ushort)_y;
+		//_as.move_pivot(-1);
+		_as[0] = (ushort)_as[0] < (ushort)_bs[0];
 		++*pc;
 		goto INST_SWITCH;
 	case insttype::IT_CM_BOOL_USHORT_RBIG_B:
-		_bs.move_pivot(-1);
-		_bs[0] = (ushort)_x < (ushort)_y;
+		//_bs.move_pivot(-1);
+		_bs[0] = (ushort)_as[0] < (ushort)_bs[0];
 		++*pc;
 		goto INST_SWITCH;
 	case insttype::IT_CM_BOOL_INT_RBIG_A:
-		_as.move_pivot(-1);
-		_as[0] = (int)_x < (int)_y;
+		//_as.move_pivot(-1);
+		_as[0] = (int)_as[0] < (int)_bs[0];
 		++*pc;
 		goto INST_SWITCH;
 	case insttype::IT_CM_BOOL_INT_RBIG_B:
-		_bs.move_pivot(-1);
-		_bs[0] = (int)_x < (int)_y;
+		//_bs.move_pivot(-1);
+		_bs[0] = (int)_as[0] < (int)_bs[0];
 		++*pc;
 		goto INST_SWITCH;
 	case insttype::IT_CM_BOOL_UINT_RBIG_A:
-		_as.move_pivot(-1);
-		_as[0] = (uint)_x < (uint)_y;
+		//_as.move_pivot(-1);
+		_as[0] = (uint)_as[0] < (uint)_bs[0];
 		++*pc;
 		goto INST_SWITCH;
 	case insttype::IT_CM_BOOL_UINT_RBIG_B:
-		_bs.move_pivot(-1);
-		_bs[0] = (uint)_x < (uint)_y;
+		//_bs.move_pivot(-1);
+		_bs[0] = (uint)_as[0] < (uint)_bs[0];
 		++*pc;
 		goto INST_SWITCH;
 	case insttype::IT_CM_BOOL_FLOAT_RBIG_A:
-		_as.move_pivot(-1);
-		_as[0] = *reinterpret_cast<float*>(&_x) < *reinterpret_cast<float*>(&_y);
-		//_as[0] = (float)_x < (float)_y;
+		//_as.move_pivot(-1);
+		_as[0] = *reinterpret_cast<float*>(&_as[0]) < *reinterpret_cast<float*>(&_bs[0]);
 		++*pc;
 		goto INST_SWITCH;
 	case insttype::IT_CM_BOOL_FLOAT_RBIG_B:
-		_bs.move_pivot(-1);
-		_bs[0] = *reinterpret_cast<float*>(&_x) < *reinterpret_cast<float*>(&_y);
-		//_bs[0] = (float)_x < (float)_y;
+		//_bs.move_pivot(-1);
+		_bs[0] = *reinterpret_cast<float*>(&_as[0]) < *reinterpret_cast<float*>(&_bs[0]);
 		++*pc;
 		goto INST_SWITCH;
 	case insttype::IT_CM_BOOL_BYTE_RBIGSAME_A:
-		_as.move_pivot(-1);
-		_as[0] = (char)_x <= (char)_y;
+		//_as.move_pivot(-1);
+		_as[0] = (char)_as[0] <= (char)_bs[0];
 		++*pc;
 		goto INST_SWITCH;
 	case insttype::IT_CM_BOOL_BYTE_RBIGSAME_B:
-		_bs.move_pivot(-1);
-		_bs[0] = (char)_x <= (char)_y;
+		//_bs.move_pivot(-1);
+		_bs[0] = (char)_as[0] <= (char)_bs[0];
 		++*pc;
 		goto INST_SWITCH;
 	case insttype::IT_CM_BOOL_UBYTE_RBIGSAME_A:
-		_as.move_pivot(-1);
-		_as[0] = (byte8)_x <= (byte8)_y;
+		//_as.move_pivot(-1);
+		_as[0] = (byte8)_as[0] <= (byte8)_bs[0];
 		++*pc;
 		goto INST_SWITCH;
 	case insttype::IT_CM_BOOL_UBYTE_RBIGSAME_B:
-		_bs.move_pivot(-1);
-		_bs[0] = (byte8)_x <= (byte8)_y;
+		//_bs.move_pivot(-1);
+		_bs[0] = (byte8)_as[0] <= (byte8)_bs[0];
 		++*pc;
 		goto INST_SWITCH;
 	case insttype::IT_CM_BOOL_SHORT_RBIGSAME_A:
-		_as.move_pivot(-1);
-		_as[0] = (short)_x <= (short)_y;
+		//_as.move_pivot(-1);
+		_as[0] = (short)_as[0] <= (short)_bs[0];
 		++*pc;
 		goto INST_SWITCH;
 	case insttype::IT_CM_BOOL_SHORT_RBIGSAME_B:
-		_bs.move_pivot(-1);
-		_bs[0] = (short)_x <= (short)_y;
+		//_bs.move_pivot(-1);
+		_bs[0] = (short)_as[0] <= (short)_bs[0];
 		++*pc;
 		goto INST_SWITCH;
 	case insttype::IT_CM_BOOL_USHORT_RBIGSAME_A:
-		_as.move_pivot(-1);
-		_as[0] = (ushort)_x <= (ushort)_y;
+		//_as.move_pivot(-1);
+		_as[0] = (ushort)_as[0] <= (ushort)_bs[0];
 		++*pc;
 		goto INST_SWITCH;
 	case insttype::IT_CM_BOOL_USHORT_RBIGSAME_B:
-		_bs.move_pivot(-1);
-		_bs[0] = (ushort)_x <= (ushort)_y;
+		//_bs.move_pivot(-1);
+		_bs[0] = (ushort)_as[0] <= (ushort)_bs[0];
 		++*pc;
 		goto INST_SWITCH;
 	case insttype::IT_CM_BOOL_INT_RBIGSAME_A:
-		_as.move_pivot(-1);
-		_as[0] = (int)_x <= (int)_y;
+		//_as.move_pivot(-1);
+		_as[0] = (int)_as[0] <= (int)_bs[0];
 		++*pc;
 		goto INST_SWITCH;
 	case insttype::IT_CM_BOOL_INT_RBIGSAME_B:
-		_bs.move_pivot(-1);
-		_bs[0] = (int)_x <= (int)_y;
+		//_bs.move_pivot(-1);
+		_bs[0] = (int)_as[0] <= (int)_bs[0];
 		++*pc;
 		goto INST_SWITCH;
 	case insttype::IT_CM_BOOL_UINT_RBIGSAME_A:
-		_as.move_pivot(-1);
-		_as[0] = (uint)_x <= (uint)_y;
+		//_as.move_pivot(-1);
+		_as[0] = (uint)_as[0] <= (uint)_bs[0];
 		++*pc;
 		goto INST_SWITCH;
 	case insttype::IT_CM_BOOL_UINT_RBIGSAME_B:
-		_bs.move_pivot(-1);
-		_bs[0] = (uint)_x <= (uint)_y;
+		//_bs.move_pivot(-1);
+		_bs[0] = (uint)_as[0] <= (uint)_bs[0];
 		++*pc;
 		goto INST_SWITCH;
 	case insttype::IT_CM_BOOL_FLOAT_RBIGSAME_A:
-		_as.move_pivot(-1);
-		_as[0] = *reinterpret_cast<float*>(_x) <= *reinterpret_cast<float*>(_y);
-		//_as[0] = (float)_x <= (float)_y;
+		//_as.move_pivot(-1);
+		_as[0] = *reinterpret_cast<float*>(_as[0]) <= *reinterpret_cast<float*>(_bs[0]);
 		++*pc;
 		goto INST_SWITCH;
 	case insttype::IT_CM_BOOL_FLOAT_RBIGSAME_B:
-		_bs.move_pivot(-1);
-		_bs[0] = *reinterpret_cast<float*>(_x) <= *reinterpret_cast<float*>(_y);
-		//_bs[0] = (float)_x <= (float)_y;
+		//_bs.move_pivot(-1);
+		_bs[0] = *reinterpret_cast<float*>(_as[0]) <= *reinterpret_cast<float*>(_bs[0]);
 		++*pc;
 		goto INST_SWITCH;
 	case insttype::IT_IF:
@@ -10411,18 +10186,6 @@ INST_SWITCH:
 		_bs[0] = (*rfsp - **pci) - mem;
 		++*pci;
 		goto INST_SWITCH;
-/*
-	case insttype::IT_PUSH_TO_X_FROM_ADDRESS_OF_VARIABLE_ID:
-		++*pc;
-		_x = (*rfsp - **pci) - mem;
-		++*pci;
-		goto INST_SWITCH;
-	case insttype::IT_PUSH_TO_Y_FROM_ADDRESS_OF_VARIABLE_ID:
-		++*pc;
-		_y = (*rfsp - **pci) - mem;
-		++*pci;
-		goto INST_SWITCH;
-*/
 	case insttype::IT_PUSH_TO_LA_FROM_A:
 		_la = _as[0];
 		_as.move_pivot(1);
@@ -10452,20 +10215,6 @@ INST_SWITCH:
 		casted_value = 0;
 		castv = (casttype) * ++ * pc;
 		goto CAST_SWITCH;
-/*
-	case insttype::IT_CASTING_X:
-		selectRegister = 2;
-		casting_value = _x;
-		casted_value = 0;
-		castv = (casttype) * ++ * pc;
-		goto CAST_SWITCH;
-	case insttype::IT_CASTING_Y:
-		selectRegister = 3;
-		casting_value = _y;
-		casted_value = 0;
-		castv = (casttype) * ++ * pc;
-		goto CAST_SWITCH;
-*/
 	case insttype::IT_PUSH_A_FROM_VALUE_OF_A:
 		_as[0] = *reinterpret_cast<uint*>(mem + (uint64_t)_as[0]);
 		++*pc;
@@ -10474,16 +10223,6 @@ INST_SWITCH:
 		_bs[0] = *reinterpret_cast<uint*>(mem + (uint64_t)_bs[0]);
 		++*pc;
 		goto INST_SWITCH;
-/*
-	case insttype::IT_PUSH_X_FROM_VALUE_OF_X:
-		_x = *reinterpret_cast<uint*>(mem + (uint64_t)_x);
-		++*pc;
-		goto INST_SWITCH;
-	case insttype::IT_PUSH_Y_FROM_VALUE_OF_Y:
-		_y = *reinterpret_cast<uint*>(mem + (uint64_t)_y);
-		++*pc;
-		goto INST_SWITCH;
-*/
 	case insttype::IT_DBG_A:
 		dbg_type = (dbgtype) * ++ * pc;
 		goto DBG_SWITCH;

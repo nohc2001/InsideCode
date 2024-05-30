@@ -10,6 +10,7 @@ version 0.2 목표
 2570    :POP_AB(218)
 2571    :AU_UINT_MUL_B(92)
 > A <- A*B
+-> 완료
 
 2. variable.member, variable[constindex], variable[varindex]
 A=&VID 68;
