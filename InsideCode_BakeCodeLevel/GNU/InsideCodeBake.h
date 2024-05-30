@@ -7985,7 +7985,6 @@ INST_SWITCH:
 		fsp->push_back(saveSP->last());
 		saveSP->pop_back();
 		*rfsp = fsp->last();
-
 		++*pc;
 		tmptr_i = *pci;
 		++*pci;
