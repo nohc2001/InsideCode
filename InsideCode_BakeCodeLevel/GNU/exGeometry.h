@@ -79,8 +79,8 @@ void exGeometry__vec2f(int* pcontext){
 
     icc->sp -= sizeof(vec2f);
     *reinterpret_cast<vec2f*>(icc->sp) = v;
-    icc->_as[0] = icc->sp - icc->mem;
-    icc->_as.move_pivot(-1);
+    icc->getA(0) = icc->sp - icc->mem;
+    icc->Amove_pivot(-1);
 }
 
 //circle _circle(vec2f cen, float rad);
@@ -90,8 +90,8 @@ void exGeometry__circle(int* pcontext){
     
     icc->sp -= sizeof(circle);
     *reinterpret_cast<circle*>(icc->sp) = c;
-    icc->_as[0] = icc->sp - icc->mem;
-    icc->_as.move_pivot(-1);
+    icc->getA(0) = icc->sp - icc->mem;
+    icc->Amove_pivot(-1);
 }
 
 //line2d _line2d(vec2f FP, vec2f LP);
@@ -102,8 +102,8 @@ void exGeometry__line2d(int* pcontext){
 
     icc->sp -= sizeof(line2d);
     *reinterpret_cast<line2d*>(icc->sp) = l;
-    icc->_as[0] = icc->sp - icc->mem;
-    icc->_as.move_pivot(-1);
+    icc->getA(0) = icc->sp - icc->mem;
+    icc->Amove_pivot(-1);
 }
 
 //angle2d _angle2d_delta(float deltaX, float deltaY);
@@ -139,8 +139,8 @@ void exGeometry__angle2d_delta(int* pcontext){
 
     icc->sp -= sizeof(angle2d);
     *reinterpret_cast<angle2d*>(icc->sp) = a;
-    icc->_as[0] = icc->sp - icc->mem;
-    icc->_as.move_pivot(-1);
+    icc->getA(0) = icc->sp - icc->mem;
+    icc->Amove_pivot(-1);
 }
 
 //angle2d _angle2d(float radian);
@@ -163,8 +163,8 @@ void exGeometry__angle2d(int* pcontext){
 
     icc->sp -= sizeof(angle2d);
     *reinterpret_cast<angle2d*>(icc->sp) = a;
-    icc->_as[0] = icc->sp - icc->mem;
-    icc->_as.move_pivot(-1);
+    icc->getA(0) = icc->sp - icc->mem;
+    icc->Amove_pivot(-1);
 }
 
 //vec2f[2] get_cross_CircleAndLine(circle c, line2d l);
@@ -272,8 +272,8 @@ void exGeometry_get_cross_CircleAndLine(int* pcontext){
     *reinterpret_cast<vec2f*>(icc->sp) = p2;
     icc->sp -= sizeof(vec2f);
     *reinterpret_cast<vec2f*>(icc->sp) = p1;
-    icc->_as[0] = icc->sp - icc->mem;
-    icc->_as.move_pivot(-1);
+    icc->getA(0) = icc->sp - icc->mem;
+    icc->Amove_pivot(-1);
 }
 
 //vec2f get_pos_in_LineAndRatioAB(line2d l, float A, float B);
@@ -291,8 +291,8 @@ void exGeometry_get_pos_in_LineAndRatioAB(int* pcontext){
 
     icc->sp -= sizeof(vec2f);
     *reinterpret_cast<vec2f*>(icc->sp) = rp;
-    icc->_as[0] = icc->sp - icc->mem;
-    icc->_as.move_pivot(-1);
+    icc->getA(0) = icc->sp - icc->mem;
+    icc->Amove_pivot(-1);
 }
 
 //vec2f* get_poses_in_Bezier1F(vec2f p0, vec2f p1, vec2f factor, uint sizeOfVertex);
@@ -318,8 +318,8 @@ void exGeometry_get_poses_in_Bezier1F(int* pcontext){
         out[i].y = (1.0f-t)*sf.y + t*ef.y;
         t += delta;
     }
-    icc->_as[0] = icc->sp - icc->mem;
-    icc->_as.move_pivot(-1);
+    icc->getA(0) = icc->sp - icc->mem;
+    icc->Amove_pivot(-1);
 }
 
 //float get_distance2d(line2d l);
@@ -330,8 +330,8 @@ void exGeometry_get_distance2d(int* pcontext){
     float disty = (L.lp.y - L.fp.y);
     float dist = sqrtf(distx*distx + disty*disty);
 
-    *reinterpret_cast<float*>(&icc->_as[0]) = dist;
-    icc->_as.move_pivot(-1);
+    *reinterpret_cast<float*>(&icc->getA(0)) = dist;
+    icc->Amove_pivot(-1);
 }
 
 //bool isPosInRect2d(vec2f pos, rect4f rt);
@@ -341,8 +341,8 @@ void exGeometry_isPosInRect2d(int* pcontext){
     rect4f rt = *reinterpret_cast<rect4f*>(icc->rfsp - 16);
     bool b = rt.fp.x < pos.x && pos.x < rt.lp.x;
     b = b || (rt.fp.y < pos.y && pos.y < rt.lp.y);
-    *reinterpret_cast<bool*>(&icc->_as[0]) = b;
-    icc->_as.move_pivot(-1);
+    *reinterpret_cast<bool*>(&icc->getA(0)) = b;
+    icc->Amove_pivot(-1);
 }
 
 //angle2d addAngle(angle2d A, angle2d B);
@@ -358,8 +358,8 @@ void exGeometry_addAngle2d(int* pcontext){
 
     icc->sp -= sizeof(angle2d);
     *reinterpret_cast<angle2d*>(icc->sp) = R;
-    icc->_as[0] = icc->sp - icc->mem;
-    icc->_as.move_pivot(-1);
+    icc->getA(0) = icc->sp - icc->mem;
+    icc->Amove_pivot(-1);
 }
 
 //vec2f get_cross_line(line2d A, line2d B);
@@ -421,8 +421,8 @@ void exGeometry_get_cross_line(int* pcontext){
 
     icc->sp -= sizeof(vec2f);
     *reinterpret_cast<vec2f*>(icc->sp) = cross;
-    icc->_as[0] = icc->sp - icc->mem;
-    icc->_as.move_pivot(-1);
+    icc->getA(0) = icc->sp - icc->mem;
+    icc->Amove_pivot(-1);
 }
 
 //bool isNAN(float f);
@@ -436,8 +436,8 @@ void exGeometry_isNAN(int* pcontext){
     else{
         r = false;
     }
-    icc->_as[0] = (uint64_t)(r);
-    icc->_as.move_pivot(-1);
+    icc->getA(0) = (uint64_t)(r);
+    icc->Amove_pivot(-1);
 }
 
 ICB_Extension* Init_exGeometry(){

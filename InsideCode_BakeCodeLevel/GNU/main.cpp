@@ -31,20 +31,20 @@ int main(){
 
     InsideCode_Bake::SetICLFlag(ICL_FLAG::BakeCode_GlobalMemoryInit, false);
 
-    InsideCode_Bake::SetICLFlag(ICL_FLAG::BakeCode_CompileCodes, true);
+    InsideCode_Bake::SetICLFlag(ICL_FLAG::BakeCode_CompileCodes, false);
     {
-        InsideCode_Bake::SetICLFlag(ICL_FLAG::BakeCode_CompileCodes__add_var, true);
-        InsideCode_Bake::SetICLFlag(ICL_FLAG::BakeCode_CompileCodes__set_var, true);
-        InsideCode_Bake::SetICLFlag(ICL_FLAG::BakeCode_CompileCodes__if__sen, true);
-        InsideCode_Bake::SetICLFlag(ICL_FLAG::BakeCode_CompileCodes__while__, true);
-        InsideCode_Bake::SetICLFlag(ICL_FLAG::BakeCode_CompileCodes__block__, true);
-        InsideCode_Bake::SetICLFlag(ICL_FLAG::BakeCode_CompileCodes__addfunc, true);
-        InsideCode_Bake::SetICLFlag(ICL_FLAG::BakeCode_CompileCodes__usefunc, true);
-        InsideCode_Bake::SetICLFlag(ICL_FLAG::BakeCode_CompileCodes__return_, true);
-        InsideCode_Bake::SetICLFlag(ICL_FLAG::BakeCode_CompileCodes__struct__, true);
-        InsideCode_Bake::SetICLFlag(ICL_FLAG::BakeCode_CompileCodes__break__, true);
-        InsideCode_Bake::SetICLFlag(ICL_FLAG::BakeCode_CompileCodes__continue, true);
-        InsideCode_Bake::SetICLFlag(ICL_FLAG::BakeCode_CompileCodes__adsetvar, true);
+        InsideCode_Bake::SetICLFlag(ICL_FLAG::BakeCode_CompileCodes__add_var, false);
+        InsideCode_Bake::SetICLFlag(ICL_FLAG::BakeCode_CompileCodes__set_var, false);
+        InsideCode_Bake::SetICLFlag(ICL_FLAG::BakeCode_CompileCodes__if__sen, false);
+        InsideCode_Bake::SetICLFlag(ICL_FLAG::BakeCode_CompileCodes__while__, false);
+        InsideCode_Bake::SetICLFlag(ICL_FLAG::BakeCode_CompileCodes__block__, false);
+        InsideCode_Bake::SetICLFlag(ICL_FLAG::BakeCode_CompileCodes__addfunc, false);
+        InsideCode_Bake::SetICLFlag(ICL_FLAG::BakeCode_CompileCodes__usefunc, false);
+        InsideCode_Bake::SetICLFlag(ICL_FLAG::BakeCode_CompileCodes__return_, false);
+        InsideCode_Bake::SetICLFlag(ICL_FLAG::BakeCode_CompileCodes__struct__, false);
+        InsideCode_Bake::SetICLFlag(ICL_FLAG::BakeCode_CompileCodes__break__, false);
+        InsideCode_Bake::SetICLFlag(ICL_FLAG::BakeCode_CompileCodes__continue, false);
+        InsideCode_Bake::SetICLFlag(ICL_FLAG::BakeCode_CompileCodes__adsetvar, false);
     }
 
     InsideCode_Bake::SetICLFlag(ICL_FLAG::Create_New_ICB_Context, false);
