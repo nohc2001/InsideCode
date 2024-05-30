@@ -14,7 +14,7 @@ version 0.2 목표
 2. variable.member, variable[constindex], variable[varindex]
 A=&VID 68;
 PUSH_B_CONST_4 10;
-A = A+B;
+AU_UINT_ADD_A
 > A<=(&vid+const) 68, 10;
 
 A=&VID 68;
