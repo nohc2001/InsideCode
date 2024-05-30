@@ -1,5 +1,5 @@
 version 0.2 목표
-1. exenum 이 1이 아니면 제대로 실행이 안되는 오류.
+1. exenum 이 1이 아니면 제대로 실행이 안되는 오류. -> 완료
 2. half jit 만들기
 3. 힙 메모리 연산 만들기
 4. Single Instruction Multiple Thread 만들기
