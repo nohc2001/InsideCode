@@ -15,230 +15,188 @@ typedef unsigned int uint;
 
 enum class insttype {
 	IT_ADD_STACK_VARIABLE = 0,
-	IT_SET_STACK_VARIABLE_CONST_1 = 1,
+	IT_SET_STACK_VARIABLE_CONST_1 = 1, // var = const
 	IT_SET_STACK_VARIABLE_CONST_2 = 2,
 	IT_SET_STACK_VARIABLE_CONST_4 = 3,
-	IT_SET_STACK_VARIABLE_FROMX_1 = 4,
-	IT_SET_STACK_VARIABLE_FROMX_2 = 5,
-	IT_SET_STACK_VARIABLE_FROMX_4 = 6,
-	IT_SET_STACK_VARIABLE_FROMY_1 = 7,
-	IT_SET_STACK_VARIABLE_FROMY_2 = 8,
-	IT_SET_STACK_VARIABLE_FROMY_4 = 9,
-	IT_SET_STACK_VARIABLE_ADDRESS_1 = 10,
-	IT_SET_STACK_VARIABLE_ADDRESS_2 = 11,
-	IT_SET_STACK_VARIABLE_ADDRESS_4 = 12,
-	IT_SET_STACK_VARIABLE_VARIABLE_1 = 13,
-	IT_SET_STACK_VARIABLE_VARIABLE_2 = 14,
-	IT_SET_STACK_VARIABLE_VARIABLE_4 = 15,
-	IT_PUSH_A_CONST_1 = 16,
-	IT_PUSH_A_CONST_2 = 17,
-	IT_PUSH_A_CONST_4 = 18,
-	IT_PUSH_A_ADDRESS_1 = 19,
-	IT_PUSH_A_ADDRESS_2 = 20,
-	IT_PUSH_A_ADDRESS_4 = 21,
-	IT_PUSH_A_VARIABLE_1 = 22,
-	IT_PUSH_A_VARIABLE_2 = 23,
-	IT_PUSH_A_VARIABLE_4 = 24,
-	IT_PUSH_B_CONST_1 = 25,
-	IT_PUSH_B_CONST_2 = 26,
-	IT_PUSH_B_CONST_4 = 27,
-	IT_PUSH_B_ADDRESS_1 = 28,
-	IT_PUSH_B_ADDRESS_2 = 29,
-	IT_PUSH_B_ADDRESS_4 = 30,
-	IT_PUSH_B_VARIABLE_1 = 31,
-	IT_PUSH_B_VARIABLE_2 = 32,
-	IT_PUSH_B_VARIABLE_4 = 33,
-	IT_SET_X_CONST_1 = 34,
-	IT_SET_X_CONST_2 = 35,
-	IT_SET_X_CONST_4 = 36,
-	IT_SET_X_ADDRESS_1 = 37,
-	IT_SET_X_ADDRESS_2 = 38,
-	IT_SET_X_ADDRESS_4 = 39,
-	IT_SET_X_VARIABLE_1 = 40,
-	IT_SET_X_VARIABLE_2 = 41,
-	IT_SET_X_VARIABLE_4 = 42,
-	IT_SET_Y_CONST_1 = 43,
-	IT_SET_Y_CONST_2 = 44,
-	IT_SET_Y_CONST_4 = 45,
-	IT_SET_Y_ADDRESS_1 = 46,
-	IT_SET_Y_ADDRESS_2 = 47,
-	IT_SET_Y_ADDRESS_4 = 48,
-	IT_SET_Y_VARIABLE_1 = 49,
-	IT_SET_Y_VARIABLE_2 = 50,
-	IT_SET_Y_VARIABLE_4 = 51,
-	IT_AXBY = 52,
-	IT_AU_BYTE_ADD_A = 53,
-	IT_AU_BYTE_ADD_B = 54,
-	IT_AU_UBYTE_ADD_A = 55,
-	IT_AU_UBYTE_ADD_B = 56,
-	IT_AU_SHORT_ADD_A = 57,
-	IT_AU_SHORT_ADD_B = 58,
-	IT_AU_USHORT_ADD_A = 59,
-	IT_AU_USHORT_ADD_B = 60,
-	IT_AU_INT_ADD_A = 61,
-	IT_AU_INT_ADD_B = 62,
-	IT_AU_UINT_ADD_A = 63,
-	IT_AU_UINT_ADD_B = 64,
-	IT_AU_FLOAT_ADD_A = 65,
-	IT_AU_FLOAT_ADD_B = 66,
-	IT_AU_BYTE_MIN_A = 67,
-	IT_AU_BYTE_MIN_B = 68,
-	IT_AU_UBYTE_MIN_A = 69,
-	IT_AU_UBYTE_MIN_B = 70,
-	IT_AU_SHORT_MIN_A = 71,
-	IT_AU_SHORT_MIN_B = 72,
-	IT_AU_USHORT_MIN_A = 73,
-	IT_AU_USHORT_MIN_B = 74,
-	IT_AU_INT_MIN_A = 75,
-	IT_AU_INT_MIN_B = 76,
-	IT_AU_UINT_MIN_A = 77,
-	IT_AU_UINT_MIN_B = 78,
-	IT_AU_FLOAT_MIN_A = 79,
-	IT_AU_FLOAT_MIN_B = 80,
-	IT_AU_BYTE_MUL_A = 81,
-	IT_AU_BYTE_MUL_B = 82,
-	IT_AU_UBYTE_MUL_A = 83,
-	IT_AU_UBYTE_MUL_B = 84,
-	IT_AU_SHORT_MUL_A = 85,
-	IT_AU_SHORT_MUL_B = 86,
-	IT_AU_USHORT_MUL_A = 87,
-	IT_AU_USHORT_MUL_B = 88,
-	IT_AU_INT_MUL_A = 89,
-	IT_AU_INT_MUL_B = 90,
-	IT_AU_UINT_MUL_A = 91,
-	IT_AU_UINT_MUL_B = 92,
-	IT_AU_FLOAT_MUL_A = 93,
-	IT_AU_FLOAT_MUL_B = 94,
-	IT_AU_BYTE_DIV_A = 95,
-	IT_AU_BYTE_DIV_B = 96,
-	IT_AU_UBYTE_DIV_A = 97,
-	IT_AU_UBYTE_DIV_B = 98,
-	IT_AU_SHORT_DIV_A = 99,
-	IT_AU_SHORT_DIV_B = 100,
-	IT_AU_USHORT_DIV_A = 101,
-	IT_AU_USHORT_DIV_B = 102,
-	IT_AU_INT_DIV_A = 103,
-	IT_AU_INT_DIV_B = 104,
-	IT_AU_UINT_DIV_A = 105,
-	IT_AU_UINT_DIV_B = 106,
-	IT_AU_FLOAT_DIV_A = 107,
-	IT_AU_FLOAT_DIV_B = 108,
-	IT_AU_BYTE_PER_A = 109,
-	IT_AU_BYTE_PER_B = 110,
-	IT_AU_UBYTE_PER_A = 111,
-	IT_AU_UBYTE_PER_B = 112,
-	IT_AU_SHORT_PER_A = 113,
-	IT_AU_SHORT_PER_B = 114,
-	IT_AU_USHORT_PER_A = 115,
-	IT_AU_USHORT_PER_B = 116,
-	IT_AU_INT_PER_A = 117,
-	IT_AU_INT_PER_B = 118,
-	IT_AU_UINT_PER_A = 119,
-	IT_AU_UINT_PER_B = 120,
-	IT_LU_BOOL_AND_A = 121,
-	IT_LU_BOOL_AND_B = 122,
-	IT_LU_BOOL_OR_A = 123,
-	IT_LU_BOOL_OR_B = 124,
-	IT_LU_BOOL_NOT_A = 125,
-	IT_LU_BOOL_NOT_B = 126,
-	IT_CM_BOOL_SAME_A = 127,
-	IT_CM_BOOL_SAME_B = 128,
-	IT_CM_BOOL_NOTSAME_A = 129,
-	IT_CM_BOOL_NOTSAME_B = 130,
-	IT_CM_BOOL_BYTE_LBIG_A = 131,
-	IT_CM_BOOL_BYTE_LBIG_B = 132,
-	IT_CM_BOOL_UBYTE_LBIG_A = 133,
-	IT_CM_BOOL_UBYTE_LBIG_B = 134,
-	IT_CM_BOOL_SHORT_LBIG_A = 135,
-	IT_CM_BOOL_SHORT_LBIG_B = 136,
-	IT_CM_BOOL_USHORT_LBIG_A = 137,
-	IT_CM_BOOL_USHORT_LBIG_B = 138,
-	IT_CM_BOOL_INT_LBIG_A = 139,
-	IT_CM_BOOL_INT_LBIG_B = 140,
-	IT_CM_BOOL_UINT_LBIG_A = 141,
-	IT_CM_BOOL_UINT_LBIG_B = 142,
-	IT_CM_BOOL_FLOAT_LBIG_A = 143,
-	IT_CM_BOOL_FLOAT_LBIG_B = 144,
-	IT_CM_BOOL_BYTE_LBIGSAME_A = 145,
-	IT_CM_BOOL_BYTE_LBIGSAME_B = 146,
-	IT_CM_BOOL_UBYTE_LBIGSAME_A = 147,
-	IT_CM_BOOL_UBYTE_LBIGSAME_B = 148,
-	IT_CM_BOOL_SHORT_LBIGSAME_A = 149,
-	IT_CM_BOOL_SHORT_LBIGSAME_B = 150,
-	IT_CM_BOOL_USHORT_LBIGSAME_A = 151,
-	IT_CM_BOOL_USHORT_LBIGSAME_B = 152,
-	IT_CM_BOOL_INT_LBIGSAME_A = 153,
-	IT_CM_BOOL_INT_LBIGSAME_B = 154,
-	IT_CM_BOOL_UINT_LBIGSAME_A = 155,
-	IT_CM_BOOL_UINT_LBIGSAME_B = 156,
-	IT_CM_BOOL_FLOAT_LBIGSAME_A = 157,
-	IT_CM_BOOL_FLOAT_LBIGSAME_B = 158,
-	IT_CM_BOOL_BYTE_RBIG_A = 159,
-	IT_CM_BOOL_BYTE_RBIG_B = 160,
-	IT_CM_BOOL_UBYTE_RBIG_A = 161,
-	IT_CM_BOOL_UBYTE_RBIG_B = 162,
-	IT_CM_BOOL_SHORT_RBIG_A = 163,
-	IT_CM_BOOL_SHORT_RBIG_B = 164,
-	IT_CM_BOOL_USHORT_RBIG_A = 165,
-	IT_CM_BOOL_USHORT_RBIG_B = 166,
-	IT_CM_BOOL_INT_RBIG_A = 167,
-	IT_CM_BOOL_INT_RBIG_B = 168,
-	IT_CM_BOOL_UINT_RBIG_A = 169,
-	IT_CM_BOOL_UINT_RBIG_B = 170,
-	IT_CM_BOOL_FLOAT_RBIG_A = 171,
-	IT_CM_BOOL_FLOAT_RBIG_B = 172,
-	IT_CM_BOOL_BYTE_RBIGSAME_A = 173,
-	IT_CM_BOOL_BYTE_RBIGSAME_B = 174,
-	IT_CM_BOOL_UBYTE_RBIGSAME_A = 175,
-	IT_CM_BOOL_UBYTE_RBIGSAME_B = 176,
-	IT_CM_BOOL_SHORT_RBIGSAME_A = 177,
-	IT_CM_BOOL_SHORT_RBIGSAME_B = 178,
-	IT_CM_BOOL_USHORT_RBIGSAME_A = 179,
-	IT_CM_BOOL_USHORT_RBIGSAME_B = 180,
-	IT_CM_BOOL_INT_RBIGSAME_A = 181,
-	IT_CM_BOOL_INT_RBIGSAME_B = 182,
-	IT_CM_BOOL_UINT_RBIGSAME_A = 183,
-	IT_CM_BOOL_UINT_RBIGSAME_B = 184,
-	IT_CM_BOOL_FLOAT_RBIGSAME_A = 185,
-	IT_CM_BOOL_FLOAT_RBIGSAME_B = 186,
-	IT_IF = 187,
-	IT_JMP = 188,
-	IT_FUNC = 189,
-	IT_PARAM_1 = 190,
-	IT_PARAM_2 = 191,
-	IT_PARAM_4 = 192,
-	IT_RETURN = 193,
-	IT_EXIT = 194,
-	IT_PUSH_TO_A_FROM_ADDRESS_OF_VARIABLE_ID = 195,
-	IT_PUSH_TO_B_FROM_ADDRESS_OF_VARIABLE_ID = 196,
-	IT_PUSH_TO_X_FROM_ADDRESS_OF_VARIABLE_ID = 197,
-	IT_PUSH_TO_Y_FROM_ADDRESS_OF_VARIABLE_ID = 198,
-	IT_PUSH_TO_LA_FROM_A = 199,
-	IT_FUNCJMP = 200,
-	IT_CASTING_A = 201,
-	IT_CASTING_B = 202,
-	IT_CASTING_X = 203,
-	IT_CASTING_Y = 204,
-	IT_PUSH_A_FROM_VALUE_OF_A = 205,
-	IT_PUSH_B_FROM_VALUE_OF_B = 206,
-	IT_PUSH_X_FROM_VALUE_OF_X = 207,
-	IT_PUSH_Y_FROM_VALUE_OF_Y = 208,
-	IT_DBG_A = 209,
-	IT_INP_A_PTR = 210,
-	IT_PUSH_TO_VALUE_OF_LA_FROM_A_1 = 211,
-	IT_PUSH_TO_VALUE_OF_LA_FROM_A_2 = 212,
-	IT_PUSH_TO_VALUE_OF_LA_FROM_A_4 = 213,
-	IT_SET_A_CONST_STRING = 214,
-	IT_SET_B_CONST_STRING = 215,
-	IT_POP_A = 216,
-	IT_POP_B = 217,
-	IT_POP_AB = 218,
-	PARAM_N_COPY_BY_ADDRESS = 219,
-	PUSH_A_GLOBAL_VARIABLE_ADDRESS = 220,
-	PUSH_B_GLOBAL_VARIABLE_ADDRESS = 221,
-	PUSH_A_FROM_B = 222,
-	PUSH_B_FROM_A = 223,
-	SET_ADDRESS_LA_FROM_ADRESS_A_N = 224,
+	IT_PUSH_A_CONST_1 = 4, // using
+	IT_PUSH_A_CONST_2 = 5, // not using
+	IT_PUSH_A_CONST_4 = 6, // using
+	IT_PUSH_A_VARIABLE_1 = 7, // not using but later
+	IT_PUSH_A_VARIABLE_2 = 8,
+	IT_PUSH_A_VARIABLE_4 = 9,
+	IT_PUSH_B_CONST_1 = 10, // using
+	IT_PUSH_B_CONST_2 = 11, // not using
+	IT_PUSH_B_CONST_4 = 12, // using
+	IT_PUSH_B_VARIABLE_1 = 13, // not using but later
+	IT_PUSH_B_VARIABLE_2 = 14,
+	IT_PUSH_B_VARIABLE_4 = 15, // ? > seem good
+	IT_AXBY = 16,
+	IT_AU_BYTE_ADD_A = 17,
+	IT_AU_BYTE_ADD_B = 18,
+	IT_AU_UBYTE_ADD_A = 19,
+	IT_AU_UBYTE_ADD_B = 20,
+	IT_AU_SHORT_ADD_A = 21,
+	IT_AU_SHORT_ADD_B = 22,
+	IT_AU_USHORT_ADD_A = 23,
+	IT_AU_USHORT_ADD_B = 24,
+	IT_AU_INT_ADD_A = 25,
+	IT_AU_INT_ADD_B = 26,
+	IT_AU_UINT_ADD_A = 27,
+	IT_AU_UINT_ADD_B = 28,
+	IT_AU_FLOAT_ADD_A = 29,
+	IT_AU_FLOAT_ADD_B = 30,
+	IT_AU_BYTE_MIN_A = 31,
+	IT_AU_BYTE_MIN_B = 32,
+	IT_AU_UBYTE_MIN_A = 33,
+	IT_AU_UBYTE_MIN_B = 34,
+	IT_AU_SHORT_MIN_A = 35,
+	IT_AU_SHORT_MIN_B = 36,
+	IT_AU_USHORT_MIN_A = 37,
+	IT_AU_USHORT_MIN_B = 38,
+	IT_AU_INT_MIN_A = 39,
+	IT_AU_INT_MIN_B = 40,
+	IT_AU_UINT_MIN_A = 41,
+	IT_AU_UINT_MIN_B = 42,
+	IT_AU_FLOAT_MIN_A = 43,
+	IT_AU_FLOAT_MIN_B = 44,
+	IT_AU_BYTE_MUL_A = 45,
+	IT_AU_BYTE_MUL_B = 46,
+	IT_AU_UBYTE_MUL_A = 47,
+	IT_AU_UBYTE_MUL_B = 48,
+	IT_AU_SHORT_MUL_A = 49,
+	IT_AU_SHORT_MUL_B = 50,
+	IT_AU_USHORT_MUL_A = 51,
+	IT_AU_USHORT_MUL_B = 52,
+	IT_AU_INT_MUL_A = 53,
+	IT_AU_INT_MUL_B = 54,
+	IT_AU_UINT_MUL_A = 55,
+	IT_AU_UINT_MUL_B = 56,
+	IT_AU_FLOAT_MUL_A = 57,
+	IT_AU_FLOAT_MUL_B = 58,
+	IT_AU_BYTE_DIV_A = 59,
+	IT_AU_BYTE_DIV_B = 60,
+	IT_AU_UBYTE_DIV_A = 61,
+	IT_AU_UBYTE_DIV_B = 62,
+	IT_AU_SHORT_DIV_A = 63,
+	IT_AU_SHORT_DIV_B = 64,
+	IT_AU_USHORT_DIV_A = 65,
+	IT_AU_USHORT_DIV_B = 66,
+	IT_AU_INT_DIV_A = 67,
+	IT_AU_INT_DIV_B = 68,
+	IT_AU_UINT_DIV_A = 69,
+	IT_AU_UINT_DIV_B = 70,
+	IT_AU_FLOAT_DIV_A = 71,
+	IT_AU_FLOAT_DIV_B = 72,
+	IT_AU_BYTE_PER_A = 73,
+	IT_AU_BYTE_PER_B = 74,
+	IT_AU_UBYTE_PER_A = 75,
+	IT_AU_UBYTE_PER_B = 76,
+	IT_AU_SHORT_PER_A = 77,
+	IT_AU_SHORT_PER_B = 78,
+	IT_AU_USHORT_PER_A = 79,
+	IT_AU_USHORT_PER_B = 80,
+	IT_AU_INT_PER_A = 81,
+	IT_AU_INT_PER_B = 82,
+	IT_AU_UINT_PER_A = 83,
+	IT_AU_UINT_PER_B = 84,
+	IT_LU_BOOL_AND_A = 85,
+	IT_LU_BOOL_AND_B = 86,
+	IT_LU_BOOL_OR_A = 87,
+	IT_LU_BOOL_OR_B = 88,
+	IT_LU_BOOL_NOT_A = 89,
+	IT_LU_BOOL_NOT_B = 90,
+	IT_CM_BOOL_SAME_A = 91,
+	IT_CM_BOOL_SAME_B = 92,
+	IT_CM_BOOL_NOTSAME_A = 93,
+	IT_CM_BOOL_NOTSAME_B = 94,
+	IT_CM_BOOL_BYTE_LBIG_A = 95,
+	IT_CM_BOOL_BYTE_LBIG_B = 96,
+	IT_CM_BOOL_UBYTE_LBIG_A = 97,
+	IT_CM_BOOL_UBYTE_LBIG_B = 98,
+	IT_CM_BOOL_SHORT_LBIG_A = 99,
+	IT_CM_BOOL_SHORT_LBIG_B = 100,
+	IT_CM_BOOL_USHORT_LBIG_A = 101,
+	IT_CM_BOOL_USHORT_LBIG_B = 102,
+	IT_CM_BOOL_INT_LBIG_A = 103,
+	IT_CM_BOOL_INT_LBIG_B = 104,
+	IT_CM_BOOL_UINT_LBIG_A = 105,
+	IT_CM_BOOL_UINT_LBIG_B = 106,
+	IT_CM_BOOL_FLOAT_LBIG_A = 107,
+	IT_CM_BOOL_FLOAT_LBIG_B = 108,
+	IT_CM_BOOL_BYTE_LBIGSAME_A = 109,
+	IT_CM_BOOL_BYTE_LBIGSAME_B = 110,
+	IT_CM_BOOL_UBYTE_LBIGSAME_A = 111,
+	IT_CM_BOOL_UBYTE_LBIGSAME_B = 112,
+	IT_CM_BOOL_SHORT_LBIGSAME_A = 113,
+	IT_CM_BOOL_SHORT_LBIGSAME_B = 114,
+	IT_CM_BOOL_USHORT_LBIGSAME_A = 115,
+	IT_CM_BOOL_USHORT_LBIGSAME_B = 116,
+	IT_CM_BOOL_INT_LBIGSAME_A = 117,
+	IT_CM_BOOL_INT_LBIGSAME_B = 118,
+	IT_CM_BOOL_UINT_LBIGSAME_A = 119,
+	IT_CM_BOOL_UINT_LBIGSAME_B = 120,
+	IT_CM_BOOL_FLOAT_LBIGSAME_A = 121,
+	IT_CM_BOOL_FLOAT_LBIGSAME_B = 122,
+	IT_CM_BOOL_BYTE_RBIG_A = 123,
+	IT_CM_BOOL_BYTE_RBIG_B = 124,
+	IT_CM_BOOL_UBYTE_RBIG_A = 125,
+	IT_CM_BOOL_UBYTE_RBIG_B = 126,
+	IT_CM_BOOL_SHORT_RBIG_A = 127,
+	IT_CM_BOOL_SHORT_RBIG_B = 128,
+	IT_CM_BOOL_USHORT_RBIG_A = 129,
+	IT_CM_BOOL_USHORT_RBIG_B = 130,
+	IT_CM_BOOL_INT_RBIG_A = 131,
+	IT_CM_BOOL_INT_RBIG_B = 132,
+	IT_CM_BOOL_UINT_RBIG_A = 133,
+	IT_CM_BOOL_UINT_RBIG_B = 134,
+	IT_CM_BOOL_FLOAT_RBIG_A = 135,
+	IT_CM_BOOL_FLOAT_RBIG_B = 136,
+	IT_CM_BOOL_BYTE_RBIGSAME_A = 137,
+	IT_CM_BOOL_BYTE_RBIGSAME_B = 138,
+	IT_CM_BOOL_UBYTE_RBIGSAME_A = 139,
+	IT_CM_BOOL_UBYTE_RBIGSAME_B = 140,
+	IT_CM_BOOL_SHORT_RBIGSAME_A = 141,
+	IT_CM_BOOL_SHORT_RBIGSAME_B = 142,
+	IT_CM_BOOL_USHORT_RBIGSAME_A = 143,
+	IT_CM_BOOL_USHORT_RBIGSAME_B = 144,
+	IT_CM_BOOL_INT_RBIGSAME_A = 145,
+	IT_CM_BOOL_INT_RBIGSAME_B = 146,
+	IT_CM_BOOL_UINT_RBIGSAME_A = 147,
+	IT_CM_BOOL_UINT_RBIGSAME_B = 148,
+	IT_CM_BOOL_FLOAT_RBIGSAME_A = 149,
+	IT_CM_BOOL_FLOAT_RBIGSAME_B = 150,
+	IT_IF = 151,
+	IT_JMP = 152,
+	IT_FUNC = 153,
+	IT_PARAM_1 = 154,
+	IT_PARAM_2 = 155,
+	IT_PARAM_4 = 156,
+	IT_RETURN = 157,
+	IT_EXIT = 158,
+	IT_PUSH_TO_A_FROM_ADDRESS_OF_VARIABLE_ID = 159,
+	IT_PUSH_TO_B_FROM_ADDRESS_OF_VARIABLE_ID = 160,
+	IT_PUSH_TO_LA_FROM_A = 161,
+	IT_FUNCJMP = 162,
+	IT_CASTING_A = 163,
+	IT_CASTING_B = 164,
+	IT_PUSH_A_FROM_VALUE_OF_A = 165,
+	IT_PUSH_B_FROM_VALUE_OF_B = 166,
+	IT_DBG_A = 167,
+	IT_INP_A_PTR = 168,
+	IT_PUSH_TO_VALUE_OF_LA_FROM_A_1 = 169,
+	IT_PUSH_TO_VALUE_OF_LA_FROM_A_2 = 170,
+	IT_PUSH_TO_VALUE_OF_LA_FROM_A_4 = 171,
+	IT_SET_A_CONST_STRING = 172,
+	IT_SET_B_CONST_STRING = 173,
+	IT_POP_A = 174,
+	IT_POP_B = 175,
+	IT_POP_AB = 176,
+	PARAM_N_COPY_BY_ADDRESS = 177,
+	PUSH_A_GLOBAL_VARIABLE_ADDRESS = 178,
+	PUSH_B_GLOBAL_VARIABLE_ADDRESS = 179,
+	PUSH_A_FROM_B = 180,
+	PUSH_B_FROM_A = 181,
+	SET_ADDRESS_LA_FROM_ADRESS_A_N = 182,
 	//...
 	EXTENSION_INST = 255
 };
@@ -949,6 +907,8 @@ public:
 	static ofstream icl; // icb log
 	static uint32_t icl_optionFlag;
 
+	vecarr<ICB_Extension*> extension; // 확장코드
+
 	static void SetICLFlag(ICL_FLAG flag, bool enable){
 		if(enable){
 			uint32_t temp = 1 << (unsigned int)flag;
@@ -964,9 +924,6 @@ public:
 		uint32_t temp = 1 << (unsigned int)flag;
 		return icl_optionFlag & temp;
 	}
-
-	vecarr<ICB_Extension*> extension; // 확장코드
-
 	void release_tempmem(temp_mem *ptr)
 	{
 		ptr->mem.release();
@@ -1337,7 +1294,7 @@ public:
 			{
 				return;
 			}
-			if (mem[i] == 214 || mem[i] == 215)
+			if (mem[i] == (byte8)insttype::IT_SET_A_CONST_STRING || mem[i] == (byte8)insttype::IT_SET_B_CONST_STRING)
 			{
 				ofs << i << "\t:" << inst_meta[mem[i]].name << "(" << (uint)mem[i] << ")";
 				uint strmax = 0;
@@ -1531,20 +1488,20 @@ public:
 		basicoper[2] = create_oper("->", 'f', 0, 0);
 		basicoper[3] = create_oper("&", 'f', 0, 0);
 		basicoper[4] = create_oper("*", 'f', 0, 0);
-		basicoper[5] = create_oper("*", 'o', 81, 94);
-		basicoper[6] = create_oper("/", 'o', 95, 108);
-		basicoper[7] = create_oper("%", 'o', 109, 120);
-		basicoper[8] = create_oper("+", 'o', 53, 66);
-		basicoper[9] = create_oper("-", 'o', 67, 80);
-		basicoper[10] = create_oper("==", 'o', 127, 128);
-		basicoper[11] = create_oper("<", 'o', 159, 172);
-		basicoper[12] = create_oper(">", 'o', 131, 144);
-		basicoper[13] = create_oper("<=", 'o', 173, 186);
-		basicoper[14] = create_oper(">=", 'o', 145, 158);
-		basicoper[15] = create_oper("!=", 'o', 129, 130);
-		basicoper[16] = create_oper("!", 'o', 125, 126);
-		basicoper[17] = create_oper("&&", 'o', 121, 122);
-		basicoper[18] = create_oper("||", 'o', 123, 124);
+		basicoper[5] = create_oper("*", 'o', (byte8)insttype::IT_AU_BYTE_MUL_A, (byte8)insttype::IT_AU_FLOAT_MUL_B);
+		basicoper[6] = create_oper("/", 'o', (byte8)insttype::IT_AU_BYTE_DIV_A, (byte8)insttype::IT_AU_FLOAT_DIV_B);
+		basicoper[7] = create_oper("%", 'o', (byte8)insttype::IT_AU_BYTE_PER_A, (byte8)insttype::IT_AU_UINT_PER_B);
+		basicoper[8] = create_oper("+", 'o', (byte8)insttype::IT_AU_BYTE_ADD_A, (byte8)insttype::IT_AU_FLOAT_ADD_B);
+		basicoper[9] = create_oper("-", 'o', (byte8)insttype::IT_AU_BYTE_MIN_A, (byte8)insttype::IT_AU_FLOAT_MIN_B);
+		basicoper[10] = create_oper("==", 'o', (byte8)insttype::IT_CM_BOOL_SAME_A, (byte8)insttype::IT_CM_BOOL_SAME_B);
+		basicoper[11] = create_oper("<", 'o', (byte8)insttype::IT_CM_BOOL_BYTE_RBIG_A, (byte8)insttype::IT_CM_BOOL_FLOAT_RBIG_B);
+		basicoper[12] = create_oper(">", 'o', (byte8)insttype::IT_CM_BOOL_BYTE_LBIG_A, (byte8)insttype::IT_CM_BOOL_FLOAT_LBIG_B);
+		basicoper[13] = create_oper("<=", 'o', (byte8)insttype::IT_CM_BOOL_BYTE_RBIGSAME_A, (byte8)insttype::IT_CM_BOOL_FLOAT_RBIGSAME_B);
+		basicoper[14] = create_oper(">=", 'o', (byte8)insttype::IT_CM_BOOL_BYTE_LBIGSAME_A, (byte8)insttype::IT_CM_BOOL_FLOAT_LBIGSAME_B);
+		basicoper[15] = create_oper("!=", 'o', (byte8)insttype::IT_CM_BOOL_NOTSAME_A, (byte8)insttype::IT_CM_BOOL_NOTSAME_B);
+		basicoper[16] = create_oper("!", 'o', (byte8)insttype::IT_LU_BOOL_NOT_A, (byte8)insttype::IT_LU_BOOL_NOT_B);
+		basicoper[17] = create_oper("&&", 'o', (byte8)insttype::IT_LU_BOOL_AND_A, (byte8)insttype::IT_LU_BOOL_AND_B);
+		basicoper[18] = create_oper("||", 'o', (byte8)insttype::IT_LU_BOOL_OR_A, (byte8)insttype::IT_LU_BOOL_OR_B);
 		if(icldetail) icl << "ICB_StaticInit create basic operation finish" << endl;
 
 		if(icldetail) icl << "ICB_StaticInit ";
@@ -2673,12 +2630,12 @@ public:
 						case 'A':
 						{
 							if(is_a){
-								tm->mem.push_back(205); // a = *a
+								tm->mem.push_back((byte8)insttype::IT_PUSH_A_FROM_VALUE_OF_A); // a = *a
 							}
 							else{
 								tm->mem.push_back((byte8)insttype::PUSH_B_FROM_A); // b = a
-								tm->mem.push_back(216); // pop a
-								tm->mem.push_back(206); // b = *b
+								tm->mem.push_back((byte8)insttype::IT_POP_A); // pop a
+								tm->mem.push_back((byte8)insttype::IT_PUSH_B_FROM_VALUE_OF_B); // b = *b
 							}
 						}
 						break;
@@ -2686,11 +2643,11 @@ public:
 						{
 							if(is_a){
 								tm->mem.push_back((byte8)insttype::PUSH_A_FROM_B); // a = b
-								tm->mem.push_back(217); // pop b
-								tm->mem.push_back(205); // a = *a
+								tm->mem.push_back((byte8)insttype::IT_POP_B); // pop b
+								tm->mem.push_back((byte8)insttype::IT_PUSH_A_FROM_VALUE_OF_A); // a = *a
 							}
 							else{
-								tm->mem.push_back(206); // b = *b
+								tm->mem.push_back((byte8)insttype::IT_PUSH_B_FROM_VALUE_OF_B); // b = *b
 							}
 						}
 						break;
@@ -2702,7 +2659,7 @@ public:
 						{
 							if(is_a == false){
 								tm->mem.push_back((byte8)insttype::PUSH_B_FROM_A); // b = a
-								tm->mem.push_back(216); // pop a
+								tm->mem.push_back((byte8)insttype::IT_POP_A); // pop a
 							}
 						}
 						break;
@@ -2710,7 +2667,7 @@ public:
 						{
 							if(is_a){
 								tm->mem.push_back((byte8)insttype::PUSH_A_FROM_B); // a = b
-								tm->mem.push_back(217); // pop b
+								tm->mem.push_back((byte8)insttype::IT_POP_B); // pop b
 							}
 						}
 						break;
@@ -2727,7 +2684,7 @@ public:
 						{
 							if(is_a == false){
 								tm->mem.push_back((byte8)insttype::PUSH_B_FROM_A); // b = a
-								tm->mem.push_back(216); // pop a
+								tm->mem.push_back((byte8)insttype::IT_POP_A); // pop a
 							}
 						}
 						break;
@@ -2735,7 +2692,7 @@ public:
 						{
 							if(is_a){
 								tm->mem.push_back((byte8)insttype::PUSH_A_FROM_B); // a = b
-								tm->mem.push_back(217); // pop b
+								tm->mem.push_back((byte8)insttype::IT_POP_B); // pop b
 							}
 						}
 						break;
@@ -2798,7 +2755,7 @@ public:
 					{
 						tm->mem.push_back(rtm->mem[k]);
 					}
-					tm->mem.push_back(209);
+					tm->mem.push_back((byte8)insttype::IT_DBG_A);
 					tm->mem.push_back((byte8)rtm->valuetype);
 					savecomma = coma;
 					coma = wbss.search_word_first_in_specific_oc_layer(inner_params, savecomma + 1, "(", ")", 0, ",");
@@ -2815,7 +2772,7 @@ public:
 				{
 					tm->mem.push_back(rtm->mem[k]);
 				}
-				tm->mem.push_back(209);
+				tm->mem.push_back((byte8)insttype::IT_DBG_A);
 				tm->mem.push_back((byte8)rtm->valuetype);
 
 				inner_params->release();
@@ -2834,7 +2791,7 @@ public:
 				{
 					tm->mem.push_back(rtm->mem[k]);
 				}
-				tm->mem.push_back(210);
+				tm->mem.push_back((byte8)insttype::IT_INP_A_PTR);
 				tm->mem.push_back((byte8)rtm->valuetype);
 
 				inner_params->release();
@@ -2865,8 +2822,8 @@ public:
 				sen *params_sen = wbss.sen_cut(code, nameloc + 2, loc - 1);
 				if (params_sen->size() == 0)
 				{
-					tm->mem.push_back(189); // FUNC
-					tm->mem.push_back(200); // jmp
+					tm->mem.push_back((byte8)insttype::IT_FUNC); // FUNC
+					tm->mem.push_back((byte8)insttype::IT_FUNCJMP); // jmp
 					byte8 bb[4] = {};
 					*reinterpret_cast<uint *>(bb) = (uint)(fd->start_pc - &mem[0]);
 					for (int u = 0; u < 4; ++u)
@@ -2891,7 +2848,7 @@ public:
 				int paramid = 0;
 				int paramCount = 0;
 
-				tm->mem.push_back(189);
+				tm->mem.push_back((byte8)insttype::IT_FUNC);
 
 				while (coma != -1)
 				{
@@ -2916,7 +2873,7 @@ public:
 
 						casting_type ct = get_cast_type(rtm->valuetype, get_int_with_basictype(fd->param_data.at(paramCount).td));
 						if(ct != casting_type::nocasting){
-							tm->mem.push_back(201);
+							tm->mem.push_back((byte8)insttype::IT_CASTING_A);
 							tm->mem.push_back((byte8)ct);
 						}
 						
@@ -2934,13 +2891,13 @@ public:
 						switch (fd->param_data[paramid].td->typesiz)
 						{
 						case 1:
-							tm->mem.push_back(190); // param
+							tm->mem.push_back((byte8)insttype::IT_PARAM_1); // param
 							break;
 						case 2:
-							tm->mem.push_back(191); // param
+							tm->mem.push_back((byte8)insttype::IT_PARAM_2); // param
 							break;
 						case 4:
-							tm->mem.push_back(192); // param
+							tm->mem.push_back((byte8)insttype::IT_PARAM_4); // param
 							break;
 						}
 					}
@@ -2988,7 +2945,7 @@ public:
 					}
 					casting_type ct = get_cast_type(rtm->valuetype, get_int_with_basictype(fd->param_data.at(paramCount).td));
 					if(ct != casting_type::nocasting){
-						tm->mem.push_back(201);
+						tm->mem.push_back((byte8)insttype::IT_CASTING_A);
 						tm->mem.push_back((byte8)ct);
 					}
 					/*
@@ -3005,13 +2962,13 @@ public:
 					switch (fd->param_data[paramid].td->typesiz)
 					{
 					case 1:
-						tm->mem.push_back(190); // param
+						tm->mem.push_back((byte8)insttype::IT_PARAM_1); // param
 						break;
 					case 2:
-						tm->mem.push_back(191); // param
+						tm->mem.push_back((byte8)insttype::IT_PARAM_2); // param
 						break;
 					case 4:
-						tm->mem.push_back(192); // param
+						tm->mem.push_back((byte8)insttype::IT_PARAM_4); // param
 						break;
 					}
 				}
@@ -3026,7 +2983,7 @@ public:
 					}
 				}
 
-				tm->mem.push_back(200); // jmp
+				tm->mem.push_back((byte8)insttype::IT_FUNCJMP); // jmp
 				int ll = tm->mem.size();
 				for (int k = 0; k < 4; ++k)
 				{
@@ -3055,8 +3012,8 @@ public:
 				sen *params_sen = wbss.sen_cut(code, nameloc + 2, loc - 1);
 				if (params_sen->size() == 0)
 				{
-					tm->mem.push_back(189); // FUNC
-					tm->mem.push_back(200); // jmp
+					tm->mem.push_back((byte8)insttype::IT_FUNC); // FUNC
+					tm->mem.push_back((byte8)insttype::IT_FUNCJMP); // jmp
 					byte8 bb[4] = {};
 					*reinterpret_cast<uint *>(bb) = (uint)(fd->start_pc - &mem[0]);
 					for (int u = 0; u < 4; ++u)
@@ -3080,7 +3037,7 @@ public:
 
 				int paramCount = fd->param_data.size() - 1;
 
-				tm->mem.push_back(189);
+				tm->mem.push_back((byte8)insttype::IT_FUNC);
 
 				while (coma != -1)
 				{
@@ -3105,7 +3062,7 @@ public:
 
 						casting_type ct = get_cast_type(rtm->valuetype, get_int_with_basictype(fd->param_data.at(paramCount).td));
 						if(ct != casting_type::nocasting){
-							tm->mem.push_back(201);
+							tm->mem.push_back((byte8)insttype::IT_CASTING_A);
 							tm->mem.push_back((byte8)ct);
 						}
 						/*
@@ -3122,13 +3079,13 @@ public:
 						switch (fd->param_data[paramCount].td->typesiz)
 						{
 						case 1:
-							tm->mem.push_back(190); // param
+							tm->mem.push_back((byte8)insttype::IT_PARAM_1); // param
 							break;
 						case 2:
-							tm->mem.push_back(191); // param
+							tm->mem.push_back((byte8)insttype::IT_PARAM_2); // param
 							break;
 						case 4:
-							tm->mem.push_back(192); // param
+							tm->mem.push_back((byte8)insttype::IT_PARAM_4); // param
 							break;
 						}
 					}
@@ -3176,7 +3133,7 @@ public:
 					}
 					casting_type ct = get_cast_type(rtm->valuetype, get_int_with_basictype(fd->param_data.at(paramCount).td));
 					if(ct != casting_type::nocasting){
-						tm->mem.push_back(201);
+						tm->mem.push_back((byte8)insttype::IT_CASTING_A);
 						tm->mem.push_back((byte8)ct);
 					}
 					/*
@@ -3193,13 +3150,13 @@ public:
 					switch (fd->param_data[paramCount].td->typesiz)
 					{
 					case 1:
-						tm->mem.push_back(190); // param
+						tm->mem.push_back((byte8)insttype::IT_PARAM_1); // param
 						break;
 					case 2:
-						tm->mem.push_back(191); // param
+						tm->mem.push_back((byte8)insttype::IT_PARAM_2); // param
 						break;
 					case 4:
-						tm->mem.push_back(192); // param
+						tm->mem.push_back((byte8)insttype::IT_PARAM_4); // param
 						break;
 					}
 				}
@@ -3278,11 +3235,11 @@ public:
 				{
 					if (is_a)
 					{
-						tm->mem.push_back(205);
+						tm->mem.push_back((byte8)insttype::IT_PUSH_A_FROM_VALUE_OF_A);
 					}
 					else
 					{
-						tm->mem.push_back(206);
+						tm->mem.push_back((byte8)insttype::IT_PUSH_B_FROM_VALUE_OF_B);
 					}
 
 					tm->valuetype = get_int_with_basictype(td);
@@ -3306,7 +3263,7 @@ public:
 				type_data *td = get_type_with_vname(ten->at(0).data.str);
 				if (is_a)
 				{
-					tm->mem.push_back(195);
+					tm->mem.push_back((byte8)insttype::IT_PUSH_TO_A_FROM_ADDRESS_OF_VARIABLE_ID);
 					byte8 add[4];
 					*reinterpret_cast<uint *>(&add[0]) = varid;
 					for (int i = 0; i < 4; ++i)
@@ -3316,7 +3273,7 @@ public:
 				}
 				else
 				{
-					tm->mem.push_back(196);
+					tm->mem.push_back((byte8)insttype::IT_PUSH_TO_B_FROM_ADDRESS_OF_VARIABLE_ID);
 					byte8 add[4];
 					*reinterpret_cast<uint *>(&add[0]) = varid;
 					for (int i = 0; i < 4; ++i)
@@ -3329,11 +3286,11 @@ public:
 				{
 					if (is_a)
 					{
-						tm->mem.push_back(205);
+						tm->mem.push_back((byte8)insttype::IT_PUSH_A_FROM_VALUE_OF_A);
 					}
 					else
 					{
-						tm->mem.push_back(206);
+						tm->mem.push_back((byte8)insttype::IT_PUSH_B_FROM_VALUE_OF_B);
 					}
 					tm->valuetype = get_int_with_basictype(td);
 					tm->valuetype_detail = td;
@@ -3361,11 +3318,11 @@ public:
 					bool b = true;
 					if (is_a)
 					{
-						tm->mem.push_back(18);
+						tm->mem.push_back((byte8)insttype::IT_PUSH_A_CONST_4);
 					}
 					else
 					{
-						tm->mem.push_back(27);
+						tm->mem.push_back((byte8)insttype::IT_PUSH_B_CONST_4);
 					}
 					if (strcmp(str.c_str(), "true") == 0)
 						b = true;
@@ -3384,11 +3341,11 @@ public:
 					int a = 0;
 					if (is_a)
 					{
-						tm->mem.push_back(18);
+						tm->mem.push_back((byte8)insttype::IT_PUSH_A_CONST_4);
 					}
 					else
 					{
-						tm->mem.push_back(27);
+						tm->mem.push_back((byte8)insttype::IT_PUSH_B_CONST_4);
 					}
 					a = atoi(str.c_str());
 					for (int k = 0; k < 4; ++k)
@@ -3404,11 +3361,11 @@ public:
 					float a = 0;
 					if (is_a)
 					{
-						tm->mem.push_back(18);
+						tm->mem.push_back((byte8)insttype::IT_PUSH_A_CONST_4);
 					}
 					else
 					{
-						tm->mem.push_back(27);
+						tm->mem.push_back((byte8)insttype::IT_PUSH_B_CONST_4);
 					}
 					a = stof(str.c_str());
 					for (int k = 0; k < 4; ++k)
@@ -3423,11 +3380,11 @@ public:
 				{
 					if (is_a)
 					{
-						tm->mem.push_back(16);
+						tm->mem.push_back((byte8)insttype::IT_PUSH_A_CONST_1);
 					}
 					else
 					{
-						tm->mem.push_back(25);
+						tm->mem.push_back((byte8)insttype::IT_PUSH_B_CONST_1);
 					}
 					if (str[1] != '\\')
 					{
@@ -3467,11 +3424,11 @@ public:
 				{
 					if (is_a)
 					{
-						tm->mem.push_back(214);
+						tm->mem.push_back((byte8)insttype::IT_SET_A_CONST_STRING);
 					}
 					else
 					{
-						tm->mem.push_back(215);
+						tm->mem.push_back((byte8)insttype::IT_SET_B_CONST_STRING);
 					}
 					int max = strlen(str.c_str()) - 1;
 					char cc[4] = {};
@@ -3670,7 +3627,7 @@ public:
 								// a casting
 								if (leftcast != (int)casting_type::nocasting)
 								{
-									result_ten->mem.push_back((byte8)201);
+									result_ten->mem.push_back((byte8)insttype::IT_CASTING_A);
 									result_ten->mem.push_back((byte8)leftcast);
 								}
 								for (int u = 0; u < right_ten->mem.size(); ++u)
@@ -3680,12 +3637,12 @@ public:
 								// b casting
 								if (rightcast != (int)casting_type::nocasting)
 								{
-									result_ten->mem.push_back((byte8)202);
+									result_ten->mem.push_back((byte8)insttype::IT_CASTING_B);
 									result_ten->mem.push_back((byte8)rightcast);
 								}
 
-								result_ten->mem.push_back(52);
-								result_ten->mem.push_back(218); // POP
+								result_ten->mem.push_back((byte8)insttype::IT_AXBY);
+								result_ten->mem.push_back((byte8)insttype::IT_POP_AB); // POP
 
 								if (is_a)
 								{
@@ -3723,7 +3680,7 @@ public:
 							}
 							else if (basicoper[k].endop - basicoper[k].startop == 1)
 							{
-								if(basicoper[k].startop == 127 || basicoper[k].startop == 129){
+								if(basicoper[k].startop == (byte8)insttype::IT_CM_BOOL_SAME_A || basicoper[k].startop == (byte8)insttype::IT_CM_BOOL_NOTSAME_A){
 									// input num oper
 									temp_mem *result_ten =
 										(temp_mem *)fm->_New(sizeof(temp_mem), true);
@@ -3757,7 +3714,7 @@ public:
 									// a casting
 									if (leftcast != (int)casting_type::nocasting)
 									{
-										result_ten->mem.push_back((byte8)201);
+										result_ten->mem.push_back((byte8)insttype::IT_CASTING_A);
 										result_ten->mem.push_back((byte8)leftcast);
 									}
 									for (int u = 0; u < right_ten->mem.size(); ++u)
@@ -3767,12 +3724,12 @@ public:
 									// b casting
 									if (rightcast != (int)casting_type::nocasting)
 									{
-										result_ten->mem.push_back((byte8)202);
+										result_ten->mem.push_back((byte8)insttype::IT_CASTING_B);
 										result_ten->mem.push_back((byte8)rightcast);
 									}
 
-									result_ten->mem.push_back(52);
-									result_ten->mem.push_back(218); // POP
+									result_ten->mem.push_back((byte8)insttype::IT_AXBY);
+									result_ten->mem.push_back((byte8)insttype::IT_POP_AB); // POP
 
 									if (is_a)
 									{
@@ -3824,8 +3781,8 @@ public:
 										result_ten->mem.push_back(right_ten->mem[u]);
 									}
 
-									result_ten->mem.push_back(52); // AXBY
-									result_ten->mem.push_back(216); // POP A
+									result_ten->mem.push_back((byte8)insttype::IT_AXBY); // AXBY
+									result_ten->mem.push_back((byte8)insttype::IT_POP_A); // POP A
 
 									if (is_a)
 									{
@@ -3872,8 +3829,8 @@ public:
 										result_ten->mem.push_back(right_ten->mem[u]);
 									}
 
-									result_ten->mem.push_back(52);
-									result_ten->mem.push_back(218); // POP
+									result_ten->mem.push_back((byte8)insttype::IT_AXBY);
+									result_ten->mem.push_back((byte8)insttype::IT_POP_AB); // POP
 
 									if (is_a)
 									{
@@ -3969,7 +3926,7 @@ public:
 									std = nullptr;
 								}
 								//type_data *std = get_sub_type(td);
-								result_ten->mem.push_back(27); // b=const4
+								result_ten->mem.push_back((byte8)insttype::IT_PUSH_B_CONST_4); // b=const4
 								char cc[4] = {};
 								if(is_array_type){
 									*reinterpret_cast<uint *>(cc) = std->typesiz;
@@ -3980,8 +3937,8 @@ public:
 								for (int u = 0; u < 4; ++u)
 									result_ten->mem.push_back(cc[u]);
 
-								result_ten->mem.push_back(52);	// axby
-								result_ten->mem.push_back(218); // POP
+								result_ten->mem.push_back((byte8)insttype::IT_AXBY);	// axby
+								result_ten->mem.push_back((byte8)insttype::IT_POP_AB); // POP
 								// b=x*y uint
 								result_ten->mem.push_back(92);
 
@@ -3990,12 +3947,12 @@ public:
 									result_ten->mem.push_back(left_ten->mem[u]);
 								}
 
-								result_ten->mem.push_back(52);	// axby
-								result_ten->mem.push_back(218); // POP
+								result_ten->mem.push_back((byte8)insttype::IT_AXBY);	// axby
+								result_ten->mem.push_back((byte8)insttype::IT_POP_AB); // POP
 
 								if (is_a)
 								{
-									int opp = 61;
+									int opp = (byte8)insttype::IT_AU_INT_ADD_A;
 									result_ten->mem.push_back((byte8)opp);
 									result_ten->registerMod = 'A';
 									/*
@@ -4025,7 +3982,7 @@ public:
 											else{
 												result_ten->valuetype_detail = td;
 											}
-											result_ten->mem.push_back(205);
+											result_ten->mem.push_back((byte8)insttype::IT_PUSH_A_FROM_VALUE_OF_A);
 										}
 									}
 									else
@@ -4044,7 +4001,7 @@ public:
 								}
 								else
 								{
-									int opp = 62;
+									int opp = (byte8)insttype::IT_AU_INT_ADD_B;
 									result_ten->mem.push_back((byte8)opp);
 									result_ten->registerMod = 'B';
 									/*
@@ -4072,7 +4029,7 @@ public:
 												result_ten->valuetype_detail =
 												get_addpointer_type(td);
 											}
-											result_ten->mem.push_back(206);
+											result_ten->mem.push_back((byte8)insttype::IT_PUSH_B_FROM_VALUE_OF_B);
 										}
 									}
 									else
@@ -4144,20 +4101,20 @@ public:
 									}
 									//a <= instance address
 
-									result_ten->mem.push_back(27); // b = const value
+									result_ten->mem.push_back((byte8)insttype::IT_PUSH_B_CONST_4); // b = const value
 									byte8* barr = (byte8*)&add_address;
 									for(int u=0;u<4;++u){
 										result_ten->mem.push_back(barr[u]);
 									}
 									// axby
-									result_ten->mem.push_back(52);
-									result_ten->mem.push_back(218); // POP
+									result_ten->mem.push_back((byte8)insttype::IT_AXBY);
+									result_ten->mem.push_back((byte8)insttype::IT_POP_AB); // POP
 									if(is_a){
-										result_ten->mem.push_back(61);
+										result_ten->mem.push_back((byte8)insttype::IT_AU_INT_ADD_A);
 										result_ten->registerMod = 'A';
 										/*
 										if(isvalue){
-											result_ten->mem.push_back(205);
+											result_ten->mem.push_back((byte8)insttype::IT_PUSH_A_FROM_VALUE_OF_A);
 											result_ten->memsiz = result_ten->mem.size();
 											result_ten->valuetype_detail = member_td;
 											result_ten->valuetype = get_int_with_basictype(member_td);
@@ -4171,14 +4128,14 @@ public:
 										
 									}
 									else{
-										result_ten->mem.push_back(62);
+										result_ten->mem.push_back((byte8)insttype::IT_AU_INT_ADD_B);
 										result_ten->registerMod = 'B';
 										//only ptr output segment
 										//result_ten->valuetype_detail = get_addpointer_type(member_td);
 										//result_ten->valuetype = -1; // ptr oper state
 										/*
 										if(isvalue){
-											result_ten->mem.push_back(206);
+											result_ten->mem.push_back((byte8)insttype::IT_PUSH_B_FROM_VALUE_OF_B);
 										}
 										*/
 									}
@@ -4240,28 +4197,30 @@ public:
 										{
 											result_ten->mem.push_back(left_ten->mem[u]);
 										}
-										// a=value(a)
-										result_ten->mem.push_back(205);
-										// axby
-										result_ten->mem.push_back(52);
-										result_ten->mem.push_back(218); // POP
-										// set y const4
-										result_ten->mem.push_back(45);
-
+										// a = value(a)
+										result_ten->mem.push_back((byte8)insttype::IT_PUSH_A_FROM_VALUE_OF_A);
+										// b = const
+										result_ten->mem.push_back((byte8)insttype::IT_PUSH_B_CONST_4);
 										char cc[4] = {};
 										*reinterpret_cast<uint *>(cc) = bid;
 										for (int u = 0; u < 4; ++u)
 											result_ten->mem.push_back(cc[u]);
+										
+										// axby
+										result_ten->mem.push_back((byte8)insttype::IT_AXBY);
+										result_ten->mem.push_back((byte8)insttype::IT_POP_AB); // POP
+										// set y const4
+										//result_ten->mem.push_back((byte8)insttype::IT_SET_Y_CONST_4);
 
 										if (is_a)
 										{
 											// a=x+y uint
-											result_ten->mem.push_back(61);
+											result_ten->mem.push_back((byte8)insttype::IT_AU_INT_ADD_A);
 										}
 										else
 										{
 											// b=x+y uint
-											result_ten->mem.push_back(62);
+											result_ten->mem.push_back((byte8)insttype::IT_AU_INT_ADD_B);
 										}
 
 										// ptr
@@ -4337,11 +4296,11 @@ public:
 								}
 								if (is_a)
 								{
-									result_ten->mem.push_back(205);
+									result_ten->mem.push_back((byte8)insttype::IT_PUSH_A_FROM_VALUE_OF_A);
 								}
 								else
 								{
-									result_ten->mem.push_back(206);
+									result_ten->mem.push_back((byte8)insttype::IT_PUSH_B_FROM_VALUE_OF_B);
 								}
 
 								// ptr
@@ -4376,7 +4335,7 @@ public:
 							if (is_a == false)
 							{
 								tm->mem.push_back((byte8)insttype::PUSH_B_FROM_A); // b = a
-								tm->mem.push_back(216); // pop a
+								tm->mem.push_back((byte8)insttype::IT_POP_A); // pop a
 							}
 						}
 						break;
@@ -4385,7 +4344,7 @@ public:
 							if (is_a)
 							{
 								tm->mem.push_back((byte8)insttype::PUSH_A_FROM_B); // a = b
-								tm->mem.push_back(217); // pop b
+								tm->mem.push_back((byte8)insttype::IT_POP_B); // pop b
 							}
 						}
 						break;
@@ -4402,13 +4361,13 @@ public:
 						{
 							if (is_a)
 							{
-								tm->mem.push_back(205); // a = *a
+								tm->mem.push_back((byte8)insttype::IT_PUSH_A_FROM_VALUE_OF_A); // a = *a
 							}
 							else
 							{
 								tm->mem.push_back((byte8)insttype::PUSH_B_FROM_A); // b = a
-								tm->mem.push_back(216); // pop a
-								tm->mem.push_back(206); // b = *b
+								tm->mem.push_back((byte8)insttype::IT_POP_A); // pop a
+								tm->mem.push_back((byte8)insttype::IT_PUSH_B_FROM_VALUE_OF_B); // b = *b
 							}
 						}
 						break;
@@ -4417,12 +4376,12 @@ public:
 							if (is_a)
 							{
 								tm->mem.push_back((byte8)insttype::PUSH_A_FROM_B); // a = b
-								tm->mem.push_back(217); // pop b
-								tm->mem.push_back(205); // a = *a
+								tm->mem.push_back((byte8)insttype::IT_POP_B); // pop b
+								tm->mem.push_back((byte8)insttype::IT_PUSH_A_FROM_VALUE_OF_A); // a = *a
 							}
 							else
 							{
-								tm->mem.push_back(206); // b = *b
+								tm->mem.push_back((byte8)insttype::IT_PUSH_B_FROM_VALUE_OF_B); // b = *b
 							}
 						}
 						break;
@@ -4438,7 +4397,7 @@ public:
 						if (is_a == false)
 						{
 							tm->mem.push_back((byte8)insttype::PUSH_B_FROM_A); // b = a
-							tm->mem.push_back(216); // pop a
+							tm->mem.push_back((byte8)insttype::IT_POP_A); // pop a
 						}
 					}
 					break;
@@ -4447,7 +4406,7 @@ public:
 						if (is_a)
 						{
 							tm->mem.push_back((byte8)insttype::PUSH_A_FROM_B); // a = b
-							tm->mem.push_back(217); // pop b
+							tm->mem.push_back((byte8)insttype::IT_POP_B); // pop b
 						}
 					}
 					break;
@@ -4469,7 +4428,7 @@ public:
 						if (is_a == false)
 						{
 							tm->mem.push_back((byte8)insttype::PUSH_B_FROM_A); // b = a
-							tm->mem.push_back(216); // pop a
+							tm->mem.push_back((byte8)insttype::IT_POP_A); // pop a
 						}
 					}
 					break;
@@ -4478,7 +4437,7 @@ public:
 						if (is_a)
 						{
 							tm->mem.push_back((byte8)insttype::PUSH_A_FROM_B); // a = b
-							tm->mem.push_back(217); // pop b
+							tm->mem.push_back((byte8)insttype::IT_POP_B); // pop b
 						}
 					}
 					break;
@@ -4717,14 +4676,14 @@ public:
 			}
 			if (need_casting)
 			{
-				mem[writeup++] = (byte8)201;
+				mem[writeup++] = (byte8)insttype::IT_CASTING_A;
 				mem[writeup++] = (byte8)castt;
 			}
 			for (int i = 0; i < left_tm_v->mem.size(); ++i)
 			{
 				mem[writeup++] = left_tm_v->mem[i];
 			}
-			mem[writeup++] = 52;
+			mem[writeup++] = (byte8)insttype::IT_AXBY;
 
 			for (int k = 0; k < basicoper_max; ++k)
 			{
@@ -4739,18 +4698,18 @@ public:
 			{
 				mem[writeup++] = left_tm_ptr->mem[i];
 			}
-			mem[writeup++] = (byte8)199;
+			mem[writeup++] = (byte8)insttype::IT_PUSH_TO_LA_FROM_A;
 
 			switch (lstd->typesiz)
 			{
 			case 1:
-				mem[writeup++] = (byte8)211;
+				mem[writeup++] = (byte8)insttype::IT_PUSH_TO_VALUE_OF_LA_FROM_A_1;
 				break;
 			case 2:
-				mem[writeup++] = (byte8)212;
+				mem[writeup++] = (byte8)insttype::IT_PUSH_TO_VALUE_OF_LA_FROM_A_2;
 				break;
 			case 4:
-				mem[writeup++] = (byte8)213;
+				mem[writeup++] = (byte8)insttype::IT_PUSH_TO_VALUE_OF_LA_FROM_A_4;
 				break;
 			default:
 				cout << "typesiz is more than 4." << endl;
@@ -4800,7 +4759,7 @@ public:
 			}
 			if (need_casting)
 			{
-				mem[writeup++] = (byte8)201;
+				mem[writeup++] = (byte8)insttype::IT_CASTING_A;
 				mem[writeup++] = (byte8)castt;
 			}
 
@@ -4808,18 +4767,18 @@ public:
 			{
 				mem[writeup++] = left_tm->mem[i];
 			}
-			mem[writeup++] = (byte8)199; // LA = A;
+			mem[writeup++] = (byte8)insttype::IT_PUSH_TO_LA_FROM_A; // LA = A;
 
 			switch (lstd->typesiz)
 			{
 			case 1:
-				mem[writeup++] = (byte8)211;
+				mem[writeup++] = (byte8)insttype::IT_PUSH_TO_VALUE_OF_LA_FROM_A_1;
 				break;
 			case 2:
-				mem[writeup++] = (byte8)212;
+				mem[writeup++] = (byte8)insttype::IT_PUSH_TO_VALUE_OF_LA_FROM_A_2;
 				break;
 			case 4:
-				mem[writeup++] = (byte8)213;
+				mem[writeup++] = (byte8)insttype::IT_PUSH_TO_VALUE_OF_LA_FROM_A_4;
 				break;
 			default:
 				cout << "typesiz is more than 4." << endl;
@@ -4870,7 +4829,7 @@ public:
 		{
 			mem[writeup++] = inner_tm->mem[i];
 		}
-		mem[writeup++] = 187;
+		mem[writeup++] = (byte8)insttype::IT_IF;
 		nextbd.bs = blockstate::bs_if;
 		nextbd.parameter[0] = writeup;
 		writeup += 4;
@@ -4902,7 +4861,7 @@ public:
 		{
 			mem[writeup++] = inner_tm->mem[i];
 		}
-		mem[writeup++] = 187;
+		mem[writeup++] = (byte8)insttype::IT_IF;
 		nextbd.bs = blockstate::bs_while;
 		nextbd.parameter[0] = writeup;
 		nextbd.parameter[1] = save;
@@ -5072,7 +5031,7 @@ public:
 						css2 = reinterpret_cast<code_sen *>(cs->codeblocks->at(i + 1));
 						uint address = nextbd.parameter[0];
 						compile_code(css2);
-						mem[writeup++] = 188;
+						mem[writeup++] = (byte8)insttype::IT_JMP;
 						ifptr_arr.push_back(writeup);
 						writeup += 4;
 
@@ -5099,7 +5058,7 @@ public:
 
 							css2 = reinterpret_cast<code_sen *>(cs->codeblocks->at(ifk + 1));
 							compile_code(css2);
-							mem[writeup++] = 188;
+							mem[writeup++] = (byte8)insttype::IT_JMP;
 							ifptr_arr.push_back(writeup);
 							writeup += 4;
 							*reinterpret_cast<uint *>(&mem[address]) = (uint)writeup;
@@ -5151,7 +5110,7 @@ public:
 						(uint)blockstack.last()->parameter[1];
 				}
 
-				mem[writeup++] = 188; // jmp
+				mem[writeup++] = (byte8)insttype::IT_JMP; // jmp
 				*reinterpret_cast<uint *>(&mem[writeup]) =
 					(uint)blockstack.last()->parameter[1];
 				writeup += 4;
@@ -5159,7 +5118,7 @@ public:
 			break;
 			case blockstate::bs_function:
 			{
-				mem[writeup++] = 193; // return
+				mem[writeup++] = (byte8)insttype::IT_RETURN; // return
 			}
 			break;
 			}
@@ -5331,7 +5290,7 @@ public:
 				{
 					mem[writeup++] = tm->mem[k];
 				}
-				mem[writeup++] = 209;
+				mem[writeup++] = (byte8)insttype::IT_DBG_A;
 				mem[writeup++] = (byte8)tm->valuetype;
 				savecomma = coma;
 				coma = wbss.search_word_first_in_specific_oc_layer(inner_params, savecomma+1, "(", ")", 0, ",");
@@ -5345,7 +5304,7 @@ public:
 			{
 				mem[writeup++] = tm->mem[k];
 			}
-			mem[writeup++] = 209;
+			mem[writeup++] = (byte8)insttype::IT_DBG_A;
 			mem[writeup++] = (byte8)tm->valuetype;
 
 			code->release();
@@ -5365,7 +5324,7 @@ public:
 			{
 				mem[writeup++] = tm->mem[k];
 			}
-			mem[writeup++] = 210;
+			mem[writeup++] = (byte8)insttype::IT_INP_A_PTR;
 
 			type_data* std = get_sub_type(tm->valuetype_detail);
 			mem[writeup++] = (byte8)get_int_with_basictype(std);
@@ -5400,8 +5359,8 @@ public:
 			sen *params_sen = wbss.sen_cut(code, nameloc + 2, loc - 1);
 			if (params_sen->size() == 0)
 			{
-				mem[writeup++] = 189; // FUNC
-				mem[writeup++] = 200; // jmp
+				mem[writeup++] = (byte8)insttype::IT_FUNC; // FUNC
+				mem[writeup++] = (byte8)insttype::IT_FUNCJMP; // jmp
 				*reinterpret_cast<uint *>(&mem[writeup]) = (uint)(fd->start_pc - &mem[0]);
 				writeup += 4;
 
@@ -5424,7 +5383,7 @@ public:
 			int paramid = 0;
 			int paramCount = 0;
 
-			mem[writeup++] = 189; // FUNC
+			mem[writeup++] = (byte8)insttype::IT_FUNC; // FUNC
 
 			while (coma != -1)
 			{
@@ -5448,7 +5407,7 @@ public:
 
 					casting_type ct = get_cast_type(tm->valuetype, get_int_with_basictype(fd->param_data.at(paramCount).td));
 					if(ct != casting_type::nocasting){
-						mem[writeup++] = 201;
+						mem[writeup++] = (byte8)insttype::IT_CASTING_A;
 						mem[writeup++] = (byte8)ct;
 					}
 					/*
@@ -5462,13 +5421,13 @@ public:
 					switch (fd->param_data[paramid].td->typesiz)
 					{
 					case 1:
-						mem[writeup++] = 190; // param
+						mem[writeup++] = (byte8)insttype::IT_PARAM_1; // param
 						break;
 					case 2:
-						mem[writeup++] = 191; // param
+						mem[writeup++] = (byte8)insttype::IT_PARAM_2; // param
 						break;
 					case 4:
-						mem[writeup++] = 192; // param
+						mem[writeup++] = (byte8)insttype::IT_PARAM_4; // param
 						break;
 					}
 				}
@@ -5483,8 +5442,8 @@ public:
 			sen *params_sen = wbss.sen_cut(code, nameloc + 2, loc - 1);
 			if (params_sen->size() == 0)
 			{
-				mem[writeup++] = 189; // FUNC
-				mem[writeup++] = 200; // jmp
+				mem[writeup++] = (byte8)insttype::IT_FUNC; // FUNC
+				mem[writeup++] = (byte8)insttype::IT_FUNCJMP; // jmp
 				*reinterpret_cast<uint *>(&mem[writeup]) = (uint)(fd->start_pc - &mem[0]);
 				writeup += 4;
 
@@ -5507,7 +5466,7 @@ public:
 			int paramid = 0;
 			int paramCount = 0;
 
-			mem[writeup++] = 189; // FUNC
+			mem[writeup++] = (byte8)insttype::IT_FUNC; // FUNC
 
 			while (coma != -1)
 			{
@@ -5531,7 +5490,7 @@ public:
 
 					casting_type ct = get_cast_type(tm->valuetype, get_int_with_basictype(fd->param_data.at(paramCount).td));
 					if(ct != casting_type::nocasting){
-						mem[writeup++] = 201;
+						mem[writeup++] = (byte8)insttype::IT_CASTING_A;
 						mem[writeup++] = (byte8)ct;
 					}
 					/*
@@ -5545,13 +5504,13 @@ public:
 					switch (fd->param_data[paramid].td->typesiz)
 					{
 					case 1:
-						mem[writeup++] = 190; // param
+						mem[writeup++] = (byte8)insttype::IT_PARAM_1; // param
 						break;
 					case 2:
-						mem[writeup++] = 191; // param
+						mem[writeup++] = (byte8)insttype::IT_PARAM_2; // param
 						break;
 					case 4:
-						mem[writeup++] = 192; // param
+						mem[writeup++] = (byte8)insttype::IT_PARAM_4; // param
 						break;
 					}
 				}
@@ -5601,7 +5560,7 @@ public:
 
 				casting_type ct = get_cast_type(tm->valuetype, get_int_with_basictype(fd->param_data.at(paramCount).td));
 				if(ct != casting_type::nocasting){
-					mem[writeup++] = 201;
+					mem[writeup++] = (byte8)insttype::IT_CASTING_A;
 					mem[writeup++] = (byte8)ct;
 				}
 				/*
@@ -5615,13 +5574,13 @@ public:
 				switch (fd->param_data[paramid].td->typesiz)
 				{
 				case 1:
-					mem[writeup++] = 190; // param
+					mem[writeup++] = (byte8)insttype::IT_PARAM_1; // param
 					break;
 				case 2:
-					mem[writeup++] = 191; // param
+					mem[writeup++] = (byte8)insttype::IT_PARAM_2; // param
 					break;
 				case 4:
-					mem[writeup++] = 192; // param
+					mem[writeup++] = (byte8)insttype::IT_PARAM_4; // param
 					break;
 				}
 			}
@@ -5636,7 +5595,7 @@ public:
 				}
 			}
 
-			mem[writeup++] = 200; // jmp
+			mem[writeup++] = (byte8)insttype::IT_FUNCJMP; // jmp
 			*reinterpret_cast<uint *>(&mem[writeup]) = (uint)(fd->start_pc - &mem[0]);
 			writeup += 4;
 
@@ -5663,8 +5622,8 @@ public:
 			sen *params_sen = wbss.sen_cut(code, nameloc + 2, loc - 1);
 			if (params_sen->size() == 0)
 			{
-				mem[writeup++] = 189; // FUNC
-				mem[writeup++] = 200; // jmp
+				mem[writeup++] = (byte8)insttype::IT_FUNC; // FUNC
+				mem[writeup++] = (byte8)insttype::IT_FUNCJMP; // jmp
 				*reinterpret_cast<uint *>(&mem[writeup]) = (uint)(fd->start_pc - &mem[0]);
 				writeup += 4;
 
@@ -5686,7 +5645,7 @@ public:
 			int addadd = 0;
 			int paramCount = fd->param_data.size() - 1;
 
-			mem[writeup++] = 189; // FUNC
+			mem[writeup++] = (byte8)insttype::IT_FUNC; // FUNC
 
 			while (coma != -1)
 			{
@@ -5710,7 +5669,7 @@ public:
 
 					casting_type ct = get_cast_type(tm->valuetype, get_int_with_basictype(fd->param_data.at(paramCount).td));
 					if(ct != casting_type::nocasting){
-						mem[writeup++] = 201;
+						mem[writeup++] = (byte8)insttype::IT_CASTING_A;
 						mem[writeup++] = (byte8)ct;
 					}
 					/*
@@ -5724,13 +5683,13 @@ public:
 					switch (fd->param_data[paramCount].td->typesiz)
 					{
 					case 1:
-						mem[writeup++] = 190; // param
+						mem[writeup++] = (byte8)insttype::IT_PARAM_1; // param
 						break;
 					case 2:
-						mem[writeup++] = 191; // param
+						mem[writeup++] = (byte8)insttype::IT_PARAM_2; // param
 						break;
 					case 4:
-						mem[writeup++] = 192; // param
+						mem[writeup++] = (byte8)insttype::IT_PARAM_4; // param
 						break;
 					}
 				}
@@ -5778,7 +5737,7 @@ public:
 
 				casting_type ct = get_cast_type(tm->valuetype, get_int_with_basictype(fd->param_data.at(paramCount).td));
 				if(ct != casting_type::nocasting){
-					mem[writeup++] = 201;
+					mem[writeup++] = (byte8)insttype::IT_CASTING_A;
 					mem[writeup++] = (byte8)ct;
 				}
 				/*
@@ -5792,13 +5751,13 @@ public:
 				switch (fd->param_data[paramCount].td->typesiz)
 				{
 				case 1:
-					mem[writeup++] = 190; // param
+					mem[writeup++] = (byte8)insttype::IT_PARAM_1; // param
 					break;
 				case 2:
-					mem[writeup++] = 191; // param
+					mem[writeup++] = (byte8)insttype::IT_PARAM_2; // param
 					break;
 				case 4:
-					mem[writeup++] = 192; // param
+					mem[writeup++] = (byte8)insttype::IT_PARAM_4; // param
 					break;
 				}
 			}
@@ -5880,7 +5839,7 @@ public:
 
 				casting_type ct = get_cast_type(tm->valuetype, get_int_with_basictype(fd->param_data.at(paramCount).td));
 				if(ct != casting_type::nocasting){
-					mem[writeup++] = 201;
+					mem[writeup++] = (byte8)insttype::IT_CASTING_A;
 					mem[writeup++] = (byte8)ct;
 				}
 				/*
@@ -5894,13 +5853,13 @@ public:
 				switch (fd->param_data[paramid].td->typesiz)
 				{
 				case 1:
-					mem[writeup++] = 190; // param
+					mem[writeup++] = (byte8)insttype::IT_PARAM_1; // param
 					break;
 				case 2:
-					mem[writeup++] = 191; // param
+					mem[writeup++] = (byte8)insttype::IT_PARAM_2; // param
 					break;
 				case 4:
-					mem[writeup++] = 192; // param
+					mem[writeup++] = (byte8)insttype::IT_PARAM_4; // param
 					break;
 				}
 			}
@@ -5915,7 +5874,7 @@ public:
 				}
 			}
 
-			mem[writeup++] = 200; // jmp
+			mem[writeup++] = (byte8)insttype::IT_FUNCJMP; // jmp
 			*reinterpret_cast<uint *>(&mem[writeup]) = (uint)(fd->start_pc - &mem[0]);
 			writeup += 4;
 
@@ -5942,8 +5901,8 @@ public:
 			sen *params_sen = wbss.sen_cut(code, nameloc + 2, loc - 1);
 			if (params_sen->size() == 0)
 			{
-				mem[writeup++] = 189; // FUNC
-				mem[writeup++] = 200; // jmp
+				mem[writeup++] = (byte8)insttype::IT_FUNC; // FUNC
+				mem[writeup++] = (byte8)insttype::IT_FUNCJMP; // jmp
 				*reinterpret_cast<uint *>(&mem[writeup]) = (uint)(fd->start_pc - &mem[0]);
 				writeup += 4;
 
@@ -5965,7 +5924,7 @@ public:
 			int addadd = 0;
 			int paramCount = fd->param_data.size() - 1;
 
-			mem[writeup++] = 189; // FUNC
+			mem[writeup++] = (byte8)insttype::IT_FUNC; // FUNC
 
 			while (coma != -1)
 			{
@@ -5989,7 +5948,7 @@ public:
 
 					casting_type ct = get_cast_type(tm->valuetype, get_int_with_basictype(fd->param_data.at(paramCount).td));
 					if(ct != casting_type::nocasting){
-						mem[writeup++] = 201;
+						mem[writeup++] = (byte8)insttype::IT_CASTING_A;
 						mem[writeup++] = (byte8)ct;
 					}
 					/*
@@ -6003,13 +5962,13 @@ public:
 					switch (fd->param_data[paramCount].td->typesiz)
 					{
 					case 1:
-						mem[writeup++] = 190; // param
+						mem[writeup++] = (byte8)insttype::IT_PARAM_1; // param
 						break;
 					case 2:
-						mem[writeup++] = 191; // param
+						mem[writeup++] = (byte8)insttype::IT_PARAM_2; // param
 						break;
 					case 4:
-						mem[writeup++] = 192; // param
+						mem[writeup++] = (byte8)insttype::IT_PARAM_4; // param
 						break;
 					}
 				}
@@ -6057,7 +6016,7 @@ public:
 
 				casting_type ct = get_cast_type(tm->valuetype, get_int_with_basictype(fd->param_data.at(paramCount).td));
 				if(ct != casting_type::nocasting){
-					mem[writeup++] = 201;
+					mem[writeup++] = (byte8)insttype::IT_CASTING_A;
 					mem[writeup++] = (byte8)ct;
 				}
 				/*
@@ -6071,13 +6030,13 @@ public:
 				switch (fd->param_data[paramCount].td->typesiz)
 				{
 				case 1:
-					mem[writeup++] = 190; // param
+					mem[writeup++] = (byte8)insttype::IT_PARAM_1; // param
 					break;
 				case 2:
-					mem[writeup++] = 191; // param
+					mem[writeup++] = (byte8)insttype::IT_PARAM_2; // param
 					break;
 				case 4:
-					mem[writeup++] = 192; // param
+					mem[writeup++] = (byte8)insttype::IT_PARAM_4; // param
 					break;
 				}
 			}
@@ -6128,7 +6087,7 @@ public:
 		{
 			mem[writeup++] = right_tm->mem[i];
 		}
-		mem[writeup++] = (byte8)193;
+		mem[writeup++] = (byte8)insttype::IT_RETURN;
 
 		code->release();
 		fm->_Delete((byte8 *)code, sizeof(sen));
@@ -6156,7 +6115,7 @@ public:
 	{
 		if (nextbd.breakpoints != nullptr)
 		{
-			mem[writeup++] = 188;
+			mem[writeup++] = (byte8)insttype::IT_JMP;
 			int last = blockstack.size() - 1;
 			while (blockstack.at(last)->bs != blockstate::bs_while)
 			{
@@ -6171,7 +6130,7 @@ public:
 	{
 		if (nextbd.continuepoints != nullptr)
 		{
-			mem[writeup++] = 188;
+			mem[writeup++] = (byte8)insttype::IT_JMP;
 			int last = blockstack.size() - 1;
 			while (blockstack.at(last)->bs != blockstate::bs_while)
 			{
@@ -6570,8 +6529,8 @@ public:
 		icl << "finish" << endl;
 
 		writeup = 0;
-		mem[writeup++] = 189; // func
-		mem[writeup++] = 200; // jmp
+		mem[writeup++] = (byte8)insttype::IT_FUNC; // func
+		mem[writeup++] = (byte8)insttype::IT_FUNCJMP; // jmp
 		writeup += 4;		  // start function address
 
 		icl << "ICB[" << this << "] BakeCode_CompileCodes...";
@@ -6588,7 +6547,7 @@ public:
 
 		cout << endl;
 
-		mem[writeup++] = 194;
+		mem[writeup++] = (byte8)insttype::IT_EXIT;
 
 		dbg_bakecode(csarr, 0);
 
@@ -6767,8 +6726,8 @@ class ICB_Context{
 vecarr<ICB_Context *> icbarr;
 
 bool isBreaking = false;
-int stopnum = -1;
-bool isDbg = false;
+int stopnum = 0;
+bool isDbg = true;
 
 
 int code_control(vecarr<ICB_Context *> *icbarr)
@@ -6881,7 +6840,7 @@ CONTEXT_SWITCH:
 		switch (k)
 		{
 		case 0:
-			goto *inst[194];
+			goto *inst[(byte8)insttype::IT_EXIT];
 			break;
 		case 1:
 			goto CONTEXT_SWITCH;
@@ -9428,6 +9387,7 @@ INST_SWITCH:
 		*tmptr_i = **pci;
 		++*pc;
 		goto INST_SWITCH;
+/*
 	case insttype::IT_SET_STACK_VARIABLE_FROMX_1:
 		++*pc;
 		*(*rfsp - (**pci)) = (byte8)_x;
@@ -9500,6 +9460,7 @@ INST_SWITCH:
 		*tmptr_i = *reinterpret_cast<uint*>(*rfsp - (**pci));
 		++*pci;
 		goto INST_SWITCH;
+*/
 	case insttype::IT_PUSH_A_CONST_1:
 		_as.move_pivot(-1);
 		_as[0] = *++ * pc;
@@ -9517,6 +9478,7 @@ INST_SWITCH:
 		_as[0] = **pci;
 		++*pci;
 		goto INST_SWITCH;
+/*
 	case insttype::IT_PUSH_A_ADDRESS_1:
 		++*pc;
 		_as.move_pivot(-1);
@@ -9535,6 +9497,7 @@ INST_SWITCH:
 		_as[0] = *reinterpret_cast<uint*>(mem + (uint64_t)**pci);
 		++*pci;
 		goto INST_SWITCH;
+*/
 	case insttype::IT_PUSH_A_VARIABLE_1:
 		++*pc;
 		_as.move_pivot(-1);
@@ -9570,6 +9533,7 @@ INST_SWITCH:
 		_bs[0] = **pci;
 		++*pci;
 		goto INST_SWITCH;
+/*
 	case insttype::IT_PUSH_B_ADDRESS_1:
 		++*pc;
 		_bs.move_pivot(-1);
@@ -9588,6 +9552,7 @@ INST_SWITCH:
 		_bs[0] = *reinterpret_cast<uint*>(mem + (uint64_t)**pci);
 		++*pci;
 		goto INST_SWITCH;
+*/
 	case insttype::IT_PUSH_B_VARIABLE_1:
 		++*pc;
 		_bs.move_pivot(-1);
@@ -9606,6 +9571,7 @@ INST_SWITCH:
 		_bs[0] = *reinterpret_cast<uint*>(*rfsp - (**pci));
 		++*pci;
 		goto INST_SWITCH;
+/*
 	case insttype::IT_SET_X_CONST_1:
 		_x = *++ * pc;
 		++*pc;
@@ -9694,6 +9660,7 @@ INST_SWITCH:
 		_y = *reinterpret_cast<uint*>(*rfsp - (**pci));
 		++*pci;
 		goto INST_SWITCH;
+*/
 	case insttype::IT_AXBY:
 		_x = _as[0];
 		_y = _bs[0];
@@ -10444,6 +10411,7 @@ INST_SWITCH:
 		_bs[0] = (*rfsp - **pci) - mem;
 		++*pci;
 		goto INST_SWITCH;
+/*
 	case insttype::IT_PUSH_TO_X_FROM_ADDRESS_OF_VARIABLE_ID:
 		++*pc;
 		_x = (*rfsp - **pci) - mem;
@@ -10454,6 +10422,7 @@ INST_SWITCH:
 		_y = (*rfsp - **pci) - mem;
 		++*pci;
 		goto INST_SWITCH;
+*/
 	case insttype::IT_PUSH_TO_LA_FROM_A:
 		_la = _as[0];
 		_as.move_pivot(1);
@@ -10483,6 +10452,7 @@ INST_SWITCH:
 		casted_value = 0;
 		castv = (casttype) * ++ * pc;
 		goto CAST_SWITCH;
+/*
 	case insttype::IT_CASTING_X:
 		selectRegister = 2;
 		casting_value = _x;
@@ -10495,6 +10465,7 @@ INST_SWITCH:
 		casted_value = 0;
 		castv = (casttype) * ++ * pc;
 		goto CAST_SWITCH;
+*/
 	case insttype::IT_PUSH_A_FROM_VALUE_OF_A:
 		_as[0] = *reinterpret_cast<uint*>(mem + (uint64_t)_as[0]);
 		++*pc;
@@ -10503,6 +10474,7 @@ INST_SWITCH:
 		_bs[0] = *reinterpret_cast<uint*>(mem + (uint64_t)_bs[0]);
 		++*pc;
 		goto INST_SWITCH;
+/*
 	case insttype::IT_PUSH_X_FROM_VALUE_OF_X:
 		_x = *reinterpret_cast<uint*>(mem + (uint64_t)_x);
 		++*pc;
@@ -10511,6 +10483,7 @@ INST_SWITCH:
 		_y = *reinterpret_cast<uint*>(mem + (uint64_t)_y);
 		++*pc;
 		goto INST_SWITCH;
+*/
 	case insttype::IT_DBG_A:
 		dbg_type = (dbgtype) * ++ * pc;
 		goto DBG_SWITCH;
