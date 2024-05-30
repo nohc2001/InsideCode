@@ -46,673 +46,599 @@ BakeCode_CompileCodes__adsetvar: vec2f pos2 = _vec2f ( 3 , 4 )
 BakeCode_CompileCodes__usefunc : dbg ( "pos1 : (" , pos1 . x , ", " , pos1 . y , ")\n" ) 
 102	:SET_A_CONST_STRING(172) > 9(9, 0, 0, 0)"pos1 : ("
 116	:DBG_A(167) > 8
-118	:A=&VID(159) > 8(8, 0, 0, 0)
-123	:PUSH_B_CONST_4(12) > 0(0, 0, 0, 0)
-128	:AU_INT_ADD_A(25)
-129	:A=*A_nopush(165)
-130	:DBG_A(167) > 6
-132	:SET_A_CONST_STRING(172) > 3(3, 0, 0, 0)", "
-140	:DBG_A(167) > 8
-142	:A=&VID(159) > 8(8, 0, 0, 0)
-147	:PUSH_B_CONST_4(12) > 4(4, 0, 0, 0)
-152	:AU_INT_ADD_A(25)
-153	:A=*A_nopush(165)
-154	:DBG_A(167) > 6
-156	:SET_A_CONST_STRING(172) > 4(4, 0, 0, 0)")
+118	:A<=&VID[Const](183) > 8(8, 0, 0, 0) > 0(0, 0, 0, 0)
+127	:A=*A_nopush(165)
+128	:DBG_A(167) > 6
+130	:SET_A_CONST_STRING(172) > 3(3, 0, 0, 0)", "
+138	:DBG_A(167) > 8
+140	:A<=&VID[Const](183) > 8(8, 0, 0, 0) > 4(4, 0, 0, 0)
+149	:A=*A_nopush(165)
+150	:DBG_A(167) > 6
+152	:SET_A_CONST_STRING(172) > 4(4, 0, 0, 0)")
 "
-165	:DBG_A(167) > 8
+161	:DBG_A(167) > 8
 BakeCode_CompileCodes__usefunc : dbg ( "pos2 : (" , pos2 . x , ", " , pos2 . y , ")\n" ) 
-167	:SET_A_CONST_STRING(172) > 9(9, 0, 0, 0)"pos2 : ("
-181	:DBG_A(167) > 8
-183	:A=&VID(159) > 16(16, 0, 0, 0)
-188	:PUSH_B_CONST_4(12) > 0(0, 0, 0, 0)
-193	:AU_INT_ADD_A(25)
-194	:A=*A_nopush(165)
-195	:DBG_A(167) > 6
-197	:SET_A_CONST_STRING(172) > 3(3, 0, 0, 0)", "
-205	:DBG_A(167) > 8
-207	:A=&VID(159) > 16(16, 0, 0, 0)
-212	:PUSH_B_CONST_4(12) > 4(4, 0, 0, 0)
-217	:AU_INT_ADD_A(25)
-218	:A=*A_nopush(165)
-219	:DBG_A(167) > 6
-221	:SET_A_CONST_STRING(172) > 4(4, 0, 0, 0)")
+163	:SET_A_CONST_STRING(172) > 9(9, 0, 0, 0)"pos2 : ("
+177	:DBG_A(167) > 8
+179	:A<=&VID[Const](183) > 16(16, 0, 0, 0) > 0(0, 0, 0, 0)
+188	:A=*A_nopush(165)
+189	:DBG_A(167) > 6
+191	:SET_A_CONST_STRING(172) > 3(3, 0, 0, 0)", "
+199	:DBG_A(167) > 8
+201	:A<=&VID[Const](183) > 16(16, 0, 0, 0) > 4(4, 0, 0, 0)
+210	:A=*A_nopush(165)
+211	:DBG_A(167) > 6
+213	:SET_A_CONST_STRING(172) > 4(4, 0, 0, 0)")
 "
-230	:DBG_A(167) > 8
+222	:DBG_A(167) > 8
 BakeCode_CompileCodes__adsetvar: line2d line1 = _line2d ( pos1 , pos2 ) 
-232	:ADD_STACK_VARIABLE(0) > 32(32, 0, 0, 0)
-237	:FUNC(153)
-238	:A=&VID(159) > 16(16, 0, 0, 0)
-243	:PARAM_N_COPY_BY_ADDRESS(177) > 8(8, 0, 0, 0)
-248	:A=&VID(159) > 8(8, 0, 0, 0)
-253	:PARAM_N_COPY_BY_ADDRESS(177) > 8(8, 0, 0, 0)
-258	:Extend_Instruction(255) > 0(0, 0, 0, 0) > 2(2, 0, 0, 0)
-267	:A=&VID(159) > 32(32, 0, 0, 0)
-272	:LA=A(161)
-273	:*LA=*A_N(182) > 16(16, 0, 0, 0)
+224	:ADD_STACK_VARIABLE(0) > 32(32, 0, 0, 0)
+229	:FUNC(153)
+230	:A=&VID(159) > 16(16, 0, 0, 0)
+235	:PARAM_N_COPY_BY_ADDRESS(177) > 8(8, 0, 0, 0)
+240	:A=&VID(159) > 8(8, 0, 0, 0)
+245	:PARAM_N_COPY_BY_ADDRESS(177) > 8(8, 0, 0, 0)
+250	:Extend_Instruction(255) > 0(0, 0, 0, 0) > 2(2, 0, 0, 0)
+259	:A=&VID(159) > 32(32, 0, 0, 0)
+264	:LA=A(161)
+265	:*LA=*A_N(182) > 16(16, 0, 0, 0)
 BakeCode_CompileCodes__usefunc : dbg ( "line1 : fp (" , line1 . fp . x , ", " , line1 . fp . y , "), lp(" , line1 . lp . x , ", " , line1 . lp . y , ")\n" ) 
-278	:SET_A_CONST_STRING(172) > 13(13, 0, 0, 0)"line1 : fp ("
-296	:DBG_A(167) > 8
-298	:A=&VID(159) > 32(32, 0, 0, 0)
-303	:PUSH_B_CONST_4(12) > 0(0, 0, 0, 0)
-308	:AU_INT_ADD_A(25)
-309	:PUSH_B_CONST_4(12) > 0(0, 0, 0, 0)
-314	:AU_INT_ADD_A(25)
-315	:A=*A_nopush(165)
-316	:DBG_A(167) > 6
-318	:SET_A_CONST_STRING(172) > 3(3, 0, 0, 0)", "
-326	:DBG_A(167) > 8
-328	:A=&VID(159) > 32(32, 0, 0, 0)
-333	:PUSH_B_CONST_4(12) > 0(0, 0, 0, 0)
-338	:AU_INT_ADD_A(25)
-339	:PUSH_B_CONST_4(12) > 4(4, 0, 0, 0)
-344	:AU_INT_ADD_A(25)
-345	:A=*A_nopush(165)
-346	:DBG_A(167) > 6
-348	:SET_A_CONST_STRING(172) > 7(7, 0, 0, 0)"), lp("
-360	:DBG_A(167) > 8
-362	:A=&VID(159) > 32(32, 0, 0, 0)
-367	:PUSH_B_CONST_4(12) > 8(8, 0, 0, 0)
-372	:AU_INT_ADD_A(25)
-373	:PUSH_B_CONST_4(12) > 0(0, 0, 0, 0)
-378	:AU_INT_ADD_A(25)
-379	:A=*A_nopush(165)
-380	:DBG_A(167) > 6
-382	:SET_A_CONST_STRING(172) > 3(3, 0, 0, 0)", "
-390	:DBG_A(167) > 8
-392	:A=&VID(159) > 32(32, 0, 0, 0)
-397	:PUSH_B_CONST_4(12) > 8(8, 0, 0, 0)
-402	:AU_INT_ADD_A(25)
-403	:PUSH_B_CONST_4(12) > 4(4, 0, 0, 0)
-408	:AU_INT_ADD_A(25)
-409	:A=*A_nopush(165)
-410	:DBG_A(167) > 6
-412	:SET_A_CONST_STRING(172) > 4(4, 0, 0, 0)")
+270	:SET_A_CONST_STRING(172) > 13(13, 0, 0, 0)"line1 : fp ("
+288	:DBG_A(167) > 8
+290	:A<=&VID[Const](183) > 32(32, 0, 0, 0) > 0(0, 0, 0, 0)
+299	:PUSH_B_CONST_4(12) > 0(0, 0, 0, 0)
+304	:AU_INT_ADD_A(25)
+305	:A=*A_nopush(165)
+306	:DBG_A(167) > 6
+308	:SET_A_CONST_STRING(172) > 3(3, 0, 0, 0)", "
+316	:DBG_A(167) > 8
+318	:A<=&VID[Const](183) > 32(32, 0, 0, 0) > 0(0, 0, 0, 0)
+327	:PUSH_B_CONST_4(12) > 4(4, 0, 0, 0)
+332	:AU_INT_ADD_A(25)
+333	:A=*A_nopush(165)
+334	:DBG_A(167) > 6
+336	:SET_A_CONST_STRING(172) > 7(7, 0, 0, 0)"), lp("
+348	:DBG_A(167) > 8
+350	:A<=&VID[Const](183) > 32(32, 0, 0, 0) > 8(8, 0, 0, 0)
+359	:PUSH_B_CONST_4(12) > 0(0, 0, 0, 0)
+364	:AU_INT_ADD_A(25)
+365	:A=*A_nopush(165)
+366	:DBG_A(167) > 6
+368	:SET_A_CONST_STRING(172) > 3(3, 0, 0, 0)", "
+376	:DBG_A(167) > 8
+378	:A<=&VID[Const](183) > 32(32, 0, 0, 0) > 8(8, 0, 0, 0)
+387	:PUSH_B_CONST_4(12) > 4(4, 0, 0, 0)
+392	:AU_INT_ADD_A(25)
+393	:A=*A_nopush(165)
+394	:DBG_A(167) > 6
+396	:SET_A_CONST_STRING(172) > 4(4, 0, 0, 0)")
 "
-421	:DBG_A(167) > 8
+405	:DBG_A(167) > 8
 BakeCode_CompileCodes__adsetvar: float len = get_distance2d ( line1 ) 
-423	:ADD_STACK_VARIABLE(0) > 36(36, 0, 0, 0)
-428	:FUNC(153)
-429	:A=&VID(159) > 32(32, 0, 0, 0)
-434	:PARAM_N_COPY_BY_ADDRESS(177) > 16(16, 0, 0, 0)
-439	:Extend_Instruction(255) > 0(0, 0, 0, 0) > 8(8, 0, 0, 0)
-448	:A=&VID(159) > 36(36, 0, 0, 0)
-453	:LA=A(161)
-454	:*LA=A_4(171)
+407	:ADD_STACK_VARIABLE(0) > 36(36, 0, 0, 0)
+412	:FUNC(153)
+413	:A=&VID(159) > 32(32, 0, 0, 0)
+418	:PARAM_N_COPY_BY_ADDRESS(177) > 16(16, 0, 0, 0)
+423	:Extend_Instruction(255) > 0(0, 0, 0, 0) > 8(8, 0, 0, 0)
+432	:A=&VID(159) > 36(36, 0, 0, 0)
+437	:LA=A(161)
+438	:*LA=A_4(171)
 BakeCode_CompileCodes__usefunc : dbg ( "len : " , len , "\n" ) 
-455	:SET_A_CONST_STRING(172) > 7(7, 0, 0, 0)"len : "
-467	:DBG_A(167) > 8
-469	:A=&VID(159) > 36(36, 0, 0, 0)
-474	:A=*A_nopush(165)
-475	:DBG_A(167) > 6
-477	:SET_A_CONST_STRING(172) > 3(3, 0, 0, 0)"
+439	:SET_A_CONST_STRING(172) > 7(7, 0, 0, 0)"len : "
+451	:DBG_A(167) > 8
+453	:A=&VID(159) > 36(36, 0, 0, 0)
+458	:A=*A_nopush(165)
+459	:DBG_A(167) > 6
+461	:SET_A_CONST_STRING(172) > 3(3, 0, 0, 0)"
 "
-485	:DBG_A(167) > 8
+469	:DBG_A(167) > 8
 BakeCode_CompileCodes__adsetvar: circle cir1 = _circle ( pos1 , len ) 
-487	:ADD_STACK_VARIABLE(0) > 48(48, 0, 0, 0)
-492	:FUNC(153)
-493	:A=&VID(159) > 36(36, 0, 0, 0)
-498	:A=*A_nopush(165)
-499	:PARAM_4(156)
-500	:A=&VID(159) > 8(8, 0, 0, 0)
-505	:PARAM_N_COPY_BY_ADDRESS(177) > 8(8, 0, 0, 0)
-510	:Extend_Instruction(255) > 0(0, 0, 0, 0) > 1(1, 0, 0, 0)
-519	:A=&VID(159) > 48(48, 0, 0, 0)
-524	:LA=A(161)
-525	:*LA=*A_N(182) > 12(12, 0, 0, 0)
+471	:ADD_STACK_VARIABLE(0) > 48(48, 0, 0, 0)
+476	:FUNC(153)
+477	:A=&VID(159) > 36(36, 0, 0, 0)
+482	:A=*A_nopush(165)
+483	:PARAM_4(156)
+484	:A=&VID(159) > 8(8, 0, 0, 0)
+489	:PARAM_N_COPY_BY_ADDRESS(177) > 8(8, 0, 0, 0)
+494	:Extend_Instruction(255) > 0(0, 0, 0, 0) > 1(1, 0, 0, 0)
+503	:A=&VID(159) > 48(48, 0, 0, 0)
+508	:LA=A(161)
+509	:*LA=*A_N(182) > 12(12, 0, 0, 0)
 BakeCode_CompileCodes__usefunc : dbg ( "cir1 : center(" , cir1 . center . x , ", " , cir1 . center . y , "), radius(" , cir1 . radius , ")\n" ) 
-530	:SET_A_CONST_STRING(172) > 15(15, 0, 0, 0)"cir1 : center("
-550	:DBG_A(167) > 8
-552	:A=&VID(159) > 48(48, 0, 0, 0)
-557	:PUSH_B_CONST_4(12) > 0(0, 0, 0, 0)
-562	:AU_INT_ADD_A(25)
-563	:PUSH_B_CONST_4(12) > 0(0, 0, 0, 0)
-568	:AU_INT_ADD_A(25)
-569	:A=*A_nopush(165)
-570	:DBG_A(167) > 6
-572	:SET_A_CONST_STRING(172) > 3(3, 0, 0, 0)", "
-580	:DBG_A(167) > 8
-582	:A=&VID(159) > 48(48, 0, 0, 0)
-587	:PUSH_B_CONST_4(12) > 0(0, 0, 0, 0)
-592	:AU_INT_ADD_A(25)
-593	:PUSH_B_CONST_4(12) > 4(4, 0, 0, 0)
-598	:AU_INT_ADD_A(25)
-599	:A=*A_nopush(165)
-600	:DBG_A(167) > 6
-602	:SET_A_CONST_STRING(172) > 11(11, 0, 0, 0)"), radius("
-618	:DBG_A(167) > 8
-620	:A=&VID(159) > 48(48, 0, 0, 0)
-625	:PUSH_B_CONST_4(12) > 8(8, 0, 0, 0)
-630	:AU_INT_ADD_A(25)
-631	:A=*A_nopush(165)
-632	:DBG_A(167) > 6
-634	:SET_A_CONST_STRING(172) > 4(4, 0, 0, 0)")
+514	:SET_A_CONST_STRING(172) > 15(15, 0, 0, 0)"cir1 : center("
+534	:DBG_A(167) > 8
+536	:A<=&VID[Const](183) > 48(48, 0, 0, 0) > 0(0, 0, 0, 0)
+545	:PUSH_B_CONST_4(12) > 0(0, 0, 0, 0)
+550	:AU_INT_ADD_A(25)
+551	:A=*A_nopush(165)
+552	:DBG_A(167) > 6
+554	:SET_A_CONST_STRING(172) > 3(3, 0, 0, 0)", "
+562	:DBG_A(167) > 8
+564	:A<=&VID[Const](183) > 48(48, 0, 0, 0) > 0(0, 0, 0, 0)
+573	:PUSH_B_CONST_4(12) > 4(4, 0, 0, 0)
+578	:AU_INT_ADD_A(25)
+579	:A=*A_nopush(165)
+580	:DBG_A(167) > 6
+582	:SET_A_CONST_STRING(172) > 11(11, 0, 0, 0)"), radius("
+598	:DBG_A(167) > 8
+600	:A<=&VID[Const](183) > 48(48, 0, 0, 0) > 8(8, 0, 0, 0)
+609	:A=*A_nopush(165)
+610	:DBG_A(167) > 6
+612	:SET_A_CONST_STRING(172) > 4(4, 0, 0, 0)")
 "
-643	:DBG_A(167) > 8
+621	:DBG_A(167) > 8
 BakeCode_CompileCodes__adsetvar: vec2f ratePos = get_pos_in_LineAndRatioAB ( line1 , 2 , 1 ) 
-645	:ADD_STACK_VARIABLE(0) > 56(56, 0, 0, 0)
-650	:FUNC(153)
-651	:PUSH_A_CONST_4(6) > 1(1, 0, 0, 0)
-656	:CASTING_A(163) > 12
-658	:PARAM_4(156)
-659	:PUSH_A_CONST_4(6) > 2(2, 0, 0, 0)
-664	:CASTING_A(163) > 12
-666	:PARAM_4(156)
-667	:A=&VID(159) > 32(32, 0, 0, 0)
-672	:PARAM_N_COPY_BY_ADDRESS(177) > 16(16, 0, 0, 0)
-677	:Extend_Instruction(255) > 0(0, 0, 0, 0) > 6(6, 0, 0, 0)
-686	:A=&VID(159) > 56(56, 0, 0, 0)
-691	:LA=A(161)
-692	:*LA=*A_N(182) > 8(8, 0, 0, 0)
+623	:ADD_STACK_VARIABLE(0) > 56(56, 0, 0, 0)
+628	:FUNC(153)
+629	:PUSH_A_CONST_4(6) > 1(1, 0, 0, 0)
+634	:CASTING_A(163) > 12
+636	:PARAM_4(156)
+637	:PUSH_A_CONST_4(6) > 2(2, 0, 0, 0)
+642	:CASTING_A(163) > 12
+644	:PARAM_4(156)
+645	:A=&VID(159) > 32(32, 0, 0, 0)
+650	:PARAM_N_COPY_BY_ADDRESS(177) > 16(16, 0, 0, 0)
+655	:Extend_Instruction(255) > 0(0, 0, 0, 0) > 6(6, 0, 0, 0)
+664	:A=&VID(159) > 56(56, 0, 0, 0)
+669	:LA=A(161)
+670	:*LA=*A_N(182) > 8(8, 0, 0, 0)
 BakeCode_CompileCodes__usefunc : dbg ( "ratePos : (" , ratePos . x , ", " , ratePos . y , ")\n" ) 
-697	:SET_A_CONST_STRING(172) > 12(12, 0, 0, 0)"ratePos : ("
+675	:SET_A_CONST_STRING(172) > 12(12, 0, 0, 0)"ratePos : ("
+692	:DBG_A(167) > 8
+694	:A<=&VID[Const](183) > 56(56, 0, 0, 0) > 0(0, 0, 0, 0)
+703	:A=*A_nopush(165)
+704	:DBG_A(167) > 6
+706	:SET_A_CONST_STRING(172) > 3(3, 0, 0, 0)", "
 714	:DBG_A(167) > 8
-716	:A=&VID(159) > 56(56, 0, 0, 0)
-721	:PUSH_B_CONST_4(12) > 0(0, 0, 0, 0)
-726	:AU_INT_ADD_A(25)
-727	:A=*A_nopush(165)
-728	:DBG_A(167) > 6
-730	:SET_A_CONST_STRING(172) > 3(3, 0, 0, 0)", "
-738	:DBG_A(167) > 8
-740	:A=&VID(159) > 56(56, 0, 0, 0)
-745	:PUSH_B_CONST_4(12) > 4(4, 0, 0, 0)
-750	:AU_INT_ADD_A(25)
-751	:A=*A_nopush(165)
-752	:DBG_A(167) > 6
-754	:SET_A_CONST_STRING(172) > 4(4, 0, 0, 0)")
+716	:A<=&VID[Const](183) > 56(56, 0, 0, 0) > 4(4, 0, 0, 0)
+725	:A=*A_nopush(165)
+726	:DBG_A(167) > 6
+728	:SET_A_CONST_STRING(172) > 4(4, 0, 0, 0)")
 "
-763	:DBG_A(167) > 8
+737	:DBG_A(167) > 8
 BakeCode_CompileCodes__adsetvar: angle2d ang1 = _angle2d_delta ( pos1 . x - pos2 . x , pos1 . y - pos2 . y ) 
-765	:ADD_STACK_VARIABLE(0) > 68(68, 0, 0, 0)
-770	:FUNC(153)
-771	:A=&VID(159) > 8(8, 0, 0, 0)
-776	:PUSH_B_CONST_4(12) > 4(4, 0, 0, 0)
-781	:AU_INT_ADD_A(25)
-782	:A=*A_nopush(165)
-783	:A=&VID(159) > 16(16, 0, 0, 0)
-788	:PUSH_B_CONST_4(12) > 4(4, 0, 0, 0)
-793	:AU_INT_ADD_A(25)
-794	:B=A(181)
-795	:POP_A(174)
-796	:B=*B_nopush(166)
-797	:AU_FLOAT_MIN_A(43)
-798	:PARAM_4(156)
-799	:A=&VID(159) > 8(8, 0, 0, 0)
-804	:PUSH_B_CONST_4(12) > 0(0, 0, 0, 0)
-809	:AU_INT_ADD_A(25)
-810	:A=*A_nopush(165)
-811	:A=&VID(159) > 16(16, 0, 0, 0)
-816	:PUSH_B_CONST_4(12) > 0(0, 0, 0, 0)
-821	:AU_INT_ADD_A(25)
-822	:B=A(181)
-823	:POP_A(174)
-824	:B=*B_nopush(166)
-825	:AU_FLOAT_MIN_A(43)
-826	:PARAM_4(156)
-827	:Extend_Instruction(255) > 0(0, 0, 0, 0) > 3(3, 0, 0, 0)
-836	:A=&VID(159) > 68(68, 0, 0, 0)
-841	:LA=A(161)
-842	:*LA=*A_N(182) > 12(12, 0, 0, 0)
+739	:ADD_STACK_VARIABLE(0) > 68(68, 0, 0, 0)
+744	:FUNC(153)
+745	:A<=&VID[Const](183) > 8(8, 0, 0, 0) > 4(4, 0, 0, 0)
+754	:A=*A_nopush(165)
+755	:A<=&VID[Const](183) > 16(16, 0, 0, 0) > 4(4, 0, 0, 0)
+764	:B=A(181)
+765	:POP_A(174)
+766	:B=*B_nopush(166)
+767	:AU_FLOAT_MIN_A(43)
+768	:PARAM_4(156)
+769	:A<=&VID[Const](183) > 8(8, 0, 0, 0) > 0(0, 0, 0, 0)
+778	:A=*A_nopush(165)
+779	:A<=&VID[Const](183) > 16(16, 0, 0, 0) > 0(0, 0, 0, 0)
+788	:B=A(181)
+789	:POP_A(174)
+790	:B=*B_nopush(166)
+791	:AU_FLOAT_MIN_A(43)
+792	:PARAM_4(156)
+793	:Extend_Instruction(255) > 0(0, 0, 0, 0) > 3(3, 0, 0, 0)
+802	:A=&VID(159) > 68(68, 0, 0, 0)
+807	:LA=A(161)
+808	:*LA=*A_N(182) > 12(12, 0, 0, 0)
 BakeCode_CompileCodes__usefunc : dbg ( "angle1( rad : " , ang1 . radian , ", delta : (" , ang1 . delta . x , ", " , ang1 . delta . y , "))\n" ) 
-847	:SET_A_CONST_STRING(172) > 15(15, 0, 0, 0)"angle1( rad : "
-867	:DBG_A(167) > 8
-869	:A=&VID(159) > 68(68, 0, 0, 0)
-874	:PUSH_B_CONST_4(12) > 8(8, 0, 0, 0)
-879	:AU_INT_ADD_A(25)
-880	:A=*A_nopush(165)
-881	:DBG_A(167) > 6
-883	:SET_A_CONST_STRING(172) > 12(12, 0, 0, 0)", delta : ("
-900	:DBG_A(167) > 8
-902	:A=&VID(159) > 68(68, 0, 0, 0)
-907	:PUSH_B_CONST_4(12) > 0(0, 0, 0, 0)
-912	:AU_INT_ADD_A(25)
-913	:PUSH_B_CONST_4(12) > 0(0, 0, 0, 0)
-918	:AU_INT_ADD_A(25)
-919	:A=*A_nopush(165)
-920	:DBG_A(167) > 6
-922	:SET_A_CONST_STRING(172) > 3(3, 0, 0, 0)", "
-930	:DBG_A(167) > 8
-932	:A=&VID(159) > 68(68, 0, 0, 0)
-937	:PUSH_B_CONST_4(12) > 0(0, 0, 0, 0)
-942	:AU_INT_ADD_A(25)
-943	:PUSH_B_CONST_4(12) > 4(4, 0, 0, 0)
-948	:AU_INT_ADD_A(25)
-949	:A=*A_nopush(165)
-950	:DBG_A(167) > 6
-952	:SET_A_CONST_STRING(172) > 5(5, 0, 0, 0)"))
+813	:SET_A_CONST_STRING(172) > 15(15, 0, 0, 0)"angle1( rad : "
+833	:DBG_A(167) > 8
+835	:A<=&VID[Const](183) > 68(68, 0, 0, 0) > 8(8, 0, 0, 0)
+844	:A=*A_nopush(165)
+845	:DBG_A(167) > 6
+847	:SET_A_CONST_STRING(172) > 12(12, 0, 0, 0)", delta : ("
+864	:DBG_A(167) > 8
+866	:A<=&VID[Const](183) > 68(68, 0, 0, 0) > 0(0, 0, 0, 0)
+875	:PUSH_B_CONST_4(12) > 0(0, 0, 0, 0)
+880	:AU_INT_ADD_A(25)
+881	:A=*A_nopush(165)
+882	:DBG_A(167) > 6
+884	:SET_A_CONST_STRING(172) > 3(3, 0, 0, 0)", "
+892	:DBG_A(167) > 8
+894	:A<=&VID[Const](183) > 68(68, 0, 0, 0) > 0(0, 0, 0, 0)
+903	:PUSH_B_CONST_4(12) > 4(4, 0, 0, 0)
+908	:AU_INT_ADD_A(25)
+909	:A=*A_nopush(165)
+910	:DBG_A(167) > 6
+912	:SET_A_CONST_STRING(172) > 5(5, 0, 0, 0)"))
 "
-962	:DBG_A(167) > 8
+922	:DBG_A(167) > 8
 BakeCode_CompileCodes__adsetvar: angle2d ang2 = _angle2d ( PI / 3 ) 
-964	:ADD_STACK_VARIABLE(0) > 80(80, 0, 0, 0)
-969	:FUNC(153)
-970	:A=&Global_VID(178) > 0(0, 0, 0, 0)
-975	:A=*A_nopush(165)
-976	:PUSH_B_CONST_4(12) > 3(3, 0, 0, 0)
-981	:CASTING_B(164) > 12
-983	:AU_FLOAT_DIV_A(71)
-984	:PARAM_4(156)
-985	:Extend_Instruction(255) > 0(0, 0, 0, 0) > 4(4, 0, 0, 0)
-994	:A=&VID(159) > 80(80, 0, 0, 0)
-999	:LA=A(161)
-1000	:*LA=*A_N(182) > 12(12, 0, 0, 0)
+924	:ADD_STACK_VARIABLE(0) > 80(80, 0, 0, 0)
+929	:FUNC(153)
+930	:A=&Global_VID(178) > 0(0, 0, 0, 0)
+935	:A=*A_nopush(165)
+936	:PUSH_B_CONST_4(12) > 3(3, 0, 0, 0)
+941	:CASTING_B(164) > 12
+943	:AU_FLOAT_DIV_A(71)
+944	:PARAM_4(156)
+945	:Extend_Instruction(255) > 0(0, 0, 0, 0) > 4(4, 0, 0, 0)
+954	:A=&VID(159) > 80(80, 0, 0, 0)
+959	:LA=A(161)
+960	:*LA=*A_N(182) > 12(12, 0, 0, 0)
 BakeCode_CompileCodes__usefunc : dbg ( "angle2( rad : " , ang2 . radian , ", delta : (" , ang2 . delta . x , ", " , ang2 . delta . y , "))\n" ) 
-1005	:SET_A_CONST_STRING(172) > 15(15, 0, 0, 0)"angle2( rad : "
-1025	:DBG_A(167) > 8
-1027	:A=&VID(159) > 80(80, 0, 0, 0)
-1032	:PUSH_B_CONST_4(12) > 8(8, 0, 0, 0)
-1037	:AU_INT_ADD_A(25)
-1038	:A=*A_nopush(165)
-1039	:DBG_A(167) > 6
-1041	:SET_A_CONST_STRING(172) > 12(12, 0, 0, 0)", delta : ("
-1058	:DBG_A(167) > 8
-1060	:A=&VID(159) > 80(80, 0, 0, 0)
-1065	:PUSH_B_CONST_4(12) > 0(0, 0, 0, 0)
-1070	:AU_INT_ADD_A(25)
-1071	:PUSH_B_CONST_4(12) > 0(0, 0, 0, 0)
-1076	:AU_INT_ADD_A(25)
-1077	:A=*A_nopush(165)
-1078	:DBG_A(167) > 6
-1080	:SET_A_CONST_STRING(172) > 3(3, 0, 0, 0)", "
-1088	:DBG_A(167) > 8
-1090	:A=&VID(159) > 80(80, 0, 0, 0)
-1095	:PUSH_B_CONST_4(12) > 0(0, 0, 0, 0)
-1100	:AU_INT_ADD_A(25)
-1101	:PUSH_B_CONST_4(12) > 4(4, 0, 0, 0)
-1106	:AU_INT_ADD_A(25)
-1107	:A=*A_nopush(165)
-1108	:DBG_A(167) > 6
-1110	:SET_A_CONST_STRING(172) > 5(5, 0, 0, 0)"))
+965	:SET_A_CONST_STRING(172) > 15(15, 0, 0, 0)"angle2( rad : "
+985	:DBG_A(167) > 8
+987	:A<=&VID[Const](183) > 80(80, 0, 0, 0) > 8(8, 0, 0, 0)
+996	:A=*A_nopush(165)
+997	:DBG_A(167) > 6
+999	:SET_A_CONST_STRING(172) > 12(12, 0, 0, 0)", delta : ("
+1016	:DBG_A(167) > 8
+1018	:A<=&VID[Const](183) > 80(80, 0, 0, 0) > 0(0, 0, 0, 0)
+1027	:PUSH_B_CONST_4(12) > 0(0, 0, 0, 0)
+1032	:AU_INT_ADD_A(25)
+1033	:A=*A_nopush(165)
+1034	:DBG_A(167) > 6
+1036	:SET_A_CONST_STRING(172) > 3(3, 0, 0, 0)", "
+1044	:DBG_A(167) > 8
+1046	:A<=&VID[Const](183) > 80(80, 0, 0, 0) > 0(0, 0, 0, 0)
+1055	:PUSH_B_CONST_4(12) > 4(4, 0, 0, 0)
+1060	:AU_INT_ADD_A(25)
+1061	:A=*A_nopush(165)
+1062	:DBG_A(167) > 6
+1064	:SET_A_CONST_STRING(172) > 5(5, 0, 0, 0)"))
 "
-1120	:DBG_A(167) > 8
+1074	:DBG_A(167) > 8
 BakeCode_CompileCodes__adsetvar: angle2d rang = addAngle ( ang1 , ang2 ) 
-1122	:ADD_STACK_VARIABLE(0) > 92(92, 0, 0, 0)
-1127	:FUNC(153)
-1128	:A=&VID(159) > 80(80, 0, 0, 0)
-1133	:PARAM_N_COPY_BY_ADDRESS(177) > 12(12, 0, 0, 0)
-1138	:A=&VID(159) > 68(68, 0, 0, 0)
-1143	:PARAM_N_COPY_BY_ADDRESS(177) > 12(12, 0, 0, 0)
-1148	:Extend_Instruction(255) > 0(0, 0, 0, 0) > 10(10, 0, 0, 0)
-1157	:A=&VID(159) > 92(92, 0, 0, 0)
-1162	:LA=A(161)
-1163	:*LA=*A_N(182) > 12(12, 0, 0, 0)
+1076	:ADD_STACK_VARIABLE(0) > 92(92, 0, 0, 0)
+1081	:FUNC(153)
+1082	:A=&VID(159) > 80(80, 0, 0, 0)
+1087	:PARAM_N_COPY_BY_ADDRESS(177) > 12(12, 0, 0, 0)
+1092	:A=&VID(159) > 68(68, 0, 0, 0)
+1097	:PARAM_N_COPY_BY_ADDRESS(177) > 12(12, 0, 0, 0)
+1102	:Extend_Instruction(255) > 0(0, 0, 0, 0) > 10(10, 0, 0, 0)
+1111	:A=&VID(159) > 92(92, 0, 0, 0)
+1116	:LA=A(161)
+1117	:*LA=*A_N(182) > 12(12, 0, 0, 0)
 BakeCode_CompileCodes__usefunc : dbg ( "rang( rad : " , rang . radian , ", delta : (" , rang . delta . x , ", " , rang . delta . y , "))\n" ) 
-1168	:SET_A_CONST_STRING(172) > 13(13, 0, 0, 0)"rang( rad : "
-1186	:DBG_A(167) > 8
-1188	:A=&VID(159) > 92(92, 0, 0, 0)
-1193	:PUSH_B_CONST_4(12) > 8(8, 0, 0, 0)
-1198	:AU_INT_ADD_A(25)
-1199	:A=*A_nopush(165)
-1200	:DBG_A(167) > 6
-1202	:SET_A_CONST_STRING(172) > 12(12, 0, 0, 0)", delta : ("
-1219	:DBG_A(167) > 8
-1221	:A=&VID(159) > 92(92, 0, 0, 0)
-1226	:PUSH_B_CONST_4(12) > 0(0, 0, 0, 0)
-1231	:AU_INT_ADD_A(25)
-1232	:PUSH_B_CONST_4(12) > 0(0, 0, 0, 0)
-1237	:AU_INT_ADD_A(25)
-1238	:A=*A_nopush(165)
-1239	:DBG_A(167) > 6
-1241	:SET_A_CONST_STRING(172) > 3(3, 0, 0, 0)", "
-1249	:DBG_A(167) > 8
-1251	:A=&VID(159) > 92(92, 0, 0, 0)
-1256	:PUSH_B_CONST_4(12) > 0(0, 0, 0, 0)
-1261	:AU_INT_ADD_A(25)
-1262	:PUSH_B_CONST_4(12) > 4(4, 0, 0, 0)
-1267	:AU_INT_ADD_A(25)
-1268	:A=*A_nopush(165)
-1269	:DBG_A(167) > 6
-1271	:SET_A_CONST_STRING(172) > 5(5, 0, 0, 0)"))
+1122	:SET_A_CONST_STRING(172) > 13(13, 0, 0, 0)"rang( rad : "
+1140	:DBG_A(167) > 8
+1142	:A<=&VID[Const](183) > 92(92, 0, 0, 0) > 8(8, 0, 0, 0)
+1151	:A=*A_nopush(165)
+1152	:DBG_A(167) > 6
+1154	:SET_A_CONST_STRING(172) > 12(12, 0, 0, 0)", delta : ("
+1171	:DBG_A(167) > 8
+1173	:A<=&VID[Const](183) > 92(92, 0, 0, 0) > 0(0, 0, 0, 0)
+1182	:PUSH_B_CONST_4(12) > 0(0, 0, 0, 0)
+1187	:AU_INT_ADD_A(25)
+1188	:A=*A_nopush(165)
+1189	:DBG_A(167) > 6
+1191	:SET_A_CONST_STRING(172) > 3(3, 0, 0, 0)", "
+1199	:DBG_A(167) > 8
+1201	:A<=&VID[Const](183) > 92(92, 0, 0, 0) > 0(0, 0, 0, 0)
+1210	:PUSH_B_CONST_4(12) > 4(4, 0, 0, 0)
+1215	:AU_INT_ADD_A(25)
+1216	:A=*A_nopush(165)
+1217	:DBG_A(167) > 6
+1219	:SET_A_CONST_STRING(172) > 5(5, 0, 0, 0)"))
 "
-1281	:DBG_A(167) > 8
+1229	:DBG_A(167) > 8
 BakeCode_CompileCodes__set_var : pos1 = _vec2f ( pos1 . x + rang . delta . x * 30 , pos1 . y + rang . delta . y * 30 ) 
-1283	:FUNC(153)
-1284	:A=&VID(159) > 8(8, 0, 0, 0)
-1289	:PUSH_B_CONST_4(12) > 4(4, 0, 0, 0)
+1231	:FUNC(153)
+1232	:A<=&VID[Const](183) > 8(8, 0, 0, 0) > 4(4, 0, 0, 0)
+1241	:A=*A_nopush(165)
+1242	:A<=&VID[Const](183) > 92(92, 0, 0, 0) > 0(0, 0, 0, 0)
+1251	:PUSH_B_CONST_4(12) > 4(4, 0, 0, 0)
+1256	:AU_INT_ADD_A(25)
+1257	:A=*A_nopush(165)
+1258	:PUSH_B_CONST_4(12) > 30(30, 0, 0, 0)
+1263	:CASTING_B(164) > 12
+1265	:AU_FLOAT_MUL_A(57)
+1266	:B=A(181)
+1267	:POP_A(174)
+1268	:AU_FLOAT_ADD_A(29)
+1269	:PARAM_4(156)
+1270	:A<=&VID[Const](183) > 8(8, 0, 0, 0) > 0(0, 0, 0, 0)
+1279	:A=*A_nopush(165)
+1280	:A<=&VID[Const](183) > 92(92, 0, 0, 0) > 0(0, 0, 0, 0)
+1289	:PUSH_B_CONST_4(12) > 0(0, 0, 0, 0)
 1294	:AU_INT_ADD_A(25)
 1295	:A=*A_nopush(165)
-1296	:A=&VID(159) > 92(92, 0, 0, 0)
-1301	:PUSH_B_CONST_4(12) > 0(0, 0, 0, 0)
-1306	:AU_INT_ADD_A(25)
-1307	:PUSH_B_CONST_4(12) > 4(4, 0, 0, 0)
-1312	:AU_INT_ADD_A(25)
-1313	:A=*A_nopush(165)
-1314	:PUSH_B_CONST_4(12) > 30(30, 0, 0, 0)
-1319	:CASTING_B(164) > 12
-1321	:AU_FLOAT_MUL_A(57)
-1322	:B=A(181)
-1323	:POP_A(174)
-1324	:AU_FLOAT_ADD_A(29)
-1325	:PARAM_4(156)
-1326	:A=&VID(159) > 8(8, 0, 0, 0)
-1331	:PUSH_B_CONST_4(12) > 0(0, 0, 0, 0)
-1336	:AU_INT_ADD_A(25)
-1337	:A=*A_nopush(165)
-1338	:A=&VID(159) > 92(92, 0, 0, 0)
-1343	:PUSH_B_CONST_4(12) > 0(0, 0, 0, 0)
-1348	:AU_INT_ADD_A(25)
-1349	:PUSH_B_CONST_4(12) > 0(0, 0, 0, 0)
-1354	:AU_INT_ADD_A(25)
-1355	:A=*A_nopush(165)
-1356	:PUSH_B_CONST_4(12) > 30(30, 0, 0, 0)
-1361	:CASTING_B(164) > 12
-1363	:AU_FLOAT_MUL_A(57)
-1364	:B=A(181)
-1365	:POP_A(174)
-1366	:AU_FLOAT_ADD_A(29)
-1367	:PARAM_4(156)
-1368	:Extend_Instruction(255) > 0(0, 0, 0, 0) > 0(0, 0, 0, 0)
-1377	:A=&VID(159) > 8(8, 0, 0, 0)
-1382	:LA=A(161)
-1383	:*LA=*A_N(182) > 8(8, 0, 0, 0)
+1296	:PUSH_B_CONST_4(12) > 30(30, 0, 0, 0)
+1301	:CASTING_B(164) > 12
+1303	:AU_FLOAT_MUL_A(57)
+1304	:B=A(181)
+1305	:POP_A(174)
+1306	:AU_FLOAT_ADD_A(29)
+1307	:PARAM_4(156)
+1308	:Extend_Instruction(255) > 0(0, 0, 0, 0) > 0(0, 0, 0, 0)
+1317	:A=&VID(159) > 8(8, 0, 0, 0)
+1322	:LA=A(161)
+1323	:*LA=*A_N(182) > 8(8, 0, 0, 0)
 BakeCode_CompileCodes__usefunc : dbg ( "pos1 : (" , pos1 . x , ", " , pos1 . y , ")\n" ) 
-1388	:SET_A_CONST_STRING(172) > 9(9, 0, 0, 0)"pos1 : ("
-1402	:DBG_A(167) > 8
-1404	:A=&VID(159) > 8(8, 0, 0, 0)
-1409	:PUSH_B_CONST_4(12) > 0(0, 0, 0, 0)
-1414	:AU_INT_ADD_A(25)
-1415	:A=*A_nopush(165)
-1416	:DBG_A(167) > 6
-1418	:SET_A_CONST_STRING(172) > 3(3, 0, 0, 0)", "
-1426	:DBG_A(167) > 8
-1428	:A=&VID(159) > 8(8, 0, 0, 0)
-1433	:PUSH_B_CONST_4(12) > 4(4, 0, 0, 0)
-1438	:AU_INT_ADD_A(25)
-1439	:A=*A_nopush(165)
-1440	:DBG_A(167) > 6
-1442	:SET_A_CONST_STRING(172) > 4(4, 0, 0, 0)")
+1328	:SET_A_CONST_STRING(172) > 9(9, 0, 0, 0)"pos1 : ("
+1342	:DBG_A(167) > 8
+1344	:A<=&VID[Const](183) > 8(8, 0, 0, 0) > 0(0, 0, 0, 0)
+1353	:A=*A_nopush(165)
+1354	:DBG_A(167) > 6
+1356	:SET_A_CONST_STRING(172) > 3(3, 0, 0, 0)", "
+1364	:DBG_A(167) > 8
+1366	:A<=&VID[Const](183) > 8(8, 0, 0, 0) > 4(4, 0, 0, 0)
+1375	:A=*A_nopush(165)
+1376	:DBG_A(167) > 6
+1378	:SET_A_CONST_STRING(172) > 4(4, 0, 0, 0)")
 "
-1451	:DBG_A(167) > 8
+1387	:DBG_A(167) > 8
 BakeCode_CompileCodes__adsetvar: vec2f cross = get_cross_line ( _line2d ( pos1 , _vec2f ( 10 , 0 ) ) , _line2d ( pos2 , cir1 . center ) ) 
-1453	:ADD_STACK_VARIABLE(0) > 100(100, 0, 0, 0)
-1458	:FUNC(153)
-1459	:FUNC(153)
-1460	:A=&VID(159) > 48(48, 0, 0, 0)
-1465	:PUSH_B_CONST_4(12) > 0(0, 0, 0, 0)
-1470	:AU_INT_ADD_A(25)
+1389	:ADD_STACK_VARIABLE(0) > 100(100, 0, 0, 0)
+1394	:FUNC(153)
+1395	:FUNC(153)
+1396	:A<=&VID[Const](183) > 48(48, 0, 0, 0) > 0(0, 0, 0, 0)
+1405	:PARAM_N_COPY_BY_ADDRESS(177) > 8(8, 0, 0, 0)
+1410	:A=&VID(159) > 16(16, 0, 0, 0)
+1415	:PARAM_N_COPY_BY_ADDRESS(177) > 8(8, 0, 0, 0)
+1420	:Extend_Instruction(255) > 0(0, 0, 0, 0) > 2(2, 0, 0, 0)
+1429	:PARAM_N_COPY_BY_ADDRESS(177) > 16(16, 0, 0, 0)
+1434	:FUNC(153)
+1435	:FUNC(153)
+1436	:PUSH_A_CONST_4(6) > 0(0, 0, 0, 0)
+1441	:CASTING_A(163) > 12
+1443	:PARAM_4(156)
+1444	:PUSH_A_CONST_4(6) > 10(10, 0, 0, 0)
+1449	:CASTING_A(163) > 12
+1451	:PARAM_4(156)
+1452	:Extend_Instruction(255) > 0(0, 0, 0, 0) > 0(0, 0, 0, 0)
+1461	:PARAM_N_COPY_BY_ADDRESS(177) > 8(8, 0, 0, 0)
+1466	:A=&VID(159) > 8(8, 0, 0, 0)
 1471	:PARAM_N_COPY_BY_ADDRESS(177) > 8(8, 0, 0, 0)
-1476	:A=&VID(159) > 16(16, 0, 0, 0)
-1481	:PARAM_N_COPY_BY_ADDRESS(177) > 8(8, 0, 0, 0)
-1486	:Extend_Instruction(255) > 0(0, 0, 0, 0) > 2(2, 0, 0, 0)
-1495	:PARAM_N_COPY_BY_ADDRESS(177) > 16(16, 0, 0, 0)
-1500	:FUNC(153)
-1501	:FUNC(153)
-1502	:PUSH_A_CONST_4(6) > 0(0, 0, 0, 0)
-1507	:CASTING_A(163) > 12
-1509	:PARAM_4(156)
-1510	:PUSH_A_CONST_4(6) > 10(10, 0, 0, 0)
-1515	:CASTING_A(163) > 12
-1517	:PARAM_4(156)
-1518	:Extend_Instruction(255) > 0(0, 0, 0, 0) > 0(0, 0, 0, 0)
-1527	:PARAM_N_COPY_BY_ADDRESS(177) > 8(8, 0, 0, 0)
-1532	:A=&VID(159) > 8(8, 0, 0, 0)
-1537	:PARAM_N_COPY_BY_ADDRESS(177) > 8(8, 0, 0, 0)
-1542	:Extend_Instruction(255) > 0(0, 0, 0, 0) > 2(2, 0, 0, 0)
-1551	:PARAM_N_COPY_BY_ADDRESS(177) > 16(16, 0, 0, 0)
-1556	:Extend_Instruction(255) > 0(0, 0, 0, 0) > 11(11, 0, 0, 0)
-1565	:A=&VID(159) > 100(100, 0, 0, 0)
-1570	:LA=A(161)
-1571	:*LA=*A_N(182) > 8(8, 0, 0, 0)
+1476	:Extend_Instruction(255) > 0(0, 0, 0, 0) > 2(2, 0, 0, 0)
+1485	:PARAM_N_COPY_BY_ADDRESS(177) > 16(16, 0, 0, 0)
+1490	:Extend_Instruction(255) > 0(0, 0, 0, 0) > 11(11, 0, 0, 0)
+1499	:A=&VID(159) > 100(100, 0, 0, 0)
+1504	:LA=A(161)
+1505	:*LA=*A_N(182) > 8(8, 0, 0, 0)
 BakeCode_CompileCodes__usefunc : dbg ( "cross : (" , cross . x , ", " , cross . y , ")\n" ) 
-1576	:SET_A_CONST_STRING(172) > 10(10, 0, 0, 0)"cross : ("
-1591	:DBG_A(167) > 8
-1593	:A=&VID(159) > 100(100, 0, 0, 0)
-1598	:PUSH_B_CONST_4(12) > 0(0, 0, 0, 0)
-1603	:AU_INT_ADD_A(25)
-1604	:A=*A_nopush(165)
-1605	:DBG_A(167) > 6
-1607	:SET_A_CONST_STRING(172) > 3(3, 0, 0, 0)", "
-1615	:DBG_A(167) > 8
-1617	:A=&VID(159) > 100(100, 0, 0, 0)
-1622	:PUSH_B_CONST_4(12) > 4(4, 0, 0, 0)
-1627	:AU_INT_ADD_A(25)
-1628	:A=*A_nopush(165)
-1629	:DBG_A(167) > 6
-1631	:SET_A_CONST_STRING(172) > 4(4, 0, 0, 0)")
+1510	:SET_A_CONST_STRING(172) > 10(10, 0, 0, 0)"cross : ("
+1525	:DBG_A(167) > 8
+1527	:A<=&VID[Const](183) > 100(100, 0, 0, 0) > 0(0, 0, 0, 0)
+1536	:A=*A_nopush(165)
+1537	:DBG_A(167) > 6
+1539	:SET_A_CONST_STRING(172) > 3(3, 0, 0, 0)", "
+1547	:DBG_A(167) > 8
+1549	:A<=&VID[Const](183) > 100(100, 0, 0, 0) > 4(4, 0, 0, 0)
+1558	:A=*A_nopush(165)
+1559	:DBG_A(167) > 6
+1561	:SET_A_CONST_STRING(172) > 4(4, 0, 0, 0)")
 "
-1640	:DBG_A(167) > 8
+1570	:DBG_A(167) > 8
 BakeCode_CompileCodes__adsetvar: vec2f [ 2 ] circross = get_cross_CircleAndLine ( cir1 , _line2d ( cross , _vec2f ( 20 , 0 ) ) ) 
-1642	:ADD_STACK_VARIABLE(0) > 116(116, 0, 0, 0)
-1647	:FUNC(153)
-1648	:FUNC(153)
-1649	:FUNC(153)
-1650	:PUSH_A_CONST_4(6) > 0(0, 0, 0, 0)
-1655	:CASTING_A(163) > 12
-1657	:PARAM_4(156)
-1658	:PUSH_A_CONST_4(6) > 20(20, 0, 0, 0)
-1663	:CASTING_A(163) > 12
-1665	:PARAM_4(156)
-1666	:Extend_Instruction(255) > 0(0, 0, 0, 0) > 0(0, 0, 0, 0)
-1675	:PARAM_N_COPY_BY_ADDRESS(177) > 8(8, 0, 0, 0)
-1680	:A=&VID(159) > 100(100, 0, 0, 0)
-1685	:PARAM_N_COPY_BY_ADDRESS(177) > 8(8, 0, 0, 0)
-1690	:Extend_Instruction(255) > 0(0, 0, 0, 0) > 2(2, 0, 0, 0)
-1699	:PARAM_N_COPY_BY_ADDRESS(177) > 16(16, 0, 0, 0)
-1704	:A=&VID(159) > 48(48, 0, 0, 0)
-1709	:PARAM_N_COPY_BY_ADDRESS(177) > 12(12, 0, 0, 0)
-1714	:Extend_Instruction(255) > 0(0, 0, 0, 0) > 5(5, 0, 0, 0)
-1723	:A=&VID(159) > 116(116, 0, 0, 0)
-1728	:LA=A(161)
-1729	:*LA=*A_N(182) > 16(16, 0, 0, 0)
+1572	:ADD_STACK_VARIABLE(0) > 116(116, 0, 0, 0)
+1577	:FUNC(153)
+1578	:FUNC(153)
+1579	:FUNC(153)
+1580	:PUSH_A_CONST_4(6) > 0(0, 0, 0, 0)
+1585	:CASTING_A(163) > 12
+1587	:PARAM_4(156)
+1588	:PUSH_A_CONST_4(6) > 20(20, 0, 0, 0)
+1593	:CASTING_A(163) > 12
+1595	:PARAM_4(156)
+1596	:Extend_Instruction(255) > 0(0, 0, 0, 0) > 0(0, 0, 0, 0)
+1605	:PARAM_N_COPY_BY_ADDRESS(177) > 8(8, 0, 0, 0)
+1610	:A=&VID(159) > 100(100, 0, 0, 0)
+1615	:PARAM_N_COPY_BY_ADDRESS(177) > 8(8, 0, 0, 0)
+1620	:Extend_Instruction(255) > 0(0, 0, 0, 0) > 2(2, 0, 0, 0)
+1629	:PARAM_N_COPY_BY_ADDRESS(177) > 16(16, 0, 0, 0)
+1634	:A=&VID(159) > 48(48, 0, 0, 0)
+1639	:PARAM_N_COPY_BY_ADDRESS(177) > 12(12, 0, 0, 0)
+1644	:Extend_Instruction(255) > 0(0, 0, 0, 0) > 5(5, 0, 0, 0)
+1653	:A=&VID(159) > 116(116, 0, 0, 0)
+1658	:LA=A(161)
+1659	:*LA=*A_N(182) > 16(16, 0, 0, 0)
 BakeCode_CompileCodes__usefunc : dbg ( "circross[0] : (" , circross [ 0 ] . x , ", " , circross [ 0 ] . y , ")\n" ) 
-1734	:SET_A_CONST_STRING(172) > 16(16, 0, 0, 0)"circross[0] : ("
-1755	:DBG_A(167) > 8
-1757	:PUSH_A_CONST_4(6) > 0(0, 0, 0, 0)
-1762	:PUSH_B_CONST_4(12) > 8(8, 0, 0, 0)
-1767	:AU_UINT_MUL_B(56)
-1768	:A=&VID(159) > 116(116, 0, 0, 0)
-1773	:AU_INT_ADD_A(25)
-1774	:PUSH_B_CONST_4(12) > 0(0, 0, 0, 0)
-1779	:AU_INT_ADD_A(25)
-1780	:A=*A_nopush(165)
-1781	:DBG_A(167) > 6
-1783	:SET_A_CONST_STRING(172) > 3(3, 0, 0, 0)", "
-1791	:DBG_A(167) > 8
-1793	:PUSH_A_CONST_4(6) > 0(0, 0, 0, 0)
-1798	:PUSH_B_CONST_4(12) > 8(8, 0, 0, 0)
-1803	:AU_UINT_MUL_B(56)
-1804	:A=&VID(159) > 116(116, 0, 0, 0)
-1809	:AU_INT_ADD_A(25)
-1810	:PUSH_B_CONST_4(12) > 4(4, 0, 0, 0)
-1815	:AU_INT_ADD_A(25)
-1816	:A=*A_nopush(165)
-1817	:DBG_A(167) > 6
-1819	:SET_A_CONST_STRING(172) > 4(4, 0, 0, 0)")
+1664	:SET_A_CONST_STRING(172) > 16(16, 0, 0, 0)"circross[0] : ("
+1685	:DBG_A(167) > 8
+1687	:PUSH_A_CONST_4(6) > 0(0, 0, 0, 0)
+1692	:PUSH_B_CONST_4(12) > 8(8, 0, 0, 0)
+1697	:AU_UINT_MUL_B(56)
+1698	:A=&VID(159) > 116(116, 0, 0, 0)
+1703	:AU_INT_ADD_A(25)
+1704	:PUSH_B_CONST_4(12) > 0(0, 0, 0, 0)
+1709	:AU_INT_ADD_A(25)
+1710	:A=*A_nopush(165)
+1711	:DBG_A(167) > 6
+1713	:SET_A_CONST_STRING(172) > 3(3, 0, 0, 0)", "
+1721	:DBG_A(167) > 8
+1723	:PUSH_A_CONST_4(6) > 0(0, 0, 0, 0)
+1728	:PUSH_B_CONST_4(12) > 8(8, 0, 0, 0)
+1733	:AU_UINT_MUL_B(56)
+1734	:A=&VID(159) > 116(116, 0, 0, 0)
+1739	:AU_INT_ADD_A(25)
+1740	:PUSH_B_CONST_4(12) > 4(4, 0, 0, 0)
+1745	:AU_INT_ADD_A(25)
+1746	:A=*A_nopush(165)
+1747	:DBG_A(167) > 6
+1749	:SET_A_CONST_STRING(172) > 4(4, 0, 0, 0)")
 "
-1828	:DBG_A(167) > 8
+1758	:DBG_A(167) > 8
 BakeCode_CompileCodes__usefunc : dbg ( "circross[1] : (" , circross [ 1 ] . x , ", " , circross [ 1 ] . y , ")\n" ) 
-1830	:SET_A_CONST_STRING(172) > 16(16, 0, 0, 0)"circross[1] : ("
-1851	:DBG_A(167) > 8
-1853	:PUSH_A_CONST_4(6) > 1(1, 0, 0, 0)
-1858	:PUSH_B_CONST_4(12) > 8(8, 0, 0, 0)
-1863	:AU_UINT_MUL_B(56)
-1864	:A=&VID(159) > 116(116, 0, 0, 0)
-1869	:AU_INT_ADD_A(25)
-1870	:PUSH_B_CONST_4(12) > 0(0, 0, 0, 0)
-1875	:AU_INT_ADD_A(25)
-1876	:A=*A_nopush(165)
-1877	:DBG_A(167) > 6
-1879	:SET_A_CONST_STRING(172) > 3(3, 0, 0, 0)", "
-1887	:DBG_A(167) > 8
-1889	:PUSH_A_CONST_4(6) > 1(1, 0, 0, 0)
-1894	:PUSH_B_CONST_4(12) > 8(8, 0, 0, 0)
-1899	:AU_UINT_MUL_B(56)
-1900	:A=&VID(159) > 116(116, 0, 0, 0)
-1905	:AU_INT_ADD_A(25)
-1906	:PUSH_B_CONST_4(12) > 4(4, 0, 0, 0)
-1911	:AU_INT_ADD_A(25)
-1912	:A=*A_nopush(165)
-1913	:DBG_A(167) > 6
-1915	:SET_A_CONST_STRING(172) > 4(4, 0, 0, 0)")
+1760	:SET_A_CONST_STRING(172) > 16(16, 0, 0, 0)"circross[1] : ("
+1781	:DBG_A(167) > 8
+1783	:PUSH_A_CONST_4(6) > 1(1, 0, 0, 0)
+1788	:PUSH_B_CONST_4(12) > 8(8, 0, 0, 0)
+1793	:AU_UINT_MUL_B(56)
+1794	:A=&VID(159) > 116(116, 0, 0, 0)
+1799	:AU_INT_ADD_A(25)
+1800	:PUSH_B_CONST_4(12) > 0(0, 0, 0, 0)
+1805	:AU_INT_ADD_A(25)
+1806	:A=*A_nopush(165)
+1807	:DBG_A(167) > 6
+1809	:SET_A_CONST_STRING(172) > 3(3, 0, 0, 0)", "
+1817	:DBG_A(167) > 8
+1819	:PUSH_A_CONST_4(6) > 1(1, 0, 0, 0)
+1824	:PUSH_B_CONST_4(12) > 8(8, 0, 0, 0)
+1829	:AU_UINT_MUL_B(56)
+1830	:A=&VID(159) > 116(116, 0, 0, 0)
+1835	:AU_INT_ADD_A(25)
+1836	:PUSH_B_CONST_4(12) > 4(4, 0, 0, 0)
+1841	:AU_INT_ADD_A(25)
+1842	:A=*A_nopush(165)
+1843	:DBG_A(167) > 6
+1845	:SET_A_CONST_STRING(172) > 4(4, 0, 0, 0)")
 "
-1924	:DBG_A(167) > 8
+1854	:DBG_A(167) > 8
 BakeCode_CompileCodes__adsetvar: vec2f enableCross = _vec2f ( 0 , 0 ) 
-1926	:ADD_STACK_VARIABLE(0) > 124(124, 0, 0, 0)
-1931	:FUNC(153)
-1932	:PUSH_A_CONST_4(6) > 0(0, 0, 0, 0)
-1937	:CASTING_A(163) > 12
-1939	:PARAM_4(156)
-1940	:PUSH_A_CONST_4(6) > 0(0, 0, 0, 0)
-1945	:CASTING_A(163) > 12
-1947	:PARAM_4(156)
-1948	:Extend_Instruction(255) > 0(0, 0, 0, 0) > 0(0, 0, 0, 0)
-1957	:A=&VID(159) > 124(124, 0, 0, 0)
-1962	:LA=A(161)
-1963	:*LA=*A_N(182) > 8(8, 0, 0, 0)
+1856	:ADD_STACK_VARIABLE(0) > 124(124, 0, 0, 0)
+1861	:FUNC(153)
+1862	:PUSH_A_CONST_4(6) > 0(0, 0, 0, 0)
+1867	:CASTING_A(163) > 12
+1869	:PARAM_4(156)
+1870	:PUSH_A_CONST_4(6) > 0(0, 0, 0, 0)
+1875	:CASTING_A(163) > 12
+1877	:PARAM_4(156)
+1878	:Extend_Instruction(255) > 0(0, 0, 0, 0) > 0(0, 0, 0, 0)
+1887	:A=&VID(159) > 124(124, 0, 0, 0)
+1892	:LA=A(161)
+1893	:*LA=*A_N(182) > 8(8, 0, 0, 0)
 BakeCode_CompileCodes__if__sen : if ( isNAN ( circross [ 0 ] . x ) ) 
-1968	:FUNC(153)
-1969	:PUSH_A_CONST_4(6) > 0(0, 0, 0, 0)
-1974	:PUSH_B_CONST_4(12) > 8(8, 0, 0, 0)
-1979	:AU_UINT_MUL_B(56)
-1980	:A=&VID(159) > 116(116, 0, 0, 0)
-1985	:AU_INT_ADD_A(25)
-1986	:PUSH_B_CONST_4(12) > 0(0, 0, 0, 0)
-1991	:AU_INT_ADD_A(25)
-1992	:A=*A_nopush(165)
-1993	:PARAM_4(156)
-1994	:Extend_Instruction(255) > 0(0, 0, 0, 0) > 12(12, 0, 0, 0)
-2003	:IF(151) > -16843010(254, 254, 254, 254)
+1898	:FUNC(153)
+1899	:PUSH_A_CONST_4(6) > 0(0, 0, 0, 0)
+1904	:PUSH_B_CONST_4(12) > 8(8, 0, 0, 0)
+1909	:AU_UINT_MUL_B(56)
+1910	:A=&VID(159) > 116(116, 0, 0, 0)
+1915	:AU_INT_ADD_A(25)
+1916	:PUSH_B_CONST_4(12) > 0(0, 0, 0, 0)
+1921	:AU_INT_ADD_A(25)
+1922	:A=*A_nopush(165)
+1923	:PARAM_4(156)
+1924	:Extend_Instruction(255) > 0(0, 0, 0, 0) > 12(12, 0, 0, 0)
+1933	:IF(151) > -16843010(254, 254, 254, 254)
 BakeCode_CompileCodes Block Start {
 BakeCode_CompileCodes__usefunc : dbg ( "cross 0 is nan!!\n" ) 
-2008	:SET_A_CONST_STRING(172) > 19(19, 0, 0, 0)"cross 0 is nan!!
+1938	:SET_A_CONST_STRING(172) > 19(19, 0, 0, 0)"cross 0 is nan!!
 "
-2032	:DBG_A(167) > 8
+1962	:DBG_A(167) > 8
 BakeCode_CompileCodes__set_var : enableCross = circross [ 1 ] 
-2034	:PUSH_A_CONST_4(6) > 1(1, 0, 0, 0)
-2039	:PUSH_B_CONST_4(12) > 8(8, 0, 0, 0)
-2044	:AU_UINT_MUL_B(56)
-2045	:A=&VID(159) > 116(116, 0, 0, 0)
-2050	:AU_INT_ADD_A(25)
-2051	:A=&VID(159) > 124(124, 0, 0, 0)
-2056	:LA=A(161)
-2057	:*LA=*A_N(182) > 8(8, 0, 0, 0)
+1964	:PUSH_A_CONST_4(6) > 1(1, 0, 0, 0)
+1969	:PUSH_B_CONST_4(12) > 8(8, 0, 0, 0)
+1974	:AU_UINT_MUL_B(56)
+1975	:A=&VID(159) > 116(116, 0, 0, 0)
+1980	:AU_INT_ADD_A(25)
+1981	:A=&VID(159) > 124(124, 0, 0, 0)
+1986	:LA=A(161)
+1987	:*LA=*A_N(182) > 8(8, 0, 0, 0)
 }; BakeCode_CompileCodes Block Finish
 BakeCode_CompileCodes__if__sen : if ( isNAN ( circross [ 1 ] . x ) ) 
-2062	:FUNC(153)
-2063	:PUSH_A_CONST_4(6) > 1(1, 0, 0, 0)
-2068	:PUSH_B_CONST_4(12) > 8(8, 0, 0, 0)
-2073	:AU_UINT_MUL_B(56)
-2074	:A=&VID(159) > 116(116, 0, 0, 0)
-2079	:AU_INT_ADD_A(25)
-2080	:PUSH_B_CONST_4(12) > 0(0, 0, 0, 0)
-2085	:AU_INT_ADD_A(25)
-2086	:A=*A_nopush(165)
-2087	:PARAM_4(156)
-2088	:Extend_Instruction(255) > 0(0, 0, 0, 0) > 12(12, 0, 0, 0)
-2097	:IF(151) > -16843010(254, 254, 254, 254)
+1992	:FUNC(153)
+1993	:PUSH_A_CONST_4(6) > 1(1, 0, 0, 0)
+1998	:PUSH_B_CONST_4(12) > 8(8, 0, 0, 0)
+2003	:AU_UINT_MUL_B(56)
+2004	:A=&VID(159) > 116(116, 0, 0, 0)
+2009	:AU_INT_ADD_A(25)
+2010	:PUSH_B_CONST_4(12) > 0(0, 0, 0, 0)
+2015	:AU_INT_ADD_A(25)
+2016	:A=*A_nopush(165)
+2017	:PARAM_4(156)
+2018	:Extend_Instruction(255) > 0(0, 0, 0, 0) > 12(12, 0, 0, 0)
+2027	:IF(151) > -16843010(254, 254, 254, 254)
 BakeCode_CompileCodes Block Start {
 BakeCode_CompileCodes__usefunc : dbg ( "cross 1 is nan!!\n" ) 
-2102	:SET_A_CONST_STRING(172) > 19(19, 0, 0, 0)"cross 1 is nan!!
+2032	:SET_A_CONST_STRING(172) > 19(19, 0, 0, 0)"cross 1 is nan!!
 "
-2126	:DBG_A(167) > 8
+2056	:DBG_A(167) > 8
 BakeCode_CompileCodes__set_var : enableCross = circross [ 0 ] 
-2128	:PUSH_A_CONST_4(6) > 0(0, 0, 0, 0)
-2133	:PUSH_B_CONST_4(12) > 8(8, 0, 0, 0)
-2138	:AU_UINT_MUL_B(56)
-2139	:A=&VID(159) > 116(116, 0, 0, 0)
-2144	:AU_INT_ADD_A(25)
-2145	:A=&VID(159) > 124(124, 0, 0, 0)
-2150	:LA=A(161)
-2151	:*LA=*A_N(182) > 8(8, 0, 0, 0)
+2058	:PUSH_A_CONST_4(6) > 0(0, 0, 0, 0)
+2063	:PUSH_B_CONST_4(12) > 8(8, 0, 0, 0)
+2068	:AU_UINT_MUL_B(56)
+2069	:A=&VID(159) > 116(116, 0, 0, 0)
+2074	:AU_INT_ADD_A(25)
+2075	:A=&VID(159) > 124(124, 0, 0, 0)
+2080	:LA=A(161)
+2081	:*LA=*A_N(182) > 8(8, 0, 0, 0)
 }; BakeCode_CompileCodes Block Finish
 BakeCode_CompileCodes__usefunc : dbg ( "enableCross : (" , enableCross . x , ", " , enableCross . y , ")\n" ) 
-2156	:SET_A_CONST_STRING(172) > 16(16, 0, 0, 0)"enableCross : ("
-2177	:DBG_A(167) > 8
-2179	:A=&VID(159) > 124(124, 0, 0, 0)
-2184	:PUSH_B_CONST_4(12) > 0(0, 0, 0, 0)
-2189	:AU_INT_ADD_A(25)
-2190	:A=*A_nopush(165)
-2191	:DBG_A(167) > 6
-2193	:SET_A_CONST_STRING(172) > 3(3, 0, 0, 0)", "
-2201	:DBG_A(167) > 8
-2203	:A=&VID(159) > 124(124, 0, 0, 0)
-2208	:PUSH_B_CONST_4(12) > 4(4, 0, 0, 0)
-2213	:AU_INT_ADD_A(25)
-2214	:A=*A_nopush(165)
-2215	:DBG_A(167) > 6
-2217	:SET_A_CONST_STRING(172) > 4(4, 0, 0, 0)")
+2086	:SET_A_CONST_STRING(172) > 16(16, 0, 0, 0)"enableCross : ("
+2107	:DBG_A(167) > 8
+2109	:A<=&VID[Const](183) > 124(124, 0, 0, 0) > 0(0, 0, 0, 0)
+2118	:A=*A_nopush(165)
+2119	:DBG_A(167) > 6
+2121	:SET_A_CONST_STRING(172) > 3(3, 0, 0, 0)", "
+2129	:DBG_A(167) > 8
+2131	:A<=&VID[Const](183) > 124(124, 0, 0, 0) > 4(4, 0, 0, 0)
+2140	:A=*A_nopush(165)
+2141	:DBG_A(167) > 6
+2143	:SET_A_CONST_STRING(172) > 4(4, 0, 0, 0)")
 "
-2226	:DBG_A(167) > 8
+2152	:DBG_A(167) > 8
 BakeCode_CompileCodes__adsetvar: int bSiz = 100 
-2228	:ADD_STACK_VARIABLE(0) > 128(128, 0, 0, 0)
-2233	:PUSH_A_CONST_4(6) > 100(100, 0, 0, 0)
-2238	:A=&VID(159) > 128(128, 0, 0, 0)
-2243	:LA=A(161)
-2244	:*LA=A_4(171)
+2154	:ADD_STACK_VARIABLE(0) > 128(128, 0, 0, 0)
+2159	:PUSH_A_CONST_4(6) > 100(100, 0, 0, 0)
+2164	:A=&VID(159) > 128(128, 0, 0, 0)
+2169	:LA=A(161)
+2170	:*LA=A_4(171)
 BakeCode_CompileCodes__adsetvar: vec2f [ 100 ] bezierCurve = get_poses_in_Bezier1F ( pos1 , cross , pos2 , bSiz ) 
-2245	:ADD_STACK_VARIABLE(0) > 928(160, 3, 0, 0)
-2250	:FUNC(153)
-2251	:A=&VID(159) > 128(128, 0, 0, 0)
-2256	:A=*A_nopush(165)
-2257	:PARAM_4(156)
-2258	:A=&VID(159) > 16(16, 0, 0, 0)
-2263	:PARAM_N_COPY_BY_ADDRESS(177) > 8(8, 0, 0, 0)
-2268	:A=&VID(159) > 100(100, 0, 0, 0)
-2273	:PARAM_N_COPY_BY_ADDRESS(177) > 8(8, 0, 0, 0)
-2278	:A=&VID(159) > 8(8, 0, 0, 0)
-2283	:PARAM_N_COPY_BY_ADDRESS(177) > 8(8, 0, 0, 0)
-2288	:Extend_Instruction(255) > 0(0, 0, 0, 0) > 7(7, 0, 0, 0)
-2297	:A=&VID(159) > 928(160, 3, 0, 0)
-2302	:LA=A(161)
-2303	:*LA=*A_N(182) > 800(32, 3, 0, 0)
+2171	:ADD_STACK_VARIABLE(0) > 928(160, 3, 0, 0)
+2176	:FUNC(153)
+2177	:A=&VID(159) > 128(128, 0, 0, 0)
+2182	:A=*A_nopush(165)
+2183	:PARAM_4(156)
+2184	:A=&VID(159) > 16(16, 0, 0, 0)
+2189	:PARAM_N_COPY_BY_ADDRESS(177) > 8(8, 0, 0, 0)
+2194	:A=&VID(159) > 100(100, 0, 0, 0)
+2199	:PARAM_N_COPY_BY_ADDRESS(177) > 8(8, 0, 0, 0)
+2204	:A=&VID(159) > 8(8, 0, 0, 0)
+2209	:PARAM_N_COPY_BY_ADDRESS(177) > 8(8, 0, 0, 0)
+2214	:Extend_Instruction(255) > 0(0, 0, 0, 0) > 7(7, 0, 0, 0)
+2223	:A=&VID(159) > 928(160, 3, 0, 0)
+2228	:LA=A(161)
+2229	:*LA=*A_N(182) > 800(32, 3, 0, 0)
 BakeCode_CompileCodes__adsetvar: int i = 0 
-2308	:ADD_STACK_VARIABLE(0) > 932(164, 3, 0, 0)
-2313	:PUSH_A_CONST_4(6) > 0(0, 0, 0, 0)
-2318	:A=&VID(159) > 932(164, 3, 0, 0)
-2323	:LA=A(161)
-2324	:*LA=A_4(171)
+2234	:ADD_STACK_VARIABLE(0) > 932(164, 3, 0, 0)
+2239	:PUSH_A_CONST_4(6) > 0(0, 0, 0, 0)
+2244	:A=&VID(159) > 932(164, 3, 0, 0)
+2249	:LA=A(161)
+2250	:*LA=A_4(171)
 BakeCode_CompileCodes__while__ : while ( i < bSiz ) 
-2325	:A=&VID(159) > 932(164, 3, 0, 0)
-2330	:A=*A_nopush(165)
-2331	:B=&VID(160) > 128(128, 0, 0, 0)
-2336	:B=*B_nopush(166)
-2337	:CM_BOOL_INT_RBIG_A(131)
-2338	:IF(151) > -16843010(254, 254, 254, 254)
+2251	:A=&VID(159) > 932(164, 3, 0, 0)
+2256	:A=*A_nopush(165)
+2257	:B=&VID(160) > 128(128, 0, 0, 0)
+2262	:B=*B_nopush(166)
+2263	:CM_BOOL_INT_RBIG_A(131)
+2264	:IF(151) > -16843010(254, 254, 254, 254)
 BakeCode_CompileCodes Block Start {
 BakeCode_CompileCodes__usefunc : dbg ( "pos[" , i , "] : (" , bezierCurve [ i ] . x , ", " , bezierCurve [ i ] . y , ")\n" ) 
-2343	:SET_A_CONST_STRING(172) > 5(5, 0, 0, 0)"pos["
-2353	:DBG_A(167) > 8
-2355	:A=&VID(159) > 932(164, 3, 0, 0)
-2360	:A=*A_nopush(165)
-2361	:DBG_A(167) > 4
-2363	:SET_A_CONST_STRING(172) > 6(6, 0, 0, 0)"] : ("
-2374	:DBG_A(167) > 8
-2376	:A=&VID(159) > 932(164, 3, 0, 0)
-2381	:A=*A_nopush(165)
-2382	:PUSH_B_CONST_4(12) > 8(8, 0, 0, 0)
-2387	:AU_UINT_MUL_B(56)
-2388	:A=&VID(159) > 928(160, 3, 0, 0)
-2393	:AU_INT_ADD_A(25)
-2394	:PUSH_B_CONST_4(12) > 0(0, 0, 0, 0)
-2399	:AU_INT_ADD_A(25)
-2400	:A=*A_nopush(165)
-2401	:DBG_A(167) > 6
-2403	:SET_A_CONST_STRING(172) > 3(3, 0, 0, 0)", "
-2411	:DBG_A(167) > 8
-2413	:A=&VID(159) > 932(164, 3, 0, 0)
-2418	:A=*A_nopush(165)
-2419	:PUSH_B_CONST_4(12) > 8(8, 0, 0, 0)
-2424	:AU_UINT_MUL_B(56)
-2425	:A=&VID(159) > 928(160, 3, 0, 0)
-2430	:AU_INT_ADD_A(25)
-2431	:PUSH_B_CONST_4(12) > 4(4, 0, 0, 0)
-2436	:AU_INT_ADD_A(25)
-2437	:A=*A_nopush(165)
-2438	:DBG_A(167) > 6
-2440	:SET_A_CONST_STRING(172) > 4(4, 0, 0, 0)")
+2269	:SET_A_CONST_STRING(172) > 5(5, 0, 0, 0)"pos["
+2279	:DBG_A(167) > 8
+2281	:A=&VID(159) > 932(164, 3, 0, 0)
+2286	:A=*A_nopush(165)
+2287	:DBG_A(167) > 4
+2289	:SET_A_CONST_STRING(172) > 6(6, 0, 0, 0)"] : ("
+2300	:DBG_A(167) > 8
+2302	:A=&VID(159) > 932(164, 3, 0, 0)
+2307	:A=*A_nopush(165)
+2308	:PUSH_B_CONST_4(12) > 8(8, 0, 0, 0)
+2313	:AU_UINT_MUL_B(56)
+2314	:A=&VID(159) > 928(160, 3, 0, 0)
+2319	:AU_INT_ADD_A(25)
+2320	:PUSH_B_CONST_4(12) > 0(0, 0, 0, 0)
+2325	:AU_INT_ADD_A(25)
+2326	:A=*A_nopush(165)
+2327	:DBG_A(167) > 6
+2329	:SET_A_CONST_STRING(172) > 3(3, 0, 0, 0)", "
+2337	:DBG_A(167) > 8
+2339	:A=&VID(159) > 932(164, 3, 0, 0)
+2344	:A=*A_nopush(165)
+2345	:PUSH_B_CONST_4(12) > 8(8, 0, 0, 0)
+2350	:AU_UINT_MUL_B(56)
+2351	:A=&VID(159) > 928(160, 3, 0, 0)
+2356	:AU_INT_ADD_A(25)
+2357	:PUSH_B_CONST_4(12) > 4(4, 0, 0, 0)
+2362	:AU_INT_ADD_A(25)
+2363	:A=*A_nopush(165)
+2364	:DBG_A(167) > 6
+2366	:SET_A_CONST_STRING(172) > 4(4, 0, 0, 0)")
 "
-2449	:DBG_A(167) > 8
+2375	:DBG_A(167) > 8
 BakeCode_CompileCodes__set_var : i += 1 
-2451	:PUSH_B_CONST_4(12) > 1(1, 0, 0, 0)
-2456	:A=&VID(159) > 932(164, 3, 0, 0)
-2461	:A=*A_nopush(165)
-2462	:AU_INT_ADD_A(25)
-2463	:A=&VID(159) > 932(164, 3, 0, 0)
-2468	:LA=A(161)
-2469	:*LA=A_4(171)
+2377	:PUSH_B_CONST_4(12) > 1(1, 0, 0, 0)
+2382	:A=&VID(159) > 932(164, 3, 0, 0)
+2387	:A=*A_nopush(165)
+2388	:AU_INT_ADD_A(25)
+2389	:A=&VID(159) > 932(164, 3, 0, 0)
+2394	:LA=A(161)
+2395	:*LA=A_4(171)
 }; BakeCode_CompileCodes Block Finish
 BakeCode_CompileCodes__return_ : return 0 
-2475	:PUSH_A_CONST_4(6) > 0(0, 0, 0, 0)
-2480	:RETURN(157)
+2401	:PUSH_A_CONST_4(6) > 0(0, 0, 0, 0)
+2406	:RETURN(157)
 }; BakeCode_CompileCodes Block Finish
 BakeCode_CompileCodes...finish
 ICB[0x7fffffff71e0] BakeCode finish.

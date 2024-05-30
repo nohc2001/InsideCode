@@ -181,8 +181,8 @@
 :A=B;
 :B=A;
 :*LA=*A_N+4;
-:Unallocated;
-:Unallocated;
+:A<=&VID[Const]+4+4;
+:B<=&VID[Const]+4+4;
 :Unallocated;
 :Unallocated;
 :Unallocated;
