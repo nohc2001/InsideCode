@@ -63,5 +63,5 @@ int main() {
     exectxs.NULLState();
     exectxs.Init(2, false);
     exectxs.push_back(ctx);
-    execute(exectxs, 1, code_control, true);
+    execute_switch(exectxs, 1, code_control, true);
 }

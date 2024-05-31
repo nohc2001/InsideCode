@@ -15,230 +15,190 @@ typedef unsigned int uint;
 
 enum class insttype {
 	IT_ADD_STACK_VARIABLE = 0,
-	IT_SET_STACK_VARIABLE_CONST_1 = 1,
+	IT_SET_STACK_VARIABLE_CONST_1 = 1, // var = const
 	IT_SET_STACK_VARIABLE_CONST_2 = 2,
 	IT_SET_STACK_VARIABLE_CONST_4 = 3,
-	IT_SET_STACK_VARIABLE_FROMX_1 = 4,
-	IT_SET_STACK_VARIABLE_FROMX_2 = 5,
-	IT_SET_STACK_VARIABLE_FROMX_4 = 6,
-	IT_SET_STACK_VARIABLE_FROMY_1 = 7,
-	IT_SET_STACK_VARIABLE_FROMY_2 = 8,
-	IT_SET_STACK_VARIABLE_FROMY_4 = 9,
-	IT_SET_STACK_VARIABLE_ADDRESS_1 = 10,
-	IT_SET_STACK_VARIABLE_ADDRESS_2 = 11,
-	IT_SET_STACK_VARIABLE_ADDRESS_4 = 12,
-	IT_SET_STACK_VARIABLE_VARIABLE_1 = 13,
-	IT_SET_STACK_VARIABLE_VARIABLE_2 = 14,
-	IT_SET_STACK_VARIABLE_VARIABLE_4 = 15,
-	IT_PUSH_A_CONST_1 = 16,
-	IT_PUSH_A_CONST_2 = 17,
-	IT_PUSH_A_CONST_4 = 18,
-	IT_PUSH_A_ADDRESS_1 = 19,
-	IT_PUSH_A_ADDRESS_2 = 20,
-	IT_PUSH_A_ADDRESS_4 = 21,
-	IT_PUSH_A_VARIABLE_1 = 22,
-	IT_PUSH_A_VARIABLE_2 = 23,
-	IT_PUSH_A_VARIABLE_4 = 24,
-	IT_PUSH_B_CONST_1 = 25,
-	IT_PUSH_B_CONST_2 = 26,
-	IT_PUSH_B_CONST_4 = 27,
-	IT_PUSH_B_ADDRESS_1 = 28,
-	IT_PUSH_B_ADDRESS_2 = 29,
-	IT_PUSH_B_ADDRESS_4 = 30,
-	IT_PUSH_B_VARIABLE_1 = 31,
-	IT_PUSH_B_VARIABLE_2 = 32,
-	IT_PUSH_B_VARIABLE_4 = 33,
-	IT_SET_X_CONST_1 = 34,
-	IT_SET_X_CONST_2 = 35,
-	IT_SET_X_CONST_4 = 36,
-	IT_SET_X_ADDRESS_1 = 37,
-	IT_SET_X_ADDRESS_2 = 38,
-	IT_SET_X_ADDRESS_4 = 39,
-	IT_SET_X_VARIABLE_1 = 40,
-	IT_SET_X_VARIABLE_2 = 41,
-	IT_SET_X_VARIABLE_4 = 42,
-	IT_SET_Y_CONST_1 = 43,
-	IT_SET_Y_CONST_2 = 44,
-	IT_SET_Y_CONST_4 = 45,
-	IT_SET_Y_ADDRESS_1 = 46,
-	IT_SET_Y_ADDRESS_2 = 47,
-	IT_SET_Y_ADDRESS_4 = 48,
-	IT_SET_Y_VARIABLE_1 = 49,
-	IT_SET_Y_VARIABLE_2 = 50,
-	IT_SET_Y_VARIABLE_4 = 51,
-	IT_AXBY = 52,
-	IT_AU_BYTE_ADD_A = 53,
-	IT_AU_BYTE_ADD_B = 54,
-	IT_AU_UBYTE_ADD_A = 55,
-	IT_AU_UBYTE_ADD_B = 56,
-	IT_AU_SHORT_ADD_A = 57,
-	IT_AU_SHORT_ADD_B = 58,
-	IT_AU_USHORT_ADD_A = 59,
-	IT_AU_USHORT_ADD_B = 60,
-	IT_AU_INT_ADD_A = 61,
-	IT_AU_INT_ADD_B = 62,
-	IT_AU_UINT_ADD_A = 63,
-	IT_AU_UINT_ADD_B = 64,
-	IT_AU_FLOAT_ADD_A = 65,
-	IT_AU_FLOAT_ADD_B = 66,
-	IT_AU_BYTE_MIN_A = 67,
-	IT_AU_BYTE_MIN_B = 68,
-	IT_AU_UBYTE_MIN_A = 69,
-	IT_AU_UBYTE_MIN_B = 70,
-	IT_AU_SHORT_MIN_A = 71,
-	IT_AU_SHORT_MIN_B = 72,
-	IT_AU_USHORT_MIN_A = 73,
-	IT_AU_USHORT_MIN_B = 74,
-	IT_AU_INT_MIN_A = 75,
-	IT_AU_INT_MIN_B = 76,
-	IT_AU_UINT_MIN_A = 77,
-	IT_AU_UINT_MIN_B = 78,
-	IT_AU_FLOAT_MIN_A = 79,
-	IT_AU_FLOAT_MIN_B = 80,
-	IT_AU_BYTE_MUL_A = 81,
-	IT_AU_BYTE_MUL_B = 82,
-	IT_AU_UBYTE_MUL_A = 83,
-	IT_AU_UBYTE_MUL_B = 84,
-	IT_AU_SHORT_MUL_A = 85,
-	IT_AU_SHORT_MUL_B = 86,
-	IT_AU_USHORT_MUL_A = 87,
-	IT_AU_USHORT_MUL_B = 88,
-	IT_AU_INT_MUL_A = 89,
-	IT_AU_INT_MUL_B = 90,
-	IT_AU_UINT_MUL_A = 91,
-	IT_AU_UINT_MUL_B = 92,
-	IT_AU_FLOAT_MUL_A = 93,
-	IT_AU_FLOAT_MUL_B = 94,
-	IT_AU_BYTE_DIV_A = 95,
-	IT_AU_BYTE_DIV_B = 96,
-	IT_AU_UBYTE_DIV_A = 97,
-	IT_AU_UBYTE_DIV_B = 98,
-	IT_AU_SHORT_DIV_A = 99,
-	IT_AU_SHORT_DIV_B = 100,
-	IT_AU_USHORT_DIV_A = 101,
-	IT_AU_USHORT_DIV_B = 102,
-	IT_AU_INT_DIV_A = 103,
-	IT_AU_INT_DIV_B = 104,
-	IT_AU_UINT_DIV_A = 105,
-	IT_AU_UINT_DIV_B = 106,
-	IT_AU_FLOAT_DIV_A = 107,
-	IT_AU_FLOAT_DIV_B = 108,
-	IT_AU_BYTE_PER_A = 109,
-	IT_AU_BYTE_PER_B = 110,
-	IT_AU_UBYTE_PER_A = 111,
-	IT_AU_UBYTE_PER_B = 112,
-	IT_AU_SHORT_PER_A = 113,
-	IT_AU_SHORT_PER_B = 114,
-	IT_AU_USHORT_PER_A = 115,
-	IT_AU_USHORT_PER_B = 116,
-	IT_AU_INT_PER_A = 117,
-	IT_AU_INT_PER_B = 118,
-	IT_AU_UINT_PER_A = 119,
-	IT_AU_UINT_PER_B = 120,
-	IT_LU_BOOL_AND_A = 121,
-	IT_LU_BOOL_AND_B = 122,
-	IT_LU_BOOL_OR_A = 123,
-	IT_LU_BOOL_OR_B = 124,
-	IT_LU_BOOL_NOT_A = 125,
-	IT_LU_BOOL_NOT_B = 126,
-	IT_CM_BOOL_SAME_A = 127,
-	IT_CM_BOOL_SAME_B = 128,
-	IT_CM_BOOL_NOTSAME_A = 129,
-	IT_CM_BOOL_NOTSAME_B = 130,
-	IT_CM_BOOL_BYTE_LBIG_A = 131,
-	IT_CM_BOOL_BYTE_LBIG_B = 132,
-	IT_CM_BOOL_UBYTE_LBIG_A = 133,
-	IT_CM_BOOL_UBYTE_LBIG_B = 134,
-	IT_CM_BOOL_SHORT_LBIG_A = 135,
-	IT_CM_BOOL_SHORT_LBIG_B = 136,
-	IT_CM_BOOL_USHORT_LBIG_A = 137,
-	IT_CM_BOOL_USHORT_LBIG_B = 138,
-	IT_CM_BOOL_INT_LBIG_A = 139,
-	IT_CM_BOOL_INT_LBIG_B = 140,
-	IT_CM_BOOL_UINT_LBIG_A = 141,
-	IT_CM_BOOL_UINT_LBIG_B = 142,
-	IT_CM_BOOL_FLOAT_LBIG_A = 143,
-	IT_CM_BOOL_FLOAT_LBIG_B = 144,
-	IT_CM_BOOL_BYTE_LBIGSAME_A = 145,
-	IT_CM_BOOL_BYTE_LBIGSAME_B = 146,
-	IT_CM_BOOL_UBYTE_LBIGSAME_A = 147,
-	IT_CM_BOOL_UBYTE_LBIGSAME_B = 148,
-	IT_CM_BOOL_SHORT_LBIGSAME_A = 149,
-	IT_CM_BOOL_SHORT_LBIGSAME_B = 150,
-	IT_CM_BOOL_USHORT_LBIGSAME_A = 151,
-	IT_CM_BOOL_USHORT_LBIGSAME_B = 152,
-	IT_CM_BOOL_INT_LBIGSAME_A = 153,
-	IT_CM_BOOL_INT_LBIGSAME_B = 154,
-	IT_CM_BOOL_UINT_LBIGSAME_A = 155,
-	IT_CM_BOOL_UINT_LBIGSAME_B = 156,
-	IT_CM_BOOL_FLOAT_LBIGSAME_A = 157,
-	IT_CM_BOOL_FLOAT_LBIGSAME_B = 158,
-	IT_CM_BOOL_BYTE_RBIG_A = 159,
-	IT_CM_BOOL_BYTE_RBIG_B = 160,
-	IT_CM_BOOL_UBYTE_RBIG_A = 161,
-	IT_CM_BOOL_UBYTE_RBIG_B = 162,
-	IT_CM_BOOL_SHORT_RBIG_A = 163,
-	IT_CM_BOOL_SHORT_RBIG_B = 164,
-	IT_CM_BOOL_USHORT_RBIG_A = 165,
-	IT_CM_BOOL_USHORT_RBIG_B = 166,
-	IT_CM_BOOL_INT_RBIG_A = 167,
-	IT_CM_BOOL_INT_RBIG_B = 168,
-	IT_CM_BOOL_UINT_RBIG_A = 169,
-	IT_CM_BOOL_UINT_RBIG_B = 170,
-	IT_CM_BOOL_FLOAT_RBIG_A = 171,
-	IT_CM_BOOL_FLOAT_RBIG_B = 172,
-	IT_CM_BOOL_BYTE_RBIGSAME_A = 173,
-	IT_CM_BOOL_BYTE_RBIGSAME_B = 174,
-	IT_CM_BOOL_UBYTE_RBIGSAME_A = 175,
-	IT_CM_BOOL_UBYTE_RBIGSAME_B = 176,
-	IT_CM_BOOL_SHORT_RBIGSAME_A = 177,
-	IT_CM_BOOL_SHORT_RBIGSAME_B = 178,
-	IT_CM_BOOL_USHORT_RBIGSAME_A = 179,
-	IT_CM_BOOL_USHORT_RBIGSAME_B = 180,
-	IT_CM_BOOL_INT_RBIGSAME_A = 181,
-	IT_CM_BOOL_INT_RBIGSAME_B = 182,
-	IT_CM_BOOL_UINT_RBIGSAME_A = 183,
-	IT_CM_BOOL_UINT_RBIGSAME_B = 184,
-	IT_CM_BOOL_FLOAT_RBIGSAME_A = 185,
-	IT_CM_BOOL_FLOAT_RBIGSAME_B = 186,
-	IT_IF = 187,
-	IT_JMP = 188,
-	IT_FUNC = 189,
-	IT_PARAM_1 = 190,
-	IT_PARAM_2 = 191,
-	IT_PARAM_4 = 192,
-	IT_RETURN = 193,
-	IT_EXIT = 194,
-	IT_PUSH_TO_A_FROM_ADDRESS_OF_VARIABLE_ID = 195,
-	IT_PUSH_TO_B_FROM_ADDRESS_OF_VARIABLE_ID = 196,
-	IT_PUSH_TO_X_FROM_ADDRESS_OF_VARIABLE_ID = 197,
-	IT_PUSH_TO_Y_FROM_ADDRESS_OF_VARIABLE_ID = 198,
-	IT_PUSH_TO_LA_FROM_A = 199,
-	IT_FUNCJMP = 200,
-	IT_CASTING_A = 201,
-	IT_CASTING_B = 202,
-	IT_CASTING_X = 203,
-	IT_CASTING_Y = 204,
-	IT_PUSH_A_FROM_VALUE_OF_A = 205,
-	IT_PUSH_B_FROM_VALUE_OF_B = 206,
-	IT_PUSH_X_FROM_VALUE_OF_X = 207,
-	IT_PUSH_Y_FROM_VALUE_OF_Y = 208,
-	IT_DBG_A = 209,
-	IT_INP_A_PTR = 210,
-	IT_PUSH_TO_VALUE_OF_LA_FROM_A_1 = 211,
-	IT_PUSH_TO_VALUE_OF_LA_FROM_A_2 = 212,
-	IT_PUSH_TO_VALUE_OF_LA_FROM_A_4 = 213,
-	IT_SET_A_CONST_STRING = 214,
-	IT_SET_B_CONST_STRING = 215,
-	IT_POP_A = 216,
-	IT_POP_B = 217,
-	IT_POP_AB = 218,
-	PARAM_N_COPY_BY_ADDRESS = 219,
-	PUSH_A_GLOBAL_VARIABLE_ADDRESS = 220,
-	PUSH_B_GLOBAL_VARIABLE_ADDRESS = 221,
-	PUSH_A_FROM_B = 222,
-	PUSH_B_FROM_A = 223,
-	SET_ADDRESS_LA_FROM_ADRESS_A_N = 224,
+	IT_PUSH_A_CONST_1 = 4, // using
+	IT_PUSH_A_CONST_2 = 5, // not using
+	IT_PUSH_A_CONST_4 = 6, // using
+	IT_PUSH_A_VARIABLE_1 = 7, // not using but later
+	IT_PUSH_A_VARIABLE_2 = 8,
+	IT_PUSH_A_VARIABLE_4 = 9,
+	IT_PUSH_B_CONST_1 = 10, // using
+	IT_PUSH_B_CONST_2 = 11, // not using
+	IT_PUSH_B_CONST_4 = 12, // using
+	IT_PUSH_B_VARIABLE_1 = 13, // not using but later
+	IT_PUSH_B_VARIABLE_2 = 14,
+	IT_PUSH_B_VARIABLE_4 = 15, // ? > seem good
+	//IT_AXBY = 16,
+	IT_AU_BYTE_ADD_A = 17,
+	IT_AU_BYTE_ADD_B = 18,
+	IT_AU_UBYTE_ADD_A = 19,
+	IT_AU_UBYTE_ADD_B = 20,
+	IT_AU_SHORT_ADD_A = 21,
+	IT_AU_SHORT_ADD_B = 22,
+	IT_AU_USHORT_ADD_A = 23,
+	IT_AU_USHORT_ADD_B = 24,
+	IT_AU_INT_ADD_A = 25,
+	IT_AU_INT_ADD_B = 26,
+	IT_AU_UINT_ADD_A = 27,
+	IT_AU_UINT_ADD_B = 28,
+	IT_AU_FLOAT_ADD_A = 29,
+	IT_AU_FLOAT_ADD_B = 30,
+	IT_AU_BYTE_MIN_A = 31,
+	IT_AU_BYTE_MIN_B = 32,
+	IT_AU_UBYTE_MIN_A = 33,
+	IT_AU_UBYTE_MIN_B = 34,
+	IT_AU_SHORT_MIN_A = 35,
+	IT_AU_SHORT_MIN_B = 36,
+	IT_AU_USHORT_MIN_A = 37,
+	IT_AU_USHORT_MIN_B = 38,
+	IT_AU_INT_MIN_A = 39,
+	IT_AU_INT_MIN_B = 40,
+	IT_AU_UINT_MIN_A = 41,
+	IT_AU_UINT_MIN_B = 42,
+	IT_AU_FLOAT_MIN_A = 43,
+	IT_AU_FLOAT_MIN_B = 44,
+	IT_AU_BYTE_MUL_A = 45,
+	IT_AU_BYTE_MUL_B = 46,
+	IT_AU_UBYTE_MUL_A = 47,
+	IT_AU_UBYTE_MUL_B = 48,
+	IT_AU_SHORT_MUL_A = 49,
+	IT_AU_SHORT_MUL_B = 50,
+	IT_AU_USHORT_MUL_A = 51,
+	IT_AU_USHORT_MUL_B = 52,
+	IT_AU_INT_MUL_A = 53,
+	IT_AU_INT_MUL_B = 54,
+	IT_AU_UINT_MUL_A = 55,
+	IT_AU_UINT_MUL_B = 56,
+	IT_AU_FLOAT_MUL_A = 57,
+	IT_AU_FLOAT_MUL_B = 58,
+	IT_AU_BYTE_DIV_A = 59,
+	IT_AU_BYTE_DIV_B = 60,
+	IT_AU_UBYTE_DIV_A = 61,
+	IT_AU_UBYTE_DIV_B = 62,
+	IT_AU_SHORT_DIV_A = 63,
+	IT_AU_SHORT_DIV_B = 64,
+	IT_AU_USHORT_DIV_A = 65,
+	IT_AU_USHORT_DIV_B = 66,
+	IT_AU_INT_DIV_A = 67,
+	IT_AU_INT_DIV_B = 68,
+	IT_AU_UINT_DIV_A = 69,
+	IT_AU_UINT_DIV_B = 70,
+	IT_AU_FLOAT_DIV_A = 71,
+	IT_AU_FLOAT_DIV_B = 72,
+	IT_AU_BYTE_PER_A = 73,
+	IT_AU_BYTE_PER_B = 74,
+	IT_AU_UBYTE_PER_A = 75,
+	IT_AU_UBYTE_PER_B = 76,
+	IT_AU_SHORT_PER_A = 77,
+	IT_AU_SHORT_PER_B = 78,
+	IT_AU_USHORT_PER_A = 79,
+	IT_AU_USHORT_PER_B = 80,
+	IT_AU_INT_PER_A = 81,
+	IT_AU_INT_PER_B = 82,
+	IT_AU_UINT_PER_A = 83,
+	IT_AU_UINT_PER_B = 84,
+	IT_LU_BOOL_AND_A = 85,
+	IT_LU_BOOL_AND_B = 86,
+	IT_LU_BOOL_OR_A = 87,
+	IT_LU_BOOL_OR_B = 88,
+	IT_LU_BOOL_NOT_A = 89,
+	IT_LU_BOOL_NOT_B = 90,
+	IT_CM_BOOL_SAME_A = 91,
+	IT_CM_BOOL_SAME_B = 92,
+	IT_CM_BOOL_NOTSAME_A = 93,
+	IT_CM_BOOL_NOTSAME_B = 94,
+	IT_CM_BOOL_BYTE_LBIG_A = 95,
+	IT_CM_BOOL_BYTE_LBIG_B = 96,
+	IT_CM_BOOL_UBYTE_LBIG_A = 97,
+	IT_CM_BOOL_UBYTE_LBIG_B = 98,
+	IT_CM_BOOL_SHORT_LBIG_A = 99,
+	IT_CM_BOOL_SHORT_LBIG_B = 100,
+	IT_CM_BOOL_USHORT_LBIG_A = 101,
+	IT_CM_BOOL_USHORT_LBIG_B = 102,
+	IT_CM_BOOL_INT_LBIG_A = 103,
+	IT_CM_BOOL_INT_LBIG_B = 104,
+	IT_CM_BOOL_UINT_LBIG_A = 105,
+	IT_CM_BOOL_UINT_LBIG_B = 106,
+	IT_CM_BOOL_FLOAT_LBIG_A = 107,
+	IT_CM_BOOL_FLOAT_LBIG_B = 108,
+	IT_CM_BOOL_BYTE_LBIGSAME_A = 109,
+	IT_CM_BOOL_BYTE_LBIGSAME_B = 110,
+	IT_CM_BOOL_UBYTE_LBIGSAME_A = 111,
+	IT_CM_BOOL_UBYTE_LBIGSAME_B = 112,
+	IT_CM_BOOL_SHORT_LBIGSAME_A = 113,
+	IT_CM_BOOL_SHORT_LBIGSAME_B = 114,
+	IT_CM_BOOL_USHORT_LBIGSAME_A = 115,
+	IT_CM_BOOL_USHORT_LBIGSAME_B = 116,
+	IT_CM_BOOL_INT_LBIGSAME_A = 117,
+	IT_CM_BOOL_INT_LBIGSAME_B = 118,
+	IT_CM_BOOL_UINT_LBIGSAME_A = 119,
+	IT_CM_BOOL_UINT_LBIGSAME_B = 120,
+	IT_CM_BOOL_FLOAT_LBIGSAME_A = 121,
+	IT_CM_BOOL_FLOAT_LBIGSAME_B = 122,
+	IT_CM_BOOL_BYTE_RBIG_A = 123,
+	IT_CM_BOOL_BYTE_RBIG_B = 124,
+	IT_CM_BOOL_UBYTE_RBIG_A = 125,
+	IT_CM_BOOL_UBYTE_RBIG_B = 126,
+	IT_CM_BOOL_SHORT_RBIG_A = 127,
+	IT_CM_BOOL_SHORT_RBIG_B = 128,
+	IT_CM_BOOL_USHORT_RBIG_A = 129,
+	IT_CM_BOOL_USHORT_RBIG_B = 130,
+	IT_CM_BOOL_INT_RBIG_A = 131,
+	IT_CM_BOOL_INT_RBIG_B = 132,
+	IT_CM_BOOL_UINT_RBIG_A = 133,
+	IT_CM_BOOL_UINT_RBIG_B = 134,
+	IT_CM_BOOL_FLOAT_RBIG_A = 135,
+	IT_CM_BOOL_FLOAT_RBIG_B = 136,
+	IT_CM_BOOL_BYTE_RBIGSAME_A = 137,
+	IT_CM_BOOL_BYTE_RBIGSAME_B = 138,
+	IT_CM_BOOL_UBYTE_RBIGSAME_A = 139,
+	IT_CM_BOOL_UBYTE_RBIGSAME_B = 140,
+	IT_CM_BOOL_SHORT_RBIGSAME_A = 141,
+	IT_CM_BOOL_SHORT_RBIGSAME_B = 142,
+	IT_CM_BOOL_USHORT_RBIGSAME_A = 143,
+	IT_CM_BOOL_USHORT_RBIGSAME_B = 144,
+	IT_CM_BOOL_INT_RBIGSAME_A = 145,
+	IT_CM_BOOL_INT_RBIGSAME_B = 146,
+	IT_CM_BOOL_UINT_RBIGSAME_A = 147,
+	IT_CM_BOOL_UINT_RBIGSAME_B = 148,
+	IT_CM_BOOL_FLOAT_RBIGSAME_A = 149,
+	IT_CM_BOOL_FLOAT_RBIGSAME_B = 150,
+	IT_IF = 151,
+	IT_JMP = 152,
+	IT_FUNC = 153,
+	IT_PARAM_1 = 154,
+	IT_PARAM_2 = 155,
+	IT_PARAM_4 = 156,
+	IT_RETURN = 157,
+	IT_EXIT = 158,
+	IT_PUSH_TO_A_FROM_ADDRESS_OF_VARIABLE_ID = 159,
+	IT_PUSH_TO_B_FROM_ADDRESS_OF_VARIABLE_ID = 160,
+	IT_PUSH_TO_LA_FROM_A = 161,
+	IT_FUNCJMP = 162,
+	IT_CASTING_A = 163,
+	IT_CASTING_B = 164,
+	IT_PUSH_A_FROM_VALUE_OF_A = 165,
+	IT_PUSH_B_FROM_VALUE_OF_B = 166,
+	IT_DBG_A = 167,
+	IT_INP_A_PTR = 168,
+	IT_PUSH_TO_VALUE_OF_LA_FROM_A_1 = 169,
+	IT_PUSH_TO_VALUE_OF_LA_FROM_A_2 = 170,
+	IT_PUSH_TO_VALUE_OF_LA_FROM_A_4 = 171,
+	IT_SET_A_CONST_STRING = 172,
+	IT_SET_B_CONST_STRING = 173,
+	IT_POP_A = 174,
+	IT_POP_B = 175,
+	IT_POP_AB = 176,
+	PARAM_N_COPY_BY_ADDRESS = 177,
+	PUSH_A_GLOBAL_VARIABLE_ADDRESS = 178,
+	PUSH_B_GLOBAL_VARIABLE_ADDRESS = 179,
+	PUSH_A_FROM_B = 180,
+	PUSH_B_FROM_A = 181,
+	SET_ADDRESS_LA_FROM_ADRESS_A_N = 182,
+	IT_PUSH_A_CONST_INDEX_ADDR = 183,
+	IT_PUSH_B_CONST_INDEX_ADDR = 184,
 	//...
 	EXTENSION_INST = 255
 };
@@ -1515,7 +1475,7 @@ public:
 			{
 				return;
 			}
-			if (mem[i] == 214 || mem[i] == 215)
+			if (mem[i] == (byte8)insttype::IT_SET_A_CONST_STRING || mem[i] == (byte8)insttype::IT_SET_B_CONST_STRING)
 			{
 				ofs << i << "\t:" << inst_meta[mem[i]].name << "(" << (uint)mem[i] << ")";
 				uint strmax = 0;
@@ -1704,20 +1664,20 @@ public:
 		basicoper[2] = create_oper("->", 'f', 0, 0);
 		basicoper[3] = create_oper("&", 'f', 0, 0);
 		basicoper[4] = create_oper("*", 'f', 0, 0);
-		basicoper[5] = create_oper("*", 'o', 81, 94);
-		basicoper[6] = create_oper("/", 'o', 95, 108);
-		basicoper[7] = create_oper("%", 'o', 109, 120);
-		basicoper[8] = create_oper("+", 'o', 53, 66);
-		basicoper[9] = create_oper("-", 'o', 67, 80);
-		basicoper[10] = create_oper("==", 'o', 127, 128);
-		basicoper[11] = create_oper("<", 'o', 159, 172);
-		basicoper[12] = create_oper(">", 'o', 131, 144);
-		basicoper[13] = create_oper("<=", 'o', 173, 186);
-		basicoper[14] = create_oper(">=", 'o', 145, 158);
-		basicoper[15] = create_oper("!=", 'o', 129, 130);
-		basicoper[16] = create_oper("!", 'o', 125, 126);
-		basicoper[17] = create_oper("&&", 'o', 121, 122);
-		basicoper[18] = create_oper("||", 'o', 123, 124);
+		basicoper[5] = create_oper("*", 'o', (byte8)insttype::IT_AU_BYTE_MUL_A, (byte8)insttype::IT_AU_FLOAT_MUL_B);
+		basicoper[6] = create_oper("/", 'o', (byte8)insttype::IT_AU_BYTE_DIV_A, (byte8)insttype::IT_AU_FLOAT_DIV_B);
+		basicoper[7] = create_oper("%", 'o', (byte8)insttype::IT_AU_BYTE_PER_A, (byte8)insttype::IT_AU_UINT_PER_B);
+		basicoper[8] = create_oper("+", 'o', (byte8)insttype::IT_AU_BYTE_ADD_A, (byte8)insttype::IT_AU_FLOAT_ADD_B);
+		basicoper[9] = create_oper("-", 'o', (byte8)insttype::IT_AU_BYTE_MIN_A, (byte8)insttype::IT_AU_FLOAT_MIN_B);
+		basicoper[10] = create_oper("==", 'o', (byte8)insttype::IT_CM_BOOL_SAME_A, (byte8)insttype::IT_CM_BOOL_SAME_B);
+		basicoper[11] = create_oper("<", 'o', (byte8)insttype::IT_CM_BOOL_BYTE_RBIG_A, (byte8)insttype::IT_CM_BOOL_FLOAT_RBIG_B);
+		basicoper[12] = create_oper(">", 'o', (byte8)insttype::IT_CM_BOOL_BYTE_LBIG_A, (byte8)insttype::IT_CM_BOOL_FLOAT_LBIG_B);
+		basicoper[13] = create_oper("<=", 'o', (byte8)insttype::IT_CM_BOOL_BYTE_RBIGSAME_A, (byte8)insttype::IT_CM_BOOL_FLOAT_RBIGSAME_B);
+		basicoper[14] = create_oper(">=", 'o', (byte8)insttype::IT_CM_BOOL_BYTE_LBIGSAME_A, (byte8)insttype::IT_CM_BOOL_FLOAT_LBIGSAME_B);
+		basicoper[15] = create_oper("!=", 'o', (byte8)insttype::IT_CM_BOOL_NOTSAME_A, (byte8)insttype::IT_CM_BOOL_NOTSAME_B);
+		basicoper[16] = create_oper("!", 'o', (byte8)insttype::IT_LU_BOOL_NOT_A, (byte8)insttype::IT_LU_BOOL_NOT_B);
+		basicoper[17] = create_oper("&&", 'o', (byte8)insttype::IT_LU_BOOL_AND_A, (byte8)insttype::IT_LU_BOOL_AND_B);
+		basicoper[18] = create_oper("||", 'o', (byte8)insttype::IT_LU_BOOL_OR_A, (byte8)insttype::IT_LU_BOOL_OR_B);
 		if (icldetail) icl << "ICB_StaticInit create basic operation finish" << endl;
 
 		if (icldetail) icl << "ICB_StaticInit ";
@@ -1749,7 +1709,7 @@ public:
 		mem = (byte8*)fm->_New(max_mem_byte, true);
 		for (int i = 0; i < max_mem_byte; ++i)
 		{
-			mem[i] = 255;
+			mem[i] = 254;
 		}
 
 		cout << "instruction table" << endl;
@@ -2868,24 +2828,24 @@ public:
 					case 'A':
 					{
 						if (is_a) {
-							tm->mem.push_back(205); // a = *a
+							tm->mem.push_back((byte8)insttype::IT_PUSH_A_FROM_VALUE_OF_A); // a = *a
 						}
 						else {
-							tm->mem.push_back(223); // b = a
-							tm->mem.push_back(216); // pop a
-							tm->mem.push_back(206); // b = *b
+							tm->mem.push_back((byte8)insttype::PUSH_B_FROM_A); // b = a
+							tm->mem.push_back((byte8)insttype::IT_POP_A); // pop a
+							tm->mem.push_back((byte8)insttype::IT_PUSH_B_FROM_VALUE_OF_B); // b = *b
 						}
 					}
 					break;
 					case 'B':
 					{
 						if (is_a) {
-							tm->mem.push_back(222); // a = b
-							tm->mem.push_back(217); // pop b
-							tm->mem.push_back(205); // a = *a
+							tm->mem.push_back((byte8)insttype::PUSH_A_FROM_B); // a = b
+							tm->mem.push_back((byte8)insttype::IT_POP_B); // pop b
+							tm->mem.push_back((byte8)insttype::IT_PUSH_A_FROM_VALUE_OF_A); // a = *a
 						}
 						else {
-							tm->mem.push_back(206); // b = *b
+							tm->mem.push_back((byte8)insttype::IT_PUSH_B_FROM_VALUE_OF_B); // b = *b
 						}
 					}
 					break;
@@ -2896,16 +2856,16 @@ public:
 					case 'A':
 					{
 						if (is_a == false) {
-							tm->mem.push_back(223); // b = a
-							tm->mem.push_back(216); // pop a
+							tm->mem.push_back((byte8)insttype::PUSH_B_FROM_A); // b = a
+							tm->mem.push_back((byte8)insttype::IT_POP_A); // pop a
 						}
 					}
 					break;
 					case 'B':
 					{
 						if (is_a) {
-							tm->mem.push_back(222); // a = b
-							tm->mem.push_back(217); // pop b
+							tm->mem.push_back((byte8)insttype::PUSH_A_FROM_B); // a = b
+							tm->mem.push_back((byte8)insttype::IT_POP_B); // pop b
 						}
 					}
 					break;
@@ -2921,16 +2881,16 @@ public:
 					case 'A':
 					{
 						if (is_a == false) {
-							tm->mem.push_back(223); // b = a
-							tm->mem.push_back(216); // pop a
+							tm->mem.push_back((byte8)insttype::PUSH_B_FROM_A); // b = a
+							tm->mem.push_back((byte8)insttype::IT_POP_A); // pop a
 						}
 					}
 					break;
 					case 'B':
 					{
 						if (is_a) {
-							tm->mem.push_back(222); // a = b
-							tm->mem.push_back(217); // pop b
+							tm->mem.push_back((byte8)insttype::PUSH_A_FROM_B); // a = b
+							tm->mem.push_back((byte8)insttype::IT_POP_B); // pop b
 						}
 					}
 					break;
@@ -2993,7 +2953,7 @@ public:
 					{
 						tm->mem.push_back(rtm->mem[k]);
 					}
-					tm->mem.push_back(209);
+					tm->mem.push_back((byte8)insttype::IT_DBG_A);
 					tm->mem.push_back((byte8)rtm->valuetype);
 					savecomma = coma;
 					coma = wbss.search_word_first_in_specific_oc_layer(inner_params, savecomma + 1, "(", ")", 0, ",");
@@ -3010,7 +2970,7 @@ public:
 				{
 					tm->mem.push_back(rtm->mem[k]);
 				}
-				tm->mem.push_back(209);
+				tm->mem.push_back((byte8)insttype::IT_DBG_A);
 				tm->mem.push_back((byte8)rtm->valuetype);
 
 				inner_params->release();
@@ -3029,7 +2989,7 @@ public:
 				{
 					tm->mem.push_back(rtm->mem[k]);
 				}
-				tm->mem.push_back(210);
+				tm->mem.push_back((byte8)insttype::IT_INP_A_PTR);
 				tm->mem.push_back((byte8)rtm->valuetype);
 
 				inner_params->release();
@@ -3060,8 +3020,8 @@ public:
 				sen* params_sen = wbss.sen_cut(code, nameloc + 2, loc - 1);
 				if (params_sen->size() == 0)
 				{
-					tm->mem.push_back(189); // FUNC
-					tm->mem.push_back(200); // jmp
+					tm->mem.push_back((byte8)insttype::IT_FUNC); // FUNC
+					tm->mem.push_back((byte8)insttype::IT_FUNCJMP); // jmp
 					byte8 bb[4] = {};
 					*reinterpret_cast<uint*>(bb) = (uint)(fd->start_pc - &mem[0]);
 					for (int u = 0; u < 4; ++u)
@@ -3086,7 +3046,7 @@ public:
 				int paramid = 0;
 				int paramCount = 0;
 
-				tm->mem.push_back(189);
+				tm->mem.push_back((byte8)insttype::IT_FUNC);
 
 				while (coma != -1)
 				{
@@ -3111,7 +3071,7 @@ public:
 
 						casting_type ct = get_cast_type(rtm->valuetype, get_int_with_basictype(fd->param_data.at(paramCount).td));
 						if (ct != casting_type::nocasting) {
-							tm->mem.push_back(201);
+							tm->mem.push_back((byte8)insttype::IT_CASTING_A);
 							tm->mem.push_back((byte8)ct);
 						}
 						/*
@@ -3128,19 +3088,19 @@ public:
 						switch (fd->param_data[paramid].td->typesiz)
 						{
 						case 1:
-							tm->mem.push_back(190); // param
+							tm->mem.push_back((byte8)insttype::IT_PARAM_1); // param
 							break;
 						case 2:
-							tm->mem.push_back(191); // param
+							tm->mem.push_back((byte8)insttype::IT_PARAM_2); // param
 							break;
 						case 4:
-							tm->mem.push_back(192); // param
+							tm->mem.push_back((byte8)insttype::IT_PARAM_4); // param
 							break;
 						}
 					}
 					else
 					{
-						tm->mem.push_back(219); // param N by address(a)
+						tm->mem.push_back((byte8)insttype::PARAM_N_COPY_BY_ADDRESS); // param N by address(a)
 						byte8* N = (byte8*)&fd->param_data[paramid].td->typesiz;
 						// write siz of struct type
 						for (int i = 0; i < 4; ++i)
@@ -3182,7 +3142,7 @@ public:
 					}
 					casting_type ct = get_cast_type(rtm->valuetype, get_int_with_basictype(fd->param_data.at(paramCount).td));
 					if (ct != casting_type::nocasting) {
-						tm->mem.push_back(201);
+						tm->mem.push_back((byte8)insttype::IT_CASTING_A);
 						tm->mem.push_back((byte8)ct);
 					}
 					/*
@@ -3199,19 +3159,19 @@ public:
 					switch (fd->param_data[paramid].td->typesiz)
 					{
 					case 1:
-						tm->mem.push_back(190); // param
+						tm->mem.push_back((byte8)insttype::IT_PARAM_1); // param
 						break;
 					case 2:
-						tm->mem.push_back(191); // param
+						tm->mem.push_back((byte8)insttype::IT_PARAM_2); // param
 						break;
 					case 4:
-						tm->mem.push_back(192); // param
+						tm->mem.push_back((byte8)insttype::IT_PARAM_4); // param
 						break;
 					}
 				}
 				else
 				{
-					tm->mem.push_back(219); // param N by address(a)
+					tm->mem.push_back((byte8)insttype::PARAM_N_COPY_BY_ADDRESS); // param N by address(a)
 					byte8* N = (byte8*)&fd->param_data[paramid].td->typesiz;
 					// write siz of struct type
 					for (int i = 0; i < 4; ++i)
@@ -3220,7 +3180,7 @@ public:
 					}
 				}
 
-				tm->mem.push_back(200); // jmp
+				tm->mem.push_back((byte8)insttype::IT_FUNCJMP); // jmp
 				int ll = tm->mem.size();
 				for (int k = 0; k < 4; ++k)
 				{
@@ -3249,8 +3209,8 @@ public:
 				sen* params_sen = wbss.sen_cut(code, nameloc + 2, loc - 1);
 				if (params_sen->size() == 0)
 				{
-					tm->mem.push_back(189); // FUNC
-					tm->mem.push_back(200); // jmp
+					tm->mem.push_back((byte8)insttype::IT_FUNC); // FUNC
+					tm->mem.push_back((byte8)insttype::IT_FUNCJMP); // jmp
 					byte8 bb[4] = {};
 					*reinterpret_cast<uint*>(bb) = (uint)(fd->start_pc - &mem[0]);
 					for (int u = 0; u < 4; ++u)
@@ -3274,7 +3234,7 @@ public:
 
 				int paramCount = fd->param_data.size() - 1;
 
-				tm->mem.push_back(189);
+				tm->mem.push_back((byte8)insttype::IT_FUNC);
 
 				while (coma != -1)
 				{
@@ -3299,7 +3259,7 @@ public:
 
 						casting_type ct = get_cast_type(rtm->valuetype, get_int_with_basictype(fd->param_data.at(paramCount).td));
 						if (ct != casting_type::nocasting) {
-							tm->mem.push_back(201);
+							tm->mem.push_back((byte8)insttype::IT_CASTING_A);
 							tm->mem.push_back((byte8)ct);
 						}
 						/*
@@ -3316,19 +3276,19 @@ public:
 						switch (fd->param_data[paramCount].td->typesiz)
 						{
 						case 1:
-							tm->mem.push_back(190); // param
+							tm->mem.push_back((byte8)insttype::IT_PARAM_1); // param
 							break;
 						case 2:
-							tm->mem.push_back(191); // param
+							tm->mem.push_back((byte8)insttype::IT_PARAM_2); // param
 							break;
 						case 4:
-							tm->mem.push_back(192); // param
+							tm->mem.push_back((byte8)insttype::IT_PARAM_4); // param
 							break;
 						}
 					}
 					else
 					{
-						tm->mem.push_back(219); // param N by address(a)
+						tm->mem.push_back((byte8)insttype::PARAM_N_COPY_BY_ADDRESS); // param N by address(a)
 						byte8* N = (byte8*)&fd->param_data[paramCount].td->typesiz;
 						// write siz of struct type
 						for (int i = 0; i < 4; ++i)
@@ -3370,7 +3330,7 @@ public:
 					}
 					casting_type ct = get_cast_type(rtm->valuetype, get_int_with_basictype(fd->param_data.at(paramCount).td));
 					if (ct != casting_type::nocasting) {
-						tm->mem.push_back(201);
+						tm->mem.push_back((byte8)insttype::IT_CASTING_A);
 						tm->mem.push_back((byte8)ct);
 					}
 					
@@ -3388,19 +3348,19 @@ public:
 					switch (fd->param_data[paramCount].td->typesiz)
 					{
 					case 1:
-						tm->mem.push_back(190); // param
+						tm->mem.push_back((byte8)insttype::IT_PARAM_1); // param
 						break;
 					case 2:
-						tm->mem.push_back(191); // param
+						tm->mem.push_back((byte8)insttype::IT_PARAM_2); // param
 						break;
 					case 4:
-						tm->mem.push_back(192); // param
+						tm->mem.push_back((byte8)insttype::IT_PARAM_4); // param
 						break;
 					}
 				}
 				else
 				{
-					tm->mem.push_back(219); // param N by address(a)
+					tm->mem.push_back((byte8)insttype::PARAM_N_COPY_BY_ADDRESS); // param N by address(a)
 					byte8* N = (byte8*)&fd->param_data[paramCount].td->typesiz;
 					// write siz of struct type
 					for (int i = 0; i < 4; ++i)
@@ -3409,7 +3369,7 @@ public:
 					}
 				}
 
-				tm->mem.push_back(255); // ext instruction
+				tm->mem.push_back((byte8)insttype::EXTENSION_INST); // ext instruction
 				int ll = tm->mem.size();
 				for (int k = 0; k < 4; ++k)
 				{
@@ -3450,7 +3410,7 @@ public:
 				type_data* td = get_type_with_global_vname(ten->at(0).data.str);
 				if (is_a)
 				{
-					tm->mem.push_back(220);
+					tm->mem.push_back((byte8)insttype::PUSH_A_GLOBAL_VARIABLE_ADDRESS);
 					byte8 add[4];
 					*reinterpret_cast<uint*>(&add[0]) = gvarid;
 					for (int i = 0; i < 4; ++i)
@@ -3460,7 +3420,7 @@ public:
 				}
 				else
 				{
-					tm->mem.push_back(221);
+					tm->mem.push_back((byte8)insttype::PUSH_B_GLOBAL_VARIABLE_ADDRESS);
 					byte8 add[4];
 					*reinterpret_cast<uint*>(&add[0]) = gvarid;
 					for (int i = 0; i < 4; ++i)
@@ -3473,11 +3433,11 @@ public:
 				{
 					if (is_a)
 					{
-						tm->mem.push_back(205);
+						tm->mem.push_back((byte8)insttype::IT_PUSH_A_FROM_VALUE_OF_A);
 					}
 					else
 					{
-						tm->mem.push_back(206);
+						tm->mem.push_back((byte8)insttype::IT_PUSH_B_FROM_VALUE_OF_B);
 					}
 
 					tm->valuetype = get_int_with_basictype(td);
@@ -3501,7 +3461,7 @@ public:
 				type_data* td = get_type_with_vname(ten->at(0).data.str);
 				if (is_a)
 				{
-					tm->mem.push_back(195);
+					tm->mem.push_back((byte8)insttype::IT_PUSH_TO_A_FROM_ADDRESS_OF_VARIABLE_ID);
 					byte8 add[4];
 					*reinterpret_cast<uint*>(&add[0]) = varid;
 					for (int i = 0; i < 4; ++i)
@@ -3511,7 +3471,7 @@ public:
 				}
 				else
 				{
-					tm->mem.push_back(196);
+					tm->mem.push_back((byte8)insttype::IT_PUSH_TO_B_FROM_ADDRESS_OF_VARIABLE_ID);
 					byte8 add[4];
 					*reinterpret_cast<uint*>(&add[0]) = varid;
 					for (int i = 0; i < 4; ++i)
@@ -3524,11 +3484,11 @@ public:
 				{
 					if (is_a)
 					{
-						tm->mem.push_back(205);
+						tm->mem.push_back((byte8)insttype::IT_PUSH_A_FROM_VALUE_OF_A);
 					}
 					else
 					{
-						tm->mem.push_back(206);
+						tm->mem.push_back((byte8)insttype::IT_PUSH_B_FROM_VALUE_OF_B);
 					}
 					tm->valuetype = get_int_with_basictype(td);
 					tm->valuetype_detail = td;
@@ -3556,11 +3516,11 @@ public:
 					bool b = true;
 					if (is_a)
 					{
-						tm->mem.push_back(18);
+						tm->mem.push_back((byte8)insttype::IT_PUSH_A_CONST_4);
 					}
 					else
 					{
-						tm->mem.push_back(27);
+						tm->mem.push_back((byte8)insttype::IT_PUSH_B_CONST_4);
 					}
 					if (strcmp(str.c_str(), "true") == 0)
 						b = true;
@@ -3579,11 +3539,11 @@ public:
 					int a = 0;
 					if (is_a)
 					{
-						tm->mem.push_back(18);
+						tm->mem.push_back((byte8)insttype::IT_PUSH_A_CONST_4);
 					}
 					else
 					{
-						tm->mem.push_back(27);
+						tm->mem.push_back((byte8)insttype::IT_PUSH_B_CONST_4);
 					}
 					a = atoi(str.c_str());
 					for (int k = 0; k < 4; ++k)
@@ -3599,11 +3559,11 @@ public:
 					float a = 0;
 					if (is_a)
 					{
-						tm->mem.push_back(18);
+						tm->mem.push_back((byte8)insttype::IT_PUSH_A_CONST_4);
 					}
 					else
 					{
-						tm->mem.push_back(27);
+						tm->mem.push_back((byte8)insttype::IT_PUSH_B_CONST_4);
 					}
 					a = stof(str.c_str());
 					for (int k = 0; k < 4; ++k)
@@ -3618,11 +3578,11 @@ public:
 				{
 					if (is_a)
 					{
-						tm->mem.push_back(16);
+						tm->mem.push_back((byte8)insttype::IT_PUSH_A_CONST_1);
 					}
 					else
 					{
-						tm->mem.push_back(25);
+						tm->mem.push_back((byte8)insttype::IT_PUSH_B_CONST_1);
 					}
 					if (str[1] != '\\')
 					{
@@ -3662,11 +3622,11 @@ public:
 				{
 					if (is_a)
 					{
-						tm->mem.push_back(214);
+						tm->mem.push_back((byte8)insttype::IT_SET_A_CONST_STRING);
 					}
 					else
 					{
-						tm->mem.push_back(215);
+						tm->mem.push_back((byte8)insttype::IT_SET_B_CONST_STRING);
 					}
 					int max = strlen(str.c_str()) - 1;
 					char cc[4] = {};
@@ -3865,7 +3825,7 @@ public:
 								// a casting
 								if (leftcast != (int)casting_type::nocasting)
 								{
-									result_ten->mem.push_back((byte8)201);
+									result_ten->mem.push_back((byte8)insttype::IT_CASTING_A);
 									result_ten->mem.push_back((byte8)leftcast);
 								}
 								for (int u = 0; u < right_ten->mem.size(); ++u)
@@ -3875,12 +3835,12 @@ public:
 								// b casting
 								if (rightcast != (int)casting_type::nocasting)
 								{
-									result_ten->mem.push_back((byte8)202);
+									result_ten->mem.push_back((byte8)insttype::IT_CASTING_B);
 									result_ten->mem.push_back((byte8)rightcast);
 								}
 
-								result_ten->mem.push_back(52);
-								result_ten->mem.push_back(218); // POP
+								//result_ten->mem.push_back((byte8)insttype::IT_AXBY);
+								//result_ten->mem.push_back((byte8)insttype::IT_POP_AB); // POP
 
 								if (is_a)
 								{
@@ -3918,7 +3878,7 @@ public:
 							}
 							else if (basicoper[k].endop - basicoper[k].startop == 1)
 							{
-								if (basicoper[k].startop == 127 || basicoper[k].startop == 129) {
+								if (basicoper[k].startop == (byte8)insttype::IT_CM_BOOL_SAME_A || basicoper[k].startop == (byte8)insttype::IT_CM_BOOL_NOTSAME_A) {
 									// input num oper
 									temp_mem* result_ten =
 										(temp_mem*)fm->_New(sizeof(temp_mem), true);
@@ -3952,7 +3912,7 @@ public:
 									// a casting
 									if (leftcast != (int)casting_type::nocasting)
 									{
-										result_ten->mem.push_back((byte8)201);
+										result_ten->mem.push_back((byte8)insttype::IT_CASTING_A);
 										result_ten->mem.push_back((byte8)leftcast);
 									}
 									for (int u = 0; u < right_ten->mem.size(); ++u)
@@ -3962,12 +3922,12 @@ public:
 									// b casting
 									if (rightcast != (int)casting_type::nocasting)
 									{
-										result_ten->mem.push_back((byte8)202);
+										result_ten->mem.push_back((byte8)insttype::IT_CASTING_B);
 										result_ten->mem.push_back((byte8)rightcast);
 									}
 
-									result_ten->mem.push_back(52);
-									result_ten->mem.push_back(218); // POP
+									//result_ten->mem.push_back((byte8)insttype::IT_AXBY);
+									//result_ten->mem.push_back((byte8)insttype::IT_POP_AB); // POP
 
 									if (is_a)
 									{
@@ -4019,8 +3979,8 @@ public:
 										result_ten->mem.push_back(right_ten->mem[u]);
 									}
 
-									result_ten->mem.push_back(52); // AXBY
-									result_ten->mem.push_back(216); // POP A
+									//result_ten->mem.push_back((byte8)insttype::IT_AXBY);
+									//result_ten->mem.push_back((byte8)insttype::IT_POP_AB); // POP
 
 									if (is_a)
 									{
@@ -4067,8 +4027,8 @@ public:
 										result_ten->mem.push_back(right_ten->mem[u]);
 									}
 
-									result_ten->mem.push_back(52);
-									result_ten->mem.push_back(218); // POP
+									//result_ten->mem.push_back((byte8)insttype::IT_AXBY);
+									//result_ten->mem.push_back((byte8)insttype::IT_POP_AB); // POP
 
 									if (is_a)
 									{
@@ -4164,7 +4124,7 @@ public:
 									std = nullptr;
 								}
 								//type_data *std = get_sub_type(td);
-								result_ten->mem.push_back(27); // b=const4
+								result_ten->mem.push_back((byte8)insttype::IT_PUSH_B_CONST_4);
 								char cc[4] = {};
 								if (is_array_type) {
 									*reinterpret_cast<uint*>(cc) = std->typesiz;
@@ -4175,22 +4135,22 @@ public:
 								for (int u = 0; u < 4; ++u)
 									result_ten->mem.push_back(cc[u]);
 
-								result_ten->mem.push_back(52);	// axby
-								result_ten->mem.push_back(218); // POP
+								//result_ten->mem.push_back((byte8)insttype::IT_AXBY);	// axby
+								//result_ten->mem.push_back((byte8)insttype::IT_POP_AB); // POP
 								// b=x*y uint
-								result_ten->mem.push_back(92);
+								result_ten->mem.push_back((byte8)insttype::IT_AU_UINT_MUL_B);
 
 								for (int u = 0; u < left_ten->mem.size(); ++u)
 								{
 									result_ten->mem.push_back(left_ten->mem[u]);
 								}
 
-								result_ten->mem.push_back(52);	// axby
-								result_ten->mem.push_back(218); // POP
+								//result_ten->mem.push_back(52);	// axby
+								//result_ten->mem.push_back(218); // POP
 
 								if (is_a)
 								{
-									int opp = 61;
+									int opp = (byte8)insttype::IT_AU_INT_ADD_A;
 									result_ten->mem.push_back((byte8)opp);
 									result_ten->registerMod = 'A';
 									/*
@@ -4239,7 +4199,7 @@ public:
 								}
 								else
 								{
-									int opp = 62;
+									int opp = (byte8)insttype::IT_AU_INT_ADD_B;
 									result_ten->mem.push_back((byte8)opp);
 									result_ten->registerMod = 'B';
 									/*
@@ -4334,54 +4294,94 @@ public:
 									}
 									result_ten->mem.NULLState();
 									result_ten->mem.Init(2, false);
-									for (int u = 0; u < left_ten->mem.size(); ++u)
+
+									if (left_ten->mem.size() == 5 && left_ten->mem[0] == (byte8)insttype::IT_PUSH_TO_A_FROM_ADDRESS_OF_VARIABLE_ID)
 									{
-										result_ten->mem.push_back(left_ten->mem[u]);
-									}
-									//a <= instance address
-
-									result_ten->mem.push_back(27); // b = const value
-									byte8* barr = (byte8*)&add_address;
-									for (int u = 0; u < 4; ++u) {
-										result_ten->mem.push_back(barr[u]);
-									}
-									// axby
-									result_ten->mem.push_back(52);
-									result_ten->mem.push_back(218); // POP
-									if (is_a) {
-										result_ten->mem.push_back(61);
-										result_ten->registerMod = 'A';
-										/*
-										if(isvalue){
-											result_ten->mem.push_back(205);
-											result_ten->memsiz = result_ten->mem.size();
-											result_ten->valuetype_detail = member_td;
-											result_ten->valuetype = get_int_with_basictype(member_td);
-										}
-										else{
-											result_ten->memsiz = result_ten->mem.size();
+										if (is_a)
+										{
+											result_ten->mem.push_back((byte8)insttype::IT_PUSH_A_CONST_INDEX_ADDR);
+											for (int i = 0; i < 4; ++i) {
+												result_ten->mem.push_back(left_ten->mem.at(i + 1));
+											}
+											byte8* barr = (byte8*)&add_address;
+											for (int u = 0; u < 4; ++u)
+											{
+												result_ten->mem.push_back(barr[u]);
+											}
+											result_ten->registerMod = 'A';
+											// only ptr output segment
+											result_ten->isValue = false;
 											result_ten->valuetype_detail = get_addpointer_type(member_td);
-											result_ten->valuetype = 8; // ptr
+											result_ten->valuetype = get_int_with_basictype(result_ten->valuetype_detail); // ptr
 										}
-										*/
-
+										else
+										{
+											result_ten->mem.push_back((byte8)insttype::IT_PUSH_B_CONST_INDEX_ADDR);
+											for (int i = 0; i < 4; ++i) {
+												result_ten->mem.push_back(left_ten->mem.at(i + 1));
+											}
+											byte8* barr = (byte8*)&add_address;
+											for (int u = 0; u < 4; ++u)
+											{
+												result_ten->mem.push_back(barr[u]);
+											}
+											result_ten->registerMod = 'B';
+											// only ptr output segment
+											result_ten->isValue = false;
+											result_ten->valuetype_detail = get_addpointer_type(member_td);
+											result_ten->valuetype = get_int_with_basictype(result_ten->valuetype_detail); // ptr
+										}
 									}
 									else {
-										result_ten->mem.push_back(62);
-										result_ten->registerMod = 'B';
-										//only ptr output segment
-										//result_ten->valuetype_detail = get_addpointer_type(member_td);
-										//result_ten->valuetype = -1; // ptr oper state
-										/*
-										if(isvalue){
-											result_ten->mem.push_back(206);
+										for (int u = 0; u < left_ten->mem.size(); ++u)
+										{
+											result_ten->mem.push_back(left_ten->mem[u]);
 										}
-										*/
+										//a <= instance address
+
+										result_ten->mem.push_back((byte8)insttype::IT_PUSH_B_CONST_4);
+										byte8* barr = (byte8*)&add_address;
+										for (int u = 0; u < 4; ++u) {
+											result_ten->mem.push_back(barr[u]);
+										}
+										// axby
+										//result_ten->mem.push_back(52);
+										//result_ten->mem.push_back(218); // POP
+										if (is_a) {
+											result_ten->mem.push_back((byte8)insttype::IT_AU_INT_ADD_A);
+											result_ten->registerMod = 'A';
+											/*
+											if(isvalue){
+												result_ten->mem.push_back(205);
+												result_ten->memsiz = result_ten->mem.size();
+												result_ten->valuetype_detail = member_td;
+												result_ten->valuetype = get_int_with_basictype(member_td);
+											}
+											else{
+												result_ten->memsiz = result_ten->mem.size();
+												result_ten->valuetype_detail = get_addpointer_type(member_td);
+												result_ten->valuetype = 8; // ptr
+											}
+											*/
+
+										}
+										else {
+											result_ten->mem.push_back((byte8)insttype::IT_AU_INT_ADD_B);
+											result_ten->registerMod = 'B';
+											//only ptr output segment
+											//result_ten->valuetype_detail = get_addpointer_type(member_td);
+											//result_ten->valuetype = -1; // ptr oper state
+											/*
+											if(isvalue){
+												result_ten->mem.push_back(206);
+											}
+											*/
+										}
+										//only ptr output segment
+										result_ten->isValue = false;
+										result_ten->valuetype_detail = get_addpointer_type(member_td);
+										result_ten->valuetype = get_int_with_basictype(result_ten->valuetype_detail); // ptr
 									}
-									//only ptr output segment
-									result_ten->isValue = false;
-									result_ten->valuetype_detail = get_addpointer_type(member_td);
-									result_ten->valuetype = get_int_with_basictype(result_ten->valuetype_detail); // ptr
 
 									segs.erase(i + 1);
 									segs[i]->at(0).type = 'a'; // asm
@@ -4436,13 +4436,16 @@ public:
 										{
 											result_ten->mem.push_back(left_ten->mem[u]);
 										}
-										// a=value(a)
-										result_ten->mem.push_back(205);
+										// a = value(a)
+										result_ten->mem.push_back((byte8)insttype::IT_PUSH_A_FROM_VALUE_OF_A);
+										// b = const
+										result_ten->mem.push_back((byte8)insttype::IT_PUSH_B_CONST_4);
 										// axby
-										result_ten->mem.push_back(52);
-										result_ten->mem.push_back(218); // POP
+										// 
+										//result_ten->mem.push_back(52);
+										//result_ten->mem.push_back(218); // POP
 										// set y const4
-										result_ten->mem.push_back(45);
+										//result_ten->mem.push_back(45);
 
 										char cc[4] = {};
 										*reinterpret_cast<uint*>(cc) = bid;
@@ -4452,12 +4455,12 @@ public:
 										if (is_a)
 										{
 											// a=x+y uint
-											result_ten->mem.push_back(61);
+											result_ten->mem.push_back((byte8)insttype::IT_AU_INT_ADD_A);
 										}
 										else
 										{
 											// b=x+y uint
-											result_ten->mem.push_back(62);
+											result_ten->mem.push_back((byte8)insttype::IT_AU_INT_ADD_B);
 										}
 
 										// ptr
@@ -4533,11 +4536,11 @@ public:
 								}
 								if (is_a)
 								{
-									result_ten->mem.push_back(205);
+									result_ten->mem.push_back((byte8)insttype::IT_PUSH_A_FROM_VALUE_OF_A);
 								}
 								else
 								{
-									result_ten->mem.push_back(206);
+									result_ten->mem.push_back((byte8)insttype::IT_PUSH_B_FROM_VALUE_OF_B);
 								}
 
 								// ptr
@@ -4571,8 +4574,8 @@ public:
 						{
 							if (is_a == false)
 							{
-								tm->mem.push_back(223); // b = a
-								tm->mem.push_back(216); // pop a
+								tm->mem.push_back((byte8)insttype::PUSH_B_FROM_A); // b = a
+								tm->mem.push_back((byte8)insttype::IT_POP_A); // pop a
 							}
 						}
 						break;
@@ -4580,8 +4583,8 @@ public:
 						{
 							if (is_a)
 							{
-								tm->mem.push_back(222); // a = b
-								tm->mem.push_back(217); // pop b
+								tm->mem.push_back((byte8)insttype::PUSH_A_FROM_B); // a = b
+								tm->mem.push_back((byte8)insttype::IT_POP_B); // pop b
 							}
 						}
 						break;
@@ -4598,13 +4601,13 @@ public:
 						{
 							if (is_a)
 							{
-								tm->mem.push_back(205); // a = *a
+								tm->mem.push_back((byte8)insttype::IT_PUSH_A_FROM_VALUE_OF_A); // a = *a
 							}
 							else
 							{
-								tm->mem.push_back(223); // b = a
-								tm->mem.push_back(216); // pop a
-								tm->mem.push_back(206); // b = *b
+								tm->mem.push_back((byte8)insttype::PUSH_B_FROM_A); // b = a
+								tm->mem.push_back((byte8)insttype::IT_POP_A); // pop a
+								tm->mem.push_back((byte8)insttype::IT_PUSH_B_FROM_VALUE_OF_B); // b = *b
 							}
 						}
 						break;
@@ -4612,13 +4615,13 @@ public:
 						{
 							if (is_a)
 							{
-								tm->mem.push_back(222); // a = b
-								tm->mem.push_back(217); // pop b
-								tm->mem.push_back(205); // a = *a
+								tm->mem.push_back((byte8)insttype::PUSH_A_FROM_B); // a = b
+								tm->mem.push_back((byte8)insttype::IT_POP_B); // pop b
+								tm->mem.push_back((byte8)insttype::IT_PUSH_A_FROM_VALUE_OF_A); // a = *a
 							}
 							else
 							{
-								tm->mem.push_back(206); // b = *b
+								tm->mem.push_back((byte8)insttype::IT_PUSH_B_FROM_VALUE_OF_B); // b = *b
 							}
 						}
 						break;
@@ -4633,8 +4636,8 @@ public:
 					{
 						if (is_a == false)
 						{
-							tm->mem.push_back(223); // b = a
-							tm->mem.push_back(216); // pop a
+							tm->mem.push_back((byte8)insttype::PUSH_B_FROM_A); // b = a
+							tm->mem.push_back((byte8)insttype::IT_POP_A); // pop a
 						}
 					}
 					break;
@@ -4642,8 +4645,8 @@ public:
 					{
 						if (is_a)
 						{
-							tm->mem.push_back(222); // a = b
-							tm->mem.push_back(217); // pop b
+							tm->mem.push_back((byte8)insttype::PUSH_A_FROM_B); // a = b
+							tm->mem.push_back((byte8)insttype::IT_POP_B); // pop b
 						}
 					}
 					break;
@@ -4664,8 +4667,8 @@ public:
 					{
 						if (is_a == false)
 						{
-							tm->mem.push_back(223); // b = a
-							tm->mem.push_back(216); // pop a
+							tm->mem.push_back((byte8)insttype::PUSH_B_FROM_A); // b = a
+							tm->mem.push_back((byte8)insttype::IT_POP_A); // pop a
 						}
 					}
 					break;
@@ -4673,8 +4676,8 @@ public:
 					{
 						if (is_a)
 						{
-							tm->mem.push_back(222); // a = b
-							tm->mem.push_back(217); // pop b
+							tm->mem.push_back((byte8)insttype::PUSH_A_FROM_B); // a = b
+							tm->mem.push_back((byte8)insttype::IT_POP_B); // pop b
 						}
 					}
 					break;
@@ -4917,14 +4920,14 @@ public:
 			}
 			if (need_casting)
 			{
-				mem[writeup++] = (byte8)201;
+				mem[writeup++] = (byte8)insttype::IT_CASTING_A;
 				mem[writeup++] = (byte8)castt;
 			}
 			for (int i = 0; i < left_tm_v->mem.size(); ++i)
 			{
 				mem[writeup++] = left_tm_v->mem[i];
 			}
-			mem[writeup++] = 52;
+			//mem[writeup++] = 52;
 
 			for (int k = 0; k < basicoper_max; ++k)
 			{
@@ -4939,18 +4942,18 @@ public:
 			{
 				mem[writeup++] = left_tm_ptr->mem[i];
 			}
-			mem[writeup++] = (byte8)199;
+			mem[writeup++] = (byte8)insttype::IT_PUSH_TO_LA_FROM_A;
 
 			switch (lstd->typesiz)
 			{
 			case 1:
-				mem[writeup++] = (byte8)211;
+				mem[writeup++] = (byte8)insttype::IT_PUSH_TO_VALUE_OF_LA_FROM_A_1;
 				break;
 			case 2:
-				mem[writeup++] = (byte8)212;
+				mem[writeup++] = (byte8)insttype::IT_PUSH_TO_VALUE_OF_LA_FROM_A_2;
 				break;
 			case 4:
-				mem[writeup++] = (byte8)213;
+				mem[writeup++] = (byte8)insttype::IT_PUSH_TO_VALUE_OF_LA_FROM_A_4;
 				break;
 			default:
 				cout << "typesiz is more than 4." << endl;
@@ -5001,7 +5004,7 @@ public:
 			}
 			if (need_casting)
 			{
-				mem[writeup++] = (byte8)201;
+				mem[writeup++] = (byte8)insttype::IT_CASTING_A;
 				mem[writeup++] = (byte8)castt;
 			}
 
@@ -5009,23 +5012,23 @@ public:
 			{
 				mem[writeup++] = left_tm->mem[i];
 			}
-			mem[writeup++] = (byte8)199;
+			mem[writeup++] = (byte8)insttype::IT_PUSH_TO_LA_FROM_A; // LA = A;
 
 			switch (lstd->typesiz)
 			{
 			case 1:
-				mem[writeup++] = (byte8)211;
+				mem[writeup++] = (byte8)insttype::IT_PUSH_TO_VALUE_OF_LA_FROM_A_1;
 				break;
 			case 2:
-				mem[writeup++] = (byte8)212;
+				mem[writeup++] = (byte8)insttype::IT_PUSH_TO_VALUE_OF_LA_FROM_A_2;
 				break;
 			case 4:
-				mem[writeup++] = (byte8)213;
+				mem[writeup++] = (byte8)insttype::IT_PUSH_TO_VALUE_OF_LA_FROM_A_4;
 				break;
 			default:
 				cout << "typesiz is more than 4." << endl;
 				{
-					mem[writeup++] = (byte8)224;
+					mem[writeup++] = (byte8)insttype::SET_ADDRESS_LA_FROM_ADRESS_A_N;
 					byte8 cc[4];
 					*reinterpret_cast<uint*>(&cc[0]) = (uint)lstd->typesiz;
 					for (int i = 0; i < 4; ++i) {
@@ -5071,7 +5074,7 @@ public:
 		{
 			mem[writeup++] = inner_tm->mem[i];
 		}
-		mem[writeup++] = 187;
+		mem[writeup++] = (byte8)insttype::IT_IF;
 		nextbd.bs = blockstate::bs_if;
 		nextbd.parameter[0] = writeup;
 		writeup += 4;
@@ -5103,7 +5106,7 @@ public:
 		{
 			mem[writeup++] = inner_tm->mem[i];
 		}
-		mem[writeup++] = 187;
+		mem[writeup++] = (byte8)insttype::IT_IF;
 		nextbd.bs = blockstate::bs_while;
 		nextbd.parameter[0] = writeup;
 		nextbd.parameter[1] = save;
@@ -5273,7 +5276,7 @@ public:
 						css2 = reinterpret_cast<code_sen *>(cs->codeblocks->at(i + 1));
 						uint address = nextbd.parameter[0];
 						compile_code(css2);
-						mem[writeup++] = 188;
+						mem[writeup++] = (byte8)insttype::IT_JMP;
 						ifptr_arr.push_back(writeup);
 						writeup += 4;
 
@@ -5300,7 +5303,7 @@ public:
 
 							css2 = reinterpret_cast<code_sen *>(cs->codeblocks->at(ifk + 1));
 							compile_code(css2);
-							mem[writeup++] = 188;
+							mem[writeup++] = (byte8)insttype::IT_JMP;
 							ifptr_arr.push_back(writeup);
 							writeup += 4;
 							*reinterpret_cast<uint *>(&mem[address]) = (uint)writeup;
@@ -5352,7 +5355,7 @@ public:
 						(uint)blockstack.last()->parameter[1];
 				}
 
-				mem[writeup++] = 188; // jmp
+				mem[writeup++] = (byte8)insttype::IT_JMP; // jmp
 				*reinterpret_cast<uint *>(&mem[writeup]) =
 					(uint)blockstack.last()->parameter[1];
 				writeup += 4;
@@ -5360,7 +5363,7 @@ public:
 			break;
 			case blockstate::bs_function:
 			{
-				mem[writeup++] = 193; // return
+				mem[writeup++] = (byte8)insttype::IT_RETURN; // return
 			}
 			break;
 			}
@@ -5487,27 +5490,30 @@ public:
 		fm->_Delete((byte8 *)typestr, sizeof(sen));
 	}
 
-	void compile_useFunction(code_sen *cs)
+	void compile_useFunction(code_sen* cs)
 	{
-		func_data *fd = nullptr;
+		func_data* fd = nullptr;
 
-		sen *code = get_sen_from_codesen(cs);
+		sen* code = get_sen_from_codesen(cs);
 		int loc = code->size() - 1;
-		sen *inner_params = wbss.oc_search_inv(code, loc, "(", ")");
+		sen* inner_params = wbss.oc_search_inv(code, loc, "(", ")");
 		int nameloc = loc - inner_params->size();
-		char *funcname = code->at(nameloc).data.str;
+		char* funcname = code->at(nameloc).data.str;
 
 		bool isext = false;
 		int extID = 0;
 		int exfuncID = 0;
-		for(int i=0;i<extension.size();++i){
+		for (int i = 0; i < extension.size(); ++i)
+		{
 			ICB_Extension* ext = extension.at(i);
-			for(int k=0;k<ext->exfuncArr.size();++k){
+			for (int k = 0; k < ext->exfuncArr.size(); ++k)
+			{
 				func_data* efd = ext->exfuncArr[k];
-				if(strcmp(funcname, efd->name.c_str()) == 0){
+				if (strcmp(funcname, efd->name.c_str()) == 0)
+				{
 					isext = true;
-					sen *typen = wbss.sen_cut(code, 0, nameloc - 1);
-					sen *params_sen = wbss.sen_cut(code, nameloc + 2, loc - 1);
+					sen* typen = wbss.sen_cut(code, 0, nameloc - 1);
+					sen* params_sen = wbss.sen_cut(code, nameloc + 2, loc - 1);
 					fd = efd;
 					extID = i;
 					exfuncID = k;
@@ -5520,7 +5526,7 @@ public:
 		{
 			inner_params->pop_back();
 			inner_params->erase(0);
-			wbss.dbg_sen(inner_params);
+			//wbss.dbg_sen(inner_params);
 			int coma = wbss.search_word_first_in_specific_oc_layer(inner_params, 0, "(", ")", 0, ",");
 			int savecomma = -1;
 			while (coma != -1)
@@ -5532,21 +5538,21 @@ public:
 				{
 					mem[writeup++] = tm->mem[k];
 				}
-				mem[writeup++] = 209;
+				mem[writeup++] = (byte8)insttype::IT_DBG_A;
 				mem[writeup++] = (byte8)tm->valuetype;
 				savecomma = coma;
 				coma = wbss.search_word_first_in_specific_oc_layer(inner_params, savecomma + 1, "(", ")", 0, ",");
 			}
 
 			sen* param_sen = wbss.sen_cut(inner_params, savecomma + 1, inner_params->size() - 1);
-			wbss.dbg_sen(param_sen);
+			//wbss.dbg_sen(param_sen);
 			temp_mem* tm = get_asm_from_sen(param_sen, true, true);
 
 			for (int k = 0; k < tm->mem.size(); ++k)
 			{
 				mem[writeup++] = tm->mem[k];
 			}
-			mem[writeup++] = 209;
+			mem[writeup++] = (byte8)insttype::IT_DBG_A;
 			mem[writeup++] = (byte8)tm->valuetype;
 
 			code->release();
@@ -5560,22 +5566,22 @@ public:
 		{
 			inner_params->pop_back();
 			inner_params->erase(0);
-			wbss.dbg_sen(inner_params);
-			temp_mem *tm = get_asm_from_sen(inner_params, true, true);
+			//wbss.dbg_sen(inner_params);
+			temp_mem* tm = get_asm_from_sen(inner_params, true, true);
 			for (int k = 0; k < tm->mem.size(); ++k)
 			{
 				mem[writeup++] = tm->mem[k];
 			}
-			mem[writeup++] = 210;
+			mem[writeup++] = (byte8)insttype::IT_INP_A_PTR;
 
 			type_data* std = get_sub_type(tm->valuetype_detail);
 			mem[writeup++] = (byte8)get_int_with_basictype(std);
 
 			code->release();
-			fm->_Delete((byte8 *)code, sizeof(sen));
+			fm->_Delete((byte8*)code, sizeof(sen));
 
 			inner_params->release();
-			fm->_Delete((byte8 *)inner_params, sizeof(sen));
+			fm->_Delete((byte8*)inner_params, sizeof(sen));
 			return;
 		}
 		else if (strcmp(funcname, "sizeof") == 0)
@@ -5591,68 +5597,511 @@ public:
 		{
 		}
 
-		if(isext == false){
+		if (isext == false)
+		{
 			fd = get_func_with_name(code->at(nameloc).data.str);
-		}
-		
-		// mem[writeup++] = fd->start_pc; // func
+			// mem[writeup++] = fd->start_pc; // func
 
-		sen *typen = wbss.sen_cut(code, 0, nameloc - 1);
+			sen* typen = wbss.sen_cut(code, 0, nameloc - 1);
 
-		sen *params_sen = wbss.sen_cut(code, nameloc + 2, loc - 1);
-		if (params_sen->size() == 0)
-		{
-			mem[writeup++] = 189; // FUNC
-			mem[writeup++] = 200; // jmp
-			*reinterpret_cast<uint *>(&mem[writeup]) = (uint)(fd->start_pc - &mem[0]);
-			writeup += 4;
+			sen* params_sen = wbss.sen_cut(code, nameloc + 2, loc - 1);
+			if (params_sen->size() == 0)
+			{
+				mem[writeup++] = (byte8)insttype::IT_FUNC;	  // FUNC
+				mem[writeup++] = (byte8)insttype::IT_FUNCJMP; // jmp
+				*reinterpret_cast<uint*>(&mem[writeup]) = (uint)(fd->start_pc - &mem[0]);
+				writeup += 4;
 
-			code->release();
-			fm->_Delete((byte8 *)code, sizeof(sen));
+				code->release();
+				fm->_Delete((byte8*)code, sizeof(sen));
 
-			inner_params->release();
-			fm->_Delete((byte8 *)inner_params, sizeof(sen));
+				inner_params->release();
+				fm->_Delete((byte8*)inner_params, sizeof(sen));
 
-			params_sen->release();
-			fm->_Delete((byte8 *)params_sen, sizeof(sen));
-			return;
-		}
-		int last = params_sen->size() - 1;
-		wbss.dbg_sen(params_sen);
-		int coma = wbss.search_word_first(0, params_sen, ",");
-		int savecoma = -1;
+				params_sen->release();
+				fm->_Delete((byte8*)params_sen, sizeof(sen));
+				return;
+			}
+			int last = params_sen->size() - 1;
+			//wbss.dbg_sen(params_sen);
+			int coma = wbss.search_word_first_in_specific_oc_layer(params_sen, 0, "(", ")", 0, ",");
+			int savecoma = -1;
 
-		int addadd = 0;
-		int paramid = 0;
-		int paramCount = 0;
+			int addadd = 0;
+			int paramid = 0;
+			int paramCount = 0;
 
-		mem[writeup++] = 189; // FUNC
+			mem[writeup++] = (byte8)insttype::IT_FUNC; // FUNC
 
-		while (coma != -1)
-		{
-			sen *param_sen = wbss.sen_cut(params_sen, savecoma+1, coma - 1);
-			wbss.dbg_sen(param_sen);
-			temp_mem *tm = get_asm_from_sen(param_sen, true, true);
-			if(tm->valuetype_detail->typetype == 's'){
-				temp_mem *ptrtm = get_asm_from_sen(param_sen, true, false);
+			while (coma != -1)
+			{
+				sen* param_sen = wbss.sen_cut(params_sen, savecoma + 1, coma - 1);
+				//wbss.dbg_sen(param_sen);
+				temp_mem* tm = get_asm_from_sen(param_sen, true, true);
+				if (tm->valuetype_detail->typetype == 's')
+				{
+					temp_mem* ptrtm = get_asm_from_sen(param_sen, true, false);
+					for (int i = 0; i < ptrtm->mem.size(); ++i)
+					{
+						mem[writeup++] = ptrtm->mem[i];
+					}
+				}
+				else
+				{
+					for (int i = 0; i < tm->mem.size(); ++i)
+					{
+						mem[writeup++] = tm->mem[i];
+					}
+
+					casting_type ct = get_cast_type(tm->valuetype, get_int_with_basictype(fd->param_data.at(paramCount).td));
+					if (ct != casting_type::nocasting)
+					{
+						mem[writeup++] = (byte8)insttype::IT_CASTING_A;
+						mem[writeup++] = (byte8)ct;
+					}
+					/*
+					*reinterpret_cast<uint*>(&mem[writeup]) = (uint)ct;
+					writeup += 4;
+					*/
+				}
+
+				if (fd->param_data[paramid].td->typetype != 's')
+				{
+					switch (fd->param_data[paramid].td->typesiz)
+					{
+					case 1:
+						mem[writeup++] = (byte8)insttype::IT_PARAM_1; // param
+						break;
+					case 2:
+						mem[writeup++] = (byte8)insttype::IT_PARAM_2; // param
+						break;
+					case 4:
+						mem[writeup++] = (byte8)insttype::IT_PARAM_4; // param
+						break;
+					}
+				}
+				else
+				{
+					if (isext == false)
+					{
+						fd = get_func_with_name(code->at(nameloc).data.str);
+						// mem[writeup++] = fd->start_pc; // func
+
+						sen* typen = wbss.sen_cut(code, 0, nameloc - 1);
+
+						sen* params_sen = wbss.sen_cut(code, nameloc + 2, loc - 1);
+						if (params_sen->size() == 0)
+						{
+							mem[writeup++] = (byte8)insttype::IT_FUNC;	  // FUNC
+							mem[writeup++] = (byte8)insttype::IT_FUNCJMP; // jmp
+							*reinterpret_cast<uint*>(&mem[writeup]) = (uint)(fd->start_pc - &mem[0]);
+							writeup += 4;
+
+							code->release();
+							fm->_Delete((byte8*)code, sizeof(sen));
+
+							inner_params->release();
+							fm->_Delete((byte8*)inner_params, sizeof(sen));
+
+							params_sen->release();
+							fm->_Delete((byte8*)params_sen, sizeof(sen));
+							return;
+						}
+						int last = params_sen->size() - 1;
+						//wbss.dbg_sen(params_sen);
+						int coma = wbss.search_word_first_in_specific_oc_layer(params_sen, 0, "(", ")", 0, ",");
+						int savecoma = -1;
+
+						int addadd = 0;
+						int paramid = 0;
+						int paramCount = 0;
+
+						mem[writeup++] = (byte8)insttype::IT_FUNC; // FUNC
+
+						while (coma != -1)
+						{
+							sen* param_sen = wbss.sen_cut(params_sen, savecoma + 1, coma - 1);
+							//wbss.dbg_sen(param_sen);
+							temp_mem* tm = get_asm_from_sen(param_sen, true, true);
+							if (tm->valuetype_detail->typetype == 's')
+							{
+								temp_mem* ptrtm = get_asm_from_sen(param_sen, true, false);
+								for (int i = 0; i < ptrtm->mem.size(); ++i)
+								{
+									mem[writeup++] = ptrtm->mem[i];
+								}
+							}
+							else
+							{
+								for (int i = 0; i < tm->mem.size(); ++i)
+								{
+									mem[writeup++] = tm->mem[i];
+								}
+
+								casting_type ct = get_cast_type(tm->valuetype, get_int_with_basictype(fd->param_data.at(paramCount).td));
+								if (ct != casting_type::nocasting)
+								{
+									mem[writeup++] = (byte8)insttype::IT_CASTING_A;
+									mem[writeup++] = (byte8)ct;
+								}
+								/*
+					*reinterpret_cast<uint*>(&mem[writeup]) = (uint)ct;
+					writeup += 4;
+					*/
+							}
+
+							if (fd->param_data[paramid].td->typetype != 's')
+							{
+								switch (fd->param_data[paramid].td->typesiz)
+								{
+								case 1:
+									mem[writeup++] = (byte8)insttype::IT_PARAM_1; // param
+									break;
+								case 2:
+									mem[writeup++] = (byte8)insttype::IT_PARAM_2; // param
+									break;
+								case 4:
+									mem[writeup++] = (byte8)insttype::IT_PARAM_4; // param
+									break;
+								}
+							}
+							else
+							{
+								mem[writeup++] = (byte8)insttype::PARAM_N_COPY_BY_ADDRESS; // param N by address(a)
+								byte8* N = (byte8*)&fd->param_data[paramid].td->typesiz;
+								// write siz of struct type
+								for (int i = 0; i < 4; ++i)
+								{
+									mem[writeup++] = N[i];
+								}
+							}
+
+							savecoma = coma;
+							coma = wbss.search_word_first_in_specific_oc_layer(params_sen, savecoma + 1, "(", ")", 0, ",");
+							// coma = wbss.search_word_first(savecoma+1, params_sen, ",");
+
+							++paramid;
+
+							param_sen->release();
+							fm->_Delete((byte8*)param_sen, sizeof(sen));
+
+							release_tempmem(tm);
+							++paramCount;
+						}
+
+						//wbss.dbg_sen(params_sen);
+
+						sen* param_sen = wbss.sen_cut(params_sen, savecoma + 1, last);
+						//wbss.dbg_sen(param_sen);
+						temp_mem* tm = get_asm_from_sen(param_sen, true, true);
+						if (tm->valuetype_detail->typetype == 's')
+						{
+							temp_mem* ptrtm = get_asm_from_sen(param_sen, true, false);
+							for (int i = 0; i < ptrtm->mem.size(); ++i)
+							{
+								mem[writeup++] = ptrtm->mem[i];
+							}
+						}
+						else
+						{
+							for (int i = 0; i < tm->mem.size(); ++i)
+							{
+								mem[writeup++] = tm->mem[i];
+							}
+
+							casting_type ct = get_cast_type(tm->valuetype, get_int_with_basictype(fd->param_data.at(paramCount).td));
+							if (ct != casting_type::nocasting)
+							{
+								mem[writeup++] = (byte8)insttype::IT_CASTING_A;
+								mem[writeup++] = (byte8)ct;
+							}
+							/*
+				*reinterpret_cast<uint*>(&mem[writeup]) = (uint)ct;
+				writeup += 4;
+				*/
+						}
+
+						if (fd->param_data[paramid].td->typetype != 's')
+						{
+							switch (fd->param_data[paramid].td->typesiz)
+							{
+							case 1:
+								mem[writeup++] = (byte8)insttype::IT_PARAM_1; // param
+								break;
+							case 2:
+								mem[writeup++] = (byte8)insttype::IT_PARAM_2; // param
+								break;
+							case 4:
+								mem[writeup++] = (byte8)insttype::IT_PARAM_4; // param
+								break;
+							}
+						}
+						else
+						{
+							mem[writeup++] = (byte8)insttype::PARAM_N_COPY_BY_ADDRESS; // param N by address(a)
+							byte8* N = (byte8*)&fd->param_data[paramid].td->typesiz;
+							// write siz of struct type
+							for (int i = 0; i < 4; ++i)
+							{
+								mem[writeup++] = N[i];
+							}
+						}
+
+						mem[writeup++] = (byte8)insttype::IT_FUNCJMP; // jmp
+						*reinterpret_cast<uint*>(&mem[writeup]) = (uint)(fd->start_pc - &mem[0]);
+						writeup += 4;
+
+						code->release();
+						fm->_Delete((byte8*)code, sizeof(sen));
+
+						inner_params->release();
+						fm->_Delete((byte8*)inner_params, sizeof(sen));
+
+						typen->release();
+						fm->_Delete((byte8*)typen, sizeof(sen));
+
+						params_sen->release();
+						fm->_Delete((byte8*)params_sen, sizeof(sen));
+
+						param_sen->release();
+						fm->_Delete((byte8*)param_sen, sizeof(sen));
+
+						release_tempmem(tm);
+					}
+					else
+					{
+						sen* typen = wbss.sen_cut(code, 0, nameloc - 1);
+
+						sen* params_sen = wbss.sen_cut(code, nameloc + 2, loc - 1);
+						if (params_sen->size() == 0)
+						{
+							mem[writeup++] = (byte8)insttype::IT_FUNC;	  // FUNC
+							mem[writeup++] = (byte8)insttype::IT_FUNCJMP; // jmp
+							*reinterpret_cast<uint*>(&mem[writeup]) = (uint)(fd->start_pc - &mem[0]);
+							writeup += 4;
+
+							code->release();
+							fm->_Delete((byte8*)code, sizeof(sen));
+
+							inner_params->release();
+							fm->_Delete((byte8*)inner_params, sizeof(sen));
+
+							params_sen->release();
+							fm->_Delete((byte8*)params_sen, sizeof(sen));
+							return;
+						}
+						int last = params_sen->size() - 1;
+						//wbss.dbg_sen(params_sen);
+						int coma = wbss.search_word_end_in_specific_oc_layer(params_sen, last, "(", ")", 0, ",");
+						int savecoma = last + 1;
+
+						int addadd = 0;
+						int paramCount = fd->param_data.size() - 1;
+
+						mem[writeup++] = (byte8)insttype::IT_FUNC; // FUNC
+
+						while (coma != -1)
+						{
+							sen* param_sen = wbss.sen_cut(params_sen, coma + 1, savecoma - 1);
+							//wbss.dbg_sen(param_sen);
+							temp_mem* tm = get_asm_from_sen(param_sen, true, true);
+							if (tm->valuetype_detail->typetype == 's')
+							{
+								temp_mem* ptrtm = get_asm_from_sen(param_sen, true, false);
+								for (int i = 0; i < ptrtm->mem.size(); ++i)
+								{
+									mem[writeup++] = ptrtm->mem[i];
+								}
+							}
+							else
+							{
+								for (int i = 0; i < tm->mem.size(); ++i)
+								{
+									mem[writeup++] = tm->mem[i];
+								}
+
+								casting_type ct = get_cast_type(tm->valuetype, get_int_with_basictype(fd->param_data.at(paramCount).td));
+								if (ct != casting_type::nocasting)
+								{
+									mem[writeup++] = (byte8)insttype::IT_CASTING_A;
+									mem[writeup++] = (byte8)ct;
+								}
+								/*
+					*reinterpret_cast<uint*>(&mem[writeup]) = (uint)ct;
+					writeup += 4;
+					*/
+							}
+
+							if (fd->param_data[paramCount].td->typetype != 's')
+							{
+								switch (fd->param_data[paramCount].td->typesiz)
+								{
+								case 1:
+									mem[writeup++] = (byte8)insttype::IT_PARAM_1; // param
+									break;
+								case 2:
+									mem[writeup++] = (byte8)insttype::IT_PARAM_2; // param
+									break;
+								case 4:
+									mem[writeup++] = (byte8)insttype::IT_PARAM_4; // param
+									break;
+								}
+							}
+							else
+							{
+								mem[writeup++] = (byte8)insttype::PARAM_N_COPY_BY_ADDRESS; // param N by address(a)
+								byte8* N = (byte8*)&fd->param_data[paramCount].td->typesiz;
+								// write siz of struct type
+								for (int i = 0; i < 4; ++i)
+								{
+									mem[writeup++] = N[i];
+								}
+							}
+
+							savecoma = coma;
+							coma = wbss.search_word_end_in_specific_oc_layer(params_sen, savecoma - 1, "(", ")", 0, ",");
+							// coma = wbss.search_word_first(savecoma+1, params_sen, ",");
+
+							param_sen->release();
+							fm->_Delete((byte8*)param_sen, sizeof(sen));
+
+							release_tempmem(tm);
+							--paramCount;
+						}
+
+						//wbss.dbg_sen(params_sen);
+
+						sen* param_sen = wbss.sen_cut(params_sen, 0, savecoma - 1);
+						//wbss.dbg_sen(param_sen);
+						temp_mem* tm = get_asm_from_sen(param_sen, true, true);
+						if (tm->valuetype_detail->typetype == 's')
+						{
+							temp_mem* ptrtm = get_asm_from_sen(param_sen, true, false);
+							for (int i = 0; i < ptrtm->mem.size(); ++i)
+							{
+								mem[writeup++] = ptrtm->mem[i];
+							}
+						}
+						else
+						{
+							for (int i = 0; i < tm->mem.size(); ++i)
+							{
+								mem[writeup++] = tm->mem[i];
+							}
+
+							casting_type ct = get_cast_type(tm->valuetype, get_int_with_basictype(fd->param_data.at(paramCount).td));
+							if (ct != casting_type::nocasting)
+							{
+								mem[writeup++] = (byte8)insttype::IT_CASTING_A;
+								mem[writeup++] = (byte8)ct;
+							}
+							/*
+				*reinterpret_cast<uint*>(&mem[writeup]) = (uint)ct;
+				writeup += 4;
+				*/
+						}
+
+						if (fd->param_data[paramCount].td->typetype != 's')
+						{
+							switch (fd->param_data[paramCount].td->typesiz)
+							{
+							case 1:
+								mem[writeup++] = (byte8)insttype::IT_PARAM_1; // param
+								break;
+							case 2:
+								mem[writeup++] = (byte8)insttype::IT_PARAM_2; // param
+								break;
+							case 4:
+								mem[writeup++] = (byte8)insttype::IT_PARAM_4; // param
+								break;
+							}
+						}
+						else
+						{
+							mem[writeup++] = (byte8)insttype::PARAM_N_COPY_BY_ADDRESS; // param N by address(a)
+							byte8* N = (byte8*)&fd->param_data[paramCount].td->typesiz;
+							// write siz of struct type
+							for (int i = 0; i < 4; ++i)
+							{
+								mem[writeup++] = N[i];
+							}
+						}
+
+						mem[writeup++] = (byte8)insttype::EXTENSION_INST; // ext instruction
+						*reinterpret_cast<uint*>(&mem[writeup]) = (uint)(extID);
+						writeup += 4;
+						*reinterpret_cast<uint*>(&mem[writeup]) = (uint)(exfuncID); // byte8* but real value is function pointer of extension.
+						writeup += 4;
+
+						code->release();
+						fm->_Delete((byte8*)code, sizeof(sen));
+
+						inner_params->release();
+						fm->_Delete((byte8*)inner_params, sizeof(sen));
+
+						typen->release();
+						fm->_Delete((byte8*)typen, sizeof(sen));
+
+						params_sen->release();
+						fm->_Delete((byte8*)params_sen, sizeof(sen));
+
+						param_sen->release();
+						fm->_Delete((byte8*)param_sen, sizeof(sen));
+
+						release_tempmem(tm);
+					}
+					mem[writeup++] = (byte8)insttype::PARAM_N_COPY_BY_ADDRESS; // param N by address(a)
+					byte8* N = (byte8*)&fd->param_data[paramid].td->typesiz;
+					// write siz of struct type
+					for (int i = 0; i < 4; ++i)
+					{
+						mem[writeup++] = N[i];
+					}
+				}
+
+				savecoma = coma;
+				coma = wbss.search_word_first_in_specific_oc_layer(params_sen, savecoma + 1, "(", ")", 0, ",");
+				// coma = wbss.search_word_first(savecoma+1, params_sen, ",");
+
+				++paramid;
+
+				param_sen->release();
+				fm->_Delete((byte8*)param_sen, sizeof(sen));
+
+				release_tempmem(tm);
+				++paramCount;
+			}
+
+			//wbss.dbg_sen(params_sen);
+
+			sen* param_sen = wbss.sen_cut(params_sen, savecoma + 1, last);
+			//wbss.dbg_sen(param_sen);
+			temp_mem* tm = get_asm_from_sen(param_sen, true, true);
+			if (tm->valuetype_detail->typetype == 's')
+			{
+				temp_mem* ptrtm = get_asm_from_sen(param_sen, true, false);
 				for (int i = 0; i < ptrtm->mem.size(); ++i)
 				{
 					mem[writeup++] = ptrtm->mem[i];
 				}
 			}
-			else{
+			else
+			{
 				for (int i = 0; i < tm->mem.size(); ++i)
 				{
 					mem[writeup++] = tm->mem[i];
 				}
 
 				casting_type ct = get_cast_type(tm->valuetype, get_int_with_basictype(fd->param_data.at(paramCount).td));
-				if (ct != casting_type::nocasting) {
-					mem[writeup++] = 201;
+				if (ct != casting_type::nocasting)
+				{
+					mem[writeup++] = (byte8)insttype::IT_CASTING_A;
 					mem[writeup++] = (byte8)ct;
 				}
-				//*reinterpret_cast<uint*>(&mem[writeup]) = (uint)ct;
-				//writeup += 4;
+				/*
+				*reinterpret_cast<uint*>(&mem[writeup]) = (uint)ct;
+				writeup += 4;
+				*/
 			}
 
 			if (fd->param_data[paramid].td->typetype != 's')
@@ -5660,122 +6109,230 @@ public:
 				switch (fd->param_data[paramid].td->typesiz)
 				{
 				case 1:
-					mem[writeup++] = 190; // param
+					mem[writeup++] = (byte8)insttype::IT_PARAM_1; // param
 					break;
 				case 2:
-					mem[writeup++] = 191; // param
+					mem[writeup++] = (byte8)insttype::IT_PARAM_2; // param
 					break;
 				case 4:
-					mem[writeup++] = 192; // param
+					mem[writeup++] = (byte8)insttype::IT_PARAM_4; // param
 					break;
 				}
 			}
-			else{
-				mem[writeup++] = 219; // param N by address(a)
+			else
+			{
+				mem[writeup++] = (byte8)insttype::PARAM_N_COPY_BY_ADDRESS; // param N by address(a)
 				byte8* N = (byte8*)&fd->param_data[paramid].td->typesiz;
-				//write siz of struct type
-				for(int i=0;i<4;++i){
+				// write siz of struct type
+				for (int i = 0; i < 4; ++i)
+				{
 					mem[writeup++] = N[i];
 				}
 			}
 
-			savecoma = coma;
-			coma = wbss.search_word_first(savecoma+1, params_sen, ",");
+			mem[writeup++] = (byte8)insttype::IT_FUNCJMP; // jmp
+			*reinterpret_cast<uint*>(&mem[writeup]) = (uint)(fd->start_pc - &mem[0]);
+			writeup += 4;
 
-			++paramid;
+			code->release();
+			fm->_Delete((byte8*)code, sizeof(sen));
+
+			inner_params->release();
+			fm->_Delete((byte8*)inner_params, sizeof(sen));
+
+			typen->release();
+			fm->_Delete((byte8*)typen, sizeof(sen));
+
+			params_sen->release();
+			fm->_Delete((byte8*)params_sen, sizeof(sen));
 
 			param_sen->release();
-			fm->_Delete((byte8 *)param_sen, sizeof(sen));
+			fm->_Delete((byte8*)param_sen, sizeof(sen));
 
 			release_tempmem(tm);
-			++paramCount;
-		}
-
-		wbss.dbg_sen(params_sen);
-
-		sen *param_sen = wbss.sen_cut(params_sen, savecoma+1, last);
-		wbss.dbg_sen(param_sen);
-		temp_mem *tm = get_asm_from_sen(param_sen, true, true);
-		if (tm->valuetype_detail->typetype == 's')
-		{
-			temp_mem *ptrtm = get_asm_from_sen(param_sen, true, false);
-			for (int i = 0; i < ptrtm->mem.size(); ++i)
-			{
-				mem[writeup++] = ptrtm->mem[i];
-			}
 		}
 		else
 		{
-			for (int i = 0; i < tm->mem.size(); ++i)
+			sen* typen = wbss.sen_cut(code, 0, nameloc - 1);
+
+			sen* params_sen = wbss.sen_cut(code, nameloc + 2, loc - 1);
+			if (params_sen->size() == 0)
 			{
-				mem[writeup++] = tm->mem[i];
-			}
+				mem[writeup++] = (byte8)insttype::IT_FUNC;	  // FUNC
+				mem[writeup++] = (byte8)insttype::IT_FUNCJMP; // jmp
+				*reinterpret_cast<uint*>(&mem[writeup]) = (uint)(fd->start_pc - &mem[0]);
+				writeup += 4;
 
-			casting_type ct = get_cast_type(tm->valuetype, get_int_with_basictype(fd->param_data.at(paramCount).td));
-			if (ct != casting_type::nocasting) {
-				mem[writeup++] = 201;
-				mem[writeup++] = (byte8)ct;
-			}
-			//*reinterpret_cast<uint*>(&mem[writeup]) = (uint)ct;
-			//writeup += 4;
-		}
+				code->release();
+				fm->_Delete((byte8*)code, sizeof(sen));
 
-		if (fd->param_data[paramid].td->typetype != 's')
-		{
-			switch (fd->param_data[paramid].td->typesiz)
+				inner_params->release();
+				fm->_Delete((byte8*)inner_params, sizeof(sen));
+
+				params_sen->release();
+				fm->_Delete((byte8*)params_sen, sizeof(sen));
+				return;
+			}
+			int last = params_sen->size() - 1;
+			//wbss.dbg_sen(params_sen);
+			int coma = wbss.search_word_end_in_specific_oc_layer(params_sen, last, "(", ")", 0, ",");
+			int savecoma = last + 1;
+
+			int addadd = 0;
+			int paramCount = fd->param_data.size() - 1;
+
+			mem[writeup++] = (byte8)insttype::IT_FUNC; // FUNC
+
+			while (coma != -1)
 			{
-			case 1:
-				mem[writeup++] = 190; // param
-				break;
-			case 2:
-				mem[writeup++] = 191; // param
-				break;
-			case 4:
-				mem[writeup++] = 192; // param
-				break;
+				sen* param_sen = wbss.sen_cut(params_sen, coma + 1, savecoma - 1);
+				//wbss.dbg_sen(param_sen);
+				temp_mem* tm = get_asm_from_sen(param_sen, true, true);
+				if (tm->valuetype_detail->typetype == 's')
+				{
+					temp_mem* ptrtm = get_asm_from_sen(param_sen, true, false);
+					for (int i = 0; i < ptrtm->mem.size(); ++i)
+					{
+						mem[writeup++] = ptrtm->mem[i];
+					}
+				}
+				else
+				{
+					for (int i = 0; i < tm->mem.size(); ++i)
+					{
+						mem[writeup++] = tm->mem[i];
+					}
+
+					casting_type ct = get_cast_type(tm->valuetype, get_int_with_basictype(fd->param_data.at(paramCount).td));
+					if (ct != casting_type::nocasting)
+					{
+						mem[writeup++] = (byte8)insttype::IT_CASTING_A;
+						mem[writeup++] = (byte8)ct;
+					}
+					/*
+					*reinterpret_cast<uint*>(&mem[writeup]) = (uint)ct;
+					writeup += 4;
+					*/
+				}
+
+				if (fd->param_data[paramCount].td->typetype != 's')
+				{
+					switch (fd->param_data[paramCount].td->typesiz)
+					{
+					case 1:
+						mem[writeup++] = (byte8)insttype::IT_PARAM_1; // param
+						break;
+					case 2:
+						mem[writeup++] = (byte8)insttype::IT_PARAM_2; // param
+						break;
+					case 4:
+						mem[writeup++] = (byte8)insttype::IT_PARAM_4; // param
+						break;
+					}
+				}
+				else
+				{
+					mem[writeup++] = (byte8)insttype::PARAM_N_COPY_BY_ADDRESS; // param N by address(a)
+					byte8* N = (byte8*)&fd->param_data[paramCount].td->typesiz;
+					// write siz of struct type
+					for (int i = 0; i < 4; ++i)
+					{
+						mem[writeup++] = N[i];
+					}
+				}
+
+				savecoma = coma;
+				coma = wbss.search_word_end_in_specific_oc_layer(params_sen, savecoma - 1, "(", ")", 0, ",");
+				// coma = wbss.search_word_first(savecoma+1, params_sen, ",");
+
+				param_sen->release();
+				fm->_Delete((byte8*)param_sen, sizeof(sen));
+
+				release_tempmem(tm);
+				--paramCount;
 			}
-		}
-		else
-		{
-			mem[writeup++] = 219; // param N by address(a)
-			byte8 *N = (byte8 *)&fd->param_data[paramid].td->typesiz;
-			// write siz of struct type
-			for (int i = 0; i < 4; ++i)
+
+			//wbss.dbg_sen(params_sen);
+
+			sen* param_sen = wbss.sen_cut(params_sen, 0, savecoma - 1);
+			//wbss.dbg_sen(param_sen);
+			temp_mem* tm = get_asm_from_sen(param_sen, true, true);
+			if (tm->valuetype_detail->typetype == 's')
 			{
-				mem[writeup++] = N[i];
+				temp_mem* ptrtm = get_asm_from_sen(param_sen, true, false);
+				for (int i = 0; i < ptrtm->mem.size(); ++i)
+				{
+					mem[writeup++] = ptrtm->mem[i];
+				}
 			}
-		}
+			else
+			{
+				for (int i = 0; i < tm->mem.size(); ++i)
+				{
+					mem[writeup++] = tm->mem[i];
+				}
 
-		if(isext){
-			mem[writeup++] = 255; // ext instruction
-			*reinterpret_cast<uint *>(&mem[writeup]) = (uint)(extID);
+				casting_type ct = get_cast_type(tm->valuetype, get_int_with_basictype(fd->param_data.at(paramCount).td));
+				if (ct != casting_type::nocasting)
+				{
+					mem[writeup++] = (byte8)insttype::IT_CASTING_A;
+					mem[writeup++] = (byte8)ct;
+				}
+				/*
+				*reinterpret_cast<uint*>(&mem[writeup]) = (uint)ct;
+				writeup += 4;
+				*/
+			}
+
+			if (fd->param_data[paramCount].td->typetype != 's')
+			{
+				switch (fd->param_data[paramCount].td->typesiz)
+				{
+				case 1:
+					mem[writeup++] = (byte8)insttype::IT_PARAM_1; // param
+					break;
+				case 2:
+					mem[writeup++] = (byte8)insttype::IT_PARAM_2; // param
+					break;
+				case 4:
+					mem[writeup++] = (byte8)insttype::IT_PARAM_4; // param
+					break;
+				}
+			}
+			else
+			{
+				mem[writeup++] = (byte8)insttype::PARAM_N_COPY_BY_ADDRESS; // param N by address(a)
+				byte8* N = (byte8*)&fd->param_data[paramCount].td->typesiz;
+				// write siz of struct type
+				for (int i = 0; i < 4; ++i)
+				{
+					mem[writeup++] = N[i];
+				}
+			}
+
+			mem[writeup++] = (byte8)insttype::EXTENSION_INST; // ext instruction
+			*reinterpret_cast<uint*>(&mem[writeup]) = (uint)(extID);
 			writeup += 4;
-			*reinterpret_cast<uint *>(&mem[writeup]) = (uint)(exfuncID); // byte8* but real value is function pointer of extension.
+			*reinterpret_cast<uint*>(&mem[writeup]) = (uint)(exfuncID); // byte8* but real value is function pointer of extension.
 			writeup += 4;
+
+			code->release();
+			fm->_Delete((byte8*)code, sizeof(sen));
+
+			inner_params->release();
+			fm->_Delete((byte8*)inner_params, sizeof(sen));
+
+			typen->release();
+			fm->_Delete((byte8*)typen, sizeof(sen));
+
+			params_sen->release();
+			fm->_Delete((byte8*)params_sen, sizeof(sen));
+
+			param_sen->release();
+			fm->_Delete((byte8*)param_sen, sizeof(sen));
+
+			release_tempmem(tm);
 		}
-		else{
-			mem[writeup++] = 200; // jmp
-			*reinterpret_cast<uint *>(&mem[writeup]) = (uint)(fd->start_pc - &mem[0]);
-			writeup += 4;
-		}
-		
-
-		code->release();
-		fm->_Delete((byte8 *)code, sizeof(sen));
-
-		inner_params->release();
-		fm->_Delete((byte8 *)inner_params, sizeof(sen));
-
-		typen->release();
-		fm->_Delete((byte8 *)typen, sizeof(sen));
-
-		params_sen->release();
-		fm->_Delete((byte8 *)params_sen, sizeof(sen));
-
-		param_sen->release();
-		fm->_Delete((byte8 *)param_sen, sizeof(sen));
-
-		release_tempmem(tm);
 	}
 
 	void compile_returnInFunction(code_sen *cs)
@@ -5789,7 +6346,7 @@ public:
 		{
 			mem[writeup++] = right_tm->mem[i];
 		}
-		mem[writeup++] = (byte8)193;
+		mem[writeup++] = (byte8)insttype::IT_RETURN;
 
 		code->release();
 		fm->_Delete((byte8 *)code, sizeof(sen));
@@ -5817,7 +6374,7 @@ public:
 	{
 		if (nextbd.breakpoints != nullptr)
 		{
-			mem[writeup++] = 188;
+			mem[writeup++] = (byte8)insttype::IT_JMP;
 			int last = blockstack.size() - 1;
 			while (blockstack.at(last)->bs != blockstate::bs_while)
 			{
@@ -5832,7 +6389,7 @@ public:
 	{
 		if (nextbd.continuepoints != nullptr)
 		{
-			mem[writeup++] = 188;
+			mem[writeup++] = (byte8)insttype::IT_JMP;
 			int last = blockstack.size() - 1;
 			while (blockstack.at(last)->bs != blockstate::bs_while)
 			{
@@ -6228,8 +6785,8 @@ public:
 		icl << "finish" << endl;
 
 		writeup = 0;
-		mem[writeup++] = 189; // func
-		mem[writeup++] = 200; // jmp
+		mem[writeup++] = (byte8)insttype::IT_FUNC; // func
+		mem[writeup++] = (byte8)insttype::IT_FUNCJMP; // jmp
 		writeup += 4;		  // start function address
 
 		icl << "ICB[" << this << "] BakeCode_CompileCodes...";
@@ -6247,7 +6804,7 @@ public:
 
 		cout << endl;
 
-		mem[writeup++] = 194;
+		mem[writeup++] = (byte8)insttype::IT_EXIT;
 
 		dbg_bakecode(csarr, 0);
 
@@ -6266,8 +6823,11 @@ class ICB_Context{
 	vecarr<byte8> datamem;
 	int dataptr = max_mem_byte;
 
-    circularArray<uint64_t> _as;
-	circularArray<uint64_t> _bs;
+	static constexpr unsigned int percent16 = 15;
+	int apivot = 0;
+	int bpivot = 0;
+	uint64_t _as[16] = {};
+	uint64_t _bs[16] = {};
 
 	byte8 *pc = 0; // program counter
 	byte8 *sp = 0; // stack pointer
@@ -6304,7 +6864,25 @@ class ICB_Context{
     ICB_Context(){}
     ~ICB_Context(){}
 
+	inline uint64_t& getA(int index) {
+		return _as[(index + apivot) & percent16];
+	}
+
+	inline void Amove_pivot(int delta) {
+		apivot += delta;
+	}
+
+	inline uint64_t& getB(unsigned int index) {
+		return _bs[(index + bpivot) & percent16];
+	}
+
+	inline void Bmove_pivot(unsigned int delta) {
+		apivot += delta;
+	}
+
     void SetICB(InsideCode_Bake* picb, uint maxmembyte){
+		ofstream& icl = InsideCode_Bake::icl;
+		icl << "Create_New_ICB_Context From ICB[" << picb << "], with " << maxmembyte << " size memory...";
         icb = picb;
 		
 		codemem = icb->mem;
@@ -6332,30 +6910,28 @@ class ICB_Context{
 		lfsp = sp;
 		rfsp = sp;
 
-		_as.Init(32, fm);
-		_bs.Init(32, fm);
-		for (int i = 0; i < 32; ++i) {
+		for (int i = 0; i < 16; ++i) {
 			_as[i] = 0;
 			_bs[i] = 0;
 		}
+
+		icl << "finish.";
     }
 
     void dbg_registers()
 	{
-		cout << "a : " << (uint)_as[0] << "(";
-		for (int i = 1; i < _as.maxsiz; ++i)
+		cout << "a : " << (uint)getA(0) << "\t(";
+		for (int i = 1; i < 4; ++i)
 		{
-			cout << "|" << _as[i];
+			cout << " | " << getA(i);
 		}
 		cout << endl;
-		cout << "b : " << (uint)_bs[0] << "(";
-		for (int i = 1; i < _bs.maxsiz; ++i)
+		cout << "b : " << (uint)getB(0) << "\t(";
+		for (int i = 1; i < 4; ++i)
 		{
-			cout << "|" << _bs[i];
+			cout << " | " << getB(i);
 		}
 		cout << endl;
-		cout << "x : " << (uint)_x << endl;
-		cout << "y : " << (uint)_y << endl;
 	}
 
 	void dbg_stack()
@@ -6418,10 +6994,15 @@ class ICB_Context{
 	}
 };
 
+#define registerA0 _as[apivot]
+#define registerB0 _bs[bpivot]
+#define shiftA0(delta) apivot = (apivot + (delta)) & percent16
+#define shiftB0(delta) bpivot = (bpivot + (delta)) & percent16
+
 vecarr<ICB_Context *> icbarr;
 
 bool isBreaking = false;
-int stopnum = 1024;
+int stopnum = -1;
 bool isDbg = false;
 
 int code_control(vecarr<ICB_Context *> *icbarr)
@@ -6457,9 +7038,11 @@ int code_control(vecarr<ICB_Context *> *icbarr)
 	return 1; // keep going
 }
 
-void execute(vecarr<ICB_Context*> icbarr, int execodenum,
+void execute_switch(vecarr<ICB_Context*> icbarr, int execodenum,
 	int (*control_func)(vecarr<ICB_Context*>*), bool init)
 {
+	constexpr unsigned int percent16 = 15;
+
 	byte8* tmptr_b;
 	ushort* tmptr_s;
 	uint* tmptr_i;
@@ -6497,8 +7080,10 @@ void execute(vecarr<ICB_Context*> icbarr, int execodenum,
 
 	vecarr<byte8*>* fsp = nullptr;
 	vecarr<byte8*>* call_stack = nullptr;
-	circularArray<uint64_t> _as;
-	circularArray<uint64_t> _bs;
+	uint64_t* _as = nullptr;
+	uint64_t* _bs = nullptr;
+	int apivot = 0;
+	int bpivot = 0;
 
 	byte8** rfsp = 0; // function stack pos
 	byte8** lfsp = 0; // last function stack pos
@@ -6507,7 +7092,6 @@ void execute(vecarr<ICB_Context*> icbarr, int execodenum,
 	byte8** rfspb = nullptr;
 	ushort** rfsps = nullptr;
 	uint** rfspi = nullptr;
-
 
 	byte8** lfspb = nullptr;
 	ushort** lfsps = nullptr;
@@ -6547,13 +7131,11 @@ CONTEXT_SWITCH:
 	exed_num = 0;
 	icb = icbarr[n];
 
-	_a = icb->_a;
-	_b = icb->_b;
-	_x = icb->_x;
-	_y = icb->_y;
 	_la = icb->_la;
 	_as = icb->_as;
 	_bs = icb->_bs;
+	apivot = icb->apivot;
+	bpivot = icb->bpivot;
 
 	mem = icb->mem;
 	codemem = icb->codemem;
@@ -6615,13 +7197,13 @@ CAST_SWITCH:
 		float fmem = (char)casting_value;
 		*reinterpret_cast<float*>(&casted_value) = fmem;
 	}
-		break;
+	break;
 	case casttype::CAST_UBYTE_TO_FLOAT:
 	{
 		float fmem = (unsigned char)casting_value;
 		*reinterpret_cast<float*>(&casted_value) = fmem;
 	}
-		break;
+	break;
 	case casttype::CAST_SHORT_TO_BYTE:
 		casted_value = (char)*reinterpret_cast<short*>(&casting_value);
 		break;
@@ -6633,13 +7215,13 @@ CAST_SWITCH:
 		float fmem = (short)casting_value;
 		*reinterpret_cast<float*>(&casted_value) = fmem;
 	}
-		break;
+	break;
 	case casttype::CAST_USHORT_TO_FLOAT:
 	{
 		float fmem = (ushort)casting_value;
 		*reinterpret_cast<float*>(&casted_value) = fmem;
 	}
-		break;
+	break;
 	case casttype::CAST_INT_TO_BYTE:
 		casted_value = (char)*reinterpret_cast<int*>(&casting_value);
 		break;
@@ -6651,13 +7233,13 @@ CAST_SWITCH:
 		float fmem = (int)casting_value;
 		*reinterpret_cast<float*>(&casted_value) = fmem;
 	}
-		break;
+	break;
 	case casttype::CAST_UINT_TO_FLOAT:
 	{
 		float fmem = (unsigned int)casting_value;
 		*reinterpret_cast<float*>(&casted_value) = fmem;
 	}
-		break;
+	break;
 	case casttype::CAST_FLOAT_TO_BYTE:
 		casted_value = (char)*reinterpret_cast<float*>(&casting_value);
 		break;
@@ -6680,19 +7262,11 @@ CAST_SWITCH:
 
 	switch (selectRegister) {
 	case 0:
-		_as[0] = casted_value;
+		registerA0 = casted_value;
 		++*pc;
 		goto INST_SWITCH;
 	case 1:
-		_bs[0] = casted_value;
-		++*pc;
-		goto INST_SWITCH;
-	case 2:
-		_x = casted_value;
-		++*pc;
-		goto INST_SWITCH;
-	case 3:
-		_y = casted_value;
+		registerB0 = casted_value;
 		++*pc;
 		goto INST_SWITCH;
 	}
@@ -6702,32 +7276,32 @@ CAST_SWITCH:
 DBG_SWITCH:
 	switch (dbg_type) {
 	case dbgtype::DBG_A_BYTE:
-		printf("%c", (char)_as[0]);
+		printf("%c", (char)registerA0);
 		break;
 	case dbgtype::DBG_A_UBYTE:
-		printf("%d", (byte8)_as[0]);
+		printf("%d", (byte8)registerA0);
 		break;
 	case dbgtype::DBG_A_SHORT:
-		printf("%d", (short)_as[0]);
+		printf("%d", (short)registerA0);
 		break;
 	case dbgtype::DBG_A_USHORT:
-		printf("%d", (ushort)_as[0]);
+		printf("%d", (ushort)registerA0);
 		break;
 	case dbgtype::DBG_A_INT:
-		printf("%d", (int)_as[0]);
+		printf("%d", (int)registerA0);
 		break;
 	case dbgtype::DBG_A_UINT:
-		printf("%d", (uint)_as[0]);
+		printf("%d", (uint)registerA0);
 		break;
 	case dbgtype::DBG_A_FLOAT:
-		*reinterpret_cast<uint*>(&fmem) = (uint)_as[0];
+		*reinterpret_cast<uint*>(&fmem) = (uint)registerA0;
 		printf("%lf", fmem);
 		break;
 	case dbgtype::DBG_A_BOOL:
-		printf((bool)_as[0] ? "true" : "false");
+		printf((bool)registerA0 ? "true" : "false");
 		break;
 	case dbgtype::DBG_A_STRING:
-		printf("%s", reinterpret_cast<char*>(mem + (unsigned long long)_as[0]));
+		printf("%s", reinterpret_cast<char*>(mem + (unsigned long long)registerA0));
 		break;
 	}
 
@@ -6737,37 +7311,37 @@ DBG_SWITCH:
 INP_SWITCH:
 	switch (inp_type) {
 	case inptype::INP_BYTE:
-		scanf_s("%c", reinterpret_cast<char*>(mem + _as[0]));
+		scanf_s("%c", reinterpret_cast<char*>(mem + registerA0));
 		break;
 	case inptype::INP_UBYTE:
 	{
 		unsigned int in;
 		scanf_s("%u", &in);
-		*reinterpret_cast<byte8*>(mem + _as[0]) = (byte8)in;
+		*reinterpret_cast<byte8*>(mem + registerA0) = (byte8)in;
 		break;
 	}
 	case inptype::INP_SHORT:
 	{
 		int in;
 		scanf_s("%d", &in);
-		*reinterpret_cast<short*>(mem + _as[0]) = (short)in;
+		*reinterpret_cast<short*>(mem + registerA0) = (short)in;
 		break;
 	}
 	case inptype::INP_USHORT:
 	{
 		unsigned int in;
 		scanf_s("%u", &in);
-		*reinterpret_cast<ushort*>(mem + _as[0]) = (ushort)in;
+		*reinterpret_cast<ushort*>(mem + registerA0) = (ushort)in;
 		break;
 	}
 	case inptype::INP_INT:
-		scanf_s("%d", reinterpret_cast<int*>(mem + _as[0]));
+		scanf_s("%d", reinterpret_cast<int*>(mem + registerA0));
 		break;
 	case inptype::INP_UINT:
-		scanf_s("%u", reinterpret_cast<uint*>(mem + _as[0]));
+		scanf_s("%u", reinterpret_cast<uint*>(mem + registerA0));
 		break;
 	case inptype::INP_FLOAT:
-		scanf_s("%f", reinterpret_cast<float*>(mem + _as[0]));
+		scanf_s("%f", reinterpret_cast<float*>(mem + registerA0));
 		break;
 	case inptype::INP_BOOL:
 	{
@@ -6775,33 +7349,42 @@ INP_SWITCH:
 		scanf_s("%s", str);
 		if (strcmp(str, "true"))
 		{
-			*reinterpret_cast<bool*>(mem + _as[0]) = true;
+			*reinterpret_cast<bool*>(mem + registerA0) = true;
 		}
 		else
 		{
-			*reinterpret_cast<bool*>(mem + _as[0]) = false;
+			*reinterpret_cast<bool*>(mem + registerA0) = false;
 		}
 		break;
 	}
 	case inptype::INP_STRING:
-		scanf_s("%s", reinterpret_cast<char*>(mem + _as[0]));
+		scanf_s("%s", reinterpret_cast<char*>(mem + registerA0));
 		break;
 	}
 
-	++*pc;
+	++ * pc;
 	goto INST_SWITCH;
 
 INST_SWITCH:
+	/*
+	icb->apivot = apivot;
+	icb->bpivot = bpivot;
+	int k = control_func(&icbarr);
+	switch (k)
+	{
+	case 0:
+		goto PROGRAMQUIT;
+		break;
+	case 1:
+		break;
+	}
+	*/
 
 	if (exed_num >= execodenum)
 	{
-		icb->_a = _a;
-		icb->_b = _b;
-		icb->_x = _x;
-		icb->_y = _y;
 		icb->_la = _la;
-		icb->_as = _as;
-		icb->_bs = _bs;
+		icb->apivot = apivot;
+		icb->bpivot = bpivot;
 
 		++n;
 		goto CONTEXT_SWITCH;
@@ -6844,967 +7427,750 @@ INST_SWITCH:
 		*tmptr_i = **pci;
 		++*pc;
 		goto INST_SWITCH;
-	case insttype::IT_SET_STACK_VARIABLE_FROMX_1:
-		++*pc;
-		*(*rfsp - (**pci)) = (byte8)_x;
-		++*pci;
-		goto INST_SWITCH;
-	case insttype::IT_SET_STACK_VARIABLE_FROMX_2:
-		++*pc;
-		*reinterpret_cast<ushort*>(*rfsp - (**pci)) = (ushort)_x;
-		++*pci;
-		goto INST_SWITCH;
-	case insttype::IT_SET_STACK_VARIABLE_FROMX_4:
-		++*pc;
-		*reinterpret_cast<uint*>(*rfsp - (**pci)) = (uint)_x;
-		++*pci;
-		goto INST_SWITCH;
-	case insttype::IT_SET_STACK_VARIABLE_FROMY_1:
-		++*pc;
-		*(*rfsp - (**pci)) = (byte8)_y;
-		++*pci;
-		goto INST_SWITCH;
-	case insttype::IT_SET_STACK_VARIABLE_FROMY_2:
-		++*pc;
-		*reinterpret_cast<ushort*>(*rfsp - (**pci)) = (ushort)_y;
-		++*pci;
-		goto INST_SWITCH;
-	case insttype::IT_SET_STACK_VARIABLE_FROMY_4:
-		++*pc;
-		*reinterpret_cast<uint*>(*rfsp - (**pci)) = (uint)_y;
-		++*pci;
-		goto INST_SWITCH;
-	case insttype::IT_SET_STACK_VARIABLE_ADDRESS_1:
-		++*pc;
-		tmptr_b = (*rfsp - (**pci));
-		++*pci;
-		*tmptr_b = *reinterpret_cast<byte8*>(mem + (int)**pci);
-		++*pci;
-		goto INST_SWITCH;
-	case insttype::IT_SET_STACK_VARIABLE_ADDRESS_2:
-		++*pc;
-		tmptr_s = reinterpret_cast<ushort*>(*rfsp - (**pci));
-		++*pci;
-		*tmptr_s = *reinterpret_cast<ushort*>(mem + (int)**pci);
-		++*pci;
-		goto INST_SWITCH;
-	case insttype::IT_SET_STACK_VARIABLE_ADDRESS_4:
-		++*pc;
-		tmptr_i = reinterpret_cast<uint*>(*rfsp - (**pci));
-		++*pci;
-		*tmptr_i = *reinterpret_cast<uint*>(mem + (int)**pci);
-		++*pci;
-		goto INST_SWITCH;
-	case insttype::IT_SET_STACK_VARIABLE_VARIABLE_1:
-		++*pc;
-		tmptr_b = (*rfsp - (**pci));
-		++*pci;
-		*tmptr_b = *(*rfsp - (*++ * pci));
-		++*pci;
-		goto INST_SWITCH;
-	case insttype::IT_SET_STACK_VARIABLE_VARIABLE_2:
-		++*pc;
-		tmptr_s = reinterpret_cast<ushort*>(*rfsp - (**pci));
-		++*pci;
-		*tmptr_s = *reinterpret_cast<ushort*>(*rfsp - (**pci));
-		++*pci;
-		goto INST_SWITCH;
-	case insttype::IT_SET_STACK_VARIABLE_VARIABLE_4:
-		++*pc;
-		tmptr_i = reinterpret_cast<uint*>(*rfsp - (**pci));
-		++*pci;
-		*tmptr_i = *reinterpret_cast<uint*>(*rfsp - (**pci));
-		++*pci;
-		goto INST_SWITCH;
 	case insttype::IT_PUSH_A_CONST_1:
-		_as.move_pivot(-1);
-		_as[0] = *++ * pc;
+		shiftA0(-1);
+		registerA0 = *++ * pc;
 		++*pc;
 		goto INST_SWITCH;
 	case insttype::IT_PUSH_A_CONST_2:
 		++*pc;
-		_as.move_pivot(-1);
-		_as[0] = **pcs;
+		shiftA0(-1);
+		registerA0 = **pcs;
 		++*pcs;
 		goto INST_SWITCH;
 	case insttype::IT_PUSH_A_CONST_4:
 		++*pc;
-		_as.move_pivot(-1);
-		_as[0] = **pci;
-		++*pci;
-		goto INST_SWITCH;
-	case insttype::IT_PUSH_A_ADDRESS_1:
-		++*pc;
-		_as.move_pivot(-1);
-		_as[0] = *reinterpret_cast<byte8*>(mem + (int)**pci);
-		++*pci;
-		goto INST_SWITCH;
-	case insttype::IT_PUSH_A_ADDRESS_2:
-		++*pc;
-		_as.move_pivot(-1);
-		_as[0] = *reinterpret_cast<ushort*>(mem + (int)**pci);
-		++pci;
-		goto INST_SWITCH;
-	case insttype::IT_PUSH_A_ADDRESS_4:
-		++*pc;
-		_as.move_pivot(-1);
-		_as[0] = *reinterpret_cast<uint*>(mem + (int)**pci);
+		shiftA0(-1);
+		registerA0 = **pci;
 		++*pci;
 		goto INST_SWITCH;
 	case insttype::IT_PUSH_A_VARIABLE_1:
 		++*pc;
-		_as.move_pivot(-1);
-		_as[0] = *(*rfsp - (**pci));
+		shiftA0(-1);
+		registerA0 = *(*rfsp - (**pci));
 		++*pci;
 		goto INST_SWITCH;
 	case insttype::IT_PUSH_A_VARIABLE_2:
 		++*pc;
-		_as.move_pivot(-1);
-		_as[0] = *reinterpret_cast<ushort*>(*rfsp - (**pci));
+		shiftA0(-1);
+		registerA0 = *reinterpret_cast<ushort*>(*rfsp - (**pci));
 		++*pci;
 		goto INST_SWITCH;
 	case insttype::IT_PUSH_A_VARIABLE_4:
 		++*pc;
-		_as.move_pivot(-1);
-		_as[0] = *reinterpret_cast<uint*>(*rfsp - (**pci));
+		shiftA0(-1);
+		registerA0 = *reinterpret_cast<uint*>(*rfsp - (**pci));
 		++*pci;
 		goto INST_SWITCH;
 	case insttype::IT_PUSH_B_CONST_1:
-		_bs.move_pivot(-1);
-		_bs[0] = *++ * pc;
+		shiftB0(-1);
+		registerB0 = *++ * pc;
 		++*pc;
 		goto INST_SWITCH;
 	case insttype::IT_PUSH_B_CONST_2:
 		++*pc;
-		_bs.move_pivot(-1);
-		_bs[0] = **pcs;
+		shiftB0(-1);
+		registerB0 = **pcs;
 		++*pcs;
 		goto INST_SWITCH;
 	case insttype::IT_PUSH_B_CONST_4:
 		++*pc;
-		_bs.move_pivot(-1);
-		_bs[0] = **pci;
-		++*pci;
-		goto INST_SWITCH;
-	case insttype::IT_PUSH_B_ADDRESS_1:
-		++*pc;
-		_bs.move_pivot(-1);
-		_bs[0] = *reinterpret_cast<byte8*>(mem + (int)**pci);
-		++*pci;
-		goto INST_SWITCH;
-	case insttype::IT_PUSH_B_ADDRESS_2:
-		++*pc;
-		_bs.move_pivot(-1);
-		_bs[0] = *reinterpret_cast<ushort*>(mem + (int)**pci);
-		++*pci;
-		goto INST_SWITCH;
-	case insttype::IT_PUSH_B_ADDRESS_4:
-		++*pc;
-		_bs.move_pivot(-1);
-		_bs[0] = *reinterpret_cast<uint*>(mem + (int)**pci);
+		shiftB0(-1);
+		registerB0 = **pci;
 		++*pci;
 		goto INST_SWITCH;
 	case insttype::IT_PUSH_B_VARIABLE_1:
 		++*pc;
-		_bs.move_pivot(-1);
-		_bs[0] = *(*rfsp - (**pci));
+		shiftB0(-1);
+		registerB0 = *(*rfsp - (**pci));
 		++*pci;
 		goto INST_SWITCH;
 	case insttype::IT_PUSH_B_VARIABLE_2:
 		++*pc;
-		_bs.move_pivot(-1);
-		_bs[0] = *reinterpret_cast<ushort*>(*rfsp - (**pci));
+		shiftB0(-1);
+		registerB0 = *reinterpret_cast<ushort*>(*rfsp - (**pci));
 		++*pci;
 		goto INST_SWITCH;
 	case insttype::IT_PUSH_B_VARIABLE_4:
 		++*pc;
-		_bs.move_pivot(-1);
-		_bs[0] = *reinterpret_cast<uint*>(*rfsp - (**pci));
+		shiftB0(-1);
+		registerB0 = *reinterpret_cast<uint*>(*rfsp - (**pci));
 		++*pci;
-		goto INST_SWITCH;
-	case insttype::IT_SET_X_CONST_1:
-		_x = *++ * pc;
-		++*pc;
-		goto INST_SWITCH;
-	case insttype::IT_SET_X_CONST_2:
-		++*pc;
-		_x = **pcs;
-		++*pcs;
-		goto INST_SWITCH;
-	case insttype::IT_SET_X_CONST_4:
-		++*pc;
-		_x = **pci;
-		++*pci;
-		goto INST_SWITCH;
-	case insttype::IT_SET_X_ADDRESS_1:
-		++*pc;
-		_x = *reinterpret_cast<byte8*>(mem + (int)**pci);
-		++*pci;
-		goto INST_SWITCH;
-	case insttype::IT_SET_X_ADDRESS_2:
-		++*pc;
-		_x = *reinterpret_cast<ushort*>(mem + (int)**pci);
-		++*pci;
-		goto INST_SWITCH;
-	case insttype::IT_SET_X_ADDRESS_4:
-		++*pc;
-		_x = *reinterpret_cast<uint*>(mem + (int)**pci);
-		++*pci;
-		goto INST_SWITCH;
-	case insttype::IT_SET_X_VARIABLE_1:
-		++*pc;
-		_x = *(*rfsp - (**pci));
-		++*pci;
-		goto INST_SWITCH;
-	case insttype::IT_SET_X_VARIABLE_2:
-		++*pc;
-		_x = *reinterpret_cast<ushort*>(*rfsp - (**pci));
-		++*pci;
-		goto INST_SWITCH;
-	case insttype::IT_SET_X_VARIABLE_4:
-		++*pc;
-		_x = *reinterpret_cast<uint*>(*rfsp - (**pci));
-		++*pci;
-		goto INST_SWITCH;
-	case insttype::IT_SET_Y_CONST_1:
-		_y = *++ * pc;
-		++*pc;
-		goto INST_SWITCH;
-	case insttype::IT_SET_Y_CONST_2:
-		++*pc;
-		_y = **pcs;
-		++*pcs;
-		goto INST_SWITCH;
-	case insttype::IT_SET_Y_CONST_4:
-		++*pc;
-		_y = **pci;
-		++*pci;
-		goto INST_SWITCH;
-	case insttype::IT_SET_Y_ADDRESS_1:
-		++*pc;
-		_y = *reinterpret_cast<byte8*>(mem + (int)**pci);
-		++*pci;
-		goto INST_SWITCH;
-	case insttype::IT_SET_Y_ADDRESS_2:
-		++*pc;
-		_y = *reinterpret_cast<ushort*>(mem + (int)**pci);
-		++*pci;
-		goto INST_SWITCH;
-	case insttype::IT_SET_Y_ADDRESS_4:
-		++*pc;
-		_y = *reinterpret_cast<uint*>(mem + (int)**pci);
-		++*pci;
-		goto INST_SWITCH;
-	case insttype::IT_SET_Y_VARIABLE_1:
-		++*pc;
-		_y = *(*rfsp - (**pci));
-		++*pci;
-		goto INST_SWITCH;
-	case insttype::IT_SET_Y_VARIABLE_2:
-		++*pc;
-		_y = *reinterpret_cast<ushort*>(*rfsp - (**pci));
-		++*pci;
-		goto INST_SWITCH;
-	case insttype::IT_SET_Y_VARIABLE_4:
-		++*pc;
-		_y = *reinterpret_cast<uint*>(*rfsp - (**pci));
-		++*pci;
-		goto INST_SWITCH;
-	case insttype::IT_AXBY:
-		_x = _as[0];
-		_y = _bs[0];
-		++*pc;
 		goto INST_SWITCH;
 	case insttype::IT_AU_BYTE_ADD_A:
-		_as.move_pivot(-1);
-		_as[0] = (char)((char)_x + (char)_y);
+		//shiftA0(-1);
+		registerA0 = (char)((char)registerA0 + (char)registerB0);
 		++*pc;
 		goto INST_SWITCH;
 	case insttype::IT_AU_BYTE_ADD_B:
-		_b = (char)((char)_x + (char)_y);
+		_b = (char)((char)registerA0 + (char)registerB0);
 		++*pc;
 		goto INST_SWITCH;
 	case insttype::IT_AU_UBYTE_ADD_A:
-		_as.move_pivot(-1);
-		_as[0] = (byte8)((byte8)_x + (byte8)_y);
+		//shiftA0(-1);
+		registerA0 = (byte8)((byte8)registerA0 + (byte8)registerB0);
 		++*pc;
 		goto INST_SWITCH;
 	case insttype::IT_AU_UBYTE_ADD_B:
-		_bs.move_pivot(-1);
-		_bs[0] = (byte8)((byte8)_x + (byte8)_y);
+		//shiftB0(-1);
+		registerB0 = (byte8)((byte8)registerA0 + (byte8)registerB0);
 		++*pc;
 		goto INST_SWITCH;
 	case insttype::IT_AU_SHORT_ADD_A:
-		_as.move_pivot(-1);
-		_as[0] = (short)((short)_x + (short)_y);
+		//shiftA0(-1);
+		registerA0 = (short)((short)registerA0 + (short)registerB0);
 		++*pc;
 		goto INST_SWITCH;
 	case insttype::IT_AU_SHORT_ADD_B:
-		_bs.move_pivot(-1);
-		_bs[0] = (short)((short)_x + (short)_y);
+		//shiftB0(-1);
+		registerB0 = (short)((short)registerA0 + (short)registerB0);
 		++*pc;
 		goto INST_SWITCH;
 	case insttype::IT_AU_USHORT_ADD_A:
-		_as.move_pivot(-1);
-		_as[0] = (ushort)((ushort)_x + (ushort)_y);
+		//shiftA0(-1);
+		registerA0 = (ushort)((ushort)registerA0 + (ushort)registerB0);
 		++*pc;
 		goto INST_SWITCH;
 	case insttype::IT_AU_USHORT_ADD_B:
-		_bs.move_pivot(-1);
-		_bs[0] = (ushort)((ushort)_x + (ushort)_y);
+		//shiftB0(-1);
+		registerB0 = (ushort)((ushort)registerA0 + (ushort)registerB0);
 		++*pc;
 		goto INST_SWITCH;
 	case insttype::IT_AU_INT_ADD_A:
-		_as.move_pivot(-1);
-		_as[0] = (int)((int)_x + (int)_y);
+		//shiftA0(-1);
+		registerA0 = (int)((int)registerA0 + (int)registerB0);
 		++*pc;
 		goto INST_SWITCH;
 	case insttype::IT_AU_INT_ADD_B:
-		_bs.move_pivot(-1);
-		_bs[0] = (int)((int)_x + (int)_y);
+		//shiftB0(-1);
+		registerB0 = (int)((int)registerA0 + (int)registerB0);
 		++*pc;
 		goto INST_SWITCH;
 	case insttype::IT_AU_UINT_ADD_A:
-		_as.move_pivot(-1);
-		_as[0] = (uint)((uint)_x + (uint)_y);
+		//shiftA0(-1);
+		registerA0 = (uint)((uint)registerA0 + (uint)registerB0);
 		++*pc;
 		goto INST_SWITCH;
 	case insttype::IT_AU_UINT_ADD_B:
-		_bs.move_pivot(-1);
-		_bs[0] = (uint)((uint)_x + (uint)_y);
+		//shiftB0(-1);
+		registerB0 = (uint)((uint)registerA0 + (uint)registerB0);
 		++*pc;
 		goto INST_SWITCH;
 	case insttype::IT_AU_FLOAT_ADD_A:
-		_as.move_pivot(-1);
-		*reinterpret_cast<float*>(&_as[0]) = (float)(*reinterpret_cast<float*>(&_x) + *reinterpret_cast<float*>(&_y));
-		//_as[0] = (float)((float)_x + (float)_y);
+		//shiftA0(-1);
+		*reinterpret_cast<float*>(&registerA0) = (float)(*reinterpret_cast<float*>(&registerA0) + *reinterpret_cast<float*>(&registerB0));
 		++*pc;
 		goto INST_SWITCH;
 	case insttype::IT_AU_FLOAT_ADD_B:
-		_bs.move_pivot(-1);
-		*reinterpret_cast<float*>(&_bs[0]) = (float)(*reinterpret_cast<float*>(&_x) + *reinterpret_cast<float*>(&_y));
-		//_bs[0] = (float)((float)_x + (float)_y);
+		//shiftB0(-1);
+		*reinterpret_cast<float*>(&registerB0) = (float)(*reinterpret_cast<float*>(&registerA0) + *reinterpret_cast<float*>(&registerB0));
 		++*pc;
 		goto INST_SWITCH;
 	case insttype::IT_AU_BYTE_MIN_A:
-		_as.move_pivot(-1);
-		_as[0] = (char)((char)_x - (char)_y);
+		//shiftA0(-1);
+		registerA0 = (char)((char)registerA0 - (char)registerB0);
 		++*pc;
 		goto INST_SWITCH;
 	case insttype::IT_AU_BYTE_MIN_B:
-		_bs.move_pivot(-1);
-		_bs[0] = (char)((char)_x - (char)_y);
+		//shiftB0(-1);
+		registerB0 = (char)((char)registerA0 - (char)registerB0);
 		++*pc;
 		goto INST_SWITCH;
 	case insttype::IT_AU_UBYTE_MIN_A:
-		_as.move_pivot(-1);
-		_as[0] = (byte8)((byte8)_x - (byte8)_y);
+		//shiftA0(-1);
+		registerA0 = (byte8)((byte8)registerA0 - (byte8)registerB0);
 		++*pc;
 		goto INST_SWITCH;
 	case insttype::IT_AU_UBYTE_MIN_B:
-		_bs.move_pivot(-1);
-		_bs[0] = (byte8)((byte8)_x - (byte8)_y);
+		//shiftB0(-1);
+		registerB0 = (byte8)((byte8)registerA0 - (byte8)registerB0);
 		++*pc;
 		goto INST_SWITCH;
 	case insttype::IT_AU_SHORT_MIN_A:
-		_as.move_pivot(-1);
-		_as[0] = (short)((short)_x - (short)_y);
+		//shiftA0(-1);
+		registerA0 = (short)((short)registerA0 - (short)registerB0);
 		++*pc;
 		goto INST_SWITCH;
 	case insttype::IT_AU_SHORT_MIN_B:
-		_bs.move_pivot(-1);
-		_bs[0] = (short)((short)_x - (short)_y);
+		//shiftB0(-1);
+		registerB0 = (short)((short)registerA0 - (short)registerB0);
 		++*pc;
 		goto INST_SWITCH;
 	case insttype::IT_AU_USHORT_MIN_A:
-		_as.move_pivot(-1);
-		_as[0] = (ushort)((ushort)_x - (ushort)_y);
+		//shiftA0(-1);
+		registerA0 = (ushort)((ushort)registerA0 - (ushort)registerB0);
 		++*pc;
 		goto INST_SWITCH;
 	case insttype::IT_AU_USHORT_MIN_B:
-		_bs.move_pivot(-1);
-		_bs[0] = (ushort)((ushort)_x - (ushort)_y);
+		//shiftB0(-1);
+		registerB0 = (ushort)((ushort)registerA0 - (ushort)registerB0);
 		++*pc;
 		goto INST_SWITCH;
 	case insttype::IT_AU_INT_MIN_A:
-		_as.move_pivot(-1);
-		_as[0] = (int)((int)_x - (int)_y);
+		//shiftA0(-1);
+		registerA0 = (int)((int)registerA0 - (int)registerB0);
 		++*pc;
 		goto INST_SWITCH;
 	case insttype::IT_AU_INT_MIN_B:
-		_bs.move_pivot(-1);
-		_bs[0] = (int)((int)_x - (int)_y);
+		//shiftB0(-1);
+		registerB0 = (int)((int)registerA0 - (int)registerB0);
 		++*pc;
 		goto INST_SWITCH;
 	case insttype::IT_AU_UINT_MIN_A:
-		_as.move_pivot(-1);
-		_as[0] = (uint)((uint)_x - (uint)_y);
+		//shiftA0(-1);
+		registerA0 = (uint)((uint)registerA0 - (uint)registerB0);
 		++*pc;
 		goto INST_SWITCH;
 	case insttype::IT_AU_UINT_MIN_B:
-		_bs.move_pivot(-1);
-		_bs[0] = (uint)((uint)_x - (uint)_y);
+		//shiftB0(-1);
+		registerB0 = (uint)((uint)registerA0 - (uint)registerB0);
 		++*pc;
 		goto INST_SWITCH;
 	case insttype::IT_AU_FLOAT_MIN_A:
-		_as.move_pivot(-1);
-		*reinterpret_cast<float*>(&_as[0]) = (float)(*reinterpret_cast<float*>(&_x) - *reinterpret_cast<float*>(&_y));
-		//_as[0] = (float)((float)_x - (float)_y);
+		//shiftA0(-1);
+		*reinterpret_cast<float*>(&registerA0) = (float)(*reinterpret_cast<float*>(&registerA0) - *reinterpret_cast<float*>(&registerB0));
 		++*pc;
 		goto INST_SWITCH;
 	case insttype::IT_AU_FLOAT_MIN_B:
-		_bs.move_pivot(-1);
-		*reinterpret_cast<float*>(&_bs[0]) = (float)(*reinterpret_cast<float*>(&_x) - *reinterpret_cast<float*>(&_y));
-		//_bs[0] = (float)((float)_x - (float)_y);
+		//shiftB0(-1);
+		*reinterpret_cast<float*>(&registerB0) = (float)(*reinterpret_cast<float*>(&registerA0) - *reinterpret_cast<float*>(&registerB0));
 		++*pc;
 		goto INST_SWITCH;
 	case insttype::IT_AU_BYTE_MUL_A:
-		_as.move_pivot(-1);
-		_as[0] = (char)((char)_x * (char)_y);
+		//shiftA0(-1);
+		registerA0 = (char)((char)registerA0 * (char)registerB0);
 		++*pc;
 		goto INST_SWITCH;
 	case insttype::IT_AU_BYTE_MUL_B:
-		_bs.move_pivot(-1);
-		_bs[0] = (char)((char)_x * (char)_y);
+		//shiftB0(-1);
+		registerB0 = (char)((char)registerA0 * (char)registerB0);
 		++*pc;
 		goto INST_SWITCH;
 	case insttype::IT_AU_UBYTE_MUL_A:
-		_as.move_pivot(-1);
-		_as[0] = (char)((byte8)_x * (byte8)_y);
+		//shiftA0(-1);
+		registerA0 = (char)((byte8)registerA0 * (byte8)registerB0);
 		++*pc;
 		goto INST_SWITCH;
 	case insttype::IT_AU_UBYTE_MUL_B:
-		_bs.move_pivot(-1);
-		_bs[0] = (char)((byte8)_x * (byte8)_y);
+		//shiftB0(-1);
+		registerB0 = (char)((byte8)registerA0 * (byte8)registerB0);
 		++*pc;
 		goto INST_SWITCH;
 	case insttype::IT_AU_SHORT_MUL_A:
-		_as.move_pivot(-1);
-		_as[0] = (short)((short)_x * (short)_y);
+		//shiftA0(-1);
+		registerA0 = (short)((short)registerA0 * (short)registerB0);
 		++*pc;
 		goto INST_SWITCH;
 	case insttype::IT_AU_SHORT_MUL_B:
-		_bs.move_pivot(-1);
-		_bs[0] = (short)((short)_x * (short)_y);
+		//shiftB0(-1);
+		registerB0 = (short)((short)registerA0 * (short)registerB0);
 		++*pc;
 		goto INST_SWITCH;
 	case insttype::IT_AU_USHORT_MUL_A:
-		_as.move_pivot(-1);
-		_as[0] = (ushort)((ushort)_x * (ushort)_y);
+		//shiftA0(-1);
+		registerA0 = (ushort)((ushort)registerA0 * (ushort)registerB0);
 		++*pc;
 		goto INST_SWITCH;
 	case insttype::IT_AU_USHORT_MUL_B:
-		_bs.move_pivot(-1);
-		_bs[0] = (ushort)((ushort)_x * (ushort)_y);
+		//shiftB0(-1);
+		registerB0 = (ushort)((ushort)registerA0 * (ushort)registerB0);
 		++*pc;
 		goto INST_SWITCH;
 	case insttype::IT_AU_INT_MUL_A:
-		_as.move_pivot(-1);
-		_as[0] = (int)((int)_x * (int)_y);
+		//shiftA0(-1);
+		registerA0 = (int)((int)registerA0 * (int)registerB0);
 		++*pc;
 		goto INST_SWITCH;
 	case insttype::IT_AU_INT_MUL_B:
-		_bs.move_pivot(-1);
-		_bs[0] = (int)((int)_x * (int)_y);
+		//shiftB0(-1);
+		registerB0 = (int)((int)registerA0 * (int)registerB0);
 		++*pc;
 		goto INST_SWITCH;
 	case insttype::IT_AU_UINT_MUL_A:
-		_as.move_pivot(-1);
-		_as[0] = (uint)((uint)_x * (uint)_y);
+		//shiftA0(-1);
+		registerA0 = (uint)((uint)registerA0 * (uint)registerB0);
 		++*pc;
 		goto INST_SWITCH;
 	case insttype::IT_AU_UINT_MUL_B:
-		_bs.move_pivot(-1);
-		_bs[0] = (uint)((uint)_x * (uint)_y);
+		//shiftB0(-1);
+		registerB0 = (uint)((uint)registerA0 * (uint)registerB0);
 		++*pc;
 		goto INST_SWITCH;
 	case insttype::IT_AU_FLOAT_MUL_A:
-		_as.move_pivot(-1);
-		*reinterpret_cast<float*>(&_as[0]) = (float)((*reinterpret_cast<float*>(&_x)) * (*reinterpret_cast<float*>(&_y)));
-		//_as[0] = (float)((float)_x * (float)_y);
+		//shiftA0(-1);
+		*reinterpret_cast<float*>(&registerA0) = (float)((*reinterpret_cast<float*>(&registerA0)) * (*reinterpret_cast<float*>(&registerB0)));
 		++*pc;
 		goto INST_SWITCH;
 	case insttype::IT_AU_FLOAT_MUL_B:
-		_bs.move_pivot(-1);
-		*reinterpret_cast<float*>(&_bs[0]) = (float)((*reinterpret_cast<float*>(&_x)) * (*reinterpret_cast<float*>(&_y)));
-		//_bs[0] = (float)((float)_x * (float)_y);
+		//shiftB0(-1);
+		*reinterpret_cast<float*>(&registerB0) = (float)((*reinterpret_cast<float*>(&registerA0)) * (*reinterpret_cast<float*>(&registerB0)));
 		++*pc;
 		goto INST_SWITCH;
 	case insttype::IT_AU_BYTE_DIV_A:
-		_as.move_pivot(-1);
-		_as[0] = (char)((char)_x / (char)_y);
+		//shiftA0(-1);
+		registerA0 = (char)((char)registerA0 / (char)registerB0);
 		++*pc;
 		goto INST_SWITCH;
 	case insttype::IT_AU_BYTE_DIV_B:
-		_bs.move_pivot(-1);
-		_bs[0] = (char)((char)_x / (char)_y);
+		//shiftB0(-1);
+		registerB0 = (char)((char)registerA0 / (char)registerB0);
 		++*pc;
 		goto INST_SWITCH;
 	case insttype::IT_AU_UBYTE_DIV_A:
-		_as.move_pivot(-1);
-		_as[0] = (byte8)((byte8)_x / (byte8)_y);
+		//shiftA0(-1);
+		registerA0 = (byte8)((byte8)registerA0 / (byte8)registerB0);
 		++*pc;
 		goto INST_SWITCH;
 	case insttype::IT_AU_UBYTE_DIV_B:
-		_bs.move_pivot(-1);
-		_bs[0] = (byte8)((byte8)_x / (byte8)_y);
+		//shiftB0(-1);
+		registerB0 = (byte8)((byte8)registerA0 / (byte8)registerB0);
 		++*pc;
 		goto INST_SWITCH;
 	case insttype::IT_AU_SHORT_DIV_A:
-		_as.move_pivot(-1);
-		_as[0] = (short)((short)_x / (short)_y);
+		//shiftA0(-1);
+		registerA0 = (short)((short)registerA0 / (short)registerB0);
 		++*pc;
 		goto INST_SWITCH;
 	case insttype::IT_AU_SHORT_DIV_B:
-		_bs.move_pivot(-1);
-		_bs[0] = (short)((short)_x / (short)_y);
+		//shiftB0(-1);
+		registerB0 = (short)((short)registerA0 / (short)registerB0);
 		++*pc;
 		goto INST_SWITCH;
 	case insttype::IT_AU_USHORT_DIV_A:
-		_as.move_pivot(-1);
-		_as[0] = (ushort)((ushort)_x / (ushort)_y);
+		//shiftA0(-1);
+		registerA0 = (ushort)((ushort)registerA0 / (ushort)registerB0);
 		++*pc;
 		goto INST_SWITCH;
 	case insttype::IT_AU_USHORT_DIV_B:
-		_bs.move_pivot(-1);
-		_bs[0] = (ushort)((ushort)_x / (ushort)_y);
+		//shiftB0(-1);
+		registerB0 = (ushort)((ushort)registerA0 / (ushort)registerB0);
 		++*pc;
 		goto INST_SWITCH;
 	case insttype::IT_AU_INT_DIV_A:
-		_as.move_pivot(-1);
-		_as[0] = (int)((int)_x / (int)_y);
+		//shiftA0(-1);
+		registerA0 = (int)((int)registerA0 / (int)registerB0);
 		++*pc;
 		goto INST_SWITCH;
 	case insttype::IT_AU_INT_DIV_B:
-		_bs.move_pivot(-1);
-		_bs[0] = (int)((int)_x / (int)_y);
+		//shiftB0(-1);
+		registerB0 = (int)((int)registerA0 / (int)registerB0);
 		++*pc;
 		goto INST_SWITCH;
 	case insttype::IT_AU_UINT_DIV_A:
-		_as.move_pivot(-1);
-		_as[0] = (uint)((uint)_x / (uint)_y);
+		//shiftA0(-1);
+		registerA0 = (uint)((uint)registerA0 / (uint)registerB0);
 		++*pc;
 		goto INST_SWITCH;
 	case insttype::IT_AU_UINT_DIV_B:
-		_bs.move_pivot(-1);
-		_bs[0] = (uint)((uint)_x / (uint)_y);
+		//shiftB0(-1);
+		registerB0 = (uint)((uint)registerA0 / (uint)registerB0);
 		++*pc;
 		goto INST_SWITCH;
 	case insttype::IT_AU_FLOAT_DIV_A:
-		_as.move_pivot(-1);
-		*reinterpret_cast<float*>(&_as[0]) = (float)(*reinterpret_cast<float*>(&_x) / *reinterpret_cast<float*>(&_y));
-		//_as[0] = (float)((float)_x / (float)_y);
+		//shiftA0(-1);
+		*reinterpret_cast<float*>(&registerA0) = (float)(*reinterpret_cast<float*>(&registerA0) / *reinterpret_cast<float*>(&registerB0));
 		++*pc;
 		goto INST_SWITCH;
 	case insttype::IT_AU_FLOAT_DIV_B:
-		_bs.move_pivot(-1);
-		*reinterpret_cast<float*>(&_bs[0]) = (float)(*reinterpret_cast<float*>(&_x) / *reinterpret_cast<float*>(&_y));
-		//_bs[0] = (float)((float)_x / (float)_y);
+		//shiftB0(-1);
+		*reinterpret_cast<float*>(&registerB0) = (float)(*reinterpret_cast<float*>(&registerA0) / *reinterpret_cast<float*>(&registerB0));
 		++*pc;
 		goto INST_SWITCH;
 	case insttype::IT_AU_BYTE_PER_A:
-		_as.move_pivot(-1);
-		_as[0] = (char)((char)_x % (char)_y);
+		//shiftA0(-1);
+		registerA0 = (char)((char)registerA0 % (char)registerB0);
 		++*pc;
 		goto INST_SWITCH;
 	case insttype::IT_AU_BYTE_PER_B:
-		_bs.move_pivot(-1);
-		_bs[0] = (char)((char)_x % (char)_y);
+		//shiftB0(-1);
+		registerB0 = (char)((char)registerA0 % (char)registerB0);
 		++*pc;
 		goto INST_SWITCH;
 	case insttype::IT_AU_UBYTE_PER_A:
-		_as.move_pivot(-1);
-		_as[0] = (char)((byte8)_x % (byte8)_y);
+		//shiftA0(-1);
+		registerA0 = (char)((byte8)registerA0 % (byte8)registerB0);
 		++*pc;
 		goto INST_SWITCH;
 	case insttype::IT_AU_UBYTE_PER_B:
-		_bs.move_pivot(-1);
-		_bs[0] = (char)((byte8)_x % (byte8)_y);
+		//shiftB0(-1);
+		registerB0 = (char)((byte8)registerA0 % (byte8)registerB0);
 		++*pc;
 		goto INST_SWITCH;
 	case insttype::IT_AU_SHORT_PER_A:
-		_as.move_pivot(-1);
-		_as[0] = (char)((short)_x % (short)_y);
+		//shiftA0(-1);
+		registerA0 = (char)((short)registerA0 % (short)registerB0);
 		++*pc;
 		goto INST_SWITCH;
 	case insttype::IT_AU_SHORT_PER_B:
-		_bs.move_pivot(-1);
-		_bs[0] = (short)((short)_x % (short)_y);
+		//shiftB0(-1);
+		registerB0 = (short)((short)registerA0 % (short)registerB0);
 		++*pc;
 		goto INST_SWITCH;
 	case insttype::IT_AU_USHORT_PER_A:
-		_as.move_pivot(-1);
-		_as[0] = (ushort)((ushort)_x % (ushort)_y);
+		//shiftA0(-1);
+		registerA0 = (ushort)((ushort)registerA0 % (ushort)registerB0);
 		++*pc;
 		goto INST_SWITCH;
 	case insttype::IT_AU_USHORT_PER_B:
-		_bs.move_pivot(-1);
-		_bs[0] = (ushort)((ushort)_x % (ushort)_y);
+		//shiftB0(-1);
+		registerB0 = (ushort)((ushort)registerA0 % (ushort)registerB0);
 		++*pc;
 		goto INST_SWITCH;
 	case insttype::IT_AU_INT_PER_A:
-		_as.move_pivot(-1);
-		_as[0] = (int)((int)_x % (int)_y);
+		//shiftA0(-1);
+		registerA0 = (int)((int)registerA0 % (int)registerB0);
 		++*pc;
 		goto INST_SWITCH;
 	case insttype::IT_AU_INT_PER_B:
-		_bs.move_pivot(-1);
-		_bs[0] = (int)((int)_x % (int)_y);
+		//shiftB0(-1);
+		registerB0 = (int)((int)registerA0 % (int)registerB0);
 		++*pc;
 		goto INST_SWITCH;
 	case insttype::IT_AU_UINT_PER_A:
-		_as.move_pivot(-1);
-		_as[0] = (uint)((uint)_x % (uint)_y);
+		//shiftA0(-1);
+		registerA0 = (uint)((uint)registerA0 % (uint)registerB0);
 		++*pc;
 		goto INST_SWITCH;
 	case insttype::IT_AU_UINT_PER_B:
-		_bs.move_pivot(-1);
-		_bs[0] = (uint)((uint)_x % (uint)_y);
+		//shiftB0(-1);
+		registerB0 = (uint)((uint)registerA0 % (uint)registerB0);
 		++*pc;
 		goto INST_SWITCH;
 	case insttype::IT_LU_BOOL_AND_A:
-		_as.move_pivot(-1);
-		_as[0] = (bool)((bool)_x && (bool)_y);
+		//shiftA0(-1);
+		registerA0 = (bool)((bool)registerA0 && (bool)registerB0);
 		++*pc;
 		goto INST_SWITCH;
 	case insttype::IT_LU_BOOL_AND_B:
-		_bs.move_pivot(-1);
-		_bs[0] = (bool)((bool)_x && (bool)_y);
+		//shiftB0(-1);
+		registerB0 = (bool)((bool)registerA0 && (bool)registerB0);
 		++*pc;
 		goto INST_SWITCH;
 	case insttype::IT_LU_BOOL_OR_A:
-		_as.move_pivot(-1);
-		_as[0] = (bool)((bool)_x || (bool)_y);
+		//shiftA0(-1);
+		registerA0 = (bool)((bool)registerA0 || (bool)registerB0);
 		++*pc;
 		goto INST_SWITCH;
 	case insttype::IT_LU_BOOL_OR_B:
-		_bs.move_pivot(-1);
-		_bs[0] = (bool)((bool)_x || (bool)_y);
+		//shiftB0(-1);
+		registerB0 = (bool)((bool)registerA0 || (bool)registerB0);
 		++*pc;
 		goto INST_SWITCH;
 	case insttype::IT_LU_BOOL_NOT_A:
-		_as.move_pivot(-1);
-		_as[0] = (bool)(!(bool)_x);
+		//shiftA0(-1);
+		registerA0 = (bool)(!(bool)registerA0);
 		++*pc;
 		goto INST_SWITCH;
 	case insttype::IT_LU_BOOL_NOT_B:
-		_bs.move_pivot(-1);
-		_bs[0] = (bool)(!(bool)_x);
+		//shiftB0(-1);
+		registerB0 = (bool)(!(bool)registerA0);
 		++*pc;
 		goto INST_SWITCH;
 	case insttype::IT_CM_BOOL_SAME_A:
-		_as.move_pivot(-1);
-		_as[0] = _x == _y;
+		//shiftA0(-1);
+		registerA0 = registerA0 == registerB0;
 		++*pc;
 		goto INST_SWITCH;
 	case insttype::IT_CM_BOOL_SAME_B:
-		_bs.move_pivot(-1);
-		_bs[0] = _x == _y;
+		//shiftB0(-1);
+		registerB0 = registerA0 == registerB0;
 		++*pc;
 		goto INST_SWITCH;
 	case insttype::IT_CM_BOOL_NOTSAME_A:
-		_as.move_pivot(-1);
-		_as[0] = _x != _y;
+		//shiftA0(-1);
+		registerA0 = registerA0 != registerB0;
 		++*pc;
 		goto INST_SWITCH;
 	case insttype::IT_CM_BOOL_NOTSAME_B:
-		_bs.move_pivot(-1);
-		_bs[0] = _x != _y;
+		//shiftB0(-1);
+		registerB0 = registerA0 != registerB0;
 		++*pc;
 		goto INST_SWITCH;
 	case insttype::IT_CM_BOOL_BYTE_LBIG_A:
-		_as.move_pivot(-1);
-		_as[0] = (char)_x > (char)_y;
+		//shiftA0(-1);
+		registerA0 = (char)registerA0 > (char)registerB0;
 		++*pc;
 		goto INST_SWITCH;
 	case insttype::IT_CM_BOOL_BYTE_LBIG_B:
-		_bs.move_pivot(-1);
-		_bs[0] = (char)_x > (char)_y;
+		//shiftB0(-1);
+		registerB0 = (char)registerA0 > (char)registerB0;
 		++*pc;
 		goto INST_SWITCH;
 	case insttype::IT_CM_BOOL_UBYTE_LBIG_A:
-		_as.move_pivot(-1);
-		_as[0] = (byte8)_x > (byte8)_y;
+		//shiftA0(-1);
+		registerA0 = (byte8)registerA0 > (byte8)registerB0;
 		++*pc;
 		goto INST_SWITCH;
 	case insttype::IT_CM_BOOL_UBYTE_LBIG_B:
-		_bs.move_pivot(-1);
-		_bs[0] = (byte8)_x > (byte8)_y;
+		//shiftB0(-1);
+		registerB0 = (byte8)registerA0 > (byte8)registerB0;
 		++*pc;
 		goto INST_SWITCH;
 	case insttype::IT_CM_BOOL_SHORT_LBIG_A:
-		_as.move_pivot(-1);
-		_as[0] = (short)_x > (short)_y;
+		//shiftA0(-1);
+		registerA0 = (short)registerA0 > (short)registerB0;
 		++*pc;
 		goto INST_SWITCH;
 	case insttype::IT_CM_BOOL_SHORT_LBIG_B:
-		_bs.move_pivot(-1);
-		_bs[0] = (short)_x > (short)_y;
+		//shiftB0(-1);
+		registerB0 = (short)registerA0 > (short)registerB0;
 		++*pc;
 		goto INST_SWITCH;
 	case insttype::IT_CM_BOOL_USHORT_LBIG_A:
-		_as.move_pivot(-1);
-		_as[0] = (ushort)_x > (ushort)_y;
+		//shiftA0(-1);
+		registerA0 = (ushort)registerA0 > (ushort)registerB0;
 		++*pc;
 		goto INST_SWITCH;
 	case insttype::IT_CM_BOOL_USHORT_LBIG_B:
-		_bs.move_pivot(-1);
-		_bs[0] = (ushort)_x > (ushort)_y;
+		//shiftB0(-1);
+		registerB0 = (ushort)registerA0 > (ushort)registerB0;
 		++*pc;
 		goto INST_SWITCH;
 	case insttype::IT_CM_BOOL_INT_LBIG_A:
-		_as.move_pivot(-1);
-		_as[0] = (int)_x > (int)_y;
+		//shiftA0(-1);
+		registerA0 = (int)registerA0 > (int)registerB0;
 		++*pc;
 		goto INST_SWITCH;
 	case insttype::IT_CM_BOOL_INT_LBIG_B:
-		_bs.move_pivot(-1);
-		_bs[0] = (int)_x > (int)_y;
+		//shiftB0(-1);
+		registerB0 = (int)registerA0 > (int)registerB0;
 		++*pc;
 		goto INST_SWITCH;
 	case insttype::IT_CM_BOOL_UINT_LBIG_A:
-		_as.move_pivot(-1);
-		_as[0] = (uint)_x > (uint)_y;
+		//shiftA0(-1);
+		registerA0 = (uint)registerA0 > (uint)registerB0;
 		++*pc;
 		goto INST_SWITCH;
 	case insttype::IT_CM_BOOL_UINT_LBIG_B:
-		_bs.move_pivot(-1);
-		_bs[0] = (uint)_x > (uint)_y;
+		//shiftB0(-1);
+		registerB0 = (uint)registerA0 > (uint)registerB0;
 		++*pc;
 		goto INST_SWITCH;
 	case insttype::IT_CM_BOOL_FLOAT_LBIG_A:
-		_as.move_pivot(-1);
-		_as[0] = *reinterpret_cast<float*>(&_x) > *reinterpret_cast<float*>(&_y);
-		//_as[0] = (float)_x > (float)_y;
+		//shiftA0(-1);
+		registerA0 = *reinterpret_cast<float*>(&registerA0) > *reinterpret_cast<float*>(&registerB0);
 		++*pc;
 		goto INST_SWITCH;
 	case insttype::IT_CM_BOOL_FLOAT_LBIG_B:
-		_bs.move_pivot(-1);
-		_bs[0] = *reinterpret_cast<float*>(&_x) > *reinterpret_cast<float*>(&_y);
-		//_bs[0] = (float)_x > (float)_y;
+		//shiftB0(-1);
+		registerB0 = *reinterpret_cast<float*>(&registerA0) > *reinterpret_cast<float*>(&registerB0);
 		++*pc;
 		goto INST_SWITCH;
 	case insttype::IT_CM_BOOL_BYTE_LBIGSAME_A:
-		_as.move_pivot(-1);
-		_as[0] = (char)_x >= (char)_y;
+		//shiftA0(-1);
+		registerA0 = (char)registerA0 >= (char)registerB0;
 		++*pc;
 		goto INST_SWITCH;
 	case insttype::IT_CM_BOOL_BYTE_LBIGSAME_B:
-		_bs.move_pivot(-1);
-		_bs[0] = (char)_x >= (char)_y;
+		//shiftB0(-1);
+		registerB0 = (char)registerA0 >= (char)registerB0;
 		++*pc;
 		goto INST_SWITCH;
 	case insttype::IT_CM_BOOL_UBYTE_LBIGSAME_A:
-		_as.move_pivot(-1);
-		_as[0] = (byte8)_x >= (byte8)_y;
+		//shiftA0(-1);
+		registerA0 = (byte8)registerA0 >= (byte8)registerB0;
 		++*pc;
 		goto INST_SWITCH;
 	case insttype::IT_CM_BOOL_UBYTE_LBIGSAME_B:
-		_bs.move_pivot(-1);
-		_bs[0] = (byte8)_x >= (byte8)_y;
+		//shiftB0(-1);
+		registerB0 = (byte8)registerA0 >= (byte8)registerB0;
 		++*pc;
 		goto INST_SWITCH;
 	case insttype::IT_CM_BOOL_SHORT_LBIGSAME_A:
-		_as.move_pivot(-1);
-		_as[0] = (short)_x >= (short)_y;
+		//shiftA0(-1);
+		registerA0 = (short)registerA0 >= (short)registerB0;
 		++*pc;
 		goto INST_SWITCH;
 	case insttype::IT_CM_BOOL_SHORT_LBIGSAME_B:
-		_bs.move_pivot(-1);
-		_bs[0] = (short)_x >= (short)_y;
+		//shiftB0(-1);
+		registerB0 = (short)registerA0 >= (short)registerB0;
 		++*pc;
 		goto INST_SWITCH;
 	case insttype::IT_CM_BOOL_USHORT_LBIGSAME_A:
-		_as.move_pivot(-1);
-		_as[0] = (ushort)_x >= (ushort)_y;
+		//shiftA0(-1);
+		registerA0 = (ushort)registerA0 >= (ushort)registerB0;
 		++*pc;
 		goto INST_SWITCH;
 	case insttype::IT_CM_BOOL_USHORT_LBIGSAME_B:
-		_bs.move_pivot(-1);
-		_bs[0] = (ushort)_x >= (ushort)_y;
+		//shiftB0(-1);
+		registerB0 = (ushort)registerA0 >= (ushort)registerB0;
 		++*pc;
 		goto INST_SWITCH;
 	case insttype::IT_CM_BOOL_INT_LBIGSAME_A:
-		_as.move_pivot(-1);
-		_as[0] = (int)_x >= (int)_y;
+		//shiftA0(-1);
+		registerA0 = (int)registerA0 >= (int)registerB0;
 		++*pc;
 		goto INST_SWITCH;
 	case insttype::IT_CM_BOOL_INT_LBIGSAME_B:
-		_bs.move_pivot(-1);
-		_bs[0] = (int)_x >= (int)_y;
+		//shiftB0(-1);
+		registerB0 = (int)registerA0 >= (int)registerB0;
 		++*pc;
 		goto INST_SWITCH;
 	case insttype::IT_CM_BOOL_UINT_LBIGSAME_A:
-		_as.move_pivot(-1);
-		_as[0] = (uint)_x >= (uint)_y;
+		//shiftA0(-1);
+		registerA0 = (uint)registerA0 >= (uint)registerB0;
 		++*pc;
 		goto INST_SWITCH;
 	case insttype::IT_CM_BOOL_UINT_LBIGSAME_B:
-		_bs.move_pivot(-1);
-		_bs[0] = (uint)_x >= (uint)_y;
+		//shiftB0(-1);
+		registerB0 = (uint)registerA0 >= (uint)registerB0;
 		++*pc;
 		goto INST_SWITCH;
 	case insttype::IT_CM_BOOL_FLOAT_LBIGSAME_A:
-		_as.move_pivot(-1);
-		_as[0] = *reinterpret_cast<float*>(&_x) >= *reinterpret_cast<float*>(&_y);
-		//_as[0] = (float)_x >= (float)_y;
+		//shiftA0(-1);
+		registerA0 = *reinterpret_cast<float*>(&registerA0) >= *reinterpret_cast<float*>(&registerB0);
 		++*pc;
 		goto INST_SWITCH;
 	case insttype::IT_CM_BOOL_FLOAT_LBIGSAME_B:
-		_bs.move_pivot(-1);
-		_bs[0] = *reinterpret_cast<float*>(&_x) >= *reinterpret_cast<float*>(&_y);
-		//_bs[0] = (float)_x >= (float)_y;
+		//shiftB0(-1);
+		registerB0 = *reinterpret_cast<float*>(&registerA0) >= *reinterpret_cast<float*>(&registerB0);
 		++*pc;
 		goto INST_SWITCH;
 	case insttype::IT_CM_BOOL_BYTE_RBIG_A:
-		_as.move_pivot(-1);
-		_as[0] = (char)_x < (char)_y;
+		//shiftA0(-1);
+		registerA0 = (char)registerA0 < (char)registerB0;
 		++*pc;
 		goto INST_SWITCH;
 	case insttype::IT_CM_BOOL_BYTE_RBIG_B:
-		_bs.move_pivot(-1);
-		_bs[0] = (char)_x < (char)_y;
+		//shiftB0(-1);
+		registerB0 = (char)registerA0 < (char)registerB0;
 		++*pc;
 		goto INST_SWITCH;
 	case insttype::IT_CM_BOOL_UBYTE_RBIG_A:
-		_as.move_pivot(-1);
-		_as[0] = (byte8)_x < (byte8)_y;
+		//shiftA0(-1);
+		registerA0 = (byte8)registerA0 < (byte8)registerB0;
 		++*pc;
 		goto INST_SWITCH;
 	case insttype::IT_CM_BOOL_UBYTE_RBIG_B:
-		_as.move_pivot(-1);
-		_as[0] = (byte8)_x < (byte8)_y;
+		//shiftA0(-1);
+		registerA0 = (byte8)registerA0 < (byte8)registerB0;
 		++*pc;
 		goto INST_SWITCH;
 	case insttype::IT_CM_BOOL_SHORT_RBIG_A:
-		_as.move_pivot(-1);
-		_as[0] = (short)_x < (short)_y;
+		//shiftA0(-1);
+		registerA0 = (short)registerA0 < (short)registerB0;
 		++*pc;
 		goto INST_SWITCH;
 	case insttype::IT_CM_BOOL_SHORT_RBIG_B:
-		_bs.move_pivot(-1);
-		_bs[0] = (short)_x < (short)_y;
+		//shiftB0(-1);
+		registerB0 = (short)registerA0 < (short)registerB0;
 		++*pc;
 		goto INST_SWITCH;
 	case insttype::IT_CM_BOOL_USHORT_RBIG_A:
-		_as.move_pivot(-1);
-		_as[0] = (ushort)_x < (ushort)_y;
+		//shiftA0(-1);
+		registerA0 = (ushort)registerA0 < (ushort)registerB0;
 		++*pc;
 		goto INST_SWITCH;
 	case insttype::IT_CM_BOOL_USHORT_RBIG_B:
-		_bs.move_pivot(-1);
-		_bs[0] = (ushort)_x < (ushort)_y;
+		//shiftB0(-1);
+		registerB0 = (ushort)registerA0 < (ushort)registerB0;
 		++*pc;
 		goto INST_SWITCH;
 	case insttype::IT_CM_BOOL_INT_RBIG_A:
-		_as.move_pivot(-1);
-		_as[0] = (int)_x < (int)_y;
+		//shiftA0(-1);
+		registerA0 = (int)registerA0 < (int)registerB0;
 		++*pc;
 		goto INST_SWITCH;
 	case insttype::IT_CM_BOOL_INT_RBIG_B:
-		_bs.move_pivot(-1);
-		_bs[0] = (int)_x < (int)_y;
+		//shiftB0(-1);
+		registerB0 = (int)registerA0 < (int)registerB0;
 		++*pc;
 		goto INST_SWITCH;
 	case insttype::IT_CM_BOOL_UINT_RBIG_A:
-		_as.move_pivot(-1);
-		_as[0] = (uint)_x < (uint)_y;
+		//shiftA0(-1);
+		registerA0 = (uint)registerA0 < (uint)registerB0;
 		++*pc;
 		goto INST_SWITCH;
 	case insttype::IT_CM_BOOL_UINT_RBIG_B:
-		_bs.move_pivot(-1);
-		_bs[0] = (uint)_x < (uint)_y;
+		//shiftB0(-1);
+		registerB0 = (uint)registerA0 < (uint)registerB0;
 		++*pc;
 		goto INST_SWITCH;
 	case insttype::IT_CM_BOOL_FLOAT_RBIG_A:
-		_as.move_pivot(-1);
-		_as[0] = *reinterpret_cast<float*>(&_x) < *reinterpret_cast<float*>(&_y);
-		//_as[0] = (float)_x < (float)_y;
+		//shiftA0(-1);
+		registerA0 = *reinterpret_cast<float*>(&registerA0) < *reinterpret_cast<float*>(&registerB0);
 		++*pc;
 		goto INST_SWITCH;
 	case insttype::IT_CM_BOOL_FLOAT_RBIG_B:
-		_bs.move_pivot(-1);
-		_bs[0] = *reinterpret_cast<float*>(&_x) < *reinterpret_cast<float*>(&_y);
-		//_bs[0] = (float)_x < (float)_y;
+		//shiftB0(-1);
+		registerB0 = *reinterpret_cast<float*>(&registerA0) < *reinterpret_cast<float*>(&registerB0);
 		++*pc;
 		goto INST_SWITCH;
 	case insttype::IT_CM_BOOL_BYTE_RBIGSAME_A:
-		_as.move_pivot(-1);
-		_as[0] = (char)_x <= (char)_y;
+		//shiftA0(-1);
+		registerA0 = (char)registerA0 <= (char)registerB0;
 		++*pc;
 		goto INST_SWITCH;
 	case insttype::IT_CM_BOOL_BYTE_RBIGSAME_B:
-		_bs.move_pivot(-1);
-		_bs[0] = (char)_x <= (char)_y;
+		//shiftB0(-1);
+		registerB0 = (char)registerA0 <= (char)registerB0;
 		++*pc;
 		goto INST_SWITCH;
 	case insttype::IT_CM_BOOL_UBYTE_RBIGSAME_A:
-		_as.move_pivot(-1);
-		_as[0] = (byte8)_x <= (byte8)_y;
+		//shiftA0(-1);
+		registerA0 = (byte8)registerA0 <= (byte8)registerB0;
 		++*pc;
 		goto INST_SWITCH;
 	case insttype::IT_CM_BOOL_UBYTE_RBIGSAME_B:
-		_bs.move_pivot(-1);
-		_bs[0] = (byte8)_x <= (byte8)_y;
+		//shiftB0(-1);
+		registerB0 = (byte8)registerA0 <= (byte8)registerB0;
 		++*pc;
 		goto INST_SWITCH;
 	case insttype::IT_CM_BOOL_SHORT_RBIGSAME_A:
-		_as.move_pivot(-1);
-		_as[0] = (short)_x <= (short)_y;
+		//shiftA0(-1);
+		registerA0 = (short)registerA0 <= (short)registerB0;
 		++*pc;
 		goto INST_SWITCH;
 	case insttype::IT_CM_BOOL_SHORT_RBIGSAME_B:
-		_bs.move_pivot(-1);
-		_bs[0] = (short)_x <= (short)_y;
+		//shiftB0(-1);
+		registerB0 = (short)registerA0 <= (short)registerB0;
 		++*pc;
 		goto INST_SWITCH;
 	case insttype::IT_CM_BOOL_USHORT_RBIGSAME_A:
-		_as.move_pivot(-1);
-		_as[0] = (ushort)_x <= (ushort)_y;
+		//shiftA0(-1);
+		registerA0 = (ushort)registerA0 <= (ushort)registerB0;
 		++*pc;
 		goto INST_SWITCH;
 	case insttype::IT_CM_BOOL_USHORT_RBIGSAME_B:
-		_bs.move_pivot(-1);
-		_bs[0] = (ushort)_x <= (ushort)_y;
+		//shiftB0(-1);
+		registerB0 = (ushort)registerA0 <= (ushort)registerB0;
 		++*pc;
 		goto INST_SWITCH;
 	case insttype::IT_CM_BOOL_INT_RBIGSAME_A:
-		_as.move_pivot(-1);
-		_as[0] = (int)_x <= (int)_y;
+		//shiftA0(-1);
+		registerA0 = (int)registerA0 <= (int)registerB0;
 		++*pc;
 		goto INST_SWITCH;
 	case insttype::IT_CM_BOOL_INT_RBIGSAME_B:
-		_bs.move_pivot(-1);
-		_bs[0] = (int)_x <= (int)_y;
+		//shiftB0(-1);
+		registerB0 = (int)registerA0 <= (int)registerB0;
 		++*pc;
 		goto INST_SWITCH;
 	case insttype::IT_CM_BOOL_UINT_RBIGSAME_A:
-		_as.move_pivot(-1);
-		_as[0] = (uint)_x <= (uint)_y;
+		//shiftA0(-1);
+		registerA0 = (uint)registerA0 <= (uint)registerB0;
 		++*pc;
 		goto INST_SWITCH;
 	case insttype::IT_CM_BOOL_UINT_RBIGSAME_B:
-		_bs.move_pivot(-1);
-		_bs[0] = (uint)_x <= (uint)_y;
+		//shiftB0(-1);
+		registerB0 = (uint)registerA0 <= (uint)registerB0;
 		++*pc;
 		goto INST_SWITCH;
 	case insttype::IT_CM_BOOL_FLOAT_RBIGSAME_A:
-		_as.move_pivot(-1);
-		_as[0] = *reinterpret_cast<float*>(_x) <= *reinterpret_cast<float*>(_y);
-		//_as[0] = (float)_x <= (float)_y;
+		//shiftA0(-1);
+		registerA0 = *reinterpret_cast<float*>(registerA0) <= *reinterpret_cast<float*>(registerB0);
 		++*pc;
 		goto INST_SWITCH;
 	case insttype::IT_CM_BOOL_FLOAT_RBIGSAME_B:
-		_bs.move_pivot(-1);
-		_bs[0] = *reinterpret_cast<float*>(_x) <= *reinterpret_cast<float*>(_y);
-		//_bs[0] = (float)_x <= (float)_y;
+		//shiftB0(-1);
+		registerB0 = *reinterpret_cast<float*>(registerA0) <= *reinterpret_cast<float*>(registerB0);
 		++*pc;
 		goto INST_SWITCH;
 	case insttype::IT_IF:
 		++*pc;
 		tmptr_i = *pci;
 		++*pci;
-		if (!(bool)_as[0])
+		if (!(bool)registerA0)
 			*pc = &codemem[*tmptr_i];
 		goto INST_SWITCH;
 	case insttype::IT_JMP:
@@ -7818,18 +8184,18 @@ INST_SWITCH:
 		++*pc;
 		goto INST_SWITCH;
 	case insttype::IT_PARAM_1:
-		**sp = (byte8)_as[0];
+		**sp = (byte8)registerA0;
 		--*sp;
 		++*pc;
 		goto INST_SWITCH;
 	case insttype::IT_PARAM_2:
-		**sps = (ushort)_as[0];
+		**sps = (ushort)registerA0;
 		--*sps;
 		++*pc;
 		goto INST_SWITCH;
 	case insttype::IT_PARAM_4:
 		--*spi;
-		**spi = (uint)_as[0];
+		**spi = (uint)registerA0;
 		++*pc;
 		goto INST_SWITCH;
 	case insttype::IT_RETURN:
@@ -7850,29 +8216,19 @@ INST_SWITCH:
 		goto PROGRAMQUIT;
 	case insttype::IT_PUSH_TO_A_FROM_ADDRESS_OF_VARIABLE_ID:
 		++*pc;
-		_as.move_pivot(-1);
-		_as[0] = (*rfsp - **pci) - mem;
+		shiftA0(-1);
+		registerA0 = (*rfsp - **pci) - mem;
 		++*pci;
 		goto INST_SWITCH;
 	case insttype::IT_PUSH_TO_B_FROM_ADDRESS_OF_VARIABLE_ID:
 		++*pc;
-		_bs.move_pivot(-1);
-		_bs[0] = (*rfsp - **pci) - mem;
-		++*pci;
-		goto INST_SWITCH;
-	case insttype::IT_PUSH_TO_X_FROM_ADDRESS_OF_VARIABLE_ID:
-		++*pc;
-		_x = (*rfsp - **pci) - mem;
-		++*pci;
-		goto INST_SWITCH;
-	case insttype::IT_PUSH_TO_Y_FROM_ADDRESS_OF_VARIABLE_ID:
-		++*pc;
-		_y = (*rfsp - **pci) - mem;
+		shiftB0(-1);
+		registerB0 = (*rfsp - **pci) - mem;
 		++*pci;
 		goto INST_SWITCH;
 	case insttype::IT_PUSH_TO_LA_FROM_A:
-		_la = _as[0];
-		_as.move_pivot(1);
+		_la = registerA0;
+		shiftA0(1);
 		++*pc;
 		goto INST_SWITCH;
 	case insttype::IT_FUNCJMP:
@@ -7880,7 +8236,6 @@ INST_SWITCH:
 		fsp->push_back(saveSP->last());
 		saveSP->pop_back();
 		*rfsp = fsp->last();
-
 		++*pc;
 		tmptr_i = *pci;
 		++*pci;
@@ -7889,42 +8244,22 @@ INST_SWITCH:
 		goto INST_SWITCH;
 	case insttype::IT_CASTING_A:
 		selectRegister = 0;
-		casting_value = _as[0];
+		casting_value = registerA0;
 		casted_value = 0;
 		castv = (casttype) * ++ * pc;
 		goto CAST_SWITCH;
 	case insttype::IT_CASTING_B:
 		selectRegister = 1;
-		casting_value = _bs[0];
-		casted_value = 0;
-		castv = (casttype) * ++ * pc;
-		goto CAST_SWITCH;
-	case insttype::IT_CASTING_X:
-		selectRegister = 2;
-		casting_value = _x;
-		casted_value = 0;
-		castv = (casttype) * ++ * pc;
-		goto CAST_SWITCH;
-	case insttype::IT_CASTING_Y:
-		selectRegister = 3;
-		casting_value = _y;
+		casting_value = registerB0;
 		casted_value = 0;
 		castv = (casttype) * ++ * pc;
 		goto CAST_SWITCH;
 	case insttype::IT_PUSH_A_FROM_VALUE_OF_A:
-		_as[0] = *reinterpret_cast<uint*>(mem + (int)_as[0]);
+		registerA0 = *reinterpret_cast<uint*>(mem + (uint64_t)registerA0);
 		++*pc;
 		goto INST_SWITCH;
 	case insttype::IT_PUSH_B_FROM_VALUE_OF_B:
-		_bs[0] = *reinterpret_cast<uint*>(mem + (int)_bs[0]);
-		++*pc;
-		goto INST_SWITCH;
-	case insttype::IT_PUSH_X_FROM_VALUE_OF_X:
-		_x = *reinterpret_cast<uint*>(mem + (int)_x);
-		++*pc;
-		goto INST_SWITCH;
-	case insttype::IT_PUSH_Y_FROM_VALUE_OF_Y:
-		_y = *reinterpret_cast<uint*>(mem + (int)_y);
+		registerB0 = *reinterpret_cast<uint*>(mem + (uint64_t)registerB0);
 		++*pc;
 		goto INST_SWITCH;
 	case insttype::IT_DBG_A:
@@ -7934,44 +8269,44 @@ INST_SWITCH:
 		inp_type = (inptype) * ++ * pc;
 		goto INP_SWITCH;
 	case insttype::IT_PUSH_TO_VALUE_OF_LA_FROM_A_1:
-		*reinterpret_cast<byte8*>(mem + (int)_la) = _as[0];
+		*reinterpret_cast<byte8*>(mem + (uint64_t)_la) = registerA0;
 		++*pc;
 		goto INST_SWITCH;
 	case insttype::IT_PUSH_TO_VALUE_OF_LA_FROM_A_2:
-		*reinterpret_cast<ushort*>(mem + (int)_la) = _as[0];
+		*reinterpret_cast<ushort*>(mem + (uint64_t)_la) = registerA0;
 		++*pc;
 		goto INST_SWITCH;
 	case insttype::IT_PUSH_TO_VALUE_OF_LA_FROM_A_4:
-		*reinterpret_cast<uint*>(mem + (int)_la) = _as[0];
+		*reinterpret_cast<uint*>(mem + (uint64_t)_la) = registerA0;
 		++*pc;
 		goto INST_SWITCH;
 	case insttype::IT_SET_A_CONST_STRING:
 		++*pc;
 		strmax = *reinterpret_cast<uint*>(*pci);
 		++*pci;
-		_as.move_pivot(-1);
-		_as[0] = *pc - mem;
+		shiftA0(-1);
+		registerA0 = *pc - mem;
 		*pc += strmax;
 		goto INST_SWITCH;
 	case insttype::IT_SET_B_CONST_STRING:
 		++*pc;
 		strmax = *reinterpret_cast<uint*>(*pci);
 		++*pci;
-		_bs.move_pivot(-1);
-		_bs[0] = *pc - mem;
+		shiftB0(-1);
+		registerB0 = *pc - mem;
 		*pc += strmax;
 		goto INST_SWITCH;
 	case insttype::IT_POP_A:
-		_as.move_pivot(1);
+		shiftA0(1);
 		++*pc;
 		goto INST_SWITCH;
 	case insttype::IT_POP_B:
-		_bs.move_pivot(1);
+		shiftB0(1);
 		++*pc;
 		goto INST_SWITCH;
 	case insttype::IT_POP_AB:
-		_as.move_pivot(1);
-		_bs.move_pivot(1);
+		shiftA0(1);
+		shiftB0(1);
 		++*pc;
 		goto INST_SWITCH;
 	case insttype::PARAM_N_COPY_BY_ADDRESS:
@@ -7980,44 +8315,68 @@ INST_SWITCH:
 		*sp -= paramSiz;
 		++*pci;
 		for (int i = 0; i < paramSiz; ++i) {
-			*(*sp + i) = *(mem + (int)_as[0] + i);
+			*(*sp + i) = *(mem + (int)registerA0 + i);
 		}
 		goto INST_SWITCH;
 	case insttype::PUSH_A_GLOBAL_VARIABLE_ADDRESS:
 		++*pc;
-		_as.move_pivot(-1);
-		_as[0] = &(icb->datamem.at(**pci)) - mem;
+		shiftA0(-1);
+		registerA0 = &(icb->datamem.at(**pci)) - mem;
 		++*pci;
 		goto INST_SWITCH;
 	case insttype::PUSH_B_GLOBAL_VARIABLE_ADDRESS:
 		++*pc;
-		_bs.move_pivot(-1);
-		_bs[0] = &icb->datamem.at(**pci) - mem;
+		shiftB0(-1);
+		registerB0 = &icb->datamem.at(**pci) - mem;
 		++*pci;
 		goto INST_SWITCH;
 	case insttype::PUSH_A_FROM_B:
 		++*pc;
-		_as.move_pivot(-1);
-		_as[0] = _bs[0];
+		shiftA0(-1);
+		registerA0 = registerB0;
 		goto INST_SWITCH;
 	case insttype::PUSH_B_FROM_A:
 		++*pc;
-		_bs.move_pivot(-1);
-		_bs[0] = _as[0];
+		shiftB0(-1);
+		registerB0 = registerA0;
 		goto INST_SWITCH;
 	case insttype::SET_ADDRESS_LA_FROM_ADRESS_A_N:
-		{
-			++*pc;
-			byte8* bptr = reinterpret_cast<byte8*>(mem + (int)_la);
-			byte8* aptr = reinterpret_cast<byte8*>(mem + (int)_as[0]);
-			uint ValueSiz = **pci;
-			++*pci;
-			for (uint k = 0; k < ValueSiz; ++k) {
-				bptr[k] = aptr[k];
-			}
+	{
+		++*pc;
+		byte8* bptr = reinterpret_cast<byte8*>(mem + (uint64_t)_la);
+		byte8* aptr = reinterpret_cast<byte8*>(mem + (uint64_t)registerA0);
+		uint ValueSiz = **pci;
+		++*pci;
+		for (uint k = 0; k < ValueSiz; ++k) {
+			bptr[k] = aptr[k];
 		}
-		goto INST_SWITCH;
+	}
+	goto INST_SWITCH;
+	case insttype::IT_PUSH_A_CONST_INDEX_ADDR:
+	{
+		++*pc;
+		shiftA0(-1);
+		registerA0 = ((*rfsp - **pci) - mem);
+		++*pci;
+		registerA0 += **pci;
+		++*pci;
+	}
+	goto INST_SWITCH;
+	case insttype::IT_PUSH_B_CONST_INDEX_ADDR:
+	{
+		++*pc;
+		shiftB0(-1);
+		registerB0 = ((*rfsp - **pci) - mem);
+		++*pci;
+		registerB0 += **pci;
+		++*pci;
+	}
+	goto INST_SWITCH;
 	case insttype::EXTENSION_INST:
+		icb->_la = _la;
+		icb->apivot = apivot;
+		icb->bpivot = bpivot;
+
 		*lfsp = *rfsp;
 		fsp->push_back(saveSP->last());
 		saveSP->pop_back();
@@ -8042,5 +8401,4 @@ INST_SWITCH:
 		goto INST_SWITCH;
 	}
 }
-
 #endif
