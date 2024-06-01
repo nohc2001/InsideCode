@@ -442,6 +442,8 @@ vecarr<code_sen *> *AddCodeFromBlockData(vecarr<char *> &allcodesen, const char 
                     cs->fm = fm;
                     cs->codeblocks->islocal = false;
                     Init_VPTR<vecarr<int *> *>(cs->codeblocks);
+                    cs->codeblocks->NULLState();
+                    cs->codeblocks->Init((int)cbv->size(), false);
 
                     for (int u = 0; u < (int)cbv->size(); u++)
                     {
@@ -502,6 +504,8 @@ vecarr<code_sen *> *AddCodeFromBlockData(vecarr<char *> &allcodesen, const char 
                     cs->codeblocks = (vecarr<int *> *)fm->_New(sizeof(vecarr<int *>), true);
                     cs->fm = fm;
                     Init_VPTR<vecarr<int *> *>(cs->codeblocks);
+                    cs->codeblocks->NULLState();
+                    cs->codeblocks->Init((int)cbv->size(), false);
 
                     for (int u = 0; u < (int)cbv->size(); u++)
                     {

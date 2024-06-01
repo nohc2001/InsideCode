@@ -542,6 +542,7 @@ lcstr *GetCodeTXT(const char *filename, FM_System0 *fm)
 	if (fp)
 	{
 		lcstr *codetxt = (lcstr *)fm->_New(sizeof(lcstr), true);
+		codetxt->NULLState();
 		codetxt->Init(10, false);
 		int max = 0;
 		fseek(fp, 0, SEEK_END);
@@ -2136,6 +2137,8 @@ public:
 						cs->fm = fm;
 						cs->codeblocks->islocal = false;
 						Init_VPTR<vecarr<int *> *>(cs->codeblocks);
+						cs->codeblocks->NULLState();
+						cs->codeblocks->Init( (int)cbv->size(), false);
 
 						for (int u = 0; u < (int)cbv->size(); u++)
 						{
@@ -2424,6 +2427,8 @@ public:
 						cs->codeblocks = (vecarr<int *> *)fm->_New(sizeof(vecarr<int *>), true);
 						cs->fm = fm;
 						Init_VPTR<vecarr<int *> *>(cs->codeblocks);
+						cs->codeblocks->NULLState();
+						cs->codeblocks->Init((int)cbv->size(), false);
 
 						for (int u = 0; u < (int)cbv->size(); u++)
 						{
