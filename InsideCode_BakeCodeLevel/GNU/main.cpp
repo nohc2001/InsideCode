@@ -13,6 +13,7 @@ uint32_t InsideCode_Bake::icl_optionFlag;
 int main(){
     fm = new FM_System0();
 	fm->SetHeapData(4096, 4096, 65536, 1048576);
+    fm->_tempPushLayer();
 
     InsideCode_Bake::SetICLFlag(ICL_FLAG::ICB_StaticInit, false);
 
@@ -64,4 +65,7 @@ int main(){
 	exectxs.Init(2, false);
     exectxs.push_back(ctx);
 	execute_switch(exectxs, 1000, code_control, true);
+
+    fm->_tempPopLayer();
+    fm->dbg_fm1_lifecheck();
 }

@@ -4,7 +4,7 @@
 #include "InsideCodeBake.h"
 
 //basic functions for extension operation
-void push_word(lcstr &str, vecarr<char*>* codesen)
+void push_word(lcstr &str, fmvecarr<char*>* codesen)
 {
     const char *sptr = str.c_str();
     int len = strlen(sptr);
@@ -18,7 +18,7 @@ void push_word(lcstr &str, vecarr<char*>* codesen)
     codesen->push_back(cstr);
 }
 
-void set_word(int index, lcstr &str, vecarr<char*>* codesen)
+void set_word(int index, lcstr &str, fmvecarr<char*>* codesen)
 {
     const char *sptr = str.c_str();
     int len = strlen(sptr);
@@ -29,7 +29,7 @@ void set_word(int index, lcstr &str, vecarr<char*>* codesen)
     (*codesen)[index] = cstr;
 }
 
-void AddTextBlocks(lcstr &codetxt, vecarr<char*>* codesen)
+void AddTextBlocks(lcstr &codetxt, fmvecarr<char*>* codesen)
 {
     lcstr insstr;
     insstr.NULLState();
@@ -280,16 +280,16 @@ bool IsTypeString(const char *str, ICB_Extension* ext)
     return false;
 }
 
-vecarr<code_sen *> *AddCodeFromBlockData(vecarr<char *> &allcodesen, const char *ScanMod, ICB_Extension* ext)
+fmvecarr<code_sen *> *AddCodeFromBlockData(fmvecarr<char *> &allcodesen, const char *ScanMod, ICB_Extension* ext)
 {
     // allcode_sen-> allcode_sen
     // ic -> this
     // code -> sen_arr
 
-    vecarr<code_sen *> *senarr =
-        (vecarr<code_sen *> *)fm->_New(sizeof(vecarr<code_sen *>), true);
+    fmvecarr<code_sen *> *senarr =
+        (fmvecarr<code_sen *> *)fm->_New(sizeof(fmvecarr<code_sen *>), true);
     senarr->NULLState();
-    senarr->Init(10, false);
+    senarr->Init(10, false, true);
 
     bool readytoStart = true;
     int StartI = 0;
@@ -338,9 +338,10 @@ vecarr<code_sen *> *AddCodeFromBlockData(vecarr<char *> &allcodesen, const char 
                         // addfunction
                         code_sen *cs = (code_sen *)fm->_New(sizeof(code_sen), true);
                         cs->ck = codeKind::ck_addFunction;
-                        vecarr<char *> cbs;
+                        fm->_tempPushLayer();
+                        fmvecarr<char *> cbs;
                         cbs.NULLState();
-                        cbs.Init(3, true);
+                        cbs.Init(3, false, false);
                         for(int k=typeS;k<typeE+2;++k){
                             cbs.push_back(allcodesen[k]);
                         }
@@ -365,6 +366,7 @@ vecarr<code_sen *> *AddCodeFromBlockData(vecarr<char *> &allcodesen, const char 
                         }
 
                         InsideCode_Bake::set_codesen(cs, cbs);
+                        fm->_tempPopLayer();
 
                         senarr->push_back(cs);
                         i = startI - 1;
@@ -377,9 +379,10 @@ vecarr<code_sen *> *AddCodeFromBlockData(vecarr<char *> &allcodesen, const char 
                     code_sen *cs = (code_sen *)fm->_New(sizeof(code_sen), true);
                     *cs = code_sen();
                     cs->ck = codeKind::ck_addFunction;
-                    vecarr<char *> cbs;
+                    fm->_tempPushLayer();
+                    fmvecarr<char *> cbs;
                     cbs.NULLState();
-                    cbs.Init(3, true);
+                    cbs.Init(3, false, false);
                     cbs.push_back(allcodesen[i]);
                     cbs.push_back(allcodesen[i + 1]);
 
@@ -403,6 +406,7 @@ vecarr<code_sen *> *AddCodeFromBlockData(vecarr<char *> &allcodesen, const char 
                     }
 
                     InsideCode_Bake::set_codesen(cs, cbs);
+                    fm->_tempPopLayer();
                     senarr->push_back(cs);
                     i = startI - 1;
                     StartI = i + 1;
@@ -411,9 +415,10 @@ vecarr<code_sen *> *AddCodeFromBlockData(vecarr<char *> &allcodesen, const char 
                 {
                     code_sen *cs = (code_sen *)fm->_New(sizeof(code_sen), true);
                     cs->ck = codeKind::ck_blocks;
-                    vecarr<char *> cbs;
+                    fm->_tempPushLayer();
+                    fmvecarr<char *> cbs;
                     cbs.NULLState();
-                    cbs.Init(2, true);
+                    cbs.Init(2, false, false);
 
                     int open = 0;
                     int h = 1;
@@ -436,14 +441,13 @@ vecarr<code_sen *> *AddCodeFromBlockData(vecarr<char *> &allcodesen, const char 
                     // cbs.pop_back();
                     // cbs.erase(0);
 
-                    vecarr<code_sen *> *cbv = AddCodeFromBlockData(cbs, "none", ext);
+                    fmvecarr<code_sen *> *cbv = AddCodeFromBlockData(cbs, "none", ext);
 
-                    cs->codeblocks = (vecarr<int *> *)fm->_New(sizeof(vecarr<int *>), true);
-                    cs->fm = fm;
+                    cs->codeblocks = (fmvecarr<int *> *)fm->_New(sizeof(fmvecarr<int *>), true);
                     cs->codeblocks->islocal = false;
-                    Init_VPTR<vecarr<int *> *>(cs->codeblocks);
+                    //Init_VPTR<vecarr<int *> *>(cs->codeblocks);
                     cs->codeblocks->NULLState();
-                    cs->codeblocks->Init((int)cbv->size(), false);
+                    cs->codeblocks->Init((int)cbv->size(), false, true);
 
                     for (int u = 0; u < (int)cbv->size(); u++)
                     {
@@ -454,6 +458,7 @@ vecarr<code_sen *> *AddCodeFromBlockData(vecarr<char *> &allcodesen, const char 
                     fm->_Delete((byte8 *)cbv, sizeof(cbv));
 
                     senarr->push_back(cs);
+                    fm->_tempPopLayer();
 
                     i += h;
                     StartI = i + 1;
@@ -466,9 +471,10 @@ vecarr<code_sen *> *AddCodeFromBlockData(vecarr<char *> &allcodesen, const char 
                 {
                     code_sen *cs = (code_sen *)fm->_New(sizeof(code_sen), true);
                     cs->ck = codeKind::ck_addStruct;
-                    vecarr<char *> cbs;
+                    fm->_tempPushLayer();
+                    fmvecarr<char *> cbs;
                     cbs.NULLState();
-                    cbs.Init(3, true);
+                    cbs.Init(3, false, false);
 
                     int open = 0;
                     int h = 0;
@@ -483,9 +489,9 @@ vecarr<code_sen *> *AddCodeFromBlockData(vecarr<char *> &allcodesen, const char 
                         cbs.push_back(allcodesen[i + h]);
                     }
 
-                    vecarr<char *> bd;
+                    fmvecarr<char *> bd;
                     bd.NULLState();
-                    bd.Init(10, false);
+                    bd.Init(10, false, false);
                     for (int i = 0; i < cbs.size(); ++i)
                     {
                         bd.push_back(cbs[i]);
@@ -499,11 +505,10 @@ vecarr<code_sen *> *AddCodeFromBlockData(vecarr<char *> &allcodesen, const char 
                     bd.erase(0);
                     bd.pop_back();
 
-                    vecarr<code_sen *> *cbv = AddCodeFromBlockData(bd, "none", ext);
+                    fmvecarr<code_sen *> *cbv = AddCodeFromBlockData(bd, "none", ext);
 
-                    cs->codeblocks = (vecarr<int *> *)fm->_New(sizeof(vecarr<int *>), true);
-                    cs->fm = fm;
-                    Init_VPTR<vecarr<int *> *>(cs->codeblocks);
+                    cs->codeblocks = (fmvecarr<int *> *)fm->_New(sizeof(fmvecarr<int *>), true);
+                    //Init_VPTR<vecarr<int *> *>(cs->codeblocks);
                     cs->codeblocks->NULLState();
                     cs->codeblocks->Init((int)cbv->size(), false);
 
@@ -516,6 +521,7 @@ vecarr<code_sen *> *AddCodeFromBlockData(vecarr<char *> &allcodesen, const char 
                     fm->_Delete((byte8 *)cbv, sizeof(cbv));
 
                     InsideCode_Bake::set_codesen(cs, cbs);
+                    fm->_tempPopLayer();
                     senarr->push_back(cs);
                 }
             }
@@ -626,7 +632,7 @@ void compile_addFunction(code_sen *cs, ICB_Extension *ext)
     int last = params_sen->size() - 1;
 
     fd->param_data.NULLState();
-    fd->param_data.Init(2, false);
+    fd->param_data.Init(2, false, true);
     fd->returntype = td;
     fd->start_pc = nullptr;
 
@@ -726,16 +732,16 @@ void bake_Extension(const char* filename, ICB_Extension* ext){
     if(icldetail) icl << "finish" << endl;
 
 	lcstr &allcode = *allcodeptr;
-    vecarr<char*> codesen;
+    fmvecarr<char*> codesen;
     codesen.NULLState();
-    codesen.Init(8, false);
+    codesen.Init(8, false, true);
 
     if(icldetail) icl << "Create_New_ICB_Extension_Init__Bake_Extension__AddTextBlocks...";
 	AddTextBlocks(allcode, &codesen);
     if(icldetail) icl << "finish" << endl;
 
     if(icldetail) icl << "Create_New_ICB_Extension_Init__Bake_Extension__ScanStructTypes...";
-	vecarr<code_sen *> *senstptr = AddCodeFromBlockData(codesen, "struct", ext);
+	fmvecarr<code_sen *> *senstptr = AddCodeFromBlockData(codesen, "struct", ext);
     if(icldetail) icl << "finish" << endl;
 
     if(icldetail) icl << "Create_New_ICB_Extension_Init__Bake_Extension__AddStructTypes...";
@@ -749,7 +755,7 @@ void bake_Extension(const char* filename, ICB_Extension* ext){
     if(icldetail) icl << "finish" << endl;
 
     if(icldetail) icl << "Create_New_ICB_Extension_Init__Bake_Extension__ScanFunctions...";
-    vecarr<code_sen *> *senptr = AddCodeFromBlockData(codesen, "none", ext);
+    fmvecarr<code_sen *> *senptr = AddCodeFromBlockData(codesen, "none", ext);
     if(icldetail) icl << "finish" << endl;
 
     if(icldetail) icl << "Create_New_ICB_Extension_Init__Bake_Extension__AddFunctions...";

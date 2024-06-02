@@ -1995,5 +1995,845 @@ namespace freemem{
 			--size;
 		}
 	};
+
+	class fmlcstr
+	{
+	public:
+		char *Arr;
+		size_t maxsize = 0;
+		size_t up = 0;
+		bool islocal = true;
+		bool isdebug = true;
+		short fmlayer = -1;
+
+		fmlcstr()
+		{
+			Arr = nullptr;
+			maxsize = 0;
+			up = 0;
+			islocal = true;
+			isdebug = true;
+			fmlayer = -1;
+		}
+
+		virtual ~fmlcstr()
+		{
+			if (islocal && isdebug)
+			{
+				fm->_Delete((byte8*)Arr, maxsize);
+				Arr = nullptr;
+			}
+		}
+
+		void NULLState()
+		{
+			Arr = nullptr;
+			maxsize = 0;
+			up = 0;
+			islocal = true;
+			isdebug = true;
+			fmlayer = -1;
+		}
+
+		void Init(size_t siz, bool local, bool isdbg = true, int flayer = -1)
+		{
+			islocal = local;
+			isdebug = isdbg;
+			fmlayer = flayer;
+			char *newArr = (char*)fm->_New(siz, isdebug, fmlayer);
+			if(fmlayer < 0){
+				fmlayer = fm->tempStack[fm->get_threadid(std::this_thread::get_id())]->tempFM.size()-1;
+			}
+
+			if (Arr != nullptr)
+			{
+				for (int i = 0; i < maxsize; ++i)
+				{
+					newArr[i] = Arr[i];
+				}
+
+				fm->_Delete((byte8*)Arr, maxsize);
+				Arr = nullptr;
+			}
+
+			Arr = newArr;
+			maxsize = siz;
+		}
+
+		void operator=(char *str)
+		{
+			int len = strlen(str) + 1;
+			if (Arr == nullptr)
+			{
+				Arr = (char*)fm->_New(len, isdebug, fmlayer);
+			}
+
+			if (maxsize < len)
+			{
+				Init(len + 1, islocal, isdebug, fmlayer);
+			}
+
+			strcpy(Arr, str);
+			up = len - 1;
+		}
+
+		bool operator==(char *str)
+		{
+			if (strcmp(Arr, str) == 0)
+				return true;
+			else
+				return false;
+		}
+
+		bool operator==(const char *str)
+		{
+			if (strcmp(Arr, str) == 0)
+				return true;
+			else
+				return false;
+		}
+
+		char &at(size_t i)
+		{
+			return Arr[i];
+		}
+
+		char *c_str()
+		{
+			Arr[up] = 0;
+			return Arr;
+		}
+
+		char &operator[](size_t i)
+		{
+			return Arr[i];
+		}
+
+		void push_back(char value)
+		{
+			if (up < maxsize)
+			{
+				Arr[up] = value;
+				up += 1;
+				Arr[up] = 0;
+			}
+			else
+			{
+				Init(maxsize * 2 + 1, islocal, isdebug, fmlayer);
+				Arr[up] = value;
+				up += 1;
+				Arr[up] = 0;
+			}
+		}
+
+		void pop_back()
+		{
+			if (up - 1 >= 0)
+			{
+				up -= 1;
+				Arr[up] = 0;
+			}
+		}
+
+		void erase(size_t i)
+		{
+			for (int k = i; k < up; ++k)
+			{
+				Arr[k] = Arr[k + 1];
+			}
+			up -= 1;
+		}
+
+		void insert(size_t i, char value)
+		{
+			push_back(value);
+			for (int k = maxsize - 1; k > i; k--)
+			{
+				Arr[k] = Arr[k - 1];
+			}
+			Arr[i] = value;
+		}
+
+		size_t size()
+		{
+			return up;
+		}
+
+		void clear()
+		{
+			if (Arr != nullptr && isdebug)
+				fm->_Delete((byte8*)Arr, maxsize);
+			Arr = nullptr;
+			up = 0;
+
+			Init(2, islocal);
+		}
+
+		void release()
+		{
+			if (Arr != nullptr && isdebug)
+				fm->_Delete((byte8*)Arr, maxsize);
+			Arr = nullptr;
+			up = 0;
+			islocal = false;
+		}
+	};
+
+	typedef unsigned int ui32;
+	typedef unsigned short ui16;
+	typedef short si16;
+	typedef unsigned char ui8;
+
+	template <typename T>
+	class fmCirculArr
+	{
+	public:
+		T *arr = nullptr; // 8byte
+		ui32 pivot = 0; // 4byte = 32bit - 12bit 20bit -> 100000capacity
+		ui16 maxsiz_pow2 = 4; // array maxsiz = 1 << maxsiz_pow2; // pow(w, maxsiz_pow2);
+		bool mbDbg = true;
+		static constexpr unsigned int filter[33] = {
+			0, 			// 0b 0000 0000 0000 0000 0000 0000 0000 0000
+			1, 			// 0b 0000 0000 0000 0000 0000 0000 0000 0001
+			3, 			// 0b 0000 0000 0000 0000 0000 0000 0000 0011
+			7, 			// 0b 0000 0000 0000 0000 0000 0000 0000 0111
+			15, 		// 0b 0000 0000 0000 0000 0000 0000 0000 1111
+			31, 		// 0b 0000 0000 0000 0000 0000 0000 0001 1111
+			63, 		// 0b 0000 0000 0000 0000 0000 0000 0011 1111
+			127, 		// 0b 0000 0000 0000 0000 0000 0000 0111 1111
+			255, 		// 0b 0000 0000 0000 0000 0000 0000 1111 1111
+			511, 		// 0b 0000 0000 0000 0000 0000 0001 1111 1111
+			1023, 		// 0b 0000 0000 0000 0000 0000 0011 1111 1111
+			2047, 		// 0b 0000 0000 0000 0000 0000 0111 1111 1111
+			4095, 		// 0b 0000 0000 0000 0000 0000 1111 1111 1111
+			8191, 		// 0b 0000 0000 0000 0000 0001 1111 1111 1111
+			16383, 		// 0b 0000 0000 0000 0000 0011 1111 1111 1111
+			32767, 		// 0b 0000 0000 0000 0000 0111 1111 1111 1111
+			65535, 		// 0b 0000 0000 0000 0000 1111 1111 1111 1111
+			131071, 	// 0b 0000 0000 0000 0001 1111 1111 1111 1111
+			262143, 	// 0b 0000 0000 0000 0011 1111 1111 1111 1111
+			524287, 	// 0b 0000 0000 0000 0111 1111 1111 1111 1111
+			1048575, 	// 0b 0000 0000 0000 1111 1111 1111 1111 1111
+			2097151, 	// 0b 0000 0000 0001 1111 1111 1111 1111 1111
+			4194303, 	// 0b 0000 0000 0011 1111 1111 1111 1111 1111
+			8388607, 	// 0b 0000 0000 0111 1111 1111 1111 1111 1111
+			16777215, 	// 0b 0000 0000 1111 1111 1111 1111 1111 1111
+			33554431, 	// 0b 0000 0001 1111 1111 1111 1111 1111 1111
+			67108863, 	// 0b 0000 0011 1111 1111 1111 1111 1111 1111
+			134217727, 	// 0b 0000 0111 1111 1111 1111 1111 1111 1111
+			268435455, 	// 0b 0000 1111 1111 1111 1111 1111 1111 1111
+			536870911, 	// 0b 0001 1111 1111 1111 1111 1111 1111 1111
+			1073741823, // 0b 0011 1111 1111 1111 1111 1111 1111 1111
+			2147483647, // 0b 0111 1111 1111 1111 1111 1111 1111 1111
+			4294967295, // 0b 1111 1111 1111 1111 1111 1111 1111 1111
+		};
+		static constexpr unsigned int uintMax = 4294967295;
+		//freemem::FM_System0 *fm;
+
+		fmCirculArr()
+		{
+		}
+
+		~fmCirculArr()
+		{
+		}
+
+
+		fmCirculArr(const fmCirculArr<T> &ref)
+		{
+			pivot = ref.pivot;
+			maxsiz_pow2 = ref.maxsiz_pow2;
+			arr = ref.arr;
+			mbDbg = ref.mbDbg;
+		}
+
+		void Init(int maxsiz_pow, bool isdbg, int fmlayer = -1)
+		{
+			maxsiz_pow2 = maxsiz_pow;
+			mbDbg = isdbg;
+			arr = (T *)fm->_New(sizeof(T) * (1 << maxsiz_pow2), mbDbg, fmlayer);
+			pivot = 0;
+		}
+
+		void Release()
+		{
+			if(mbDbg){
+				fm->_Delete((byte8 *)arr, sizeof(T) * (1 << maxsiz_pow2));
+			}
+			arr = nullptr;
+		}
+
+		inline void move_pivot(int dist)
+		{
+			pivot = ((1 << maxsiz_pow2) + pivot + dist) & (~(uintMax << (maxsiz_pow2)));
+		}
+
+		inline T &operator[](int index)
+		{
+			int realindex = (index + pivot) & (~(uintMax << (maxsiz_pow2)));
+			return arr[realindex];
+		}
+
+		void dbg()
+		{
+			ui32 max = (1 << maxsiz_pow2);
+			for (int i = 0; i < max; ++i)
+			{
+				cout << this->operator[](i) << " ";
+			}
+			cout << endl;
+		}
+	};
+
+	/*
+	TODO : list
+	1. match name of member var (ok)
+	2. use <<, >>, & instead *, /, % (ok)
+	3. normal casting > reinterpret_cast<> (ok)
+	4. data align (16 or 32byte) -> after finish all task, data align start.
+	5. current Data caching (when [] operator use, if last index +- value is in same fagment, do not excute logic and return add address value.) (ok)
+	*/
+	//32byte
+	template <typename T>
+	class fmDynamicArr
+	{
+	public:
+		fmCirculArr<int *> *ptrArray = nullptr; // 8byte
+		fmCirculArr<T>* lastCArr = nullptr; // 8byte cache
+		ui32 last_outerIndex = 0; // 4byte
+		ui32 array_siz = 0; // up 4byte
+		ui16 fragPercent = 0; //2byte
+		si16 fmlayer = -1; // 2byte
+		ui32 array_capacity = 10; // 4byte
+		ui8 fragment_siz_pow2 = 10; // 1byte
+		ui8 array_depth = 1; // 1byte
+		bool mbDbg = true; // 1byte
+
+		fmDynamicArr()
+		{
+		}
+		~fmDynamicArr()
+		{
+		}
+
+		void Init(int fmgsiz_pow, bool isdbg, int up = 0, int pfmlayer = -1)
+		{
+			if(ptrArray != nullptr){
+				release();
+			}
+			fragment_siz_pow2 = fmgsiz_pow;
+			array_depth = 1;
+			mbDbg = isdbg;
+			fmlayer = pfmlayer;
+			if(ptrArray == nullptr){
+				ptrArray = (fmCirculArr<int *> *)fm->_New(sizeof(fmCirculArr<int *>), mbDbg, (int)fmlayer);
+				ptrArray->Init(fmgsiz_pow, mbDbg);
+				int fmgsiz = 1 << fmgsiz_pow;
+				for(int i=0;i<fmgsiz;++i){
+					ptrArray->operator[](i) = nullptr;
+				}
+			}
+			
+			if(ptrArray->operator[](0) == nullptr){
+				fmCirculArr<T> *arr =
+					(fmCirculArr<T> *)fm->_New(sizeof(fmCirculArr<T>), mbDbg, (int)fmlayer);
+				arr->Init(fragment_siz_pow2, mbDbg);
+				ptrArray->operator[](0) = (int *)arr;
+				lastCArr = arr;
+			}
+
+			for (int i = 1; i < (1 << fragment_siz_pow2); ++i)
+			{
+				ptrArray->operator[](i) = nullptr;
+			}
+
+			array_capacity = 1 << fragment_siz_pow2;
+			array_siz = 0;
+
+			fragPercent = ((1 << (fragment_siz_pow2))-1);
+
+			lastCArr = this->get_bottom_array(0);
+
+			// up -> depth
+			if(up > 0){
+				const unsigned int pushN = 1+(up >> fragment_siz_pow2);
+				const unsigned int delta = (1 << fragment_siz_pow2);
+				for(int i=0;i<pushN;++i){
+					array_siz += delta;
+					T v;
+					push_back(v);
+				}
+
+				array_siz = up;
+			}
+
+			if(fmlayer < 0){
+				fmlayer = fm->tempStack[fm->get_threadid(std::this_thread::get_id())]->tempFM.size() - 1;
+			}
+		}
+
+		int get_max_capacity_inthisArr()
+		{
+			return 1 << (fragment_siz_pow2 * (array_depth + 1));
+		}
+
+/*
+		void set(int index, T value)
+		{
+			//this->operator[index] = value;
+			T nullv = 0;
+			int fragPercent = ((1 << (fragment_siz_pow2+1))-1);
+			if (index >= (1 << array_capacity_pow2))
+			{
+				return;
+			}
+			circularArray<int *> *ptr = ptrArray;
+			for (int i = 0; i < array_depth; ++i)
+			{
+				ptr = reinterpret_cast<circularArray<int *> *>(ptr->operator[]((int)((index >> (fragment_siz_pow2 * (array_depth - i)))) & fragPercent));
+			}
+			circularArray<T> *vptr = reinterpret_cast<circularArray<T> *>(ptr);
+			// T *vptr = ptr;
+			int inindex = (int)(index) & fragPercent;
+			vptr->operator[](inindex) = value;
+		}
+*/
+		
+		void push_back(T value)
+		{
+			if (array_siz + 1 <= array_capacity)
+			{
+				//set(array_siz, value);
+				if(array_siz == 256){
+					cout << "break!" << endl;
+				}
+				this->operator[](array_siz) = value;
+				//(*this)[array_siz] = value;
+				array_siz += 1;
+			}
+			else
+			{
+				if (array_siz + 1 > get_max_capacity_inthisArr())
+				{
+					// create new parent ptr array
+					int *chptr = (int *)ptrArray;
+					ptrArray = reinterpret_cast<fmCirculArr<int *> *>(fm->_New(sizeof(fmCirculArr<int *>), mbDbg, (int)fmlayer));
+					ptrArray->Init(fragment_siz_pow2, mbDbg, (int)fmlayer);
+
+					ptrArray->operator[](0) = chptr;
+					array_depth += 1;
+					for (int i = 1; i < (1 << fragment_siz_pow2); ++i)
+					{
+						ptrArray->operator[](i) = nullptr;
+					}
+				}
+				// create child ptr arrays
+				int next = array_siz;
+				fmCirculArr<int *> *ptr = ptrArray;
+				int upcapacity = 0;
+				for (int i = 0; i < array_depth; ++i)
+				{
+					int inindex = (int)(next >> fragment_siz_pow2 * (array_depth - i)) & (unsigned int)fragPercent;
+
+					upcapacity += (inindex) << (fragment_siz_pow2 * (array_depth - i));
+
+					fmCirculArr<int *> *tptr = ptr;
+					ptr = reinterpret_cast<fmCirculArr<int *> *>(tptr->operator[](inindex));
+					if (ptr == nullptr)
+					{
+						if (i == array_depth - 1)
+						{
+							fmCirculArr<T> *aptr =
+								reinterpret_cast<fmCirculArr<T> *>(fm->_New(sizeof(fmCirculArr<T>), mbDbg, (int)fmlayer));
+							aptr->Init(fragment_siz_pow2, mbDbg, (int)fmlayer);
+							tptr->operator[](inindex) = (int *)aptr;
+							ptr = reinterpret_cast<fmCirculArr<int *> *>(tptr->operator[](inindex));
+						}
+						else
+						{
+							fmCirculArr<int *> *insptr =
+								reinterpret_cast<fmCirculArr<int *>*>(fm->_New(sizeof(fmCirculArr<int *>), mbDbg, (int)fmlayer));
+							insptr->Init(fragment_siz_pow2, mbDbg, (int)fmlayer);
+							tptr->operator[](inindex) = (int *)insptr;
+
+							ptr = reinterpret_cast<fmCirculArr<int *> *>(tptr->operator[](inindex));
+						}
+					}
+				}
+				fmCirculArr<T> *vptr = reinterpret_cast<fmCirculArr<T> *>(ptr);
+				// T *vptr = ptr;
+				int inindex = (int)(next) & (unsigned int)fragPercent;
+				upcapacity += 1 << fragment_siz_pow2;
+				vptr->operator[](inindex) = value;
+				// capacity update
+				array_capacity = upcapacity;
+				array_siz += 1;
+			}
+		}
+
+		void pop_back()
+		{
+			T nullt = 0;
+			//set(array_siz - 1, nullt);
+			(*this)[array_siz - 1] = nullt;
+			array_siz -= 1;
+		}
+
+		inline unsigned int size(){
+			return array_siz;
+		}
+		//use caching. (pre bake function.)
+		T &operator[](size_t index)
+		{
+			if((last_outerIndex >> fragment_siz_pow2) == index >> fragment_siz_pow2){
+				ui32 k = index & (unsigned int)fragPercent;
+				return lastCArr->operator[](k);
+			}
+			
+			if (index >= array_capacity)
+			{
+				cout << "error! array index bigger than capacity!" << endl;
+				T nullv;
+				byte8* carr = reinterpret_cast<byte8*>(&nullv);
+				for(int i=0;i<sizeof(T);++i){
+					carr[i] = 0;
+				}
+				return nullv;
+			}
+
+			fmCirculArr<int *> *ptr = ptrArray;
+			for (int i = 0; i < array_depth; ++i)
+			{
+				int depth_index = (index >> (fragment_siz_pow2 * (array_depth - i))) & (unsigned int)fragPercent;
+				ptr = reinterpret_cast<fmCirculArr<int *> *>( ptr->operator[](depth_index));
+			}
+			fmCirculArr<T> *vptr = reinterpret_cast<fmCirculArr<T> *>(ptr);
+
+			lastCArr = vptr;
+			last_outerIndex = index;
+
+			// T *vptr = ptr;
+			int inindex = ((int)(index)) & (unsigned int)fragPercent;
+			return vptr->operator[](inindex);
+		}
+
+		fmCirculArr<T> *get_bottom_array(int index)
+		{
+			if((last_outerIndex >> fragment_siz_pow2) == index >> fragment_siz_pow2){
+				return lastCArr;
+			}
+
+			if (index >= array_capacity)
+			{
+				return nullptr;
+			}
+			fmCirculArr<int *> *ptr = ptrArray;
+			for (int i = 0; i < array_depth; ++i)
+			{
+				int depth_index = (index >> (fragment_siz_pow2 * (array_depth - i))) & (unsigned int)fragPercent;
+				ptr = reinterpret_cast<fmCirculArr<int *> *>( ptr->operator[](depth_index));
+				//ptr = reinterpret_cast<fmCirculArr<int *> *>(ptr->operator[]((int)((index >> (1 << fragment_siz_pow2) * (array_depth - i))) & fragPercent));
+			}
+			fmCirculArr<T> *vptr = reinterpret_cast<fmCirculArr<T> *>(ptr);
+			return vptr;
+		}
+
+		fmCirculArr<int *> *get_ptr_array(int index, int height)
+		{
+			if (index >= array_capacity)
+			{
+				return nullptr;
+			}
+			fmCirculArr<int *> *ptr = ptrArray;
+			for (int i = 0; i < array_depth - height; ++i)
+			{
+				int depth_index = (index >> (fragment_siz_pow2 * (array_depth - i))) & (unsigned int)fragPercent;
+				ptr = reinterpret_cast<fmCirculArr<int *> *>( ptr->operator[](depth_index));
+			}
+			return ptr;
+		}
+
+		// direction : -1 or 1
+		void move(int index, int direction, bool expend)
+		{
+			ui32 fragSiz = (1 << fragment_siz_pow2);
+			T save;
+			fmCirculArr<T> *corearr = get_bottom_array(index);
+			int inindex = index & (unsigned int)fragPercent;
+			int last = 0;
+			if (direction > 0)
+			{
+				last = (fragSiz) - direction;
+			}
+			save = corearr->operator[](last);
+
+			if (direction > 0)
+			{
+				for (int i = last; i >= inindex; --i)
+				{
+					corearr->operator[](i) = corearr->operator[](i - 1);
+				}
+			}
+			else
+			{
+				for (int i = inindex - 1; i < fragSiz; ++i)
+				{
+					corearr->operator[](i) = corearr->operator[](i + 1);
+				}
+			}
+
+			if (direction > 0)
+			{
+				int next = index;
+				while (true)
+				{
+					next = ((int)(next >> fragment_siz_pow2) + 1) << fragment_siz_pow2;
+					fmCirculArr<T> *temparr = get_bottom_array(next);
+
+					if (temparr == nullptr)
+					{
+						if (expend)
+						{
+							push(save);
+						}
+						break;
+					}
+
+					fmCirculArr<T> *nextarr = nullptr;
+					
+					nextarr = get_bottom_array(next + fragSiz);
+					T ss;
+					if (nextarr == nullptr)
+					{
+						int ind = (array_siz - 1) & (unsigned int)fragPercent;
+						ss = temparr->operator[](ind);
+					}
+					else
+					{
+						ss = temparr->operator[](fragSiz - 1);
+					}
+
+					temparr->move_pivot(-direction);
+					if (direction > 0)
+					{
+						temparr->operator[](0) = save;
+					}
+					else
+					{
+						temparr->operator[](fragSiz - 1) = save;
+					}
+
+					save = ss;
+				}
+			}
+			else
+			{
+				int next = array_siz - 1 + fragSiz;
+				while (true)
+				{
+					next = ((int)(next >> fragment_siz_pow2) - 1) << fragment_siz_pow2;
+					if (next < 0)
+						break;
+					fmCirculArr<T> *temparr = get_bottom_array(next);
+
+					if (temparr == nullptr)
+					{
+						continue;
+					}
+
+					T ss;
+					if ((next - fragSiz) >> fragment_siz_pow2 == index >> fragment_siz_pow2)
+					{
+						int ind = (array_siz - 1) & (unsigned int)fragPercent;
+						ss = temparr->operator[](0);
+
+						if (next + fragSiz >= array_siz)
+						{
+							temparr->move_pivot(-direction);
+							array_siz -= 1;
+						}
+						else
+						{
+							temparr->move_pivot(-direction);
+							temparr->operator[](fragSiz - 1) = save;
+						}
+
+						save = ss;
+
+						corearr->operator[](fragSiz - 1) = ss;
+						break;
+					}
+					else
+					{
+						ss = temparr->operator[](0);
+					}
+
+					if (next + fragSiz >= array_siz)
+					{
+						temparr->move_pivot(-direction);
+						array_siz -= 1;
+					}
+					else
+					{
+						temparr->move_pivot(-direction);
+						temparr->operator[](fragSiz - 1) = save;
+					}
+
+					save = ss;
+				}
+			}
+		}
+
+		void printstate(char sig)
+		{
+			cout << sig << "_"
+				 << "arr siz : " << array_siz << "[ ";
+			for (int u = 0; u < array_siz; ++u)
+			{
+				if (u & (unsigned int)fragPercent == 0)
+				{
+					int uu = u;
+					cout << ">";
+					for (int k = 0; k < array_depth; ++k)
+					{
+						uu = uu >> fragment_siz_pow2;
+						if (uu & (unsigned int)fragPercent == 0)
+						{
+							cout << ">";
+						}
+					}
+				}
+				cout << this->operator[](u) << ", ";
+			}
+			cout << "]" << endl;
+		}
+
+		void insert(int index, T value, bool expend)
+		{
+			move(index, 1, expend);
+			//set(index, value);
+			(*this)[index] = value;
+		}
+
+		void erase(int index)
+		{
+			if (index + 1 == array_siz)
+			{
+				T nullt = 0;
+				//set(index, nullt);
+				(*this)[index] = nullt;
+				array_siz -= 1;
+			}
+			else
+			{
+				move(index + 1, -1, false);
+			}
+		}
+
+		void NULLState()
+		{
+			ptrArray = nullptr;
+			lastCArr = nullptr;
+			last_outerIndex = 0;
+			array_siz = 0;
+			fragPercent = 0;
+			array_capacity = 0;
+			fragment_siz_pow2 = 0;
+			array_depth = 1;
+			mbDbg = false;
+			fmlayer = -1;
+		}
+
+		T & at(size_t i)
+		{
+			ui32 ind = i;
+			if((last_outerIndex >> fragment_siz_pow2) == ind >> fragment_siz_pow2){
+				return lastCArr->operator[](ind & (unsigned int)fragPercent);
+			}
+
+			if (ind >= array_capacity)
+			{
+				T nullv;
+				byte8* carr = reinterpret_cast<byte8*>(&nullv);
+				for(int i=0;i<sizeof(T);++i){
+					carr[i] = 0;
+				}
+				cout << "error! array index bigger than capacity!" << endl;
+				return nullv;
+			}
+			fmCirculArr<int *> *ptr = ptrArray;
+			for (int i = 0; i < array_depth; ++i)
+			{
+				int depth_index = (ind >> (fragment_siz_pow2 * (array_depth - i))) & (unsigned int)fragPercent;
+				ptr = reinterpret_cast<fmCirculArr<int *> *>( ptr->operator[](depth_index));
+			}
+			fmCirculArr<T> *vptr = reinterpret_cast<fmCirculArr<T> *>(ptr);
+
+			lastCArr = vptr;
+			last_outerIndex = ind;
+
+			// T *vptr = ptr;
+			int inindex = ((int)(ind)) & (unsigned int)fragPercent;
+			return vptr->operator[](inindex);
+		}
+
+		void clear()
+		{
+			array_siz = 0;
+			last_outerIndex = 0;
+			lastCArr = get_bottom_array(0);
+			//NULLState();
+		}
+
+		T & last() const
+		{
+			return at(array_siz - 1);
+		}
+
+		//need test
+		void release()
+		{
+			if(!mbDbg) return;
+			for (ui32 k = 0; k < array_depth; ++k)
+			{
+				ui32 maxn = 1 << (fragment_siz_pow2 * array_depth - k);
+				for (ui32 n = 0; n < maxn; ++n)
+				{
+					ui32 seek = n << (fragment_siz_pow2 * (k + 1));
+					fmCirculArr<int *> *ptr = ptrArray;
+					for (int i = 0; i < array_depth - k; ++i)
+					{
+						ptr = (fmCirculArr<int *> *)ptr->operator[](
+							(int)((seek >> (fragment_siz_pow2 * (array_depth - i)))) & ((1 << (fragment_siz_pow2 + 1)) - 1));
+					}
+
+					if (ptr == nullptr)
+					{
+						break;
+					}
+
+					if (k == 0)
+					{
+						// most bottom real array
+						fmCirculArr<T> *vptr = reinterpret_cast<fmCirculArr<T> *>(ptr);
+						vptr->Release();
+						fm->_Delete(reinterpret_cast<byte8 *>(vptr), sizeof(fmCirculArr<T>));
+						// delete vptr;
+					}
+					else
+					{
+						// not bottom ptr array
+						fmCirculArr<int *> *vptr = reinterpret_cast<fmCirculArr<int *> *>(ptr);
+						vptr->Release();
+						fm->_Delete(reinterpret_cast<byte8 *>(vptr), sizeof(fmCirculArr<int *>));
+					}
+				}
+			}
+
+			ptrArray->Release();
+			fm->_Delete((byte8 *)ptrArray, sizeof(fmCirculArr<int *>));
+			// delete[]ptrArray;
+		}
+	};
 }
 #endif
