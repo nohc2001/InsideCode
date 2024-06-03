@@ -939,6 +939,16 @@ public:
 		cs->start_line = 0;
 		cs->end_line = 0;
 	}
+	
+	void ReleaseTypeData(type_data* td){
+		if(td->structptr != nullptr && td->typetype != 'b'){
+			ReleaseTypeData((type_data*)td->structptr);
+			fm->_Delete((byte8*)td->structptr, sizeof(type_data));
+			td->structptr = nullptr;
+			td->name.release();
+		}
+	}
+
 	void Release(){
 		for(int i=0;i<allcode_sen.size();++i){
 			char* str = allcode_sen.at(i);
@@ -961,6 +971,20 @@ public:
 		if(init_datamem.maxsize != 0){
 			init_datamem.release();
 			init_datamem.maxsize = 0;
+		}
+
+		if(functions.size() != 0){
+			for(int i=0;i<functions.size();++i){
+				func_data* fd = functions.at(i);
+				fd->start_pc = nullptr;
+				for(int k=0;k<fd->param_data.size();++k){
+					NamingData nd = fd->param_data.at(k);
+					nd.add_address = 0;
+					//nd.name
+					ReleaseTypeData(nd.td);
+					fm->_Delete((byte8*)nd.td, sizeof(type_data));
+				}
+			}
 		}
 	}
 
