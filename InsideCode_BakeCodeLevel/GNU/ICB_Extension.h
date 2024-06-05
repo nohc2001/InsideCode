@@ -605,7 +605,8 @@ void interpret_AddStruct(code_sen *cs, ICB_Extension *ext)
         stdata->member_data.push_back(nd);
         cpivot = loc + 1;
     }
-    type_data *newtype = InsideCode_Bake::create_type(name, totalSiz, 's', reinterpret_cast<int *>(stdata));
+    type_data* newtype = (type_data*)fm->_New(sizeof(type_data), true);
+    *newtype = InsideCode_Bake::create_type(name, totalSiz, 's', reinterpret_cast<int *>(stdata));
     ext->exstructArr.push_back(newtype);
 }
 

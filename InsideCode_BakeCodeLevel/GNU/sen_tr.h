@@ -60,6 +60,17 @@ class word_base_sen_sys
 		wordlist.Init(2, false);
 	}
 
+	void Release(){
+		for(int i=0;i<wordlist.size();++i){
+			lcstr* str = wordlist.at(i);
+			str->release();
+			str->NULLState();
+			wordlist.at(i) = nullptr;
+		}
+		wordlist.release();
+		wordlist.NULLState();
+	}
+
 	void dbg_sen(sen * s)
 	{
 		for (int i = 0; i < s->size(); ++i)

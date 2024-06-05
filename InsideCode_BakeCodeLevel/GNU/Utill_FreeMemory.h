@@ -1350,6 +1350,18 @@ namespace freemem
 					fm->dbg_lifecheck();
 				}
 			}
+
+			for (int k = 0; k < 8; ++k)
+			{
+				cout << "\n fm " << k << endl;
+				for (int i = 0; i < SmallSize_HeapDebugFM[k]->size(); ++i)
+				{
+					FM_Model1 *fm = SmallSize_HeapDebugFM[k]->at(i);
+					cout << fm->Fup << ", ";
+					//fm->dbg_lifecheck();
+				}
+				cout << endl;
+			}
 		}
 
 		byte8 *_fastnew(unsigned int byteSiz)

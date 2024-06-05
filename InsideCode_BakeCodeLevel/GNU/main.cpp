@@ -51,21 +51,51 @@ int main(){
     InsideCode_Bake::SetICLFlag(ICL_FLAG::Create_New_ICB_Context, false);
 
     InsideCode_Bake::StaticInit();
+
+    fm->dbg_fm1_lifecheck();
+
     ICB_Extension* ext = Init_exGeometry();
+
+    fm->dbg_fm1_lifecheck();
+
     InsideCode_Bake icb;
 	icb.init();
     icb.extension.push_back(ext);
+
+    fm->dbg_fm1_lifecheck();
+
 	icb.bake_code("code.txt");
+
+    fm->dbg_fm1_lifecheck();
 
 	vecarr<ICB_Context *> exectxs;
     ICB_Context* ctx = (ICB_Context*)fm->_New(sizeof(ICB_Context), true);
     ctx->SetICB(&icb, 40960); // 40KB
+
+    fm->dbg_fm1_lifecheck();
 	
     exectxs.NULLState();
 	exectxs.Init(2, false);
     exectxs.push_back(ctx);
 	execute_switch(exectxs, 1000, code_control, true);
 
+    fm->dbg_fm1_lifecheck();
+
     fm->_tempPopLayer();
+
+    ctx->Release();
+    fm->_Delete((byte8*)ctx, sizeof(ICB_Context));
+
+    icb.Release();
+
+    ext->Release();
+    fm->_Delete((byte8*)ext, sizeof(ICB_Extension));
+
+    exectxs.release();
+    exectxs.NULLState();
+
+    InsideCode_Bake::wbss.Release();
+    
+
     fm->dbg_fm1_lifecheck();
 }

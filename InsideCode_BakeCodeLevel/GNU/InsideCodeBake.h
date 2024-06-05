@@ -834,6 +834,36 @@ typedef void (*exCompileFunc)(int*); // int -> InsideCode_Bake
 struct ICB_Extension{
     fmvecarr<type_data*> exstructArr;
     fmvecarr<func_data*> exfuncArr;
+
+	void Release(){
+		for(int i=0;i<exstructArr.size();++i){
+			type_data* td = exstructArr.at(i);
+			struct_data* sd = (struct_data*)td->structptr;
+			////wbss release
+			//td->name
+			sd->member_data.release();
+			sd->member_data.NULLState();
+			td->structptr = nullptr;
+			td->name.release();
+			td->name.NULLState();
+			exstructArr.at(i) = nullptr;
+		}
+		exstructArr.release();
+		exstructArr.NULLState();
+
+		for(int i=0;i<exfuncArr.size();++i){
+			func_data* fd = exfuncArr.at(i);
+			fd->name.release();
+			fd->name.NULLState();
+			fd->returntype = nullptr;
+			fd->start_pc = nullptr;
+			fd->param_data.release();
+			fd->param_data.NULLState();
+			exfuncArr.at(i) = nullptr;
+		}
+		exfuncArr.release();
+		exfuncArr.NULLState();
+	}
 };
 
 enum class ICL_FLAG {
@@ -902,7 +932,7 @@ public:
     int datamem_up = 0;
 
 	static constexpr int basictype_max = 8;
-	static type_data *basictype[basictype_max];
+	static type_data basictype[basictype_max];
 
 	static constexpr int basicoper_max = 19;
 	static operator_data basicoper[basicoper_max];
@@ -925,9 +955,6 @@ public:
 
 		if(cs->maxlen != 0){
 			for(int i=0;i<cs->maxlen;++i){
-				char* str = cs->sen[i];
-				int len = strlen(str) + 1;
-				fm->_Delete((byte8*)str, len);
 				cs->sen[i] = nullptr;
 			}
 			fm->_Delete((byte8*)cs->sen, cs->maxlen * sizeof(char*));
@@ -946,46 +973,133 @@ public:
 			fm->_Delete((byte8*)td->structptr, sizeof(type_data));
 			td->structptr = nullptr;
 			td->name.release();
+			td->name.NULLState();
 		}
 	}
 
 	void Release(){
+		/*
+	fmvecarr<char *> allcode_sen;
+	fmvecarr<code_sen *> *csarr;
+    uint32_t max_mem_byte = 40960; // 40KB
+	byte8 *mem = nullptr;
+	fmvecarr<byte8> init_datamem;
+	fmvecarr<func_data *> functions;
+	fmvecarr<type_data *> types;
+	fmvecarr<block_data *> blockstack;
+	fmvecarr<NamingData *> globalVariables;
+	block_data nextbd;
+	struct_data *nextsd;
+	fmvecarr<ICB_Extension*> extension; // 확장코드
+		*/
 		for(int i=0;i<allcode_sen.size();++i){
-			char* str = allcode_sen.at(i);
-			int len = strlen(str) + 1;
-			fm->_Delete((byte8*)str, len);
 			allcode_sen.at(i) = nullptr;
 		}
 		allcode_sen.release();
+		allcode_sen.NULLState();
 
 		if(csarr != nullptr){
 			for(int i=0;i<csarr->size();++i){
 				code_sen* cs = csarr->at(i);
 				ReleaseCodeSen(cs);
+				fm->_Delete((byte8*)cs, sizeof(code_sen));
 				csarr->at(i) = nullptr;
 			}
 			csarr->release();
+			csarr->NULLState();
 			csarr = nullptr;
 		}
 
 		if(init_datamem.maxsize != 0){
 			init_datamem.release();
-			init_datamem.maxsize = 0;
+			init_datamem.NULLState();
 		}
+
+		if(types.size() > basictype_max){
+			int si = basictype_max;
+			for(int i=si;i<types.size();++i){
+				type_data* td = types.at(i);
+				ReleaseTypeData(td);
+				fm->_Delete((byte8*)td, sizeof(type_data));
+				types.at(i) = nullptr;
+			}
+		}
+		types.release();
+		types.NULLState();
 
 		if(functions.size() != 0){
 			for(int i=0;i<functions.size();++i){
 				func_data* fd = functions.at(i);
 				fd->start_pc = nullptr;
+				/*
 				for(int k=0;k<fd->param_data.size();++k){
 					NamingData nd = fd->param_data.at(k);
 					nd.add_address = 0;
+
+					//prerelease in allcodesen release
 					//nd.name
-					ReleaseTypeData(nd.td);
-					fm->_Delete((byte8*)nd.td, sizeof(type_data));
+
+					//pre release in type release
+					//ReleaseTypeData(nd.td);
+					//fm->_Delete((byte8*)nd.td, sizeof(type_data));
 				}
+				*/
+				//pre release in allcodesen
+				fd->name.NULLState();
+				fd->param_data.release();
+				fd->param_data.NULLState();
+				fd->returntype = nullptr;
+				fd->start_pc = nullptr;
+				fm->_Delete((byte8*)fd, sizeof(func_data));
+				functions.at(i) = nullptr;
 			}
 		}
+		functions.release();
+		functions.NULLState();
+
+		for(int i=0;i<blockstack.size();++i){
+			block_data* bd = blockstack.at(i);
+			bd->start_pc = nullptr;
+			bd->breakpoints->release();
+			bd->breakpoints->NULLState();
+			bd->breakpoints = nullptr;
+			bd->continuepoints->release();
+			bd->continuepoints->NULLState();
+			bd->continuepoints = nullptr;
+			bd->variable_data.release();
+			bd->variable_data.NULLState();
+			fm->_Delete((byte8*)bd, sizeof(block_data));
+			blockstack.at(i) = nullptr;
+		}
+		blockstack.release();
+		blockstack.NULLState();
+
+		for(int i=0;i<globalVariables.size();++i){
+			NamingData* nd = globalVariables.at(i);
+			fm->_Delete((byte8*)nd, sizeof(NamingData));
+			globalVariables.at(i) = nullptr;
+		}
+		globalVariables.release();
+		globalVariables.NULLState();
+
+		nextbd.start_pc = nullptr;
+		nextbd.breakpoints->release();
+		nextbd.breakpoints->NULLState();
+		nextbd.breakpoints = nullptr;
+		nextbd.continuepoints->release();
+		nextbd.continuepoints->NULLState();
+		nextbd.continuepoints = nullptr;
+		nextbd.variable_data.release();
+		nextbd.variable_data.NULLState();
+
+		if(nextsd != nullptr){
+			nextsd->member_data.release();
+			nextsd->member_data.NULLState();
+			fm->_Delete((byte8*)nextsd, sizeof(struct_data));
+		}
+
+		extension.release();
+		extension.NULLState();
 	}
 
 	static void SetICLFlag(ICL_FLAG flag, bool enable){
@@ -1009,6 +1123,12 @@ public:
 		ptr->mem.release();
 		fm->_Delete((byte8 *)ptr, sizeof(temp_mem));
 		// type_data memeory management reqired.. but how?
+		bool nondelete = false;
+		for(int i=0;i<types.size();++i){
+			if(ptr->valuetype_detail == types.at(i)){
+				nondelete = true;
+			}
+		}
 	}
 
 	static operator_data create_oper(const char *symbo, char mo, int starto, int endo)
@@ -1025,15 +1145,15 @@ public:
 		return op;
 	}
 
-	static type_data *create_type(char *nam, int tsiz, char typ, int *strptr)
+	static type_data create_type(char *nam, int tsiz, char typ, int *strptr)
 	{
-		type_data *td = (type_data *)fm->_New(sizeof(type_data), true);
-		td->name.NULLState();
-		td->name.Init(2, false);
-		td->name = nam;
-		td->structptr = strptr;
-		td->typesiz = tsiz;
-		td->typetype = typ;
+		type_data td;
+		td.name.NULLState();
+		td.name.Init(2, false);
+		td.name = nam;
+		td.structptr = strptr;
+		td.typesiz = tsiz;
+		td.typetype = typ;
 		return td;
 	}
 
@@ -1179,42 +1299,42 @@ public:
 		switch (n)
 		{
 		case 0:
-			return basictype[1];
+			return &basictype[1];
 		case 1:
-			return basictype[7];
+			return &basictype[7];
 		case 2:
-			return basictype[2];
+			return &basictype[2];
 		case 3:
-			return basictype[6];
+			return &basictype[6];
 		case 4:
-			return basictype[0];
+			return &basictype[0];
 		case 5:
-			return basictype[5];
+			return &basictype[5];
 		case 6:
-			return basictype[3];
+			return &basictype[3];
 		case 7:
-			return basictype[4];
+			return &basictype[4];
 		}
 		return nullptr;
 	}
 
 	static int get_int_with_basictype(type_data *td)
 	{
-		if (td == basictype[1])
+		if (td == &basictype[1])
 			return 0;
-		if (td == basictype[7])
+		if (td == &basictype[7])
 			return 1;
-		if (td == basictype[2])
+		if (td == &basictype[2])
 			return 2;
-		if (td == basictype[6])
+		if (td == &basictype[6])
 			return 3;
-		if (td == basictype[0])
+		if (td == &basictype[0])
 			return 4;
-		if (td == basictype[5])
+		if (td == &basictype[5])
 			return 5;
-		if (td == basictype[3])
+		if (td == &basictype[3])
 			return 6;
-		if (td == basictype[4])
+		if (td == &basictype[4])
 			return 7;
 		return 8;
 	}
@@ -1501,6 +1621,7 @@ public:
 
 	static void StaticInit(){
 		wbss.Init();
+
 		icl.open("icb_dbg.txt");
 		icl << "Inside Code Bake System Start" << endl;
 		icl << "ICB_StaticInit...";
@@ -1509,54 +1630,39 @@ public:
 		if(icldetail) icl << "start" << endl;
 		if(icldetail) icl << "ICB_StaticInit create basic types start" << endl;
 
-		char *name[8] = {};
-		name[0] = (char *)fm->_New(4, true);
-		strcpy(name[0], "int");
-		if(icldetail) icl << "ICB_StaticInit Create Type : " << name[0] << "...";
-		basictype[0] = create_type(name[0], 4, 'b', nullptr);
+		if(icldetail) icl << "ICB_StaticInit Create Type : " << "int" << "...";
+		basictype[0] = create_type("int", 4, 'b', nullptr);
 		if(icldetail) icl << "finish" << endl;
 
-		name[1] = (char *)fm->_New(5, true);
-		strcpy(name[1], "char");
-		if(icldetail) icl << "ICB_StaticInit Create Type : " << name[1] << "...";
-		basictype[1] = create_type(name[1], 1, 'b', nullptr);
+		if(icldetail) icl << "ICB_StaticInit Create Type : " << "char" << "...";
+		basictype[1] = create_type("char", 1, 'b', nullptr);
 		if(icldetail) icl << "finish" << endl;
 
-		name[2] = (char *)fm->_New(6, true);
-		strcpy(name[2], "short");
-		if(icldetail) icl << "ICB_StaticInit Create Type : " << name[2] << "...";
-		basictype[2] = create_type(name[2], 2, 'b', nullptr);
+		if(icldetail) icl << "ICB_StaticInit Create Type : " << "short" << "...";
+		basictype[2] = create_type("short", 2, 'b', nullptr);
 		if(icldetail) icl << "finish" << endl;
 
-		name[3] = (char *)fm->_New(6, true);
-		strcpy(name[3], "float");
-		if(icldetail) icl << "ICB_StaticInit Create Type : " << name[3] << "...";
-		basictype[3] = create_type(name[3], 4, 'b', nullptr);
+		if(icldetail) icl << "ICB_StaticInit Create Type : " << "float" << "...";
+		basictype[3] = create_type("float", 4, 'b', nullptr);
 		if(icldetail) icl << "finish" << endl;
 
-		name[4] = (char *)fm->_New(5, true);
-		strcpy(name[4], "bool");
-		if(icldetail) icl << "ICB_StaticInit Create Type : " << name[4] << "...";
-		basictype[4] = create_type(name[4], 4, 'b', nullptr);
+		if(icldetail) icl << "ICB_StaticInit Create Type : " << "bool" << "...";
+		basictype[4] = create_type("bool", 1, 'b', nullptr);
 		if(icldetail) icl << "finish" << endl;
 
-		name[5] = (char *)fm->_New(5, true);
-		strcpy(name[5], "uint");
-		if(icldetail) icl << "ICB_StaticInit Create Type : " << name[5] << "...";
-		basictype[5] = create_type(name[5], 4, 'b', nullptr);
+		if(icldetail) icl << "ICB_StaticInit Create Type : " << "uint" << "...";
+		basictype[5] = create_type("uint", 4, 'b', nullptr);
 		if(icldetail) icl << "finish" << endl;
 
-		name[6] = (char *)fm->_New(7, true);
-		strcpy(name[6], "ushort");
-		if(icldetail) icl << "ICB_StaticInit Create Type : " << name[6] << "...";
-		basictype[6] = create_type(name[6], 2, 'b', nullptr);
+		if(icldetail) icl << "ICB_StaticInit Create Type : " << "ushort" << "...";
+		basictype[6] = create_type("ushort", 2, 'b', nullptr);
 		if(icldetail) icl << "finish" << endl;
 
-		name[7] = (char *)fm->_New(6, true);
-		strcpy(name[7], "uchar");
-		if(icldetail) icl << "ICB_StaticInit Create Type : " << name[7] << "...";
-		basictype[7] = create_type(name[7], 1, 'b', nullptr);
+		if(icldetail) icl << "ICB_StaticInit Create Type : " << "uchar" << "...";
+		basictype[7] = create_type("uchar", 1, 'b', nullptr);
 		if(icldetail) icl << "finish" << endl;
+
+		fm->dbg_fm1_lifecheck();
 		if(icldetail) icl << "ICB_StaticInit create basic types finish" << endl;
 
 		if(icldetail) icl << "ICB_StaticInit create basic operation start" << endl;
@@ -1582,6 +1688,8 @@ public:
 		basicoper[18] = create_oper("||", 'o', (byte8)insttype::IT_LU_BOOL_OR_A, (byte8)insttype::IT_LU_BOOL_OR_B);
 		if(icldetail) icl << "ICB_StaticInit create basic operation finish" << endl;
 
+		fm->dbg_fm1_lifecheck();
+
 		if(icldetail) icl << "ICB_StaticInit ";
 		icl << "finish" << endl;
 	}
@@ -1596,7 +1704,7 @@ public:
 
 		for (int i = 0; i < basictype_max; ++i)
 		{
-			types.push_back(basictype[i]);
+			types.push_back(&basictype[i]);
 		}
 
 		block_data *bd = (block_data *)fm->_New(sizeof(block_data), true);
@@ -4622,7 +4730,8 @@ public:
 			stdata->member_data.push_back(nd);
 			cpivot = loc + 1;
 		}
-		type_data* newtype = create_type(name, totalSiz, 's', reinterpret_cast<int*>(stdata));
+		type_data* newtype = (type_data*)fm->_New(sizeof(type_data), true);
+		*newtype = create_type(name, totalSiz, 's', reinterpret_cast<int*>(stdata));
 		types.push_back(newtype);
 	}
 
@@ -6817,6 +6926,21 @@ class ICB_Context{
 
 		icl << "finish.";
     }
+
+	void Release(){
+		icb = nullptr;
+		codemem = nullptr;
+		fm->_Delete((byte8*)mem, max_mem_byte);
+		mem = nullptr;
+		datamem.release();
+		datamem.NULLState();
+		fsp.release();
+		fsp.NULLState();
+		call_stack.release();
+		call_stack.NULLState();
+		saveSP.release();
+		saveSP.NULLState();
+	}
 
     void dbg_registers()
 	{
