@@ -1738,51 +1738,33 @@ public:
 		icl << "finish" << endl;
 	}
 
-	void push_word(lcstr &str)
+	void push_word(char* sptr)
 	{
-		const char *sptr = str.c_str();
-		int len = strlen(sptr);
-		char *cstr = (char *)fm->_New(len + 1, true);
-
-		for (int i = 0; i < len; ++i)
-		{
-			cstr[i] = sptr[i];
-		}
-		cstr[len] = 0;
-
 		for (int i = 0; i < wbss.wordlist.size(); ++i)
 		{
-			if (strcmp(cstr, wbss.wordlist.at(i)->c_str()) == 0)
+			if (strcmp(sptr, wbss.wordlist.at(i)) == 0)
 			{
-				fm->_Delete((byte8 *)cstr, len + 1);
-				allcode_sen.push_back(wbss.wordlist.at(i)->c_str());
+				allcode_sen.push_back(wbss.wordlist.at(i));
 				return;
 			}
 		}
 
-		wbss.addword(cstr);
+		char* cstr = wbss.addword(sptr);
 		allcode_sen.push_back(cstr);
 	}
 
-	void set_word(int index, lcstr &str)
+	void set_word(int index, char* sptr)
 	{
-		const char *sptr = str.c_str();
-		int len = strlen(sptr);
-		char *cstr = (char *)fm->_New(len + 1, true);
-		strcpy(cstr, sptr);
-		cstr[len] = 0;
-
 		for (int i = 0; i < wbss.wordlist.size(); ++i)
 		{
-			if (strcmp(cstr, wbss.wordlist.at(i)->c_str()) == 0)
+			if (strcmp(sptr, wbss.wordlist.at(i)) == 0)
 			{
-				fm->_Delete((byte8 *)cstr, len + 1);
-				allcode_sen[index] = wbss.wordlist.at(i)->c_str();
+				allcode_sen[index] = wbss.wordlist.at(i);
 				return;
 			}
 		}
 
-		wbss.addword(cstr);
+		char* cstr = wbss.addword(sptr);
 		allcode_sen[index] = cstr;
 	}
 
@@ -1812,7 +1794,7 @@ public:
 						}
 						++ti;
 					}
-					push_word(insstr);
+					push_word(insstr.c_str());
 					continue;
 				}
 				insstr.push_back(codetxt.at(i + 1));
@@ -1828,7 +1810,7 @@ public:
 						}
 						++ti;
 					}
-					push_word(insstr);
+					push_word(insstr.c_str());
 					insstr.clear();
 				}
 				else
@@ -1851,7 +1833,7 @@ public:
 							}
 							++ti;
 						}
-						push_word(insstr);
+						push_word(insstr.c_str());
 						insstr.clear();
 						insstr.push_back(c);
 						if (icldetail)
@@ -1866,7 +1848,7 @@ public:
 							}
 							++ti;
 						}
-						push_word(insstr);
+						push_word(insstr.c_str());
 						insstr.clear();
 						i++;
 					}
@@ -1913,7 +1895,7 @@ public:
 						insstr.push_back(t1[k]);
 					}
 
-					set_word(i, insstr);
+					set_word(i, insstr.c_str());
 					if(icldetail) icl << i+1 << " : \"" << t1.c_str() << "\" => "<< insstr.c_str() << endl;
 					allcode_sen.erase(i + 1);
 				}
@@ -1934,7 +1916,7 @@ public:
 					insstr = allcode_sen[i - 1];
 					if(icldetail) icl << "combine block : " << i-1 << " : \"" << insstr.c_str() << "\" + ";
 					insstr.push_back('=');
-					set_word(i - 1, insstr);
+					set_word(i - 1, insstr.c_str());
 					if(icldetail) icl << i << " : \"" << allcode_sen[i] << "\" => \""<< insstr.c_str() << "\"" << endl;
 					allcode_sen.erase(i);
 				}
@@ -1951,7 +1933,7 @@ public:
 					insstr = allcode_sen[i];
 					if(icldetail) icl << "combine block : " << i-1 << " : \"" << insstr.c_str() << "\" + ";
 					insstr.push_back('|');
-					set_word(i, insstr);
+					set_word(i, insstr.c_str());
 					if(icldetail) icl << i << " : \"" << allcode_sen[i] << "\" => \""<< insstr.c_str() << "\"" << endl;
 					allcode_sen.erase(i + 1);
 				}
@@ -1968,7 +1950,7 @@ public:
 					insstr = allcode_sen[i];
 					if(icldetail) icl << "combine block : " << i << " : \"" << insstr.c_str() << "\" + ";
 					insstr.push_back('&');
-					set_word(i, insstr);
+					set_word(i, insstr.c_str());
 					if(icldetail) icl << i+1 << " : \"" << allcode_sen[i+1] << "\" => \""<< insstr.c_str() << "\"" << endl;
 					allcode_sen.erase(i + 1);
 				}
@@ -2008,7 +1990,7 @@ public:
 					{
 						insstr.push_back(back[k]);
 					}
-					set_word(i - 1, insstr);
+					set_word(i - 1, insstr.c_str());
 					if(icldetail) icl << i+1 << " : \"" << back.c_str() << "\" => \""<< insstr.c_str() << "\"" << endl;
 					allcode_sen.erase(i);
 					allcode_sen.erase(i);
@@ -2035,7 +2017,7 @@ public:
 						insstr.push_back(back.at(k));
 					}
 
-					set_word(i, insstr);
+					set_word(i, insstr.c_str());
 					allcode_sen.erase(i + 1);
 					allcode_sen.erase(i + 1);
 
@@ -2066,7 +2048,7 @@ public:
 						insstr.push_back(backback.at(k));
 					}
 
-					set_word(i, insstr);
+					set_word(i, insstr.c_str());
 					if(icldetail) icl << "combine block : " << i << " ~ " << i + 2 << "\"" << insstr.c_str() << "\"" << endl;
 					allcode_sen.erase(i + 1);
 					allcode_sen.erase(i + 1);

@@ -45,7 +45,8 @@ typedef vecarr < vecarr < seg_variable > *>var_cases;
 class word_base_sen_sys
 {
   public:
-	vecarr < lcstr * >wordlist;
+	vecarr < char * >wordlist;
+	// data rule : every word mem siz is len + 1
 
 	word_base_sen_sys()
 	{
@@ -62,9 +63,9 @@ class word_base_sen_sys
 
 	void Release(){
 		for(int i=0;i<wordlist.size();++i){
-			lcstr* str = wordlist.at(i);
-			str->release();
-			str->NULLState();
+			char* cstr = wordlist.at(i);
+			int siz = strlen(cstr) + 1;
+			fm->_Delete((byte8*)cstr, siz);
 			wordlist.at(i) = nullptr;
 		}
 		wordlist.release();
@@ -109,23 +110,22 @@ class word_base_sen_sys
 		}
 	}
 
-	void addword(char *str)
+	char* addword(char *str)
 	{
-		int len = strlen(str);
-		lcstr *cstr = (lcstr *) fm->_New(sizeof(lcstr), true);
-		cstr->NULLState();
-		cstr->Init(2, false);
-		cstr->operator=(str);
+		int siz = strlen(str) + 1;
+		char* cstr = (char*)fm->_New(siz, true);
+		strcpy(cstr, str);
 		wordlist.push_back(cstr);
+		return cstr;
 	}
 
 	char *searchword(char *str)
 	{
 		for (int i = 0; i < wordlist.size(); ++i)
 		{
-			if (strcmp(wordlist.at(i)->Arr, str) == 0)
+			if (strcmp(wordlist.at(i), str) == 0)
 			{
-				return wordlist[i]->Arr;
+				return wordlist[i];
 			}
 		}
 		return nullptr;
