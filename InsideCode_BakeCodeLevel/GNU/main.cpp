@@ -5,7 +5,7 @@
 extern FM_System0 *fm;
 
 word_base_sen_sys InsideCode_Bake::wbss;
-type_data *InsideCode_Bake::basictype[basictype_max];
+type_data InsideCode_Bake::basictype[basictype_max];
 operator_data InsideCode_Bake::basicoper[basicoper_max];
 ofstream InsideCode_Bake::icl;
 uint32_t InsideCode_Bake::icl_optionFlag;
@@ -51,8 +51,6 @@ int main(){
     InsideCode_Bake::SetICLFlag(ICL_FLAG::Create_New_ICB_Context, false);
 
     InsideCode_Bake::StaticInit();
-
-    fm->dbg_fm1_lifecheck();
 
     ICB_Extension* ext = Init_exGeometry();
 

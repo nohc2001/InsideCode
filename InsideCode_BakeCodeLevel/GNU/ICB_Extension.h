@@ -269,7 +269,7 @@ bool IsTypeString(const char *str, ICB_Extension* ext)
 {
     for (int i = 0; i < InsideCode_Bake::basictype_max; ++i)
     {
-        if (strcmp(str, InsideCode_Bake::basictype[i]->name.c_str()) == 0)
+        if (strcmp(str, InsideCode_Bake::basictype[i].name.c_str()) == 0)
             return true;
     }
 
@@ -538,8 +538,8 @@ type_data *get_type_with_namesen(sen *tname, ICB_Extension* ext)
     char *bt = tname->at(0).data.str;
     for (int i = 0; i < InsideCode_Bake::basictype_max; ++i)
     {
-        if (strcmp(bt, InsideCode_Bake::basictype[i]->name.c_str()) == 0){
-            td = InsideCode_Bake::basictype[i];
+        if (strcmp(bt, InsideCode_Bake::basictype[i].name.c_str()) == 0){
+            td = &InsideCode_Bake::basictype[i];
             break;
         }
     }
@@ -739,6 +739,11 @@ void bake_Extension(const char* filename, ICB_Extension* ext){
 
     if(icldetail) icl << "Create_New_ICB_Extension_Init__Bake_Extension__AddTextBlocks...";
 	AddTextBlocks(allcode, &codesen);
+    
+    allcodeptr->release();
+    allcodeptr->NULLState();
+    fm->_Delete((byte8*)allcodeptr, sizeof(lcstr));
+
     if(icldetail) icl << "finish" << endl;
 
     if(icldetail) icl << "Create_New_ICB_Extension_Init__Bake_Extension__ScanStructTypes...";
@@ -757,6 +762,9 @@ void bake_Extension(const char* filename, ICB_Extension* ext){
 
     if(icldetail) icl << "Create_New_ICB_Extension_Init__Bake_Extension__ScanFunctions...";
     fmvecarr<code_sen *> *senptr = AddCodeFromBlockData(codesen, "none", ext);
+
+    codesen.release();
+    codesen.NULLState();
     if(icldetail) icl << "finish" << endl;
 
     if(icldetail) icl << "Create_New_ICB_Extension_Init__Bake_Extension__AddFunctions...";

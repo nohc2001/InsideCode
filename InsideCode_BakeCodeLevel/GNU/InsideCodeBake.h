@@ -1662,7 +1662,6 @@ public:
 		basictype[7] = create_type("uchar", 1, 'b', nullptr);
 		if(icldetail) icl << "finish" << endl;
 
-		fm->dbg_fm1_lifecheck();
 		if(icldetail) icl << "ICB_StaticInit create basic types finish" << endl;
 
 		if(icldetail) icl << "ICB_StaticInit create basic operation start" << endl;
@@ -1687,8 +1686,6 @@ public:
 		basicoper[17] = create_oper("&&", 'o', (byte8)insttype::IT_LU_BOOL_AND_A, (byte8)insttype::IT_LU_BOOL_AND_B);
 		basicoper[18] = create_oper("||", 'o', (byte8)insttype::IT_LU_BOOL_OR_A, (byte8)insttype::IT_LU_BOOL_OR_B);
 		if(icldetail) icl << "ICB_StaticInit create basic operation finish" << endl;
-
-		fm->dbg_fm1_lifecheck();
 
 		if(icldetail) icl << "ICB_StaticInit ";
 		icl << "finish" << endl;
