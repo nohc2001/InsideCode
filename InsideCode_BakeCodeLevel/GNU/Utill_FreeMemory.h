@@ -455,6 +455,38 @@ namespace freemem
 			cout << endl;
 		}
 
+		void dbg_lifecheck_char()
+		{
+			int count = 0;
+			cout << (int *)&DataPtr[0] << " : \t";
+			for (int i = 0; i < realDataSiz; i += dbg_bytesize)
+			{
+				char c = DataPtr[i];
+				if(!(33 <= c && c <= 126)){
+					c = '?';
+				}
+				switch (isValid(i))
+				{
+				case true:
+					cout << '_';
+					break;
+				case false:
+					cout << c;
+					break;
+				}
+				if (count >= 32)
+				{
+					cout << endl;
+					int ad = i;
+					cout << (int *)&DataPtr[ad] << " : \t";
+					count = 0;
+				}
+
+				++count;
+			}
+			cout << endl;
+		}
+
 		void Set(unsigned int address, bool enable)
 		{
 			int bigloc = address / dbg_bitsize;
@@ -1348,6 +1380,34 @@ namespace freemem
 					cout << "\nFM1_" << i << "=" << fm << endl;
 					cout << "FUP : " << fm->Fup << "/" << fm->realDataSiz << endl;
 					fm->dbg_lifecheck();
+				}
+			}
+
+			for (int k = 0; k < 8; ++k)
+			{
+				cout << "\n fm " << k << endl;
+				for (int i = 0; i < SmallSize_HeapDebugFM[k]->size(); ++i)
+				{
+					FM_Model1 *fm = SmallSize_HeapDebugFM[k]->at(i);
+					cout << fm->Fup << ", ";
+					//fm->dbg_lifecheck();
+				}
+				cout << endl;
+			}
+		}
+
+		void dbg_fm1_lifecheck_charprint()
+		{
+			cout << "----------------fmsystem-----------------" << endl;
+			for (int k = 0; k < 8; ++k)
+			{
+				cout << "\n fm" << this << endl;
+				for (int i = 0; i < SmallSize_HeapDebugFM[k]->size(); ++i)
+				{
+					FM_Model1 *fm = SmallSize_HeapDebugFM[k]->at(i);
+					cout << "\nFM1_" << i << "=" << fm << endl;
+					cout << "FUP : " << fm->Fup << "/" << fm->realDataSiz << endl;
+					fm->dbg_lifecheck_char();
 				}
 			}
 

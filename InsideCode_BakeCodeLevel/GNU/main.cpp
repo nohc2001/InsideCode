@@ -94,7 +94,7 @@ int main(){
 
     InsideCode_Bake::wbss.Release();
 
-    fm->dbg_fm1_lifecheck();
+    fm->dbg_fm1_lifecheck_charprint();
 
     return 0;
 }
