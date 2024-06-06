@@ -93,7 +93,8 @@ int main(){
     exectxs.NULLState();
 
     InsideCode_Bake::wbss.Release();
-    
 
     fm->dbg_fm1_lifecheck();
+
+    return 0;
 }

@@ -4,22 +4,39 @@
 #include "InsideCodeBake.h"
 
 //basic functions for extension operation
-void push_word(lcstr &str, fmvecarr<char*>* codesen)
+void push_word(char* sptr, fmvecarr<char*>* codesen)
 {
-    const char *sptr = str.c_str();
-    int len = strlen(sptr);
-    char *cstr = (char *)fm->_New(len + 1, true);
+    for (int i = 0; i < InsideCode_Bake::wbss.wordlist.size(); ++i)
+	{
+        char* temp = InsideCode_Bake::wbss.wordlist.at(i);
+		if (strcmp(sptr, temp) == 0)
+		{
+			codesen->push_back(temp);
+			return;
+		}
+	}
 
-    for (int i = 0; i < len; ++i)
-    {
-        cstr[i] = sptr[i];
-    }
-    cstr[len] = 0;
+	char* cstr = InsideCode_Bake::wbss.addword(sptr);
     codesen->push_back(cstr);
 }
 
-void set_word(int index, lcstr &str, fmvecarr<char*>* codesen)
+void set_word(int index, char* sptr, fmvecarr<char*>* codesen)
 {
+    for (int i = 0; i < InsideCode_Bake::wbss.wordlist.size(); ++i)
+    {
+        char* temp = InsideCode_Bake::wbss.wordlist.at(i);
+        if (strcmp(sptr, temp) == 0)
+        {
+            (*codesen)[index] = temp;
+            return;
+        }
+    }
+
+    char *cstr = InsideCode_Bake::wbss.addword(sptr);
+    (*codesen)[index] = cstr;
+
+    /*
+    
     const char *sptr = str.c_str();
     int len = strlen(sptr);
     char *cstr = (char *)fm->_New(len + 1, true);
@@ -27,6 +44,7 @@ void set_word(int index, lcstr &str, fmvecarr<char*>* codesen)
     cstr[len] = 0;
     fm->_Delete((byte8*)(*codesen)[index], strlen((*codesen)[index])+1);
     (*codesen)[index] = cstr;
+    */
 }
 
 void AddTextBlocks(lcstr &codetxt, fmvecarr<char*>* codesen)
@@ -44,7 +62,7 @@ void AddTextBlocks(lcstr &codetxt, fmvecarr<char*>* codesen)
             if (i == codetxt.size() - 1)
             {
                 cout << "siz : " << i << "-" << codetxt.size() << " str : " << insstr.c_str() << endl;
-                push_word(insstr, codesen);
+                push_word(insstr.c_str(), codesen);
                 continue;
             }
             insstr.push_back(codetxt.at(i + 1));
@@ -52,7 +70,7 @@ void AddTextBlocks(lcstr &codetxt, fmvecarr<char*>* codesen)
             {
                 insstr.pop_back();
                 cout << "siz : " << i << "-" << codetxt.size() << " str : " << insstr.c_str() << endl;
-                push_word(insstr, codesen);
+                push_word(insstr.c_str(), codesen);
                 insstr.clear();
             }
             else
@@ -64,11 +82,11 @@ void AddTextBlocks(lcstr &codetxt, fmvecarr<char*>* codesen)
                 {
                     insstr.pop_back();
                     cout << "siz : " << i << "-" << codetxt.size() << " str : " << insstr.c_str() << endl;
-                    push_word(insstr, codesen);
+                    push_word(insstr.c_str(), codesen);
                     insstr.clear();
                     insstr.push_back(c);
                     cout << "siz : " << i << "-" << codetxt.size() << " str : " << insstr.c_str() << endl;
-                    push_word(insstr, codesen);
+                    push_word(insstr.c_str(), codesen);
                     insstr.clear();
                     i++;
                 }
@@ -112,7 +130,7 @@ void AddTextBlocks(lcstr &codetxt, fmvecarr<char*>* codesen)
                     insstr.push_back(t1[k]);
                 }
 
-                set_word(i, insstr, codesen);
+                set_word(i, insstr.c_str(), codesen);
                 (*codesen).erase(i + 1);
             }
         }
@@ -131,7 +149,7 @@ void AddTextBlocks(lcstr &codetxt, fmvecarr<char*>* codesen)
                 lcstr insstr;
                 insstr = (*codesen)[i - 1];
                 insstr.push_back('=');
-                set_word(i, insstr, codesen);
+                set_word(i, insstr.c_str(), codesen);
                 codesen->erase(i);
             }
         }
@@ -146,7 +164,7 @@ void AddTextBlocks(lcstr &codetxt, fmvecarr<char*>* codesen)
                 lcstr insstr;
                 insstr = (*codesen)[i];
                 insstr.push_back('|');
-                set_word(i, insstr, codesen);
+                set_word(i, insstr.c_str(), codesen);
                 codesen->erase(i + 1);
             }
         }
@@ -161,7 +179,7 @@ void AddTextBlocks(lcstr &codetxt, fmvecarr<char*>* codesen)
                 lcstr insstr;
                 insstr = (*codesen)[i];
                 insstr.push_back('&');
-                set_word(i, insstr, codesen);
+                set_word(i, insstr.c_str(), codesen);
                 codesen->erase(i + 1);
             }
         }
@@ -199,7 +217,7 @@ void AddTextBlocks(lcstr &codetxt, fmvecarr<char*>* codesen)
                 {
                     insstr.push_back(back[k]);
                 }
-                set_word(i, insstr, codesen);
+                set_word(i, insstr.c_str(), codesen);
                 codesen->erase(i);
                 codesen->erase(i);
             }
@@ -225,7 +243,7 @@ void AddTextBlocks(lcstr &codetxt, fmvecarr<char*>* codesen)
                     insstr.push_back(back.at(k));
                 }
 
-                set_word(i, insstr, codesen);
+                set_word(i, insstr.c_str(), codesen);
                 codesen->erase(i + 1);
                 codesen->erase(i + 1);
             }
@@ -254,7 +272,7 @@ void AddTextBlocks(lcstr &codetxt, fmvecarr<char*>* codesen)
                     insstr.push_back(backback.at(k));
                 }
 
-                set_word(i, insstr, codesen);
+                set_word(i, insstr.c_str(), codesen);
                 codesen->erase(i + 1);
                 codesen->erase(i + 1);
                 codesen->erase(i + 1);
@@ -608,6 +626,8 @@ void interpret_AddStruct(code_sen *cs, ICB_Extension *ext)
     type_data* newtype = (type_data*)fm->_New(sizeof(type_data), true);
     *newtype = InsideCode_Bake::create_type(name, totalSiz, 's', reinterpret_cast<int *>(stdata));
     ext->exstructArr.push_back(newtype);
+    code->release();
+    fm->_Delete((byte8*)code, sizeof(sen));
 }
 
 void compile_addFunction(code_sen *cs, ICB_Extension *ext)
