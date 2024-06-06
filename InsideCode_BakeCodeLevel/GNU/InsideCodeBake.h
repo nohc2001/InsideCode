@@ -942,8 +942,8 @@ public:
 
 	fmvecarr<ICB_Extension*> extension; // 확장코드
 
-	void ReleaseCodeSen(code_sen* cs){
-		if(cs->codeblocks != nullptr){
+	static void ReleaseCodeSen(code_sen* cs){
+		if(cs->ck == codeKind::ck_blocks && cs->codeblocks != nullptr){
 			for(int i=0;i<cs->codeblocks->size();++i){
 				code_sen* ccs = (code_sen*)cs->codeblocks->at(i);
 				ReleaseCodeSen(ccs);
@@ -967,7 +967,7 @@ public:
 		cs->end_line = 0;
 	}
 	
-	void ReleaseTypeData(type_data* td){
+	static void ReleaseTypeData(type_data* td){
 		if(td->structptr != nullptr && td->typetype != 'b'){
 			ReleaseTypeData((type_data*)td->structptr);
 			fm->_Delete((byte8*)td->structptr, sizeof(type_data));
@@ -4712,6 +4712,9 @@ public:
 		type_data* newtype = (type_data*)fm->_New(sizeof(type_data), true);
 		*newtype = create_type(name, totalSiz, 's', reinterpret_cast<int*>(stdata));
 		types.push_back(newtype);
+
+		code->release();
+		fm->_Delete((byte8*)code, sizeof(sen));
 	}
 
 	void compile_addVariable(code_sen *cs)
@@ -5303,6 +5306,10 @@ public:
 
 						i = ifi;
 					}
+					
+					css2sen->release();
+					fm->_Delete((byte8*)css2sen, sizeof(sen));
+
 					fm->_tempPopLayer();
 				}
 				else
@@ -5381,10 +5388,12 @@ public:
 		int loc = code->size() - 1;
 		sen *inner_params = wbss.oc_search_inv(code, loc, "(", ")");
 		int nameloc = loc - inner_params->size();
+		inner_params->release();
+		fm->_Delete((byte8*)inner_params, sizeof(sen));
 
 		fd->name = code->at(nameloc).data.str;
 
-		sen *typen = wbss.sen_cut(code, 0, nameloc - 1);
+		//sen *typen = wbss.sen_cut(code, 0, nameloc - 1);
 		sen *params_sen = wbss.sen_cut(code, nameloc + 2, loc - 1);
 		//wbss.dbg_sen(params_sen);
 		int coma = wbss.search_word_first(0, params_sen, ",");
@@ -5473,6 +5482,9 @@ public:
 		param_sen->release();
 		fm->_Delete((byte8 *)param_sen, sizeof(sen));
 
+		params_sen->release();
+		fm->_Delete((byte8 *)params_sen, sizeof(sen));
+
 		typestr->release();
 		fm->_Delete((byte8 *)typestr, sizeof(sen));
 	}
@@ -5499,8 +5511,8 @@ public:
 				if (strcmp(funcname, efd->name.c_str()) == 0)
 				{
 					isext = true;
-					sen* typen = wbss.sen_cut(code, 0, nameloc - 1);
-					sen* params_sen = wbss.sen_cut(code, nameloc + 2, loc - 1);
+					//sen* typen = wbss.sen_cut(code, 0, nameloc - 1);
+					//sen* params_sen = wbss.sen_cut(code, nameloc + 2, loc - 1);
 					fd = efd;
 					extID = i;
 					exfuncID = k;
@@ -5571,6 +5583,7 @@ public:
 			fm->_Delete((byte8*)inner_params, sizeof(sen));
 			return;
 		}
+		/*
 		else if (strcmp(funcname, "sizeof") == 0)
 		{
 			inner_params->pop_back();
@@ -5583,6 +5596,7 @@ public:
 		else if (strcmp(funcname, "goto") == 0)
 		{
 		}
+		*/
 
 		if (isext == false)
 		{

@@ -783,8 +783,7 @@ void bake_Extension(const char* filename, ICB_Extension* ext){
     if(icldetail) icl << "Create_New_ICB_Extension_Init__Bake_Extension__ScanFunctions...";
     fmvecarr<code_sen *> *senptr = AddCodeFromBlockData(codesen, "none", ext);
 
-    codesen.release();
-    codesen.NULLState();
+    
     if(icldetail) icl << "finish" << endl;
 
     if(icldetail) icl << "Create_New_ICB_Extension_Init__Bake_Extension__AddFunctions...";
@@ -797,6 +796,30 @@ void bake_Extension(const char* filename, ICB_Extension* ext){
             compile_addFunction(cs, ext);
         } 
 	}
+
+    codesen.release();
+    codesen.NULLState();
+
+    for(int i=0;i<senstptr->size();++i){
+        code_sen *cs = senstptr->at(i);
+        InsideCode_Bake::ReleaseCodeSen(cs);
+        fm->_Delete((byte8*)cs, sizeof(code_sen));
+        senstptr->at(i) = nullptr;
+    }
+    senstptr->release();
+    senstptr->NULLState();
+    fm->_Delete((byte8*)senstptr, sizeof(fmvecarr<code_sen*>));
+
+    for(int i=0;i<senptr->size();++i){
+        code_sen *cs = senptr->at(i);
+        InsideCode_Bake::ReleaseCodeSen(cs);
+        fm->_Delete((byte8*)cs, sizeof(code_sen));
+        senptr->at(i) = nullptr;
+    }
+    senptr->release();
+    senptr->NULLState();
+    fm->_Delete((byte8*)senptr, sizeof(fmvecarr<code_sen*>));
+
     if(icldetail) icl << "finish" << endl;
     if(icldetail) icl << "Create_New_ICB_Extension_Init__Bake_Extension ";
 }
