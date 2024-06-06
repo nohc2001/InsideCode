@@ -600,7 +600,8 @@ void interpret_AddStruct(code_sen *cs, ICB_Extension *ext)
 {
     sen *code = InsideCode_Bake::get_sen_from_codesen(cs);
     char *cname = code->at(1).data.str;
-    char *name = (char *)fm->_New(strlen(cname) + 1, true);
+    int name_siz = strlen(cname) + 1;
+    char *name = (char *)fm->_New(name_siz, true);
     strcpy(name, cname);
     struct_data *stdata = (struct_data *)fm->_New(sizeof(struct_data), true);
     stdata->name = name;
@@ -610,7 +611,7 @@ void interpret_AddStruct(code_sen *cs, ICB_Extension *ext)
     {
         int loc = InsideCode_Bake::wbss.search_word_first(cpivot, code, ";");
         sen *member_sen = InsideCode_Bake::wbss.sen_cut(code, cpivot, loc - 1);
-        InsideCode_Bake::wbss.dbg_sen(member_sen);
+        //InsideCode_Bake::wbss.dbg_sen(member_sen);
         NamingData nd;
         cname = member_sen->last().data.str;
         nd.name = (char *)fm->_New(strlen(cname) + 1, true);
@@ -622,9 +623,19 @@ void interpret_AddStruct(code_sen *cs, ICB_Extension *ext)
         totalSiz += td->typesiz;
         stdata->member_data.push_back(nd);
         cpivot = loc + 1;
+
+        member_sen->release();
+        fm->_Delete((byte8*)member_sen, sizeof(sen));
+
+        type_sen->release();
+        fm->_Delete((byte8*)type_sen, sizeof(sen));
     }
     type_data* newtype = (type_data*)fm->_New(sizeof(type_data), true);
     *newtype = InsideCode_Bake::create_type(name, totalSiz, 's', reinterpret_cast<int *>(stdata));
+
+    fm->_Delete((byte8*)name, name_siz);
+    name = nullptr;
+
     ext->exstructArr.push_back(newtype);
     code->release();
     fm->_Delete((byte8*)code, sizeof(sen));
@@ -646,6 +657,10 @@ void compile_addFunction(code_sen *cs, ICB_Extension *ext)
 
     sen *typen = InsideCode_Bake::wbss.sen_cut(code, 0, nameloc - 1);
     type_data* td = get_type_with_namesen(typen, ext);
+    typen->release();
+    fm->_Delete((byte8*)typen, sizeof(sen));
+    typen = nullptr;
+
     sen *params_sen = InsideCode_Bake::wbss.sen_cut(code, nameloc + 2, loc - 1);
     InsideCode_Bake::wbss.dbg_sen(params_sen);
     int coma = InsideCode_Bake::wbss.search_word_first(0, params_sen, ",");
@@ -727,8 +742,14 @@ void compile_addFunction(code_sen *cs, ICB_Extension *ext)
     code->release();
     fm->_Delete((byte8 *)code, sizeof(sen));
 
+    code->release();
+    fm->_Delete((byte8 *)code, sizeof(sen));
+
     param_sen->release();
     fm->_Delete((byte8 *)param_sen, sizeof(sen));
+
+    inner_params->release();
+    fm->_Delete((byte8 *)inner_params, sizeof(sen));
 
     typestr->release();
     fm->_Delete((byte8 *)typestr, sizeof(sen));
@@ -749,13 +770,16 @@ void bake_Extension(const char* filename, ICB_Extension* ext){
     bool icldetail = InsideCode_Bake::GetICLFlag(ICL_FLAG::Create_New_ICB_Extension_Init__Bake_Extension);
     if(icldetail) icl << "start" << endl;
     if(icldetail) icl << "Create_New_ICB_Extension_Init__Bake_Extension__GetCodeFromText...";
+    
     lcstr *allcodeptr = GetCodeTXT(filename, fm);
     if(icldetail) icl << "finish" << endl;
+    
 
 	lcstr &allcode = *allcodeptr;
     fmvecarr<char*> codesen;
     codesen.NULLState();
     codesen.Init(8, false, true);
+
 
     if(icldetail) icl << "Create_New_ICB_Extension_Init__Bake_Extension__AddTextBlocks...";
 	AddTextBlocks(allcode, &codesen);
@@ -783,7 +807,8 @@ void bake_Extension(const char* filename, ICB_Extension* ext){
     if(icldetail) icl << "Create_New_ICB_Extension_Init__Bake_Extension__ScanFunctions...";
     fmvecarr<code_sen *> *senptr = AddCodeFromBlockData(codesen, "none", ext);
 
-    
+    fm->dbg_fm1_lifecheck_charprint();
+
     if(icldetail) icl << "finish" << endl;
 
     if(icldetail) icl << "Create_New_ICB_Extension_Init__Bake_Extension__AddFunctions...";
@@ -796,6 +821,8 @@ void bake_Extension(const char* filename, ICB_Extension* ext){
             compile_addFunction(cs, ext);
         } 
 	}
+
+    fm->dbg_fm1_lifecheck_charprint();
 
     codesen.release();
     codesen.NULLState();

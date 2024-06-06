@@ -841,6 +841,13 @@ struct ICB_Extension{
 			struct_data* sd = (struct_data*)td->structptr;
 			////wbss release
 			//td->name
+			
+			for(int k=0;k<sd->member_data.size();++k){
+				char* cstr = sd->member_data.at(k).name;
+				int csiz = strlen(cstr)+1;
+				fm->_Delete((byte8*)cstr, csiz);
+			}
+			
 			sd->member_data.release();
 			sd->member_data.NULLState();
 			td->structptr = nullptr;

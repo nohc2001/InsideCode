@@ -64,6 +64,7 @@ class word_base_sen_sys
 	void Release(){
 		for(int i=0;i<wordlist.size();++i){
 			char* cstr = wordlist.at(i);
+			//cout << "Release : " << cstr << endl;
 			int siz = strlen(cstr) + 1;
 			fm->_Delete((byte8*)cstr, siz);
 			wordlist.at(i) = nullptr;
