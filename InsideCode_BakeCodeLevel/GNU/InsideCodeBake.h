@@ -5541,6 +5541,9 @@ public:
 				mem[writeup++] = (byte8)tm->valuetype;
 				savecomma = coma;
 				coma = wbss.search_word_first_in_specific_oc_layer(inner_params, savecomma + 1, "(", ")", 0, ",");
+
+				param_sen->release();
+				fm->_Delete((byte8*)param_sen, sizeof(sen));
 			}
 
 			sen* param_sen = wbss.sen_cut(inner_params, savecomma + 1, inner_params->size() - 1);
@@ -5553,6 +5556,9 @@ public:
 			}
 			mem[writeup++] = (byte8)insttype::IT_DBG_A;
 			mem[writeup++] = (byte8)tm->valuetype;
+
+			param_sen->release();
+			fm->_Delete((byte8*)param_sen, sizeof(sen));
 
 			code->release();
 			fm->_Delete((byte8*)code, sizeof(sen));
