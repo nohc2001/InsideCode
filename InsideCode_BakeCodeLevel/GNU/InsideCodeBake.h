@@ -969,8 +969,6 @@ public:
 	
 	static void ReleaseTypeData(type_data* td){
 		if(td->structptr != nullptr && td->typetype != 'b'){
-			ReleaseTypeData((type_data*)td->structptr);
-			fm->_Delete((byte8*)td->structptr, sizeof(type_data));
 			td->structptr = nullptr;
 			td->name.release();
 			td->name.NULLState();
@@ -1145,6 +1143,30 @@ public:
 		return op;
 	}
 
+	type_data* isCanPushType(type_data* td){
+		for(int i=0;i<types.size();++i){
+			type_data* ttd = types.at(i);
+			if(strcmp(ttd->name.c_str(), td->name.c_str()) == 0){
+				return ttd;
+			}
+		}
+
+		for (int i = 0; i < extension.size(); ++i)
+		{
+			ICB_Extension* ext = extension.at(i);
+			for(int k=0;k<ext->exstructArr.size();++k){
+				type_data* ttd = ext->exstructArr.at(k);
+				if (strcmp(td->name.c_str(), ttd->name.c_str()) == 0)
+				{
+					return ttd;
+				}
+			}
+		}
+
+		types.push_back(td);
+		return td;
+	}
+
 	static type_data create_type(char *nam, int tsiz, char typ, int *strptr)
 	{
 		type_data td;
@@ -1255,7 +1277,7 @@ public:
 		return reinterpret_cast<type_data *>(t->structptr);
 	}
 
-	static type_data *get_addpointer_type(type_data *td)
+	static type_data *static_get_addpointer_type(type_data *td)
 	{
 		type_data *rtd = (type_data *)fm->_New(sizeof(type_data), true);
 		rtd->name.NULLState();
@@ -1270,7 +1292,32 @@ public:
 		return rtd;
 	}
 
-	static type_data *get_array_type(type_data *td, int size)
+	type_data *get_addpointer_type(type_data *td)
+	{
+		type_data *rtd = (type_data *)fm->_New(sizeof(type_data), true);
+		rtd->name.NULLState();
+		rtd->name.Init(td->name.size() + 1, false);
+
+		//int len = strlen(td->name.c_str());
+		rtd->name.operator=(td->name.c_str());
+		rtd->name.push_back('*');
+		rtd->structptr = reinterpret_cast<int *>(td);
+		rtd->typesiz = 8;
+		rtd->typetype = 'p';
+
+		type_data* ntd = isCanPushType(rtd);
+		if(rtd == ntd){
+			return rtd;
+		}
+		else{
+			ReleaseTypeData(rtd);
+			fm->_Delete((byte8*)rtd, sizeof(type_data));
+			rtd = nullptr;
+			return ntd;
+		}
+	}
+
+	static type_data *static_get_array_type(type_data *td, int size)
 	{
 		type_data *rtd = (type_data *)fm->_New(sizeof(type_data), true);
 		rtd->name.NULLState();
@@ -1291,6 +1338,43 @@ public:
 		rtd->structptr = reinterpret_cast<int *>(td);
 		rtd->typesiz = td->typesiz * size;
 		rtd->typetype = 'a';
+
+		return rtd;
+	}
+
+	type_data *get_array_type(type_data *td, int size)
+	{
+		type_data *rtd = (type_data *)fm->_New(sizeof(type_data), true);
+		rtd->name.NULLState();
+		rtd->name.Init(2, false);
+		//int len = strlen(td->name.c_str());
+		rtd->name = td->name.c_str();
+		rtd->name.push_back('[');
+
+		string str = to_string(size);
+		char *strnum = (char *)fm->_New(str.size() + 2, true);
+		strcpy(strnum, str.c_str());
+		for (int i = 0; i < strlen(strnum); ++i)
+		{
+			rtd->name.push_back(strnum[i]);
+		}
+		rtd->name.push_back(']');
+
+		rtd->structptr = reinterpret_cast<int *>(td);
+		rtd->typesiz = td->typesiz * size;
+		rtd->typetype = 'a';
+
+		type_data* ntd = isCanPushType(rtd);
+		if(rtd == ntd){
+			return rtd;
+		}
+		else{
+			ReleaseTypeData(rtd);
+			fm->_Delete((byte8*)rtd, sizeof(type_data));
+			rtd = nullptr;
+			return ntd;
+		}
+
 		return rtd;
 	}
 
@@ -2736,10 +2820,12 @@ public:
 			if (c == '*')
 			{
 				ntd = get_addpointer_type(td);
+				/*
 				if (i != 1)
 				{
 					fm->_Delete((byte8 *)td, sizeof(td));
 				}
+				*/
 				td = ntd;
 			}
 			else if (c == '[')
@@ -4708,6 +4794,12 @@ public:
 			totalSiz += td->typesiz;
 			stdata->member_data.push_back(nd);
 			cpivot = loc + 1;
+
+			member_sen->release();
+			fm->_Delete((byte8*)member_sen, sizeof(sen));
+
+			type_sen->release();
+			fm->_Delete((byte8*)type_sen, sizeof(sen));
 		}
 		type_data* newtype = (type_data*)fm->_New(sizeof(type_data), true);
 		*newtype = create_type(name, totalSiz, 's', reinterpret_cast<int*>(stdata));
@@ -5609,7 +5701,7 @@ public:
 			fd = get_func_with_name(code->at(nameloc).data.str);
 			// mem[writeup++] = fd->start_pc; // func
 
-			sen* typen = wbss.sen_cut(code, 0, nameloc - 1);
+			//sen* typen = wbss.sen_cut(code, 0, nameloc - 1);
 
 			sen* params_sen = wbss.sen_cut(code, nameloc + 2, loc - 1);
 			if (params_sen->size() == 0)
@@ -5779,9 +5871,6 @@ public:
 			inner_params->release();
 			fm->_Delete((byte8*)inner_params, sizeof(sen));
 
-			typen->release();
-			fm->_Delete((byte8*)typen, sizeof(sen));
-
 			params_sen->release();
 			fm->_Delete((byte8*)params_sen, sizeof(sen));
 
@@ -5792,8 +5881,6 @@ public:
 		}
 		else
 		{
-			sen* typen = wbss.sen_cut(code, 0, nameloc - 1);
-
 			sen* params_sen = wbss.sen_cut(code, nameloc + 2, loc - 1);
 			if (params_sen->size() == 0)
 			{
@@ -5960,9 +6047,6 @@ public:
 
 			inner_params->release();
 			fm->_Delete((byte8*)inner_params, sizeof(sen));
-
-			typen->release();
-			fm->_Delete((byte8*)typen, sizeof(sen));
 
 			params_sen->release();
 			fm->_Delete((byte8*)params_sen, sizeof(sen));

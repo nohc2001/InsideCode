@@ -579,7 +579,7 @@ type_data *get_type_with_namesen(sen *tname, ICB_Extension* ext)
         }
         if (c == '*')
         {
-            ntd = InsideCode_Bake::get_addpointer_type(td);
+            ntd = InsideCode_Bake::static_get_addpointer_type(td);
             if (i != 1)
             {
                 fm->_Delete((byte8 *)td, sizeof(td));
@@ -589,7 +589,7 @@ type_data *get_type_with_namesen(sen *tname, ICB_Extension* ext)
         else if (c == '[')
         {
             int siz = atoi(tname->at(i + 1).data.str);
-            ntd = InsideCode_Bake::get_array_type(td, siz);
+            ntd = InsideCode_Bake::static_get_array_type(td, siz);
             td = ntd;
         }
     }
