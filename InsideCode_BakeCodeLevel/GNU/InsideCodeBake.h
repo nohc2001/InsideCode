@@ -6186,7 +6186,11 @@ public:
 			sen *type_name = wbss.sen_cut(code, 0, loc - 1);
 			type_data *td = get_type_with_namesen(type_name);
 			int n = td->typesiz;
-			// reqiure releasr typedata
+
+			code->release();
+			fm->_Delete((byte8*)code, sizeof(sen));
+			type_name->release();
+			fm->_Delete((byte8*)type_name, sizeof(sen));
 			return n;
 		}
 		else
@@ -6212,7 +6216,15 @@ public:
 			sen *type_name = wbss.sen_cut(code2, 0, loc2 - 1);
 			type_data *td = get_type_with_namesen(type_name);
 			int n = td->typesiz;
-			// reqiure releasr typedata
+
+			ReleaseCodeSen(cs0);
+			fm->_Delete((byte8*)cs0, sizeof(code_sen));
+			code->release();
+			fm->_Delete((byte8*)code, sizeof(sen));
+			code2->release();
+			fm->_Delete((byte8*)code2, sizeof(sen));
+			type_name->release();
+			fm->_Delete((byte8*)type_name, sizeof(sen));
 			return n;
 		}
 	}
