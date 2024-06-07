@@ -2910,14 +2910,10 @@ public:
 	temp_mem *get_asm_from_sen(sen *ten, bool is_a, bool isvalue)
 	{
 		// fm->dbg_fm1_lifecheck();
-		temp_mem *tm = (temp_mem *)fm->_New(sizeof(temp_mem), true);
-		// fm->dbg_fm1_lifecheck();
-		tm->mem.NULLState();
-		tm->mem.Init(2, false, true);
-		tm->valuetype_detail = nullptr;
+		temp_mem *tm = nullptr;
 		if (ten->at(0).type == 'a')
 		{
-			*tm = *reinterpret_cast<temp_mem *>(ten->at(0).data.str);
+			tm = reinterpret_cast<temp_mem *>(ten->at(0).data.str);
 			if(isvalue){
 				if(tm->isValue == false){
 					tm->valuetype_detail = get_sub_type(tm->valuetype_detail);
@@ -2999,6 +2995,12 @@ public:
 			
 			return tm;
 		}
+
+		tm = (temp_mem *)fm->_New(sizeof(temp_mem), true);
+		// fm->dbg_fm1_lifecheck();
+		tm->mem.NULLState();
+		tm->mem.Init(2, false, true);
+		tm->valuetype_detail = nullptr;
 
 		if (ten->size() > 1 && strcmp(ten->at(1).data.str, "(") == 0)
 		{
@@ -4636,6 +4638,10 @@ public:
 
 		if (segs.size() == 1)
 		{
+			if(tm != nullptr){
+				release_tempmem(tm);
+				fm->_Delete((byte8*)tm, sizeof(temp_mem));
+			}
 			tm = reinterpret_cast<temp_mem *>(segs[0]->at(0).data.str);
 			if (isvalue)
 			{

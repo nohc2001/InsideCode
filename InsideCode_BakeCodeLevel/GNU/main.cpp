@@ -54,14 +54,10 @@ int main(){
 
     ICB_Extension* ext = Init_exGeometry();
 
-    fm->dbg_fm1_lifecheck_charprint();
-
     InsideCode_Bake icb;
 	icb.init();
     icb.extension.push_back(ext);
 
-    fm->dbg_fm1_lifecheck_charprint();
-    
 	icb.bake_code("code.txt");
 
 	vecarr<ICB_Context *> exectxs;
