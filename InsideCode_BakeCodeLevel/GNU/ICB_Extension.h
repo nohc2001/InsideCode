@@ -715,6 +715,8 @@ void compile_addFunction(code_sen *cs, ICB_Extension *ext)
         fm->_Delete((byte8 *)typestr, sizeof(sen));
     }
 
+    //fm->dbg_fm1_lifecheck_charprint();
+
     sen *param_sen = InsideCode_Bake::wbss.sen_cut(params_sen, savecoma, last);
     //InsideCode_Bake::wbss.dbg_sen(param_sen);
     NamingData nd;
@@ -807,8 +809,6 @@ void bake_Extension(const char* filename, ICB_Extension* ext){
     if(icldetail) icl << "Create_New_ICB_Extension_Init__Bake_Extension__ScanFunctions...";
     fmvecarr<code_sen *> *senptr = AddCodeFromBlockData(codesen, "none", ext);
 
-    fm->dbg_fm1_lifecheck_charprint();
-
     if(icldetail) icl << "finish" << endl;
 
     if(icldetail) icl << "Create_New_ICB_Extension_Init__Bake_Extension__AddFunctions...";
@@ -816,13 +816,11 @@ void bake_Extension(const char* filename, ICB_Extension* ext){
 	{
 		// fm->dbg_fm1_lifecheck();
 		code_sen *cs = senptr->at(i);
-        InsideCode_Bake::dbg_codesen(cs);
+        //InsideCode_Bake::dbg_codesen(cs);
         if (cs->ck == codeKind::ck_addFunction){
             compile_addFunction(cs, ext);
         } 
 	}
-
-    fm->dbg_fm1_lifecheck_charprint();
 
     codesen.release();
     codesen.NULLState();

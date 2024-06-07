@@ -1127,13 +1127,6 @@ public:
 	{
 		ptr->mem.release();
 		fm->_Delete((byte8 *)ptr, sizeof(temp_mem));
-		// type_data memeory management reqired.. but how?
-		bool nondelete = false;
-		for(int i=0;i<types.size();++i){
-			if(ptr->valuetype_detail == types.at(i)){
-				nondelete = true;
-			}
-		}
 	}
 
 	static operator_data create_oper(const char *symbo, char mo, int starto, int endo)
@@ -1334,12 +1327,18 @@ public:
 		rtd->name.push_back('[');
 
 		string str = to_string(size);
-		char *strnum = (char *)fm->_New(str.size() + 2, true);
+		int strnumsiz = str.size() + 2;
+
+		fm->_tempPushLayer();
+		char *strnum = (char *)fm->_tempNew(strnumsiz);
 		strcpy(strnum, str.c_str());
 		for (int i = 0; i < strlen(strnum); ++i)
 		{
 			rtd->name.push_back(strnum[i]);
 		}
+		//fm->_Delete((byte8*)strnum, strnumsiz);
+		fm->_tempPopLayer();
+
 		rtd->name.push_back(']');
 
 		rtd->structptr = reinterpret_cast<int *>(td);
@@ -1359,12 +1358,15 @@ public:
 		rtd->name.push_back('[');
 
 		string str = to_string(size);
-		char *strnum = (char *)fm->_New(str.size() + 2, true);
+		int strnumsiz = str.size() + 2;
+		fm->_tempPushLayer();
+		char *strnum = (char *)fm->_tempNew(strnumsiz);
 		strcpy(strnum, str.c_str());
 		for (int i = 0; i < strlen(strnum); ++i)
 		{
 			rtd->name.push_back(strnum[i]);
 		}
+		fm->_tempPopLayer();
 		rtd->name.push_back(']');
 
 		rtd->structptr = reinterpret_cast<int *>(td);
@@ -3785,7 +3787,7 @@ public:
 		fmvecarr<sen *> segs; // term
 		segs.NULLState();
 		segs.Init(2, false, false);
-		sen *vtemp = (sen *)fm->_New(sizeof(sen), true);
+		sen *vtemp = (sen *)fm->_tempNew(sizeof(sen));
 		vtemp->NULLState();
 		vtemp->Init(2, false);
 
@@ -3805,7 +3807,7 @@ public:
 				{
 					segs.push_back(vtemp);
 
-					vtemp = (sen *)fm->_New(sizeof(sen), true);
+					vtemp = (sen *)fm->_tempNew(sizeof(sen));
 					vtemp->NULLState();
 					vtemp->Init(2, true);
 				}
@@ -3813,7 +3815,7 @@ public:
 				vtemp->push_back(ten->at(i));
 				segs.push_back(vtemp);
 
-				vtemp = (sen *)fm->_New(sizeof(sen), true);
+				vtemp = (sen *)fm->_tempNew(sizeof(sen));
 				vtemp->NULLState();
 				vtemp->Init(2, true);
 
@@ -3835,7 +3837,7 @@ public:
 				{
 					segs.push_back(vtemp);
 
-					vtemp = (sen *)fm->_New(sizeof(sen), true);
+					vtemp = (sen *)fm->_tempNew(sizeof(sen));
 					vtemp->NULLState();
 					vtemp->Init(2, true);
 				}
@@ -3844,7 +3846,7 @@ public:
 				vtemp->at(0).type = 'o';
 				segs.push_back(vtemp);
 
-				vtemp = (sen *)fm->_New(sizeof(sen), true);
+				vtemp = (sen *)fm->_tempNew(sizeof(sen));
 				vtemp->NULLState();
 				vtemp->Init(2, false);
 			}
@@ -3854,12 +3856,6 @@ public:
 		{
 			segs.push_back(vtemp);
 		}
-		else
-		{
-			vtemp->release();
-			fm->_Delete((byte8 *)vtemp, sizeof(sen));
-		}
-
 		
 		//for(int k=0;k<segs.size();++k){ wbss.dbg_sen(segs.at(k)); } 
 
@@ -4780,10 +4776,10 @@ public:
 	void interpret_AddStruct(code_sen* cs){
 		sen *code = get_sen_from_codesen(cs);
 		char *cname = code->at(1).data.str;
-		char *name = (char*)fm->_New(strlen(cname)+1, true);
-		strcpy(name, cname);
+		//char *name = (char*)fm->_New(strlen(cname)+1, true);
+		//strcpy(name, cname);
 		struct_data* stdata = (struct_data*)fm->_New(sizeof(struct_data), true);
-		stdata->name = name;
+		stdata->name = cname;
 		int cpivot = 3;
 		int totalSiz = 0;
 		while(cpivot < code->size() - 1){
@@ -4792,8 +4788,8 @@ public:
 			//wbss.dbg_sen(member_sen);
 			NamingData nd;
 			cname = member_sen->last().data.str;
-			nd.name = (char*)fm->_New(strlen(cname)+1, true);
-			strcpy(nd.name, cname);
+			nd.name = cname; //(char*)fm->_New(strlen(cname)+1, true);
+			//strcpy(nd.name, cname);
 			sen* type_sen = wbss.sen_cut(member_sen, 0, member_sen->size()-1);
 			type_data* td = get_type_with_namesen(type_sen);
 			nd.td = td;
@@ -4809,7 +4805,7 @@ public:
 			fm->_Delete((byte8*)type_sen, sizeof(sen));
 		}
 		type_data* newtype = (type_data*)fm->_New(sizeof(type_data), true);
-		*newtype = create_type(name, totalSiz, 's', reinterpret_cast<int*>(stdata));
+		*newtype = create_type(cname, totalSiz, 's', reinterpret_cast<int*>(stdata));
 		types.push_back(newtype);
 
 		code->release();
@@ -4829,8 +4825,8 @@ public:
 		{
 			// global variable
 			NamingData *nd = (NamingData *)fm->_New(sizeof(NamingData), true);
-			nd->name = (char *)fm->_New(strlen(variable_name) + 1, true);
-			strcpy(nd->name, variable_name);
+			nd->name = variable_name; //(char *)fm->_New(strlen(variable_name) + 1, true);
+			//strcpy(nd->name, variable_name);
 			nd->td = get_type_with_namesen(type_name);
 			if (globalVariables.size() == 0)
 			{
@@ -4866,8 +4862,8 @@ public:
 			writeup += 4;
 
 			NamingData nd;
-			nd.name = (char *)fm->_New(strlen(variable_name) + 1, true);
-			strcpy(nd.name, variable_name);
+			nd.name = variable_name; //(char *)fm->_New(strlen(variable_name) + 1, true);
+			//strcpy(nd.name, variable_name);
 			nd.td = td;
 			nd.add_address = blockstack.last()->add_address_up + td->typesiz;
 			blockstack.last()->add_address_up += td->typesiz;
@@ -5197,19 +5193,32 @@ public:
 		nextbd.bs = blockstate::bs_while;
 		nextbd.parameter[0] = writeup;
 		nextbd.parameter[1] = save;
+
+		if(nextbd.breakpoints != nullptr){
+			nextbd.breakpoints->release();
+			nextbd.breakpoints->NULLState();
+			nextbd.breakpoints = nullptr;
+		}
 		nextbd.breakpoints = (fmvecarr<int> *)fm->_New(sizeof(fmvecarr<int>), true);
 		nextbd.breakpoints->NULLState();
 		nextbd.breakpoints->Init(2, false, true);
 
+		if(nextbd.continuepoints != nullptr){
+			nextbd.continuepoints->release();
+			nextbd.continuepoints->NULLState();
+			nextbd.continuepoints = nullptr;
+		}
 		nextbd.continuepoints = (fmvecarr<int> *)fm->_New(sizeof(fmvecarr<int>), true);
 		nextbd.continuepoints->NULLState();
 		nextbd.continuepoints->Init(2, false, true);
 
 		writeup += 4;
+		/*
 		if ((int *)code == (int *)nextbd.breakpoints)
 		{
 			cout << "error" << endl;
 		}
+		*/
 
 		code->release();
 		fm->_Delete((byte8 *)code, sizeof(sen));
@@ -6787,7 +6796,6 @@ int code_control(vecarr<ICB_Context *> *icbarr)
 
 	return 1; // keep going
 }
-
 
 void execute_switch(vecarr<ICB_Context*> icbarr, int execodenum,
 	int (*control_func)(vecarr<ICB_Context*>*), bool init)
