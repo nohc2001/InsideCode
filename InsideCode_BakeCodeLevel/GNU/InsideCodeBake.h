@@ -6311,6 +6311,8 @@ public:
 			icl << "}; BakeCode_CompileCodes Block Finish" << endl;
 		}
 		//dbg_bakecode(csarr, 0);
+
+		fm->dbg_fm1_lifecheck_charprint();
 	}
 
 	void bake_code(const char *filename)
@@ -6363,6 +6365,9 @@ public:
 
 		bool gmidetail = GetICLFlag(ICL_FLAG::BakeCode_GlobalMemoryInit);
 		if (gmidetail) icl << "start" << endl;
+
+		fm->dbg_fm1_lifecheck_charprint();
+
 		for (int i = 0; i < senptr->size(); ++i)
 		{
 			code_sen *cs = senptr->at(i);
@@ -6531,6 +6536,8 @@ public:
 		if (gmidetail) icl << "BakeCode_GlobalMemoryInit...";
 		icl << "finish" << endl;
 
+		
+
 		writeup = 0;
 		mem[writeup++] = (byte8)insttype::IT_FUNC; // func
 		mem[writeup++] = (byte8)insttype::IT_FUNCJMP; // jmp
@@ -6539,11 +6546,15 @@ public:
 		icl << "ICB[" << this << "] BakeCode_CompileCodes...";
 		bool ccdetail = GetICLFlag(ICL_FLAG::BakeCode_CompileCodes);
 		if(ccdetail) icl << "start" << endl;
+
+		fm->dbg_fm1_lifecheck_charprint();
+
 		for (int i = 0; i < senptr->size(); ++i)
 		{
 			// fm->dbg_fm1_lifecheck();
 			code_sen *cs = senptr->at(i);
 			compile_code(cs);
+			fm->dbg_fm1_lifecheck_charprint();
 		}
 		if (ccdetail)
 			icl << "BakeCode_CompileCodes...";
@@ -6553,6 +6564,7 @@ public:
 
 		mem[writeup++] = (byte8)insttype::IT_EXIT;
 
+		fm->dbg_fm1_lifecheck_charprint();
 		
 		senstptr->release();
 		senstptr->NULLState();
