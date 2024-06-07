@@ -5194,20 +5194,10 @@ public:
 		nextbd.parameter[0] = writeup;
 		nextbd.parameter[1] = save;
 
-		if(nextbd.breakpoints != nullptr){
-			nextbd.breakpoints->release();
-			nextbd.breakpoints->NULLState();
-			nextbd.breakpoints = nullptr;
-		}
 		nextbd.breakpoints = (fmvecarr<int> *)fm->_New(sizeof(fmvecarr<int>), true);
 		nextbd.breakpoints->NULLState();
 		nextbd.breakpoints->Init(2, false, true);
 
-		if(nextbd.continuepoints != nullptr){
-			nextbd.continuepoints->release();
-			nextbd.continuepoints->NULLState();
-			nextbd.continuepoints = nullptr;
-		}
 		nextbd.continuepoints = (fmvecarr<int> *)fm->_New(sizeof(fmvecarr<int>), true);
 		nextbd.continuepoints->NULLState();
 		nextbd.continuepoints->Init(2, false, true);
@@ -5233,6 +5223,7 @@ public:
 	{
 		if (nextbd.bs == blockstate::bs_struct)
 		{
+			nextsd->member_data.release();
 			nextsd->member_data.NULLState();
 			nextsd->member_data.Init(2, false);
 			int addadd = 0;
