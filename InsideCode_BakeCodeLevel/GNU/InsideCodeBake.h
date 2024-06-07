@@ -839,8 +839,6 @@ struct ICB_Extension{
 		for(int i=0;i<exstructArr.size();++i){
 			type_data* td = exstructArr.at(i);
 			struct_data* sd = (struct_data*)td->structptr;
-			////wbss release
-			//td->name
 			
 			for(int k=0;k<sd->member_data.size();++k){
 				char* cstr = sd->member_data.at(k).name;
@@ -850,6 +848,7 @@ struct ICB_Extension{
 			
 			sd->member_data.release();
 			sd->member_data.NULLState();
+			sd->name.release();
 			td->structptr = nullptr;
 			td->name.release();
 			td->name.NULLState();
@@ -6546,13 +6545,25 @@ public:
 			code_sen *cs = senptr->at(i);
 			compile_code(cs);
 		}
-		if(ccdetail) icl << "BakeCode_CompileCodes...";
+		if (ccdetail)
+			icl << "BakeCode_CompileCodes...";
 		icl << "finish" << endl;
 
 		cout << endl;
 
 		mem[writeup++] = (byte8)insttype::IT_EXIT;
 
+		
+		senstptr->release();
+		senstptr->NULLState();
+		fm->_Delete((byte8 *)senstptr, sizeof(fmvecarr<code_sen *>));
+		
+		/*
+		senptr->release();
+		senptr->NULLState();
+		fm->_Delete((byte8 *)senptr, sizeof(fmvecarr<code_sen *>));
+		*/
+		
 		dbg_bakecode(csarr, 0);
 
 		icl << "ICB[" << this << "] BakeCode finish." << endl;

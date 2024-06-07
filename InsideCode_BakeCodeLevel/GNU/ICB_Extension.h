@@ -601,10 +601,10 @@ void interpret_AddStruct(code_sen *cs, ICB_Extension *ext)
     sen *code = InsideCode_Bake::get_sen_from_codesen(cs);
     char *cname = code->at(1).data.str;
     int name_siz = strlen(cname) + 1;
-    char *name = (char *)fm->_New(name_siz, true);
-    strcpy(name, cname);
+    //char *name = (char *)fm->_New(name_siz, true);
+    //strcpy(name, cname);
     struct_data *stdata = (struct_data *)fm->_New(sizeof(struct_data), true);
-    stdata->name = name;
+    stdata->name = cname;
     int cpivot = 3;
     int totalSiz = 0;
     while (cpivot < code->size() - 1)
@@ -614,8 +614,8 @@ void interpret_AddStruct(code_sen *cs, ICB_Extension *ext)
         //InsideCode_Bake::wbss.dbg_sen(member_sen);
         NamingData nd;
         cname = member_sen->last().data.str;
-        nd.name = (char *)fm->_New(strlen(cname) + 1, true);
-        strcpy(nd.name, cname);
+        nd.name = cname; // (char *)fm->_New(strlen(cname) + 1, true);
+        //strcpy(nd.name, cname);
         sen *type_sen = InsideCode_Bake::wbss.sen_cut(member_sen, 0, member_sen->size() - 1);
         type_data *td = get_type_with_namesen(type_sen, ext);
         nd.td = td;
@@ -631,10 +631,7 @@ void interpret_AddStruct(code_sen *cs, ICB_Extension *ext)
         fm->_Delete((byte8*)type_sen, sizeof(sen));
     }
     type_data* newtype = (type_data*)fm->_New(sizeof(type_data), true);
-    *newtype = InsideCode_Bake::create_type(name, totalSiz, 's', reinterpret_cast<int *>(stdata));
-
-    fm->_Delete((byte8*)name, name_siz);
-    name = nullptr;
+    *newtype = InsideCode_Bake::create_type(stdata->name.c_str(), totalSiz, 's', reinterpret_cast<int *>(stdata));
 
     ext->exstructArr.push_back(newtype);
     code->release();
@@ -775,13 +772,11 @@ void bake_Extension(const char* filename, ICB_Extension* ext){
     
     lcstr *allcodeptr = GetCodeTXT(filename, fm);
     if(icldetail) icl << "finish" << endl;
-    
 
 	lcstr &allcode = *allcodeptr;
     fmvecarr<char*> codesen;
     codesen.NULLState();
     codesen.Init(8, false, true);
-
 
     if(icldetail) icl << "Create_New_ICB_Extension_Init__Bake_Extension__AddTextBlocks...";
 	AddTextBlocks(allcode, &codesen);
