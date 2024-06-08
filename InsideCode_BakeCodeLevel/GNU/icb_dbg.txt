@@ -7,5 +7,3 @@ ICB[0x7fffffff71d0] BakeCode_GetCodeFromText...finish
 ICB[0x7fffffff71d0] BakeCode_AddTextBlocks...finish
 ICB[0x7fffffff71d0] BakeCode_ScanStructTypes...finish
 ICB[0x7fffffff71d0] BakeCode_AddStructTypes...finish
-ICB[0x7fffffff71d0] BakeCode_ScanCodes...finish
-ICB[0x7fffffff71d0] BakeCode_GlobalMemoryInit...finish

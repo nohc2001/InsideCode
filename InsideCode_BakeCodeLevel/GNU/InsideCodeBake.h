@@ -914,13 +914,14 @@ public:
 	fmvecarr<ICB_Extension*> extension; // 확장코드
 
 	static void ReleaseCodeSen(code_sen* cs){
-		if(cs->ck == codeKind::ck_blocks && cs->codeblocks != nullptr){
+		if((cs->ck == codeKind::ck_blocks || cs->ck == codeKind::ck_addStruct) && cs->codeblocks != nullptr){
 			for(int i=0;i<cs->codeblocks->size();++i){
 				code_sen* ccs = (code_sen*)cs->codeblocks->at(i);
 				ReleaseCodeSen(ccs);
 				cs->codeblocks->at(i) = nullptr;
 			}
 			cs->codeblocks->release();
+			fm->_Delete((byte8*)cs->codeblocks, sizeof(fmvecarr<int*>));
 			cs->codeblocks = nullptr;
 		}
 
@@ -936,6 +937,8 @@ public:
 		cs->ck = codeKind::ck_none;
 		cs->start_line = 0;
 		cs->end_line = 0;
+
+		fm->_Delete((byte8*)cs, sizeof(code_sen));
 	}
 	
 	static void ReleaseTypeData(type_data* td){
@@ -947,7 +950,18 @@ public:
 			sd->name.release();
 			sd->name.NULLState();
 			*/
-			td->structptr = nullptr;
+			if(td->typetype == 's'){
+				struct_data* sd = (struct_data*)td->structptr;
+				sd->member_data.release();
+				sd->member_data.NULLState();
+				sd->name.release();
+				sd->name.NULLState();
+				td->structptr = nullptr;
+			}
+			else{
+				td->structptr = nullptr;
+			}
+			
 			td->name.release();
 			td->name.NULLState();
 		}
@@ -2388,7 +2402,7 @@ public:
 						if (icldetail) dbg_codesen(cs, false);
 
 						cbv->release();
-						fm->_Delete((byte8 *)cbv, sizeof(cbv));
+						fm->_Delete((byte8 *)cbv, sizeof(fmvecarr<code_sen *>));
 
 						senarr->push_back(cs);
 
@@ -2694,7 +2708,7 @@ public:
 						}
 
 						cbv->release();
-						fm->_Delete((byte8 *)cbv, sizeof(cbv));
+						fm->_Delete((byte8 *)cbv, sizeof(fmvecarr<code_sen *>));
 
 						set_codesen(cs, cbs);
 						fm->_tempPopLayer();
@@ -6133,7 +6147,7 @@ public:
 	void compile_addsetVariable(code_sen *cs)
 	{
 		sen *code = get_sen_from_codesen(cs);
-		// wbss.dbg_sen(code);
+		wbss.dbg_sen(code);
 		int loc = wbss.search_word_first(0, code, "=");
 
 		code_sen *cs0 = (code_sen *)fm->_New(sizeof(code_sen), true);
@@ -6595,7 +6609,9 @@ void ICB_Extension::Release()
 		sd->member_data.NULLState();
 		sd->name.release();
 		sd->name.NULLState();
+		fm->_Delete((byte8*)sd, sizeof(struct_data));
 		td->structptr = nullptr;
+		fm->_Delete((byte8*)td, sizeof(type_data));
 		exstructArr.at(i) = nullptr;
 	}
 	exstructArr.release();
@@ -6610,6 +6626,7 @@ void ICB_Extension::Release()
 		fd->start_pc = nullptr;
 		fd->param_data.release();
 		fd->param_data.NULLState();
+		fm->_Delete((byte8*)fd, sizeof(func_data));
 		exfuncArr.at(i) = nullptr;
 	}
 	exfuncArr.release();

@@ -1,4 +1,4 @@
-//#define FM_GET_NONRELEASE_HEAPPTR
+#define FM_GET_NONRELEASE_HEAPPTR
 #define FM_NONRELEASE_HEAPCHECK
 
 #include "InsideCodeBake.h"
@@ -56,6 +56,7 @@ int main(){
     InsideCode_Bake::StaticInit();
 
     ICB_Extension* ext = Init_exGeometry();
+    fm->dbg_fm1_lifecheck_charprint();
 
     InsideCode_Bake icb;
 	icb.init();
