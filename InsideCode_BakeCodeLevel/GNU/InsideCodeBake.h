@@ -834,42 +834,7 @@ typedef void (*exCompileFunc)(int*); // int -> InsideCode_Bake
 struct ICB_Extension{
     fmvecarr<type_data*> exstructArr;
     fmvecarr<func_data*> exfuncArr;
-
-	void Release(){
-		for(int i=0;i<exstructArr.size();++i){
-			type_data* td = exstructArr.at(i);
-			struct_data* sd = (struct_data*)td->structptr;
-			
-			for(int k=0;k<sd->member_data.size();++k){
-				char* cstr = sd->member_data.at(k).name;
-				int csiz = strlen(cstr)+1;
-				fm->_Delete((byte8*)cstr, csiz);
-			}
-			
-			sd->member_data.release();
-			sd->member_data.NULLState();
-			sd->name.release();
-			td->structptr = nullptr;
-			td->name.release();
-			td->name.NULLState();
-			exstructArr.at(i) = nullptr;
-		}
-		exstructArr.release();
-		exstructArr.NULLState();
-
-		for(int i=0;i<exfuncArr.size();++i){
-			func_data* fd = exfuncArr.at(i);
-			fd->name.release();
-			fd->name.NULLState();
-			fd->returntype = nullptr;
-			fd->start_pc = nullptr;
-			fd->param_data.release();
-			fd->param_data.NULLState();
-			exfuncArr.at(i) = nullptr;
-		}
-		exfuncArr.release();
-		exfuncArr.NULLState();
-	}
+	void Release();
 };
 
 enum class ICL_FLAG {
@@ -975,10 +940,18 @@ public:
 	
 	static void ReleaseTypeData(type_data* td){
 		if(td->structptr != nullptr && td->typetype != 'b'){
+			/*
+			struct_data* sd = (struct_data*)td->structptr;
+			sd->member_data.release();
+			sd->member_data.NULLState();
+			sd->name.release();
+			sd->name.NULLState();
+			*/
 			td->structptr = nullptr;
 			td->name.release();
 			td->name.NULLState();
 		}
+		fm->_Delete((byte8*)td, sizeof(type_data));
 	}
 
 	void Release(){
@@ -6603,6 +6576,45 @@ public:
 		icl << "ICB[" << this << "] BakeCode finish." << endl;
 	}
 };
+
+void ICB_Extension::Release()
+{
+	for (int i = 0; i < exstructArr.size(); ++i)
+	{
+		type_data *td = exstructArr.at(i);
+		struct_data *sd = (struct_data *)td->structptr;
+
+		for (int k = 0; k < sd->member_data.size(); ++k)
+		{
+			char *cstr = sd->member_data.at(k).name;
+			int csiz = strlen(cstr) + 1;
+			fm->_Delete((byte8 *)cstr, csiz);
+		}
+
+		sd->member_data.release();
+		sd->member_data.NULLState();
+		sd->name.release();
+		sd->name.NULLState();
+		td->structptr = nullptr;
+		exstructArr.at(i) = nullptr;
+	}
+	exstructArr.release();
+	exstructArr.NULLState();
+
+	for (int i = 0; i < exfuncArr.size(); ++i)
+	{
+		func_data *fd = exfuncArr.at(i);
+		fd->name.release();
+		fd->name.NULLState();
+		fd->returntype = nullptr;
+		fd->start_pc = nullptr;
+		fd->param_data.release();
+		fd->param_data.NULLState();
+		exfuncArr.at(i) = nullptr;
+	}
+	exfuncArr.release();
+	exfuncArr.NULLState();
+}
 
 class ICB_Context{
     public:

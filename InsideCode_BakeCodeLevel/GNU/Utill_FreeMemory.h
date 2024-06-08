@@ -1277,8 +1277,9 @@ namespace freemem
 					vecarr<uint64_t>* addrs = fm1_get_unReleaseHeapRatedAddr(i, fm11->id);
 					thout << "NonReleaseHeapNum_: " << addrs->size() << endl;
     				for(int i=0;i<addrs->size();++i){
-        				thout << addrs->at(i) << endl;
+        				thout << addrs->at(i) << " ";
     				}
+					thout << endl;
 					addrs->release();
 				}
 			}
@@ -1289,9 +1290,9 @@ namespace freemem
 		{
 			#ifdef FM_NONRELEASE_HEAPCHECK
 			checkarr.NULLState();
-			checkarr.Init(2, false);
-			ifstream* thinptr = new ifstream("fm_NonReleaseHeapData.txt");
-			ifstream& thin = *thinptr;
+			checkarr.Init(9, false);
+			checkarr.up = 8;
+			ifstream thin("fm_NonReleaseHeapData.txt");
 			string tempstr;
 			for(int i=0;i<8;++i){
 				thin >> tempstr; // mulindex_:
@@ -1322,11 +1323,10 @@ namespace freemem
 					}
 				}
 			}
-
-			delete thinptr;
+			thin.close();
 			#endif
 
-			FILE *fp = fopen("fm1_sizetable.bin", "rb");
+			FILE* fp = fopen("fm1_sizetable.bin", "rb");
 			for (int i = 1; i < 128; ++i)
 			{
 				int a = (int)fgetc(fp);
