@@ -473,7 +473,7 @@ fmvecarr<code_sen *> *AddCodeFromBlockData(fmvecarr<char *> &allcodesen, const c
                     }
 
                     cbv->release();
-                    fm->_Delete((byte8 *)cbv, sizeof(cbv));
+                    fm->_Delete((byte8 *)cbv, sizeof(fmvecarr<code_sen *>));
 
                     senarr->push_back(cs);
                     fm->_tempPopLayer();
@@ -536,7 +536,7 @@ fmvecarr<code_sen *> *AddCodeFromBlockData(fmvecarr<char *> &allcodesen, const c
                     }
 
                     cbv->release();
-                    fm->_Delete((byte8 *)cbv, sizeof(cbv));
+                    fm->_Delete((byte8 *)cbv, sizeof(fmvecarr<code_sen *>));
 
                     InsideCode_Bake::set_codesen(cs, cbs);
                     fm->_tempPopLayer();
