@@ -1424,6 +1424,34 @@ namespace freemem
 			}
 		}
 
+		vecarr<uint64_t>* fm1_get_unReleaseHeapRatedAddr(int mul_index, int fmindex){
+			vecarr<uint64_t>* addrs = new vecarr<uint64_t>();
+			addrs->NULLState();
+			addrs->Init(8, 0);
+
+			FM_Model1 *fm1 = nullptr;
+			for(int i=0;i<SmallSize_HeapDebugFM[mul_index]->size(); ++i){
+				fm1 = SmallSize_HeapDebugFM[mul_index]->at(i);
+				if(fmindex == fm1->id){
+					break;
+				}
+			}
+
+			uint64_t pivot = reinterpret_cast<uint64_t>(&fm1->DataPtr[0]);
+			int count = 0;
+			for (int i = 0; i < fm1->realDataSiz; i += fm1->dbg_bytesize)
+			{
+				if(fm1->isValid(i) == false){
+					addrs->push_back(i);
+					while(fm1->isValid(i) == false){
+						i += fm1->dbg_bytesize;
+					}
+				}
+				++count;
+			}
+			return addrs;
+		}
+
 		byte8 *_fastnew(unsigned int byteSiz)
 		{
 			if (1 <= byteSiz && byteSiz <= midminsize - 1)
@@ -1519,6 +1547,10 @@ namespace freemem
 			}
 			else
 			{
+				static constexpr uint64_t checkarr[128] = 
+					{48, 1120, 1216, 1360, 1552, 1696, 1952, 2048, 2240, 2432, 2624, 2816, 3120, 3472, 3664, 3856, 4000};
+				static constexpr int dbgmul = 4;
+				static constexpr int dbgind = 0;
 				if (1 <= byteSiz && byteSiz <= midminsize - 1)
 				{
 					int index = fm1_sizetable[byteSiz];
@@ -1528,12 +1560,22 @@ namespace freemem
 						byte8 *ptr = fm1->at(i)->_New(byteSiz);
 						if (ptr != nullptr)
 						{
+							if(index == dbgmul && dbgind == fm1->at(i)->id){
+								for(int k=0;k<17;++k){
+									uint64_t rated = reinterpret_cast<uint64_t>(ptr) - reinterpret_cast<uint64_t>(fm1->at(i)->DataPtr);
+									if(rated == checkarr[k]){
+										cout << "break;" << endl;
+									}
+									break;
+								}
+							}
 							return ptr;
 						}
 					}
 
 					FM_Model1 *sshdFM = new FM_Model1();
 					sshdFM->SetHeapData(sshd_Size, 8 * pow(2, index));
+					sshdFM->id = fm1->size();
 					fm1->push_back(sshdFM);
 					byte8 *ptr = sshdFM->_New(byteSiz);
 					return ptr;

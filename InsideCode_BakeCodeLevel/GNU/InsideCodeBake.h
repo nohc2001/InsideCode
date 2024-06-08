@@ -3057,7 +3057,9 @@ public:
 					tm->mem.push_back((byte8)rtm->valuetype);
 					savecomma = coma;
 					coma = wbss.search_word_first_in_specific_oc_layer(inner_params, savecomma + 1, "(", ")", 0, ",");
+					
 					release_tempmem(rtm);
+
 					param_sen->release();
 					fm->_Delete((byte8 *)param_sen, sizeof(sen));
 				}
@@ -3234,6 +3236,8 @@ public:
 					{
 						tm->mem.push_back(ptrtm->mem[i]);
 					}
+
+					release_tempmem(ptrtm);
 				}
 				else
 				{
@@ -3350,6 +3354,7 @@ public:
 						{
 							tm->mem.push_back(ptrtm->mem[i]);
 						}
+						release_tempmem(ptrtm);
 					}
 					else
 					{
@@ -3422,6 +3427,7 @@ public:
 					{
 						tm->mem.push_back(ptrtm->mem[i]);
 					}
+					release_tempmem(ptrtm);
 				}
 				else
 				{
@@ -4553,7 +4559,10 @@ public:
 
 										--i;
 									}
+								
 								}
+
+								release_tempmem(left_ten);
 							}
 							break;
 							case '&':
@@ -4584,6 +4593,8 @@ public:
 								segs[i]->at(0).type = 'a'; // asm
 								segs[i]->at(0).data.str =
 									reinterpret_cast<char *>(result_ten);
+								
+								release_tempmem(right_ten);
 							}
 							break;
 							case '*':
@@ -4626,6 +4637,8 @@ public:
 								segs[i]->at(0).type = 'a'; // asm
 								segs[i]->at(0).data.str =
 									reinterpret_cast<char *>(result_ten);
+
+								release_tempmem(right_ten);
 							}
 							break;
 							}
@@ -5648,6 +5661,7 @@ public:
 
 				param_sen->release();
 				fm->_Delete((byte8*)param_sen, sizeof(sen));
+				release_tempmem(tm);
 			}
 
 			sen* param_sen = wbss.sen_cut(inner_params, savecomma + 1, inner_params->size() - 1);
@@ -5669,6 +5683,8 @@ public:
 
 			inner_params->release();
 			fm->_Delete((byte8*)inner_params, sizeof(sen));
+
+			release_tempmem(tm);
 			return;
 		}
 		else if (strcmp(funcname, "inp") == 0)
@@ -5691,6 +5707,8 @@ public:
 
 			inner_params->release();
 			fm->_Delete((byte8*)inner_params, sizeof(sen));
+
+			release_tempmem(tm);
 			return;
 		}
 		/*
@@ -5756,6 +5774,7 @@ public:
 					{
 						mem[writeup++] = ptrtm->mem[i];
 					}
+					release_tempmem(ptrtm);
 				}
 				else
 				{
@@ -5827,6 +5846,7 @@ public:
 				{
 					mem[writeup++] = ptrtm->mem[i];
 				}
+				release_tempmem(ptrtm);
 			}
 			else
 			{
@@ -5933,6 +5953,7 @@ public:
 					{
 						mem[writeup++] = ptrtm->mem[i];
 					}
+					release_tempmem(ptrtm);
 				}
 				else
 				{
@@ -6002,6 +6023,7 @@ public:
 				{
 					mem[writeup++] = ptrtm->mem[i];
 				}
+				release_tempmem(ptrtm);
 			}
 			else
 			{

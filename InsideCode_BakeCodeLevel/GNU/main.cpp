@@ -1,6 +1,7 @@
 #include "InsideCodeBake.h"
 #include "ICB_Extension.h"
 #include "exGeometry.h"
+#include "dbg.h";
 
 extern FM_System0 *fm;
 
@@ -86,5 +87,10 @@ int main(){
 
     fm->dbg_fm1_lifecheck_charprint();
 
+    vecarr<uint64_t>* addrs = fm->fm1_get_unReleaseHeapRatedAddr(5, 0);
+    for(int i=0;i<addrs->size();++i){
+        cout << addrs->at(i) << ", ";
+    }
+    cout << endl;
     return 0;
 }
