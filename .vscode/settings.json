@@ -14,6 +14,8 @@
         "iosfwd": "cpp",
         "ostream": "cpp",
         "new": "cpp",
-        "typeinfo": "cpp"
+        "typeinfo": "cpp",
+        "fstream": "cpp",
+        "thread": "cpp"
     }
 }

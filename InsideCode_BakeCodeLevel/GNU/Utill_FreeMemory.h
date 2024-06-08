@@ -1231,6 +1231,12 @@ namespace freemem
 	  public:
 		// static constexpr int midminsize = 40; //x32
 		static constexpr int midminsize = 72;	// x64
+
+		//id기준 정렬
+		vecarr<vecarr<vecarr<uint64_t>>> checkarr;
+		int dbgmul = 3;
+		int dbgind = 0;
+
 		unsigned int tempSize = 0;
 		unsigned int sshd_Size = 0;
 		unsigned int mshd_Size = 0;
@@ -1257,8 +1263,69 @@ namespace freemem
 
 		}
 
+		void RECORD_NonReleaseHeapData(){
+			#ifdef FM_GET_NONRELEASE_HEAPPTR
+			ofstream thout;
+			thout.open("fm_NonReleaseHeapData.txt");
+			for(int i=0;i<SmallSize_HeapDebugFM.size();++i){
+				thout << "mulindex_: " << i << endl;
+				vecarr < FM_Model1 *>* fm1 = SmallSize_HeapDebugFM.at(i);
+				thout << "fmsiz: " << fm1->size() << endl;
+				for(int k=0;k<fm1->size();++k){
+					FM_Model1 * fm11 = fm1->at(k);
+					thout << "id_: " << fm11->id << endl;
+					vecarr<uint64_t>* addrs = fm1_get_unReleaseHeapRatedAddr(i, fm11->id);
+					thout << "NonReleaseHeapNum_: " << addrs->size() << endl;
+    				for(int i=0;i<addrs->size();++i){
+        				thout << addrs->at(i) << endl;
+    				}
+					addrs->release();
+				}
+			}
+    		#endif
+		}
+
 		void SetHeapData(uint32_t temp, uint32_t sshd, uint32_t mshd, uint32_t bshd)
 		{
+			#ifdef FM_NONRELEASE_HEAPCHECK
+			checkarr.NULLState();
+			checkarr.Init(2, false);
+			ifstream* thinptr = new ifstream("fm_NonReleaseHeapData.txt");
+			ifstream& thin = *thinptr;
+			string tempstr;
+			for(int i=0;i<8;++i){
+				thin >> tempstr; // mulindex_:
+				thin >> tempstr; // i
+				thin >> tempstr; // fmsiz:
+				int fmsiz = 0;
+				thin >> fmsiz;
+				checkarr.at(i).NULLState();
+				checkarr.at(i).Init(fmsiz + 1, false);
+				for (size_t k = 0; k < fmsiz; k++)
+				{
+					checkarr.at(i).at(k).NULLState();
+				}
+				
+				for(int k=0;k<fmsiz;++k){
+					thin >> tempstr; // id_:
+					int id = 0;
+					thin >> id;
+					vecarr<uint64_t>* chvec = &checkarr.at(i).at(id);
+					thin >> tempstr; //NonReleaseHeapNum_:
+					int intsiz = 0;
+					thin >> intsiz;
+					chvec->Init(intsiz+1, false);
+					for(int u=0;u<intsiz;++u){
+						uint64_t value;
+						thin >> value;
+						chvec->push_back(value);
+					}
+				}
+			}
+
+			delete thinptr;
+			#endif
+
 			FILE *fp = fopen("fm1_sizetable.bin", "rb");
 			for (int i = 1; i < 128; ++i)
 			{
@@ -1547,10 +1614,6 @@ namespace freemem
 			}
 			else
 			{
-				static constexpr uint64_t checkarr[128] = 
-					{48, 1120, 1216, 1360, 1552, 1696, 1952, 2048, 2240, 2432, 2624, 2816, 3120, 3472, 3664, 3856, 4000};
-				static constexpr int dbgmul = 4;
-				static constexpr int dbgind = 0;
 				if (1 <= byteSiz && byteSiz <= midminsize - 1)
 				{
 					int index = fm1_sizetable[byteSiz];
@@ -1560,15 +1623,17 @@ namespace freemem
 						byte8 *ptr = fm1->at(i)->_New(byteSiz);
 						if (ptr != nullptr)
 						{
-							if(index == dbgmul && dbgind == fm1->at(i)->id){
-								for(int k=0;k<17;++k){
-									uint64_t rated = reinterpret_cast<uint64_t>(ptr) - reinterpret_cast<uint64_t>(fm1->at(i)->DataPtr);
-									if(rated == checkarr[k]){
-										cout << "break;" << endl;
-									}
-									break;
+							#ifdef FM_NONRELEASE_HEAPCHECK
+							vecarr<uint64_t>* chvec = &checkarr.at(index).at(fm1->at(i)->id);
+							for(int k=0;k<chvec->size();++k){
+								uint64_t rated = reinterpret_cast<uint64_t>(ptr) - reinterpret_cast<uint64_t>(fm1->at(i)->DataPtr);
+								if(rated == chvec->at(k)){
+									//cout << "break;" << endl;
+									asm("int3");
 								}
+								break;
 							}
+							#endif
 							return ptr;
 						}
 					}
