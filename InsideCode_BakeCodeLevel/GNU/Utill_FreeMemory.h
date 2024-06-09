@@ -1697,6 +1697,19 @@ namespace freemem
 					{
 						int f0 = fm->Fup;
 						bool b = fm->_Delete(variable, size);
+
+						#ifdef FM_NONRELEASE_HEAPCHECK
+						vecarr<uint64_t>* chvec = &checkarr.at(index).at(fm1->at(i)->id);
+						for(int k=0;k<chvec->size();++k){
+							uint64_t rated = reinterpret_cast<uint64_t>(variable) - reinterpret_cast<uint64_t>(fm1->at(i)->DataPtr);
+							if(rated == chvec->at(k)){
+								//cout << "break;" << endl;
+								asm("int3");
+							}
+							break;
+						}
+						#endif
+						
 						int f1 = fm->Fup;
 						if (b)
 						{

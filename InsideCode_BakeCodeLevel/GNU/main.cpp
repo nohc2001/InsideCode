@@ -1,5 +1,5 @@
 #define FM_GET_NONRELEASE_HEAPPTR
-#define FM_NONRELEASE_HEAPCHECK
+//#define FM_NONRELEASE_HEAPCHECK
 
 #include "InsideCodeBake.h"
 #include "ICB_Extension.h"

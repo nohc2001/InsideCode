@@ -925,7 +925,7 @@ public:
 			cs->codeblocks = nullptr;
 		}
 
-		if(cs->maxlen != 0){
+		if(cs->maxlen != 0 && cs->ck != codeKind::ck_blocks){
 			for(int i=0;i<cs->maxlen;++i){
 				cs->sen[i] = nullptr;
 			}
@@ -6537,6 +6537,8 @@ public:
 					}
 					// tm->valuetype_detail = get_basic_type_with_int(tm->valuetype);
 					str.islocal = true;
+					code->release();
+					fm->_Delete((byte8*)code, sizeof(sen));
 				}
 			}
 			//dbg_codesen(cs);
