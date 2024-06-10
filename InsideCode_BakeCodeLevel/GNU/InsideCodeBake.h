@@ -3959,9 +3959,17 @@ public:
 								result_ten->valuetype_detail =
 									get_basic_type_with_int(result_ten->valuetype);
 
+								sen* tempseg = segs.at(i+1);
+								tempseg->release();
+								fm->_Delete((byte8*)tempseg, sizeof(sen));
 								segs.erase(i + 1);
+
 								segs[i]->at(0).type = 'a'; // asm
 								segs[i]->at(0).data.str = reinterpret_cast<char *>(result_ten);
+
+								tempseg = segs.at(i-1);
+								tempseg->release();
+								fm->_Delete((byte8*)tempseg, sizeof(sen));
 								segs.erase(i - 1);
 								--i;
 
@@ -4046,9 +4054,17 @@ public:
 										get_basic_type_with_int(result_ten->valuetype);
 									result_ten->isValue = true;
 
+									sen* tempseg = segs.at(i+1);
+									tempseg->release();
+									fm->_Delete((byte8*)tempseg, sizeof(sen));
 									segs.erase(i + 1);
+
 									segs[i]->at(0).type = 'a'; // asm
 									segs[i]->at(0).data.str = reinterpret_cast<char *>(result_ten);
+									
+									tempseg = segs.at(i-1);
+									tempseg->release();
+									fm->_Delete((byte8*)tempseg, sizeof(sen));
 									segs.erase(i - 1);
 									--i;
 
@@ -4092,7 +4108,11 @@ public:
 										get_basic_type_with_int(result_ten->valuetype);
 									result_ten->isValue = true;
 
+									sen* tempseg = segs.at(i+1);
+									tempseg->release();
+									fm->_Delete((byte8*)tempseg, sizeof(sen));
 									segs.erase(i + 1);
+
 									segs[i]->at(0).type = 'a'; // asm
 									segs[i]->at(0).data.str =
 										reinterpret_cast<char *>(result_ten);
@@ -4140,12 +4160,18 @@ public:
 										get_basic_type_with_int(result_ten->valuetype);
 									result_ten->isValue = true;
 									
-
+									sen* tempseg = segs.at(i+1);
+									tempseg->release();
+									fm->_Delete((byte8*)tempseg, sizeof(sen));
 									segs.erase(i + 1);
 
 									segs[i]->at(0).type = 'a'; // asm
 									segs[i]->at(0).data.str =
 										reinterpret_cast<char *>(result_ten);
+
+									tempseg = segs.at(i-1);
+									tempseg->release();
+									fm->_Delete((byte8*)tempseg, sizeof(sen));
 									segs.erase(i - 1);
 
 									release_tempmem(left_ten);
@@ -4348,12 +4374,23 @@ public:
 									result_ten->valuetype_detail = get_addpointer_type(td);
 								}
 
+								sen* tempseg = segs.at(i+1);
+								tempseg->release();
+								fm->_Delete((byte8*)tempseg, sizeof(sen));
 								segs.erase(i + 1);
+
+								tempseg = segs.at(i+1);
+								tempseg->release();
+								fm->_Delete((byte8*)tempseg, sizeof(sen));
 								segs.erase(i + 1);
 
 								segs[i]->at(0).type = 'a'; // asm
 								segs[i]->at(0).data.str =
 									reinterpret_cast<char *>(result_ten);
+								
+								tempseg = segs.at(i-1);
+								tempseg->release();
+								fm->_Delete((byte8*)tempseg, sizeof(sen));
 								segs.erase(i - 1);
 								--i;
 								release_tempmem(left_ten);
@@ -4457,9 +4494,17 @@ public:
 										result_ten->valuetype = get_int_with_basictype(result_ten->valuetype_detail); // ptr
 									}
 
+									sen* tempseg = segs.at(i+1);
+									tempseg->release();
+									fm->_Delete((byte8*)tempseg, sizeof(sen));
 									segs.erase(i + 1);
+
 									segs[i]->at(0).type = 'a'; // asm
 									segs[i]->at(0).data.str = reinterpret_cast<char *>(result_ten);
+
+									tempseg = segs.at(i-1);
+									tempseg->release();
+									fm->_Delete((byte8*)tempseg, sizeof(sen));
 									segs.erase(i - 1);
 									i -= 2;
 
@@ -4541,11 +4586,18 @@ public:
 										result_ten->valuetype_detail =
 											sptr->member_data[su].td;
 
+										sen* tempseg = segs.at(i+1);
+										tempseg->release();
+										fm->_Delete((byte8*)tempseg, sizeof(sen));
 										segs.erase(i + 1);
 
 										segs[i]->at(0).type = 'a'; // asm
 										segs[i]->at(0).data.str =
 											reinterpret_cast<char *>(result_ten);
+										
+										tempseg = segs.at(i-1);
+										tempseg->release();
+										fm->_Delete((byte8*)tempseg, sizeof(sen));
 										segs.erase(i - 1);
 
 										--i;
@@ -4580,7 +4632,12 @@ public:
 								// ptr
 								result_ten->valuetype = 8;
 								result_ten->valuetype_detail = right_ten->valuetype_detail;
+
+								sen* tempseg = segs.at(i+1);
+								tempseg->release();
+								fm->_Delete((byte8*)tempseg, sizeof(sen));
 								segs.erase(i + 1);
+
 								segs[i]->at(0).type = 'a'; // asm
 								segs[i]->at(0).data.str =
 									reinterpret_cast<char *>(result_ten);
@@ -4624,7 +4681,12 @@ public:
 								// ptr
 								result_ten->valuetype = 8;
 								result_ten->valuetype_detail = td;
+								
+								sen* tempseg = segs.at(i+1);
+								tempseg->release();
+								fm->_Delete((byte8*)tempseg, sizeof(sen));
 								segs.erase(i + 1);
+
 								segs[i]->at(0).type = 'a'; // asm
 								segs[i]->at(0).data.str =
 									reinterpret_cast<char *>(result_ten);
@@ -4769,6 +4831,10 @@ public:
 				}
 			}
 
+			sen* tempseg = segs.at(0);
+			tempseg->release();
+			fm->_Delete((byte8*)tempseg, sizeof(sen));
+
 			fm->_tempPopLayer();
 			return tm;
 		}
@@ -4777,7 +4843,13 @@ public:
 			cout << segs.at(u)->at(0).data.str << " ][ ";
 		}
 		cout << endl;
-		
+
+		for(int u=0;u<segs.size();++u){
+			sen* tempseg = segs.at(u);
+			tempseg->release();
+			fm->_Delete((byte8*)tempseg, sizeof(sen));
+		}
+
 		fm->_tempPopLayer();
 		return nullptr;
 	}
