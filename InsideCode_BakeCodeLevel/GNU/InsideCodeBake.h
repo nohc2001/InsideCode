@@ -1053,9 +1053,11 @@ public:
 			bd->start_pc = nullptr;
 			bd->breakpoints->release();
 			bd->breakpoints->NULLState();
+			fm->_Delete((byte8*)bd->breakpoints, sizeof(fmvecarr<int>));
 			bd->breakpoints = nullptr;
 			bd->continuepoints->release();
 			bd->continuepoints->NULLState();
+			fm->_Delete((byte8*)bd->continuepoints, sizeof(fmvecarr<int>));
 			bd->continuepoints = nullptr;
 			bd->variable_data.release();
 			bd->variable_data.NULLState();
@@ -1076,9 +1078,11 @@ public:
 		nextbd.start_pc = nullptr;
 		nextbd.breakpoints->release();
 		nextbd.breakpoints->NULLState();
+		fm->_Delete((byte8*)nextbd.breakpoints, sizeof(fmvecarr<int>));
 		nextbd.breakpoints = nullptr;
 		nextbd.continuepoints->release();
 		nextbd.continuepoints->NULLState();
+		fm->_Delete((byte8*)nextbd.continuepoints, sizeof(fmvecarr<int>));
 		nextbd.continuepoints = nullptr;
 		nextbd.variable_data.release();
 		nextbd.variable_data.NULLState();
@@ -4773,7 +4777,7 @@ public:
 			cout << segs.at(u)->at(0).data.str << " ][ ";
 		}
 		cout << endl;
-
+		
 		fm->_tempPopLayer();
 		return nullptr;
 	}
@@ -6593,8 +6597,114 @@ public:
 	}
 };
 
+void EXT_ReleaseTypeData(type_data *td, ICB_Extension* ext)
+{
+    if (td->structptr != nullptr && td->typetype != 'b')
+	{
+		bool isRelease = true;
+		if (td->typetype == 's')
+		{
+			for (int i = 0; i < ext->exstructArr.size(); ++i)
+			{
+				if (strcmp(td->name.c_str(), ext->exstructArr.at(i)->name.c_str()) == 0)
+				{
+					isRelease = false;
+					break;
+				}
+			}
+		}
+		else if(td->typetype == 'b')
+		{
+			isRelease = false;
+		}
+
+		if(isRelease == false) return;
+
+		if (td->typetype == 's')
+		{
+            struct_data *sd = (struct_data *)td->structptr;
+            sd->member_data.release();
+            sd->member_data.NULLState();
+            sd->name.release();
+            sd->name.NULLState();
+            fm->_Delete((byte8*)sd, sizeof(struct_data));
+            td->structptr = nullptr;
+        }
+        else
+        {
+            type_data *std = (type_data *)td->structptr;
+            EXT_ReleaseTypeData(std, ext);
+        }
+
+        td->name.release();
+        td->name.NULLState();
+
+		fm->_Delete((byte8 *)td, sizeof(type_data));
+	}
+}
+
 void ICB_Extension::Release()
 {
+	for (int i = 0; i < exfuncArr.size(); ++i)
+	{
+		func_data *fd = exfuncArr.at(i);
+		fd->name.release();
+		fd->name.NULLState();
+		bool isRelease = true;
+		if(fd->returntype->typetype == 's'){
+            for(int i=0;i<exstructArr.size();++i){
+                if(strcmp(fd->returntype->name.c_str(), exstructArr.at(i)->name.c_str()) == 0){
+                    isRelease = false;
+                    break;
+                }
+            }
+        }
+		else if(fd->returntype->typetype == 'b'){
+			isRelease = false;
+		}
+
+		if(isRelease){
+			EXT_ReleaseTypeData(fd->returntype, this);
+		}
+		fd->returntype = nullptr;
+
+		fd->start_pc = nullptr;
+
+		for(int i=0;i<fd->param_data.size();++i){
+			NamingData nd;
+			nd = fd->param_data.at(i);
+			nd.name = nullptr;
+
+			isRelease = true;
+			if (nd.td->typetype == 's')
+			{
+				for (int i = 0; i < exstructArr.size(); ++i)
+				{
+					if (strcmp(nd.td->name.c_str(), exstructArr.at(i)->name.c_str()) == 0)
+					{
+						isRelease = false;
+						break;
+					}
+				}
+			}
+			else if(nd.td->typetype == 'b'){
+				isRelease = false;
+			}
+
+			if(isRelease){
+				EXT_ReleaseTypeData(nd.td, this);
+			}
+			nd.td = nullptr;
+		}
+		fd->param_data.release();
+		fd->param_data.NULLState();
+
+		fm->_Delete((byte8*)fd, sizeof(func_data));
+		exfuncArr.at(i) = nullptr;
+	}
+	exfuncArr.release();
+	exfuncArr.NULLState();
+
 	for (int i = 0; i < exstructArr.size(); ++i)
 	{
 		type_data *td = exstructArr.at(i);
@@ -6618,21 +6728,6 @@ void ICB_Extension::Release()
 	}
 	exstructArr.release();
 	exstructArr.NULLState();
-
-	for (int i = 0; i < exfuncArr.size(); ++i)
-	{
-		func_data *fd = exfuncArr.at(i);
-		fd->name.release();
-		fd->name.NULLState();
-		fd->returntype = nullptr;
-		fd->start_pc = nullptr;
-		fd->param_data.release();
-		fd->param_data.NULLState();
-		fm->_Delete((byte8*)fd, sizeof(func_data));
-		exfuncArr.at(i) = nullptr;
-	}
-	exfuncArr.release();
-	exfuncArr.NULLState();
 }
 
 class ICB_Context{

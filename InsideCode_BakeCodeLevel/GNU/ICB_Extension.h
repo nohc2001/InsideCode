@@ -590,6 +590,24 @@ type_data *get_type_with_namesen(sen *tname, ICB_Extension* ext)
         {
             int siz = atoi(tname->at(i + 1).data.str);
             ntd = InsideCode_Bake::static_get_array_type(td, siz);
+            bool isRelease  = true;
+            if(td->typetype == 's'){
+                for(int i=0;i<ext->exstructArr.size();++i){
+                    if(strcmp(td->name.c_str(), ext->exstructArr.at(i)->name.c_str()) == 0){
+                        isRelease = false;
+                        break;
+                    }
+                }
+            }
+            else if(td->typetype == 'b'){
+				isRelease = false;
+			}
+
+            if (isRelease)
+            {
+                EXT_ReleaseTypeData(td, ext);
+                td = nullptr;
+            }
             td = ntd;
         }
     }
