@@ -1703,7 +1703,6 @@ namespace freemem
 						for(int k=0;k<chvec->size();++k){
 							uint64_t rated = reinterpret_cast<uint64_t>(variable) - reinterpret_cast<uint64_t>(fm1->at(i)->DataPtr);
 							if(rated == chvec->at(k)){
-								//cout << "break;" << endl;
 								asm("int3");
 							}
 							break;

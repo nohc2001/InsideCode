@@ -5430,6 +5430,7 @@ public:
 					{
 						current_if_is_multiple = false;
 						compile_code(css);
+						fm->_tempPopLayer();
 						continue;
 					}
 					code_sen *css2 = reinterpret_cast<code_sen *>(cs->codeblocks->at(i + 2));
@@ -5444,6 +5445,10 @@ public:
 							break;
 						}
 					}
+
+					css2sen->release();
+					fm->_Delete((byte8*)css2sen, sizeof(sen));
+
 					if (ifi != i + 2)
 					{
 						ifi -= 1;
@@ -5454,6 +5459,8 @@ public:
 					{
 						current_if_is_multiple = false;
 						compile_code(css);
+						fm->_tempPopLayer();
+
 						continue;
 					}
 					else
@@ -5505,9 +5512,6 @@ public:
 
 						i = ifi;
 					}
-					
-					css2sen->release();
-					fm->_Delete((byte8*)css2sen, sizeof(sen));
 
 					fm->_tempPopLayer();
 				}
