@@ -1076,14 +1076,20 @@ public:
 		globalVariables.NULLState();
 
 		nextbd.start_pc = nullptr;
-		nextbd.breakpoints->release();
-		nextbd.breakpoints->NULLState();
-		fm->_Delete((byte8*)nextbd.breakpoints, sizeof(fmvecarr<int>));
-		nextbd.breakpoints = nullptr;
-		nextbd.continuepoints->release();
-		nextbd.continuepoints->NULLState();
-		fm->_Delete((byte8*)nextbd.continuepoints, sizeof(fmvecarr<int>));
-		nextbd.continuepoints = nullptr;
+		if(nextbd.breakpoints != nullptr){
+			nextbd.breakpoints->release();
+			nextbd.breakpoints->NULLState();
+			fm->_Delete((byte8*)nextbd.breakpoints, sizeof(fmvecarr<int>));
+			nextbd.breakpoints = nullptr;
+		}
+		
+		if(nextbd.continuepoints != nullptr){
+			nextbd.continuepoints->release();
+			nextbd.continuepoints->NULLState();
+			fm->_Delete((byte8*)nextbd.continuepoints, sizeof(fmvecarr<int>));
+			nextbd.continuepoints = nullptr;
+		}
+		
 		nextbd.variable_data.release();
 		nextbd.variable_data.NULLState();
 
@@ -5275,6 +5281,11 @@ public:
 		nextbd.parameter[0] = writeup;
 		nextbd.parameter[1] = save;
 
+		if(nextbd.breakpoints != nullptr){
+			nextbd.breakpoints->release();
+			fm->_Delete((byte8*)nextbd.breakpoints, sizeof(fmvecarr<int>));
+			nextbd.breakpoints = nullptr;
+		}
 		nextbd.breakpoints = (fmvecarr<int> *)fm->_New(sizeof(fmvecarr<int>), true);
 		nextbd.breakpoints->NULLState();
 		nextbd.breakpoints->Init(2, false, true);
@@ -5353,7 +5364,9 @@ public:
 			if (bd->bs == blockstate::bs_while)
 			{
 				bd->breakpoints = nextbd.breakpoints;
+				nextbd.breakpoints = nullptr;
 				bd->continuepoints = nextbd.continuepoints;
+				nextbd.continuepoints = nullptr;
 			}
 			else
 			{
