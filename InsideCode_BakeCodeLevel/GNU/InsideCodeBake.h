@@ -998,6 +998,7 @@ public:
 			}
 			csarr->release();
 			csarr->NULLState();
+			fm->_Delete((byte8*)csarr, sizeof(fmvecarr<code_sen*>));
 			csarr = nullptr;
 		}
 
@@ -5290,6 +5291,11 @@ public:
 		nextbd.breakpoints->NULLState();
 		nextbd.breakpoints->Init(2, false, true);
 
+		if(nextbd.continuepoints != nullptr){
+			nextbd.continuepoints->release();
+			fm->_Delete((byte8*)nextbd.continuepoints, sizeof(fmvecarr<int>));
+			nextbd.continuepoints = nullptr;
+		}
 		nextbd.continuepoints = (fmvecarr<int> *)fm->_New(sizeof(fmvecarr<int>), true);
 		nextbd.continuepoints->NULLState();
 		nextbd.continuepoints->Init(2, false, true);
@@ -6425,6 +6431,9 @@ public:
 
 		icl << "ICB[" << this << "] BakeCode_AddTextBlocks...";
 		AddTextBlocks(allcode);
+		allcodeptr->release();
+		fm->_Delete((byte8*)allcodeptr, sizeof(lcstr));
+		allcodeptr = nullptr;
 		icl << "finish" << endl;
 
 		icl << "ICB[" << this << "] BakeCode_ScanStructTypes...";

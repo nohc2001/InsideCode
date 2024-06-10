@@ -16,8 +16,8 @@ NonReleaseHeapNum_: 0
 mulindex_: 3
 fmsiz: 1
 id_: 0
-NonReleaseHeapNum_: 1
-776 
+NonReleaseHeapNum_: 0
+
 mulindex_: 4
 fmsiz: 1
 id_: 0
@@ -26,8 +26,8 @@ NonReleaseHeapNum_: 0
 mulindex_: 5
 fmsiz: 1
 id_: 0
-NonReleaseHeapNum_: 3
-32 96 2048 
+NonReleaseHeapNum_: 1
+2048 
 mulindex_: 6
 fmsiz: 1
 id_: 0
