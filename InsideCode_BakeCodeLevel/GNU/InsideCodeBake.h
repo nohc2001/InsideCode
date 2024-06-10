@@ -3018,8 +3018,8 @@ public:
 					if (strcmp(funcname, efd->name.c_str()) == 0)
 					{
 						isext = true;
-						sen *typen = wbss.sen_cut(code, 0, nameloc - 1);
-						sen *params_sen = wbss.sen_cut(code, nameloc + 2, loc - 1);
+						//sen *typen = wbss.sen_cut(code, 0, nameloc - 1);
+						//sen *params_sen = wbss.sen_cut(code, nameloc + 2, loc - 1);
 						fd = efd;
 						extID = i;
 						exfuncID = k;
