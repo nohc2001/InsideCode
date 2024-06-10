@@ -6179,8 +6179,8 @@ public:
 
 		fm->_Delete((byte8 *)cs0->sen, sizeof(char *) * loc);
 		fm->_Delete((byte8 *)cs1->sen, sizeof(char *) * loc1);
-		fm->_Delete((byte8 *)cs0, sizeof(sen));
-		fm->_Delete((byte8 *)cs1, sizeof(sen));
+		fm->_Delete((byte8 *)cs0, sizeof(code_sen));
+		fm->_Delete((byte8 *)cs1, sizeof(code_sen));
 	}
 
 	int get_typesiz_with_addVariableCs(code_sen *cs)
