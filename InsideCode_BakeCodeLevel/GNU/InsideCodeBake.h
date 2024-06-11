@@ -258,7 +258,7 @@ bool cd_eqoper(char *str)
 		return false;
 }
 
-bool bCanBeTextblock(lcstr &a)
+bool bCanBeTextblock(fmlcstr &a)
 {
 	bool num = false;
 	bool oper = false;
@@ -344,7 +344,7 @@ bool bCanBeTextblock(lcstr &a)
 	return true;
 }
 
-bool bCanBeTextblock_notAllowNeg(lcstr &a)
+bool bCanBeTextblock_notAllowNeg(fmlcstr &a)
 {
 	bool num = false;
 	bool oper = false;
@@ -426,7 +426,7 @@ typedef enum class TBT
 	_null = 8
 } TBT;
 
-TBT DecodeTextBlock(lcstr &t)
+TBT DecodeTextBlock(fmlcstr &t)
 {
 	if (t == "true" || t == "false")
 	{
@@ -536,12 +536,12 @@ TBT DecodeTextBlock(lcstr &t)
 	}
 }
 
-lcstr *GetCodeTXT(const char *filename, FM_System0 *fm)
+fmlcstr *GetCodeTXT(const char *filename, FM_System0 *fm)
 {
 	FILE *fp = fopen(filename, "rt");
 	if (fp)
 	{
-		lcstr *codetxt = (lcstr *)fm->_New(sizeof(lcstr), true);
+		fmlcstr *codetxt = (fmlcstr *)fm->_New(sizeof(fmlcstr), true);
 		codetxt->NULLState();
 		codetxt->Init(10, false);
 		int max = 0;
@@ -620,7 +620,7 @@ struct code_sen
 
 struct type_data
 {
-	lcstr name;
+	fmlcstr name;
 
 	int typesiz;
 
@@ -674,7 +674,7 @@ struct block_data
 
 struct func_data
 {
-	lcstr name;
+	fmlcstr name;
 	byte8 *start_pc;
 	fmvecarr<NamingData> param_data; // save sizeoftype
 	type_data *returntype;
@@ -682,7 +682,7 @@ struct func_data
 
 struct struct_data
 {
-	lcstr name;
+	fmlcstr name;
 	fmvecarr<NamingData> member_data;
 };
 
@@ -1037,6 +1037,7 @@ public:
 				}
 				*/
 				//pre release in allcodesen
+				fd->name.release();
 				fd->name.NULLState();
 				fd->param_data.release();
 				fd->param_data.NULLState();
@@ -1463,7 +1464,7 @@ public:
 	{
 		sen *rs = (sen *)fm->_New(sizeof(sen), true);
 		rs->NULLState();
-		rs->Init(2, false);
+		rs->Init(2, false, true);
 
 		for (int i = 0; i < cs->maxlen; ++i)
 		{
@@ -1789,6 +1790,9 @@ public:
 		allcode_sen.islocal = false;
 		csarr = nullptr;
 
+		types.NULLState();
+		types.Init(8, false, true);
+
 		for (int i = 0; i < basictype_max; ++i)
 		{
 			types.push_back(&basictype[i]);
@@ -1813,8 +1817,8 @@ public:
 		blockstack.Init(2, false, true);
 		blockstack.islocal = false;
 
-		nextbd.breakpoints = (fmvecarr<int> *)fm->_New(sizeof(vecarr<int>), true);
-		nextbd.continuepoints = (fmvecarr<int> *)fm->_New(sizeof(vecarr<int>), true);
+		nextbd.breakpoints = (fmvecarr<int> *)fm->_New(sizeof(fmvecarr<int>), true);
+		nextbd.continuepoints = (fmvecarr<int> *)fm->_New(sizeof(fmvecarr<int>), true);
 		nextbd.breakpoints->NULLState();
 		nextbd.breakpoints->Init(2, false, true);
 		nextbd.continuepoints->NULLState();
@@ -1825,6 +1829,9 @@ public:
 
 		globalVariables.NULLState();
 		globalVariables.Init(2, false, true);
+
+		extension.NULLState();
+		extension.Init(8, false, true);
 		icl << "finish" << endl;
 	}
 
@@ -1858,9 +1865,9 @@ public:
 		allcode_sen[index] = cstr;
 	}
 
-	void AddTextBlocks(lcstr &codetxt)
+	void AddTextBlocks(fmlcstr &codetxt)
 	{
-		lcstr insstr;
+		fmlcstr insstr;
 		insstr.NULLState();
 		insstr.Init(2, false);
 
@@ -1963,21 +1970,30 @@ public:
 
 		for (int i = 0; i < (int)allcode_sen.size(); ++i)
 		{
-			lcstr s;
+			fm->_tempPushLayer();
+			fmlcstr s;
+			s.NULLState();
+			s.Init(8, false, false);
 			s = allcode_sen[i];
 			if (s == "-")
 			{
 				if (i == 0)
 					continue;
-				lcstr t0;
+				fmlcstr t0;
+				t0.NULLState();
+				t0.Init(8, false, false);
 				t0 = allcode_sen[i - 1];
-				lcstr t1;
+				fmlcstr t1;
+				t1.NULLState();
+				t1.Init(8, false, false);
 				t1 = allcode_sen[i + 1];
 
 				bool bequ = (DecodeTextBlock(t0) == TBT::_operation) && (DecodeTextBlock(t1) != TBT::_operation);
 				if (bequ)
 				{
-					lcstr insstr;
+					fmlcstr insstr;
+					insstr.NULLState();
+					insstr.Init(8, false, false);
 					insstr = allcode_sen[i];
 					if(icldetail) icl << "combine block : " << i << " : \"" << insstr.c_str() << "\" + ";
 					for (int k = 0; k < t1.size(); k++)
@@ -2002,7 +2018,9 @@ public:
 				bequ = bequ || (c == '%');
 				if (bequ)
 				{
-					lcstr insstr;
+					fmlcstr insstr;
+					insstr.NULLState();
+					insstr.Init(8, false, false);
 					insstr = allcode_sen[i - 1];
 					if(icldetail) icl << "combine block : " << i-1 << " : \"" << insstr.c_str() << "\" + ";
 					insstr.push_back('=');
@@ -2019,7 +2037,9 @@ public:
 				bool bequ = (c == '|');
 				if (bequ)
 				{
-					lcstr insstr;
+					fmlcstr insstr;
+					insstr.NULLState();
+					insstr.Init(8, false, false);
 					insstr = allcode_sen[i];
 					if(icldetail) icl << "combine block : " << i-1 << " : \"" << insstr.c_str() << "\" + ";
 					insstr.push_back('|');
@@ -2036,7 +2056,9 @@ public:
 				bool bequ = (c == '&');
 				if (bequ)
 				{
-					lcstr insstr;
+					fmlcstr insstr;
+					insstr.NULLState();
+					insstr.Init(8, false, false);
 					insstr = allcode_sen[i];
 					if(icldetail) icl << "combine block : " << i << " : \"" << insstr.c_str() << "\" + ";
 					insstr.push_back('&');
@@ -2049,9 +2071,13 @@ public:
 			{
 				if (i - 1 < 0 && i + 1 > allcode_sen.size() - 1)
 					continue;
-				lcstr front;
+				fmlcstr front;
+				front.NULLState();
+				front.Init(8, false, false);
 				front = allcode_sen[i - 1];
-				lcstr back;
+				fmlcstr back;
+				back.NULLState();
+				back.Init(8, false, false);
 				back = allcode_sen[i + 1];
 				bool bequ = true;
 				for (int k = 0; k < front.size(); k++)
@@ -2072,7 +2098,9 @@ public:
 				}
 				if (bequ)
 				{
-					lcstr insstr;
+					fmlcstr insstr;
+					insstr.NULLState();
+					insstr.Init(8, false, false);
 					insstr = allcode_sen[i - 1];
 					if(icldetail) icl << "combine block : " << i-1 << " : \"" << insstr.c_str() << "\" + \".\" + ";
 					insstr.push_back('.');
@@ -2091,11 +2119,17 @@ public:
 			{
 				if (strcmp(allcode_sen[i + 2], "\'") == 0)
 				{
-					lcstr insstr;
+					fmlcstr insstr;
+					insstr.NULLState();
+					insstr.Init(8, false, false);
 					insstr = allcode_sen[i];
-					lcstr cent;
+					fmlcstr cent;
+					cent.NULLState();
+					cent.Init(8, false, false);
 					cent = allcode_sen[i + 1];
-					lcstr back;
+					fmlcstr back;
+					back.NULLState();
+					back.Init(8, false, false);
 					back = allcode_sen[i + 2];
 					for (int k = 0; k < cent.size(); k++)
 					{
@@ -2115,13 +2149,21 @@ public:
 				}
 				else if (strcmp(allcode_sen[i + 1], "\\") == 0 && strcmp(allcode_sen[i + 3], "\'") == 0)
 				{
-					lcstr insstr;
+					fmlcstr insstr;
+					insstr.NULLState();
+					insstr.Init(8, false, false);
 					insstr = allcode_sen[i];
-					lcstr cent;
+					fmlcstr cent;
+					cent.NULLState();
+					cent.Init(8, false, false);
 					cent = allcode_sen[i + 1];
-					lcstr back;
+					fmlcstr back;
+					back.NULLState();
+					back.Init(8, false, false);
 					back = allcode_sen[i + 2];
-					lcstr backback;
+					fmlcstr backback;
+					backback.NULLState();
+					backback.Init(8, false, false);
 					backback = allcode_sen[i + 3];
 					for (int k = 0; k < cent.size(); k++)
 					{
@@ -2145,6 +2187,7 @@ public:
 					allcode_sen.erase(i + 1);
 				}
 			}
+			fm->_tempPopLayer();
 		}
 
 		insstr.islocal = true;
@@ -3608,7 +3651,7 @@ public:
 			else
 			{
 				// const
-				lcstr str;
+				fmlcstr str;
 				str.NULLState();
 				str.Init(2, false);
 				str = ten->at(0).data.str;
@@ -3794,7 +3837,7 @@ public:
 		segs.Init(2, false, false);
 		sen *vtemp = (sen *)fm->_tempNew(sizeof(sen));
 		vtemp->NULLState();
-		vtemp->Init(2, false);
+		vtemp->Init(2, false, true);
 
 		sen *temp = nullptr;
 		for (int i = 0; i < ten->size(); ++i)
@@ -3814,7 +3857,7 @@ public:
 
 					vtemp = (sen *)fm->_tempNew(sizeof(sen));
 					vtemp->NULLState();
-					vtemp->Init(2, true);
+					vtemp->Init(2, false, true);
 				}
 
 				vtemp->push_back(ten->at(i));
@@ -3822,7 +3865,7 @@ public:
 
 				vtemp = (sen *)fm->_tempNew(sizeof(sen));
 				vtemp->NULLState();
-				vtemp->Init(2, true);
+				vtemp->Init(2, false, true);
 
 				temp = wbss.oc_search(ten, i, "[", "]");
 				temp->pop_back();
@@ -3844,7 +3887,7 @@ public:
 
 					vtemp = (sen *)fm->_tempNew(sizeof(sen));
 					vtemp->NULLState();
-					vtemp->Init(2, true);
+					vtemp->Init(2, false, true);
 				}
 
 				vtemp->push_back(ten->at(i));
@@ -3853,7 +3896,7 @@ public:
 
 				vtemp = (sen *)fm->_tempNew(sizeof(sen));
 				vtemp->NULLState();
-				vtemp->Init(2, false);
+				vtemp->Init(2, false, true);
 			}
 		}
 
@@ -3874,7 +3917,7 @@ public:
 				if (seg->size() == 0)
 					continue;
 
-				lcstr str;
+				fmlcstr str;
 				str.NULLState();
 				str.Init(2, true);
 				str = seg->at(0).data.str;
@@ -4867,7 +4910,11 @@ public:
 		//char *name = (char*)fm->_New(strlen(cname)+1, true);
 		//strcpy(name, cname);
 		struct_data* stdata = (struct_data*)fm->_New(sizeof(struct_data), true);
+		stdata->name.NULLState();
+		stdata->name.Init(8, false);
 		stdata->name = cname;
+		stdata->member_data.NULLState();
+		stdata->member_data.Init(8, false);
 		int cpivot = 3;
 		int totalSiz = 0;
 		while(cpivot < code->size() - 1){
@@ -5323,7 +5370,7 @@ public:
 		{
 			nextsd->member_data.release();
 			nextsd->member_data.NULLState();
-			nextsd->member_data.Init(2, false);
+			nextsd->member_data.Init(2, false, true);
 			int addadd = 0;
 			for (int i = 0; i < cs->codeblocks->size(); ++i)
 			{
@@ -5334,7 +5381,7 @@ public:
 					nd.name = css->sen[css->maxlen - 1];
 					sen *typesen = (sen *)fm->_New(sizeof(sen), true);
 					typesen->NULLState();
-					typesen->Init(2, false);
+					typesen->Init(2, false, true);
 					for (int k = 0; k < css->maxlen - 1; ++k)
 					{
 						segment seg;
@@ -5354,6 +5401,8 @@ public:
 
 			type_data *td = (type_data *)fm->_New(sizeof(type_data), true);
 			td->structptr = reinterpret_cast<int *>(nextsd);
+			td->name.NULLState();
+			td->name.Init(8, false);
 			td->name = nextsd->name.c_str();
 			td->typetype = 's';
 			td->typesiz = addadd;
@@ -5568,13 +5617,13 @@ public:
 			if (bd->breakpoints != nullptr)
 			{
 				bd->breakpoints->release();
-				fm->_Delete((byte8 *)bd->breakpoints, sizeof(vecarr<int>));
+				fm->_Delete((byte8 *)bd->breakpoints, sizeof(fmvecarr<int>));
 			}
 			bd->variable_data.release();
 			if (bd->continuepoints != nullptr)
 			{
 				bd->continuepoints->release();
-				fm->_Delete((byte8 *)bd->continuepoints, sizeof(vecarr<int>));
+				fm->_Delete((byte8 *)bd->continuepoints, sizeof(fmvecarr<int>));
 			}
 			fm->_Delete((byte8 *)bd, sizeof(block_data));
 			blockstack.pop_back();
@@ -5628,7 +5677,7 @@ public:
 
 			sen *typestr = (sen *)fm->_New(sizeof(sen), true);
 			typestr->NULLState();
-			typestr->Init(2, false);
+			typestr->Init(2, false, true);
 			for (int i = 0; i < param_sen->size() - 1; ++i)
 			{
 				typestr->push_back(param_sen->at(i));
@@ -5660,7 +5709,7 @@ public:
 
 		sen *typestr = (sen *)fm->_New(sizeof(sen), false);
 		typestr->NULLState();
-		typestr->Init(2, false);
+		typestr->Init(2, false, true);
 		for (int i = 0; i < param_sen->size() - 1; ++i)
 		{
 			typestr->push_back(param_sen->at(i));
@@ -6205,7 +6254,12 @@ public:
 		sen *code = get_sen_from_codesen(cs);
 		int loc = wbss.search_word_first(0, code, "struct");
 		struct_data *sd = (struct_data *)fm->_New(sizeof(struct_data), true);
+		sd->name.NULLState();
+		sd->name.Init(8, false);
 		sd->name = code->at(loc).data.str;
+		sd->member_data.NULLState();
+		sd->member_data.Init(8, false);
+
 		nextsd = sd;
 		nextbd.bs = blockstate::bs_struct;
 
@@ -6428,15 +6482,15 @@ public:
 		icl << "ICB[" << this << "] BakeCode start. filename : [" << filename << "]" << endl;
 
 		icl << "ICB[" << this << "] BakeCode_GetCodeFromText...";
-		lcstr *allcodeptr = GetCodeTXT(filename, fm);
+		fmlcstr *allcodeptr = GetCodeTXT(filename, fm);
 		icl << "finish" << endl;
 
-		lcstr &allcode = *allcodeptr;
+		fmlcstr &allcode = *allcodeptr;
 
 		icl << "ICB[" << this << "] BakeCode_AddTextBlocks...";
 		AddTextBlocks(allcode);
 		allcodeptr->release();
-		fm->_Delete((byte8*)allcodeptr, sizeof(lcstr));
+		fm->_Delete((byte8*)allcodeptr, sizeof(fmlcstr));
 		allcodeptr = nullptr;
 		icl << "finish" << endl;
 
@@ -6503,7 +6557,7 @@ public:
 					sen *code = get_sen_from_codesen(cs);
 					int loc = wbss.search_word_first(0, code, "=");
 
-					lcstr str;
+					fmlcstr str;
 					str.NULLState();
 					str.Init(2, false);
 					str = code->at(loc + 1).data.str;
@@ -6667,7 +6721,7 @@ public:
 			// fm->dbg_fm1_lifecheck();
 			code_sen *cs = senptr->at(i);
 			compile_code(cs);
-			fm->dbg_fm1_lifecheck_charprint();
+			//fm->dbg_fm1_lifecheck_charprint();
 		}
 		if (ccdetail)
 			icl << "BakeCode_CompileCodes...";
@@ -7035,13 +7089,13 @@ class ICB_Context{
 #define shiftA0(delta) apivot = (apivot + (delta)) & percent16
 #define shiftB0(delta) bpivot = (bpivot + (delta)) & percent16
 
-vecarr<ICB_Context *> icbarr;
+fmvecarr<ICB_Context *> icbarr;
 
 bool isBreaking = false;
-int stopnum = -1;
-bool isDbg = false;
+int stopnum = 415;
+bool isDbg = true;
 
-int code_control(vecarr<ICB_Context *> *icbarr)
+int code_control(fmvecarr<ICB_Context *> *icbarr)
 {
 	//cout << "\033[2J\033[1;1H";
 	static int stack = 0;
@@ -7063,7 +7117,7 @@ int code_control(vecarr<ICB_Context *> *icbarr)
 	stack++;
 	if (stack >= 1)
 	{
-		//scanf("%c", &c);
+		scanf("%c", &c);
 		stack = 0;
 	}
 	switch (c)
@@ -7075,8 +7129,8 @@ int code_control(vecarr<ICB_Context *> *icbarr)
 	return 1; // keep going
 }
 
-void execute_switch(vecarr<ICB_Context*> icbarr, int execodenum,
-	int (*control_func)(vecarr<ICB_Context*>*), bool init)
+void execute_switch(fmvecarr<ICB_Context*> icbarr, int execodenum,
+	int (*control_func)(fmvecarr<ICB_Context*>*), bool init)
 {
 	constexpr unsigned int percent16 = 15;
 

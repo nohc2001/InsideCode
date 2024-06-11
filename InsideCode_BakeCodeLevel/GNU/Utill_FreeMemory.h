@@ -2232,7 +2232,7 @@ namespace freemem{
 			isdebug = isdbg;
 			fmlayer = flayer;
 			char *newArr = (char*)fm->_New(siz, isdebug, fmlayer);
-			if(fmlayer < 0){
+			if(isdbg == false && fmlayer < 0){
 				fmlayer = fm->tempStack[fm->get_threadid(std::this_thread::get_id())]->tempFM.size()-1;
 			}
 
@@ -2257,11 +2257,13 @@ namespace freemem{
 			if (Arr == nullptr)
 			{
 				Arr = (char*)fm->_New(len, isdebug, fmlayer);
+				maxsize = len;
 			}
-
-			if (maxsize < len)
-			{
-				Init(len + 1, islocal, isdebug, fmlayer);
+			else{
+				if (maxsize < len)
+				{
+					Init(len + 1, islocal, isdebug, fmlayer);
+				}
 			}
 
 			strcpy(Arr, str);
