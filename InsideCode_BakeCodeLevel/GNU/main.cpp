@@ -56,7 +56,6 @@ int main(){
     InsideCode_Bake::StaticInit();
 
     ICB_Extension* ext = Init_exGeometry();
-    fm->dbg_fm1_lifecheck_charprint();
 
     InsideCode_Bake icb;
 	icb.init();
@@ -87,6 +86,7 @@ int main(){
     exectxs.NULLState();
 
     InsideCode_Bake::wbss.Release();
+    InsideCode_Bake::StaticRelease();
 
     fm->dbg_fm1_lifecheck_charprint();
 

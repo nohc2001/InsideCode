@@ -1,13 +1,13 @@
 mulindex_: 0
 fmsiz: 1
 id_: 0
-NonReleaseHeapNum_: 2
-0 509 
+NonReleaseHeapNum_: 0
+
 mulindex_: 1
 fmsiz: 1
 id_: 0
-NonReleaseHeapNum_: 3
-2 10 18 
+NonReleaseHeapNum_: 0
+
 mulindex_: 2
 fmsiz: 1
 id_: 0
@@ -16,8 +16,8 @@ NonReleaseHeapNum_: 0
 mulindex_: 3
 fmsiz: 1
 id_: 0
-NonReleaseHeapNum_: 7
-0 232 304 440 576 648 720 
+NonReleaseHeapNum_: 0
+
 mulindex_: 4
 fmsiz: 1
 id_: 0

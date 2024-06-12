@@ -1782,6 +1782,14 @@ public:
 		icl << "finish" << endl;
 	}
 
+	static void StaticRelease(){
+		for(int i=0;i<8;++i){
+			type_data* td = &basictype[i];
+			td->name.release();
+			td->name.NULLState();
+		}
+	}
+
 	void init()
 	{
 		icl << "Create_New_ICB[" << this << "] Initialization...";
@@ -6874,6 +6882,8 @@ void ICB_Extension::Release()
 		sd->name.release();
 		sd->name.NULLState();
 		fm->_Delete((byte8*)sd, sizeof(struct_data));
+		td->name.release();
+		td->name.NULLState();
 		td->structptr = nullptr;
 		fm->_Delete((byte8*)td, sizeof(type_data));
 		exstructArr.at(i) = nullptr;
