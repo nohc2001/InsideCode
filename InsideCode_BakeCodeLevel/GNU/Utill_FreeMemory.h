@@ -2304,7 +2304,7 @@ namespace freemem{
 
 		void push_back(char value)
 		{
-			if (up < maxsize)
+			if (up < maxsize-1)
 			{
 				Arr[up] = value;
 				up += 1;
