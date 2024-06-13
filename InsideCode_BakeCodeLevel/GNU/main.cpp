@@ -56,7 +56,6 @@ int main(){
     InsideCode_Bake::StaticInit();
 
     ICB_Extension* ext = Init_exGeometry();
-    fm->dbg_fm1_lifecheck_charprint();
 
     InsideCode_Bake icb;
 	icb.init();
@@ -64,14 +63,14 @@ int main(){
 
 	icb.bake_code("code.txt");
 
-	vecarr<ICB_Context *> exectxs;
+	fmvecarr<ICB_Context *> exectxs;
     ICB_Context* ctx = (ICB_Context*)fm->_New(sizeof(ICB_Context), true);
     ctx->SetICB(&icb, 40960); // 40KB
 	
     exectxs.NULLState();
-	exectxs.Init(2, false);
+	exectxs.Init(2, false, true);
     exectxs.push_back(ctx);
-	execute_switch(exectxs, 1000, code_control, true);
+	execute_switch(exectxs, 1, code_control, true);
 
     fm->_tempPopLayer();
 
@@ -87,6 +86,7 @@ int main(){
     exectxs.NULLState();
 
     InsideCode_Bake::wbss.Release();
+    InsideCode_Bake::StaticRelease();
 
     fm->dbg_fm1_lifecheck_charprint();
 

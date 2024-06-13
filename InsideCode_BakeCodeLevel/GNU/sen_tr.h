@@ -26,7 +26,7 @@ struct segment
 	segstr data;				// word str
 };
 
-typedef vecarr < segment > sen;
+typedef fmvecarr < segment > sen;
 
 struct seg_variable
 {
@@ -40,12 +40,12 @@ struct seg_range
 	int end = 0;
 };
 
-typedef vecarr < vecarr < seg_variable > *>var_cases;
+typedef fmvecarr < fmvecarr < seg_variable > *>var_cases;
 
 class word_base_sen_sys
 {
   public:
-	vecarr < char * >wordlist;
+	fmvecarr < char * >wordlist;
 	// data rule : every word mem siz is len + 1
 
 	word_base_sen_sys()
@@ -58,7 +58,7 @@ class word_base_sen_sys
 	
 	void Init(){
 		wordlist.NULLState();
-		wordlist.Init(2, false);
+		wordlist.Init(2, false, true);
 	}
 
 	void Release(){
@@ -136,9 +136,9 @@ class word_base_sen_sys
 	{
 		sen *ten = (sen *) fm->_New(sizeof(sen), true);
 		int len = strlen(segs);
-		lcstr str;
+		fmlcstr str;
 		str.NULLState();
-		str.Init(2, false);
+		str.Init(len+1, false);
 		int _stack = 0;
 		for (int i = 0; i < len; ++i)
 		{
@@ -192,13 +192,13 @@ class word_base_sen_sys
 		return ten;
 	}
 
-	vecarr < seg_range > *searchsen(sen * bigsen, sen * formsen)
+	fmvecarr < seg_range > *searchsen(sen * bigsen, sen * formsen)
 	{
 		int len = bigsen->size() - formsen->size() + 1;
-		vecarr < seg_range > *ret =
-			(vecarr < seg_range > *)fm->_New(sizeof(vecarr < seg_range >), true);
+		fmvecarr < seg_range > *ret =
+			(fmvecarr < seg_range > *)fm->_New(sizeof(fmvecarr < seg_range >), true);
 		ret->NULLState();
-		ret->Init(2, false);
+		ret->Init(2, false, true);
 		int fsiz = formsen->size();
 		for (int i = 0; i < len; ++i)
 		{
@@ -228,16 +228,16 @@ class word_base_sen_sys
 	{
 		var_cases *ret = (var_cases *) fm->_New(sizeof(var_cases), true);
 		ret->NULLState();
-		ret->Init(2, false);
+		ret->Init(2, false, true);
 
 		// get sentences not include variable
-		vecarr < sen * >sentences;
+		fmvecarr < sen * >sentences;
 		sentences.NULLState();
-		sentences.Init(2, false);
+		sentences.Init(2, false, true);
 		
 		sen *ten = (sen *) fm->_New(sizeof(sen), true);
 		ten->NULLState();
-		ten->Init(2, false);
+		ten->Init(2, false, true);
 		for (int i = 0; i < formsen->size(); ++i)
 		{
 			if (formsen->at(i).type == 'x')
@@ -246,7 +246,7 @@ class word_base_sen_sys
 				sentences.push_back(ten);
 				ten = (sen *) fm->_New(sizeof(sen), true);
 				ten->NULLState();
-				ten->Init(2, false);
+				ten->Init(2, false, true);
 			}
 			else
 			{
@@ -258,12 +258,12 @@ class word_base_sen_sys
 
 
 		// check sentence in bigsen
-		vecarr < vecarr < seg_range > *>rangess;
+		fmvecarr < fmvecarr < seg_range > *>rangess;
 		rangess.NULLState();
-		rangess.Init(2, false);
+		rangess.Init(2, false, true);
 		for (int i = 0; i < sentences.size(); ++i)
 		{
-			vecarr < seg_range > *vecran;
+			fmvecarr < seg_range > *vecran;
 			// dbg_sen(bigsen);
 			// dbg_sen(sentences.at(i));
 			vecran = searchsen(bigsen, sentences.at(i));
@@ -278,12 +278,12 @@ class word_base_sen_sys
 		}
 
 		// multifor for sentences combination
-		vecarr < int >*sizes = (vecarr < int >*)fm->_New(sizeof(vecarr < int >), true);
+		fmvecarr < int >*sizes = (fmvecarr < int >*)fm->_New(sizeof(fmvecarr < int >), true);
 		sizes->NULLState();
-		sizes->Init(2, false);
-		vecarr < seg_range > senranges;
+		sizes->Init(2, false, true);
+		fmvecarr < seg_range > senranges;
 		senranges.NULLState();
-		senranges.Init(2, false);
+		senranges.Init(2, false, true);
 		int rsiz = rangess.size();
 		for (int i = 0; i < rangess.size(); ++i)
 		{
@@ -313,10 +313,10 @@ class word_base_sen_sys
 			if (perfect)
 			{
 				// get symbols in formsen
-				vecarr < seg_variable > *vararr =
-					(vecarr < seg_variable > *)fm->_New(sizeof(vecarr < seg_variable >), true);
+				fmvecarr < seg_variable > *vararr =
+					(fmvecarr < seg_variable > *)fm->_New(sizeof(fmvecarr < seg_variable >), true);
 				vararr->NULLState();
-				vararr->Init(2, false);
+				vararr->Init(2, false, true);
 				seg_variable var;
 				var.symbol = 0;
 				var.value = bigsen;
@@ -374,7 +374,7 @@ class word_base_sen_sys
 	sen* sen_cut(sen* arr, int start, int end){
 		sen* rarr = (sen*)fm->_New(sizeof(sen), true);
 		rarr->NULLState();
-		rarr->Init(2, false);
+		rarr->Init(2, false, true);
 		for(int i=start;i<=end;++i){
 			rarr->push_back(arr->at(i));
 		}
@@ -385,7 +385,7 @@ class word_base_sen_sys
 	{
 		sen *rarr = (sen *) fm->_New(sizeof(sen), true);
 		rarr->NULLState();
-		rarr->Init(2, false);
+		rarr->Init(2, false, true);
 		int stack = 0;
 		bool isin = false;
 		for (int i = start; i < (int)arr->size(); ++i)
@@ -419,7 +419,7 @@ class word_base_sen_sys
 	{
 		sen *rarr = (sen *) fm->_New(sizeof(sen), true);
 		rarr->NULLState();
-		rarr->Init(2, false);
+		rarr->Init(2, false, true);
 		int stack = 0;
 		bool isin = false;
 		int start = 0;

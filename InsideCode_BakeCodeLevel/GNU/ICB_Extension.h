@@ -47,9 +47,9 @@ void set_word(int index, char* sptr, fmvecarr<char*>* codesen)
     */
 }
 
-void AddTextBlocks(lcstr &codetxt, fmvecarr<char*>* codesen)
+void AddTextBlocks(fmlcstr &codetxt, fmvecarr<char*>* codesen)
 {
-    lcstr insstr;
+    fmlcstr insstr;
     insstr.NULLState();
     insstr.Init(2, false);
 
@@ -109,21 +109,21 @@ void AddTextBlocks(lcstr &codetxt, fmvecarr<char*>* codesen)
 
     for (int i = 0; i < (int)codesen->size(); ++i)
     {
-        lcstr s;
+        fmlcstr s;
         s = (*codesen)[i];
         if (s == "-")
         {
             if (i == 0)
                 continue;
-            lcstr t0;
+            fmlcstr t0;
             t0 = (*codesen)[i - 1];
-            lcstr t1;
+            fmlcstr t1;
             t1 = (*codesen)[i + 1];
 
             bool bequ = (DecodeTextBlock(t0) == TBT::_operation) && (DecodeTextBlock(t1) != TBT::_operation);
             if (bequ)
             {
-                lcstr insstr;
+                fmlcstr insstr;
                 insstr = (*codesen)[i];
                 for (int k = 0; k < t1.size(); k++)
                 {
@@ -146,7 +146,7 @@ void AddTextBlocks(lcstr &codetxt, fmvecarr<char*>* codesen)
             bequ = bequ || (c == '%');
             if (bequ)
             {
-                lcstr insstr;
+                fmlcstr insstr;
                 insstr = (*codesen)[i - 1];
                 insstr.push_back('=');
                 set_word(i, insstr.c_str(), codesen);
@@ -161,7 +161,7 @@ void AddTextBlocks(lcstr &codetxt, fmvecarr<char*>* codesen)
             bool bequ = (c == '|');
             if (bequ)
             {
-                lcstr insstr;
+                fmlcstr insstr;
                 insstr = (*codesen)[i];
                 insstr.push_back('|');
                 set_word(i, insstr.c_str(), codesen);
@@ -176,7 +176,7 @@ void AddTextBlocks(lcstr &codetxt, fmvecarr<char*>* codesen)
             bool bequ = (c == '&');
             if (bequ)
             {
-                lcstr insstr;
+                fmlcstr insstr;
                 insstr = (*codesen)[i];
                 insstr.push_back('&');
                 set_word(i, insstr.c_str(), codesen);
@@ -187,9 +187,9 @@ void AddTextBlocks(lcstr &codetxt, fmvecarr<char*>* codesen)
         {
             if (i - 1 < 0 && i + 1 > codesen->size() - 1)
                 continue;
-            lcstr front;
+            fmlcstr front;
             front = (*codesen)[i - 1];
-            lcstr back;
+            fmlcstr back;
             back = (*codesen)[i + 1];
             bool bequ = true;
             for (int k = 0; k < front.size(); k++)
@@ -210,7 +210,7 @@ void AddTextBlocks(lcstr &codetxt, fmvecarr<char*>* codesen)
             }
             if (bequ)
             {
-                lcstr insstr;
+                fmlcstr insstr;
                 insstr = (*codesen)[i - 1];
                 insstr.push_back('.');
                 for (int k = 0; k < back.size(); k++)
@@ -227,11 +227,11 @@ void AddTextBlocks(lcstr &codetxt, fmvecarr<char*>* codesen)
         {
             if (strcmp((*codesen)[i + 2], "\'") == 0)
             {
-                lcstr insstr;
+                fmlcstr insstr;
                 insstr = (*codesen)[i];
-                lcstr cent;
+                fmlcstr cent;
                 cent = (*codesen)[i + 1];
-                lcstr back;
+                fmlcstr back;
                 back = (*codesen)[i + 2];
                 for (int k = 0; k < cent.size(); k++)
                 {
@@ -249,13 +249,13 @@ void AddTextBlocks(lcstr &codetxt, fmvecarr<char*>* codesen)
             }
             else if (strcmp((*codesen)[i + 1], "\\") == 0 && strcmp((*codesen)[i + 3], "\'") == 0)
             {
-                lcstr insstr;
+                fmlcstr insstr;
                 insstr = (*codesen)[i];
-                lcstr cent;
+                fmlcstr cent;
                 cent = (*codesen)[i + 1];
-                lcstr back;
+                fmlcstr back;
                 back = (*codesen)[i + 2];
-                lcstr backback;
+                fmlcstr backback;
                 backback = (*codesen)[i + 3];
                 for (int k = 0; k < cent.size(); k++)
                 {
@@ -528,7 +528,7 @@ fmvecarr<code_sen *> *AddCodeFromBlockData(fmvecarr<char *> &allcodesen, const c
                     cs->codeblocks = (fmvecarr<int *> *)fm->_New(sizeof(fmvecarr<int *>), true);
                     //Init_VPTR<vecarr<int *> *>(cs->codeblocks);
                     cs->codeblocks->NULLState();
-                    cs->codeblocks->Init((int)cbv->size(), false);
+                    cs->codeblocks->Init((int)cbv->size(), false, true);
 
                     for (int u = 0; u < (int)cbv->size(); u++)
                     {
@@ -622,7 +622,11 @@ void interpret_AddStruct(code_sen *cs, ICB_Extension *ext)
     //char *name = (char *)fm->_New(name_siz, true);
     //strcpy(name, cname);
     struct_data *stdata = (struct_data *)fm->_New(sizeof(struct_data), true);
+    stdata->name.NULLState();
+    stdata->name.Init(8, false);
     stdata->name = cname;
+    stdata->member_data.NULLState();
+    stdata->member_data.Init(8, false);
     int cpivot = 3;
     int totalSiz = 0;
     while (cpivot < code->size() - 1)
@@ -707,7 +711,7 @@ void compile_addFunction(code_sen *cs, ICB_Extension *ext)
 
         sen *typestr = (sen *)fm->_New(sizeof(sen), true);
         typestr->NULLState();
-        typestr->Init(2, false);
+        typestr->Init(2, false, true);
         for (int i = 0; i < param_sen->size() - 1; ++i)
         {
             typestr->push_back(param_sen->at(i));
@@ -738,7 +742,7 @@ void compile_addFunction(code_sen *cs, ICB_Extension *ext)
 
     sen *typestr = (sen *)fm->_New(sizeof(sen), true);
     typestr->NULLState();
-    typestr->Init(2, false);
+    typestr->Init(2, false, true);
     for (int i = 0; i < param_sen->size() - 1; ++i)
     {
         typestr->push_back(param_sen->at(i));
@@ -791,10 +795,10 @@ void bake_Extension(const char* filename, ICB_Extension* ext){
     if(icldetail) icl << "start" << endl;
     if(icldetail) icl << "Create_New_ICB_Extension_Init__Bake_Extension__GetCodeFromText...";
     
-    lcstr *allcodeptr = GetCodeTXT(filename, fm);
+    fmlcstr *allcodeptr = GetCodeTXT(filename, fm);
     if(icldetail) icl << "finish" << endl;
 
-	lcstr &allcode = *allcodeptr;
+	fmlcstr &allcode = *allcodeptr;
     fmvecarr<char*> codesen;
     codesen.NULLState();
     codesen.Init(8, false, true);
@@ -804,7 +808,7 @@ void bake_Extension(const char* filename, ICB_Extension* ext){
     
     allcodeptr->release();
     allcodeptr->NULLState();
-    fm->_Delete((byte8*)allcodeptr, sizeof(lcstr));
+    fm->_Delete((byte8*)allcodeptr, sizeof(fmlcstr));
 
     if(icldetail) icl << "finish" << endl;
 

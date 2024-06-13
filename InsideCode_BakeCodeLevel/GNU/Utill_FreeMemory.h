@@ -1225,6 +1225,8 @@ namespace freemem
 
 	};
 
+	int bcount = 0;
+
 	// The storage method is classified by the size of the data.
 	class FM_System0
 	{
@@ -2232,7 +2234,7 @@ namespace freemem{
 			isdebug = isdbg;
 			fmlayer = flayer;
 			char *newArr = (char*)fm->_New(siz, isdebug, fmlayer);
-			if(fmlayer < 0){
+			if(isdbg == false && fmlayer < 0){
 				fmlayer = fm->tempStack[fm->get_threadid(std::this_thread::get_id())]->tempFM.size()-1;
 			}
 
@@ -2257,11 +2259,13 @@ namespace freemem{
 			if (Arr == nullptr)
 			{
 				Arr = (char*)fm->_New(len, isdebug, fmlayer);
+				maxsize = len;
 			}
-
-			if (maxsize < len)
-			{
-				Init(len + 1, islocal, isdebug, fmlayer);
+			else{
+				if (maxsize < len)
+				{
+					Init(len + 1, islocal, isdebug, fmlayer);
+				}
 			}
 
 			strcpy(Arr, str);
@@ -2302,7 +2306,7 @@ namespace freemem{
 
 		void push_back(char value)
 		{
-			if (up < maxsize)
+			if (up < maxsize-1)
 			{
 				Arr[up] = value;
 				up += 1;

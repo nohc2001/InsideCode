@@ -90,3 +90,5 @@ release amount :
 2. fm1중 일부만 디버깅하기
 3. 마지막에 헤제되지 않은 메모리의 FM1을 기준으로한 상대적인 주소를 반환한다. 그리고 다시 디버깅할때, New에서
         반환이 해당 상대주소를 반환하게 될 시 브레이크를 건다.
+
+> lcstr > fmlcstr Init(8, false) 를 Init(8, false, true) 로 바꾸셈?

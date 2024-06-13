@@ -451,9 +451,9 @@ ICB_Extension* Init_exGeometry(){
     if(icldetail) icl << "Create_New_ICB_Extension_Init Allocate Extension Data Memory...";
     ICB_Extension* ext = (ICB_Extension*)fm->_New(sizeof(ICB_Extension), true);
     ext->exfuncArr.NULLState();
-    ext->exfuncArr.Init(32, false);
+    ext->exfuncArr.Init(32, false, true);
     ext->exstructArr.NULLState();
-    ext->exstructArr.Init(32, false);
+    ext->exstructArr.Init(32, false, true);
     if(icldetail) icl << "finish" << endl;
 
     if(icldetail) icl << "Create_New_ICB_Extension_Init__Bake_Extension...";
