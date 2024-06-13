@@ -447,8 +447,8 @@ TBT DecodeTextBlock(fmlcstr &t)
 		return TBT::_value_str;
 	}
 
-	fm->_tempPushLayer();
-	int *intarray = (int*)fm->_tempNew(t.size() * sizeof(int));
+	//fm->_tempPushLayer();
+	int *intarray = new int[t.size()];
 	bool dot = false;
 	bool num = true;
 
@@ -510,7 +510,8 @@ TBT DecodeTextBlock(fmlcstr &t)
 			bstr = false;
 	}
 
-	fm->_tempPopLayer();
+	delete[] intarray;
+	//fm->_tempPopLayer();
 
 	if (bnum)
 	{
@@ -2423,10 +2424,10 @@ public:
 						if (icldetail) icl << "blocks : ";
 						code_sen *cs = (code_sen *)fm->_New(sizeof(code_sen), true);
 						cs->ck = codeKind::ck_blocks;
-						fm->_tempPushLayer();
+						//fm->_tempPushLayer();
 						fmvecarr<char *> cbs;
 						cbs.NULLState();
-						cbs.Init(2, false, false);
+						cbs.Init(2, false, true);
 
 						int open = 0;
 						int h = 1;
@@ -2450,7 +2451,9 @@ public:
 						// cbs.erase(0);
 
 						fmvecarr<code_sen *> *cbv = AddCodeFromBlockData(cbs, "none");
-						fm->_tempPopLayer();
+						cbs.release();
+						cbs.NULLState();
+						//fm->_tempPopLayer();
 
 						cs->codeblocks = (fmvecarr<int *> *)fm->_New(sizeof(fmvecarr<int *>), true);
 						cs->codeblocks->islocal = false;
@@ -3937,6 +3940,7 @@ public:
 				str.Init(2, true);
 				str = seg->at(0).data.str;
 				TBT tbt = DecodeTextBlock(str);
+				
 				if (tbt == TBT::_operation)
 				{
 					for(int u=0;u<segs.size();++u){

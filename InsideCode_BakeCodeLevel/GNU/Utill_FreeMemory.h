@@ -1155,7 +1155,7 @@ namespace freemem
 				for (int i = 0; i < tsize; ++i)
 				{
 					//watch("i", i);
-					int remain = 4096 - tm->at(i)->Fup + 1;
+					int remain = 4096 - tm->at(i)->Fup;
 					if (remain >= size)
 					{
 						return tm->at(i)->_New(size);
@@ -1995,6 +1995,7 @@ namespace freemem{
 					//cout << "reuse" << endl;
 				}
 			}
+			
 			if (Arr != nullptr)
 			{
 				for (int i = 0; i < maxsize; ++i)
