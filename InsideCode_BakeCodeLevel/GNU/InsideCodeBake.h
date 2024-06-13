@@ -3912,6 +3912,12 @@ public:
 		{
 			segs.push_back(vtemp);
 		}
+		else{
+			vtemp->release();
+			vtemp->NULLState();
+			fm->_Delete((byte8*)vtemp, sizeof(sen));
+			vtemp = nullptr;
+		}
 		
 		//for(int k=0;k<segs.size();++k){ wbss.dbg_sen(segs.at(k)); } 
 

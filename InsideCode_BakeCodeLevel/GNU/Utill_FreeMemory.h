@@ -1225,6 +1225,8 @@ namespace freemem
 
 	};
 
+	int bcount = 0;
+
 	// The storage method is classified by the size of the data.
 	class FM_System0
 	{

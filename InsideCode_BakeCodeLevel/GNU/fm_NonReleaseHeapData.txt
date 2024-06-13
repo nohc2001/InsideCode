@@ -26,8 +26,8 @@ NonReleaseHeapNum_: 0
 mulindex_: 5
 fmsiz: 1
 id_: 0
-NonReleaseHeapNum_: 2
-2304 2592 
+NonReleaseHeapNum_: 0
+
 mulindex_: 6
 fmsiz: 1
 id_: 0
