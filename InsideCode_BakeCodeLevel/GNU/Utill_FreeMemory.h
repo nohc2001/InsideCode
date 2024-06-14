@@ -1092,10 +1092,11 @@ namespace freemem
 	{
 	  public:
 		int thread_id = 0;
-		  vecarr < vecarr < large_alloc > *>large;
-		  vecarr < vecarr < FM_Model0 * >*>tempFM;
+		unsigned int tempPageSize = 4096;
+		vecarr < vecarr < large_alloc > *>large;
+		vecarr < vecarr < FM_Model0 * >*>tempFM;
 
-		TempStack()
+		TempStack() : tempPageSize(4096)
 		{
 		}
 		virtual ~ TempStack()
@@ -1144,18 +1145,16 @@ namespace freemem
 			vecarr<FM_Model0*>* tm;
 			vecarr<large_alloc>* larr;
 
-			if (size <= 4096)
+			if (size <= tempPageSize)
 			{
-				if (fmlayer < 0 || fmlayer >= tempFM.up)
-					tm = tempFM.last();
-				else
-					tm = tempFM.at(fmlayer);
+				if(fmlayer < 0 || fmlayer >= tempFM.up) tm = tempFM.last();
+				else tm = tempFM.at(fmlayer);
 				unsigned int tsize = tm->size();
 
 				for (int i = 0; i < tsize; ++i)
 				{
 					//watch("i", i);
-					int remain = 4096 - tm->at(i)->Fup;
+					int remain = tempPageSize - tm->at(i)->Fup;
 					if (remain >= size)
 					{
 						return tm->at(i)->_New(size);
@@ -1163,17 +1162,14 @@ namespace freemem
 				}
 
 				FM_Model0 *fm0 = new FM_Model0();
-				fm0->SetHeapData(new byte8[4096], 4096);
+				fm0->SetHeapData(new byte8[tempPageSize], tempPageSize);
 				tm->push_back(fm0);
 				return tm->last()->_New(size);
 			}
 			else
 			{
-				if (fmlayer < 0 || fmlayer >= large.up)
-					larr = large.last();
-				else
-					larr = large.at(fmlayer);
-
+				if(fmlayer < 0 || fmlayer >= large.up) larr = large.last();
+				else larr = large.at(fmlayer);
 				large_alloc la;
 				la.ptr = (int *)new byte8[size];
 				la.size = size;
@@ -1190,18 +1186,23 @@ namespace freemem
 				fmv->NULLState();
 				fmv->Init(8, false);
 				FM_Model0* fm0 = new FM_Model0();
-				fm0->SetHeapData(new byte8[4096], 4096);
+				fm0->SetHeapData(new byte8[tempPageSize], tempPageSize);
 				fmv->push_back(fm0);
 				tempFM.push_back(fmv);
 				//watch("tempfm push", 0);
-
-				large.push_back(new vecarr < large_alloc > ());
-				large.last()->NULLState();
-				large.last()->Init(8, false);
 			}
 			else
 			{
 				tempFM.up += 1;
+			}
+
+			if(large[large.up] == nullptr || large.up == large.maxsize){
+				large.push_back(new vecarr < large_alloc > ());
+				large.last()->NULLState();
+				large.last()->Init(8, false);
+			}
+			else{
+				large.up += 1;
 			}
 		}
 
@@ -1216,8 +1217,12 @@ namespace freemem
 			{
 				for (int i = 0; i < large.last()->size(); ++i)
 				{
-					delete[](byte8 *) large.last()->at(i).ptr;
+					if(large.last()->at(i).ptr != nullptr){
+						delete[](byte8 *) large.last()->at(i).ptr;
+						large.last()->at(i).ptr = nullptr;
+					}
 				}
+				//large.last()->release();
 				large.last()->up = 0;
 			}
 			large.up -= 1;

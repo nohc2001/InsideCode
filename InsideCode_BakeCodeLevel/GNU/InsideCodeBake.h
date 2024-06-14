@@ -447,8 +447,8 @@ TBT DecodeTextBlock(fmlcstr &t)
 		return TBT::_value_str;
 	}
 
-	//fm->_tempPushLayer();
-	int *intarray = new int[t.size()];
+	fm->_tempPushLayer();
+	int *intarray = (int*)fm->_tempNew(sizeof(int) * t.size());//new int[t.size()];
 	bool dot = false;
 	bool num = true;
 
@@ -510,8 +510,8 @@ TBT DecodeTextBlock(fmlcstr &t)
 			bstr = false;
 	}
 
-	delete[] intarray;
-	//fm->_tempPopLayer();
+	//delete[] intarray;
+	fm->_tempPopLayer();
 
 	if (bnum)
 	{
