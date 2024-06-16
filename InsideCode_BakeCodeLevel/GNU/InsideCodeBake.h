@@ -30,7 +30,7 @@ enum class insttype {
 	IT_PUSH_B_VARIABLE_1 = 13, // not using but later
 	IT_PUSH_B_VARIABLE_2 = 14,
 	IT_PUSH_B_VARIABLE_4 = 15, // ? > seem good
-	//IT_AXBY = 16,
+	IT_PUSH_A_ARRAY_WITH_VARIABLE_INDEX_B = 16,
 	IT_AU_BYTE_ADD_A = 17,
 	IT_AU_BYTE_ADD_B = 18,
 	IT_AU_UBYTE_ADD_A = 19,
@@ -4272,6 +4272,23 @@ public:
 									type_data* imtd = reinterpret_cast<type_data*>(reinterpret_cast<temp_mem*>(segs[i-1]->at(0).data.str)->valuetype_detail->structptr);
 									is_array_type = imtd->typetype == 'a';
 								}
+								else if((segs[i-1]->size() == 1 && segs[i-1]->at(0).type == 'w') && 
+								(segs[i+1]->size() == 1 && segs[i+1]->at(0).type == 'w')){
+									bool globalArray = false;
+									type_data* ltd = get_type_with_vname(segs[i-1]->at(0).data.str);
+									if(ltd == nullptr){
+										ltd = get_type_with_global_vname(segs[i-1]->at(0).data.str);
+										globalArray = true;
+									}
+
+									if(ltd == nullptr){
+										is_array_type |= false;
+									}
+									else{
+										is_array_type |= segs[i-1]->size() == 1 && ltd->typetype == 'a';
+									}
+								}
+
 								type_data* ltd = get_type_with_vname(segs[i-1]->at(0).data.str);
 								if(ltd == nullptr){
 									ltd = get_type_with_global_vname(segs[i-1]->at(0).data.str);

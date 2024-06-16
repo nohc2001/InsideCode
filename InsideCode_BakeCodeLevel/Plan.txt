@@ -19,11 +19,15 @@ AU_UINT_ADD_A
 > A<=(&vid+const) 68, 10;
 -> 완료
 
+// A[B];
 A=&VID 68;
 B=&VID 8;
 B=*B;
+B=B*const;
 A = A+B;
 > A<=(&vid+vid) 68, 10;
+PUSH_A_ARRAY_WITH_VARIABLE_INDEX_B
+
 
 3. variable = <expression>
 // A에 어떤 값을 담음.
