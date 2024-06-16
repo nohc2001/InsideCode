@@ -3367,15 +3367,20 @@ public:
 				sen *params_sen = wbss.sen_cut(code, nameloc + 2, loc - 1);
 				if (params_sen->size() == 0)
 				{
-					tm->mem.push_back((byte8)insttype::IT_FUNC); // FUNC
-					tm->mem.push_back((byte8)insttype::IT_FUNCJMP); // jmp
-					byte8 bb[4] = {};
-					*reinterpret_cast<uint *>(bb) = (uint)(fd->start_pc - &mem[0]);
-					for (int u = 0; u < 4; ++u)
+					tm->mem.push_back((byte8)insttype::IT_FUNC);		// FUNC
+					tm->mem.push_back((byte8)insttype::EXTENSION_INST); // jmp
+					int ll = tm->mem.size();
+					for (int k = 0; k < 4; ++k)
 					{
-						tm->mem.push_back(bb[u]);
+						tm->mem.push_back(0);
 					}
-
+					*reinterpret_cast<uint *>(&tm->mem[ll]) = (uint)(extID);
+					ll += 4;
+					for (int k = 0; k < 4; ++k)
+					{
+						tm->mem.push_back(0);
+					}
+					*reinterpret_cast<uint *>(&tm->mem[ll]) = (uint)(exfuncID); // byte8* but real value is function pointer of extension.
 					inner_params->release();
 					fm->_Delete((byte8 *)inner_params, sizeof(sen));
 
@@ -6088,8 +6093,10 @@ public:
 			if (params_sen->size() == 0)
 			{
 				mem[writeup++] = (byte8)insttype::IT_FUNC;	  // FUNC
-				mem[writeup++] = (byte8)insttype::IT_FUNCJMP; // jmp
-				*reinterpret_cast<uint*>(&mem[writeup]) = (uint)(fd->start_pc - &mem[0]);
+				mem[writeup++] = (byte8)insttype::EXTENSION_INST; // jmp
+				*reinterpret_cast<uint*>(&mem[writeup]) = (uint)(extID);
+				writeup += 4;
+				*reinterpret_cast<uint*>(&mem[writeup]) = (uint)(exfuncID); // byte8* but real value is function pointer of extension.
 				writeup += 4;
 
 				code->release();
