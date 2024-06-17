@@ -1240,6 +1240,11 @@ namespace freemem
 	class FM_System0
 	{
 	public:
+		//id기준 정렬
+		vecarr<vecarr<vecarr<uint64_t>>> checkarr;
+		int dbgmul = 3;
+		int dbgind = 0;
+
 		// static constexpr int midminsize = 40; //x32
 		static constexpr int midminsize = 72;	// x64
 		unsigned int tempSize = 0;
@@ -1348,6 +1353,7 @@ namespace freemem
 					thin >> tempstr; //NonReleaseHeapNum_:
 					int intsiz = 0;
 					thin >> intsiz;
+					chvec->NULLState();
 					chvec->Init(intsiz + 1, false);
 					for (int u = 0; u < intsiz; ++u) {
 						uint64_t value;
@@ -1953,12 +1959,12 @@ namespace freemem {
 			fmlayer = -1;
 		}
 
-		void Init(size_t siz, bool local, bool isdebug = false)
+		void Init(size_t siz, bool local, bool _isdebug = false)
 		{
 			T* newArr;
-			if (isdebug)
+			if (_isdebug)
 			{
-				newArr = (T*)fm->_New(sizeof(T) * siz, isdebug);
+				newArr = (T*)fm->_New(sizeof(T) * siz, _isdebug);
 			}
 			else
 			{
@@ -1977,7 +1983,7 @@ namespace freemem {
 					newArr[i] = Arr[i];
 				}
 
-				if (isdebug)
+				if (_isdebug)
 				{
 					fm->_Delete(reinterpret_cast <byte8*>(Arr), sizeof(T) * maxsize);
 				}
@@ -1987,6 +1993,7 @@ namespace freemem {
 			islocal = local;
 			Arr = newArr;
 			maxsize = siz;
+			isdebug = _isdebug;
 		}
 
 		T& at(size_t i)

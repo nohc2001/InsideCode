@@ -1325,6 +1325,7 @@ namespace freemem
 					thin >> tempstr; //NonReleaseHeapNum_:
 					int intsiz = 0;
 					thin >> intsiz;
+					chvec->NULLState();
 					chvec->Init(intsiz+1, false);
 					for(int u=0;u<intsiz;++u){
 						uint64_t value;

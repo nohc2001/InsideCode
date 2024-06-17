@@ -763,9 +763,6 @@ void compile_addFunction(code_sen *cs, ICB_Extension *ext)
     code->release();
     fm->_Delete((byte8 *)code, sizeof(sen));
 
-    code->release();
-    fm->_Delete((byte8 *)code, sizeof(sen));
-
     param_sen->release();
     fm->_Delete((byte8 *)param_sen, sizeof(sen));
 
