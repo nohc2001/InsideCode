@@ -10,7 +10,7 @@
 
 using namespace freemem;
 
-int get_total_loop(vecarr<int>* sizes){
+int get_total_loop(fmvecarr<int>* sizes){
 	int total = 1;
 	for(int i=0;i<sizes->size();++i){
 		total *= sizes->at(i);
@@ -18,7 +18,7 @@ int get_total_loop(vecarr<int>* sizes){
 	return total;
 }
 
-int get_index(vecarr<int>* sizes, int n, int realindex){
+int get_index(fmvecarr<int>* sizes, int n, int realindex){
 	int mul = 1;
 	for(int i=0;i<n-1;++i){
 		mul *= sizes->at(i);

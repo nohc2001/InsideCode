@@ -455,6 +455,38 @@ namespace freemem
 			cout << endl;
 		}
 
+		void dbg_lifecheck_char()
+		{
+			int count = 0;
+			cout << (int*)&DataPtr[0] << " : \t";
+			for (int i = 0; i < realDataSiz; i += dbg_bytesize)
+			{
+				char c = DataPtr[i];
+				if (!(33 <= c && c <= 126)) {
+					c = '?';
+				}
+				switch (isValid(i))
+				{
+				case true:
+					cout << '_';
+					break;
+				case false:
+					cout << c;
+					break;
+				}
+				if (count >= 32)
+				{
+					cout << endl;
+					int ad = i;
+					cout << (int*)&DataPtr[ad] << " : \t";
+					count = 0;
+				}
+
+				++count;
+			}
+			cout << endl;
+		}
+
 		void Set(unsigned int address, bool enable)
 		{
 			int bigloc = address / dbg_bitsize;
@@ -1078,6 +1110,12 @@ namespace freemem
 			large.Init(10, false);
 			tempFM.NULLState();
 			tempFM.Init(10, false);
+			for (int i = 0; i < 10; ++i) {
+				tempFM[i] = nullptr;
+			}
+			for (int i = 0; i < 10; ++i) {
+				large[i] = nullptr;
+			}
 			//watch("tempFM init", 0);
 		}
 
@@ -1230,8 +1268,97 @@ namespace freemem
 
 		}
 
+		vecarr<uint64_t>* fm1_get_unReleaseHeapRatedAddr(int mul_index, int fmindex) {
+			vecarr<uint64_t>* addrs = new vecarr<uint64_t>();
+			addrs->NULLState();
+			addrs->Init(8, 0);
+
+			FM_Model1* fm1 = nullptr;
+			for (int i = 0; i < SmallSize_HeapDebugFM[mul_index]->size(); ++i) {
+				fm1 = SmallSize_HeapDebugFM[mul_index]->at(i);
+				if (fmindex == fm1->id) {
+					break;
+				}
+			}
+
+			uint64_t pivot = reinterpret_cast<uint64_t>(&fm1->DataPtr[0]);
+			int count = 0;
+			for (int i = 0; i < fm1->realDataSiz; i += fm1->dbg_bytesize)
+			{
+				if (fm1->isValid(i) == false) {
+					addrs->push_back(i);
+					while (fm1->isValid(i) == false) {
+						i += fm1->dbg_bytesize;
+					}
+				}
+				++count;
+			}
+			return addrs;
+		}
+
+		void RECORD_NonReleaseHeapData() {
+#ifdef FM_GET_NONRELEASE_HEAPPTR
+			ofstream thout;
+			thout.open("fm_NonReleaseHeapData.txt");
+			for (int i = 0; i < SmallSize_HeapDebugFM.size(); ++i) {
+				thout << "mulindex_: " << i << endl;
+				vecarr < FM_Model1*>* fm1 = SmallSize_HeapDebugFM.at(i);
+				thout << "fmsiz: " << fm1->size() << endl;
+				for (int k = 0; k < fm1->size(); ++k) {
+					FM_Model1* fm11 = fm1->at(k);
+					thout << "id_: " << fm11->id << endl;
+					vecarr<uint64_t>* addrs = fm1_get_unReleaseHeapRatedAddr(i, fm11->id);
+					thout << "NonReleaseHeapNum_: " << addrs->size() << endl;
+					for (int i = 0; i < addrs->size(); ++i) {
+						thout << addrs->at(i) << " ";
+					}
+					thout << endl;
+					addrs->release();
+				}
+			}
+#endif
+		}
+
 		void SetHeapData(uint32_t temp, uint32_t sshd, uint32_t mshd, uint32_t bshd)
 		{
+#ifdef FM_NONRELEASE_HEAPCHECK
+			checkarr.NULLState();
+			checkarr.Init(9, false);
+			checkarr.up = 8;
+			ifstream thin("fm_NonReleaseHeapData.txt");
+			string tempstr;
+			for (int i = 0; i < 8; ++i) {
+				thin >> tempstr; // mulindex_:
+				thin >> tempstr; // i
+				thin >> tempstr; // fmsiz:
+				int fmsiz = 0;
+				thin >> fmsiz;
+				checkarr.at(i).NULLState();
+				checkarr.at(i).Init(fmsiz + 1, false);
+				for (size_t k = 0; k < fmsiz; k++)
+				{
+					checkarr.at(i).at(k).NULLState();
+				}
+
+				for (int k = 0; k < fmsiz; ++k) {
+					thin >> tempstr; // id_:
+					int id = 0;
+					thin >> id;
+					vecarr<uint64_t>* chvec = &checkarr.at(i).at(id);
+					thin >> tempstr; //NonReleaseHeapNum_:
+					int intsiz = 0;
+					thin >> intsiz;
+					chvec->Init(intsiz + 1, false);
+					for (int u = 0; u < intsiz; ++u) {
+						uint64_t value;
+						thin >> value;
+						chvec->push_back(value);
+					}
+				}
+			}
+			thin.close();
+#endif
+
 			FILE* fp;
 			fopen_s(&fp, "fm1_sizetable.bin", "rb");
 			for (int i = 1; i < 128; ++i)
@@ -1358,6 +1485,34 @@ namespace freemem
 			}
 		}
 
+		void dbg_fm1_lifecheck_charprint()
+		{
+			cout << "----------------fmsystem-----------------" << endl;
+			for (int k = 0; k < 8; ++k)
+			{
+				cout << "\n fm" << this << endl;
+				for (int i = 0; i < SmallSize_HeapDebugFM[k]->size(); ++i)
+				{
+					FM_Model1* fm = SmallSize_HeapDebugFM[k]->at(i);
+					cout << "\nFM1_" << i << "=" << fm << endl;
+					cout << "FUP : " << fm->Fup << "/" << fm->realDataSiz << endl;
+					fm->dbg_lifecheck_char();
+				}
+			}
+
+			for (int k = 0; k < 8; ++k)
+			{
+				cout << "\n fm " << k << endl;
+				for (int i = 0; i < SmallSize_HeapDebugFM[k]->size(); ++i)
+				{
+					FM_Model1* fm = SmallSize_HeapDebugFM[k]->at(i);
+					cout << fm->Fup << ", ";
+					//fm->dbg_lifecheck();
+				}
+				cout << endl;
+			}
+		}
+
 		byte8* _fastnew(unsigned int byteSiz)
 		{
 			if (1 <= byteSiz && byteSiz <= midminsize - 1)
@@ -1430,23 +1585,11 @@ namespace freemem
 			return tempStack[get_threadid(std::this_thread::get_id())]->_New(byteSiz, fmlayer);
 		}
 
-		byte8* _New(unsigned int byteSiz, bool isHeapDebug)
+		byte8* _New(unsigned int byteSiz, bool isHeapDebug, int fmlayer = -1)
 		{
 			if (isHeapDebug == false)
 			{
-				for (int i = 0; i < (int)TempFM.size(); ++i)
-				{
-					byte8* ptr = TempFM[i]->_New(byteSiz);
-					if (ptr != nullptr)
-					{
-						return ptr;
-					}
-				}
-
-				FM_Model0* tempFM = new FM_Model0(new byte8[tempSize], tempSize);
-				TempFM.push_back(tempFM);
-				byte8* ptr = TempFM[TempFM.size() - 1]->_New(byteSiz);
-				return ptr;
+				return _tempNew(byteSiz, fmlayer);
 			}
 			else
 			{
@@ -1459,6 +1602,17 @@ namespace freemem
 						byte8* ptr = fm1->at(i)->_New(byteSiz);
 						if (ptr != nullptr)
 						{
+#ifdef FM_NONRELEASE_HEAPCHECK
+							vecarr<uint64_t>* chvec = &checkarr.at(index).at(fm1->at(i)->id);
+							for (int k = 0; k < chvec->size(); ++k) {
+								uint64_t rated = reinterpret_cast<uint64_t>(ptr) - reinterpret_cast<uint64_t>(fm1->at(i)->DataPtr);
+								if (rated == chvec->at(k)) {
+									//cout << "break;" << endl;
+									_CrtDbgBreak();
+								}
+								break;
+							}
+#endif
 							return ptr;
 						}
 					}
@@ -1521,6 +1675,17 @@ namespace freemem
 					{
 						int f0 = fm->Fup;
 						bool b = fm->_Delete(variable, size);
+
+#ifdef FM_NONRELEASE_HEAPCHECK
+						vecarr<uint64_t>* chvec = &checkarr.at(index).at(fm1->at(i)->id);
+						for (int k = 0; k < chvec->size(); ++k) {
+							uint64_t rated = reinterpret_cast<uint64_t>(variable) - reinterpret_cast<uint64_t>(fm1->at(i)->DataPtr);
+							if (rated == chvec->at(k)) {
+								_CrtDbgBreak();
+							}
+							break;
+						}
+#endif
 						int f1 = fm->Fup;
 						if (b)
 						{
@@ -1984,6 +2149,191 @@ namespace freemem {
 				fm->_Delete(reinterpret_cast <byte8*>(node), sizeof(fmlist_node < T >));
 			}
 			--size;
+		}
+	};
+
+	class fmlcstr
+	{
+	public:
+		char* Arr;
+		size_t maxsize = 0;
+		size_t up = 0;
+		bool islocal = true;
+		bool isdebug = true;
+		short fmlayer = -1;
+
+		fmlcstr()
+		{
+			Arr = nullptr;
+			maxsize = 0;
+			up = 0;
+			islocal = true;
+			isdebug = true;
+			fmlayer = -1;
+		}
+
+		virtual ~fmlcstr()
+		{
+			if (islocal && isdebug)
+			{
+				fm->_Delete((byte8*)Arr, maxsize);
+				Arr = nullptr;
+			}
+		}
+
+		void NULLState()
+		{
+			Arr = nullptr;
+			maxsize = 0;
+			up = 0;
+			islocal = true;
+			isdebug = true;
+			fmlayer = -1;
+		}
+
+		void Init(size_t siz, bool local, bool isdbg = true, int flayer = -1)
+		{
+			islocal = local;
+			isdebug = isdbg;
+			fmlayer = flayer;
+			char* newArr = (char*)fm->_New(siz, isdebug, fmlayer);
+			if (isdbg == false && fmlayer < 0) {
+				fmlayer = fm->tempStack[fm->get_threadid(std::this_thread::get_id())]->tempFM.size() - 1;
+			}
+
+			if (Arr != nullptr)
+			{
+				for (int i = 0; i < maxsize; ++i)
+				{
+					newArr[i] = Arr[i];
+				}
+
+				fm->_Delete((byte8*)Arr, maxsize);
+				Arr = nullptr;
+			}
+
+			Arr = newArr;
+			maxsize = siz;
+		}
+
+		void operator=(char* str)
+		{
+			int len = strlen(str) + 1;
+			if (Arr == nullptr)
+			{
+				Arr = (char*)fm->_New(len, isdebug, fmlayer);
+				maxsize = len;
+			}
+			else {
+				if (maxsize < len)
+				{
+					Init(len + 1, islocal, isdebug, fmlayer);
+				}
+			}
+
+			strcpy_s(Arr, maxsize, str);
+			up = len - 1;
+		}
+
+		bool operator==(char* str)
+		{
+			if (strcmp(Arr, str) == 0)
+				return true;
+			else
+				return false;
+		}
+
+		bool operator==(const char* str)
+		{
+			if (strcmp(Arr, str) == 0)
+				return true;
+			else
+				return false;
+		}
+
+		char& at(size_t i)
+		{
+			return Arr[i];
+		}
+
+		char* c_str()
+		{
+			Arr[up] = 0;
+			return Arr;
+		}
+
+		char& operator[](size_t i)
+		{
+			return Arr[i];
+		}
+
+		void push_back(char value)
+		{
+			if (up < maxsize - 1)
+			{
+				Arr[up] = value;
+				up += 1;
+				Arr[up] = 0;
+			}
+			else
+			{
+				Init(maxsize * 2 + 1, islocal, isdebug, fmlayer);
+				Arr[up] = value;
+				up += 1;
+				Arr[up] = 0;
+			}
+		}
+
+		void pop_back()
+		{
+			if (up - 1 >= 0)
+			{
+				up -= 1;
+				Arr[up] = 0;
+			}
+		}
+
+		void erase(size_t i)
+		{
+			for (int k = i; k < up; ++k)
+			{
+				Arr[k] = Arr[k + 1];
+			}
+			up -= 1;
+		}
+
+		void insert(size_t i, char value)
+		{
+			push_back(value);
+			for (int k = maxsize - 1; k > i; k--)
+			{
+				Arr[k] = Arr[k - 1];
+			}
+			Arr[i] = value;
+		}
+
+		size_t size()
+		{
+			return up;
+		}
+
+		void clear()
+		{
+			if (Arr != nullptr && isdebug)
+				fm->_Delete((byte8*)Arr, maxsize);
+			Arr = nullptr;
+			up = 0;
+
+			Init(2, islocal);
+		}
+
+		void release()
+		{
+			if (Arr != nullptr && isdebug)
+				fm->_Delete((byte8*)Arr, maxsize);
+			Arr = nullptr;
+			up = 0;
+			islocal = false;
 		}
 	};
 

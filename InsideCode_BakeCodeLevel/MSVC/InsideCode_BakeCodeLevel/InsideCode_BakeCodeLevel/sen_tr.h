@@ -14,11 +14,9 @@
 
 using namespace freemem;
 
-extern FM_System0* fm;
-
 union segstr
 {
-	char *str;
+	char* str;
 	char symbol;
 };
 
@@ -28,12 +26,12 @@ struct segment
 	segstr data;				// word str
 };
 
-typedef vecarr < segment > sen;
+typedef fmvecarr < segment > sen;
 
 struct seg_variable
 {
 	char symbol = 0;
-	sen *value;
+	sen* value;
 };
 
 struct seg_range
@@ -42,27 +40,40 @@ struct seg_range
 	int end = 0;
 };
 
-typedef vecarr < vecarr < seg_variable > *>var_cases;
+typedef fmvecarr < fmvecarr < seg_variable >*>var_cases;
 
 class word_base_sen_sys
 {
-  public:
-	vecarr < lcstr * >wordlist;
+public:
+	fmvecarr < char* >wordlist;
+	// data rule : every word mem siz is len + 1
 
 	word_base_sen_sys()
 	{
 	}
-	
-	virtual ~ word_base_sen_sys()
+
+	virtual ~word_base_sen_sys()
 	{
 	}
-	
-	void Init(){
+
+	void Init() {
 		wordlist.NULLState();
-		wordlist.Init(2, false);
+		wordlist.Init(2, false, true);
 	}
 
-	void dbg_sen(sen * s)
+	void Release() {
+		for (int i = 0; i < wordlist.size(); ++i) {
+			char* cstr = wordlist.at(i);
+			//cout << "Release : " << cstr << endl;
+			int siz = strlen(cstr) + 1;
+			fm->_Delete((byte8*)cstr, siz);
+			wordlist.at(i) = nullptr;
+		}
+		wordlist.release();
+		wordlist.NULLState();
+	}
+
+	void dbg_sen(sen* s)
 	{
 		for (int i = 0; i < s->size(); ++i)
 		{
@@ -78,7 +89,7 @@ class word_base_sen_sys
 		cout << endl;
 	}
 
-	void dbg_varcases(var_cases * cases)
+	void dbg_varcases(var_cases* cases)
 	{
 		for (int i = 0; i < cases->size(); ++i)
 		{
@@ -100,37 +111,34 @@ class word_base_sen_sys
 		}
 	}
 
-	void addword(char *str)
+	char* addword(char* str)
 	{
-		int len = strlen(str);
-		lcstr *cstr = (lcstr *) fm->_New(sizeof(lcstr), true);
-		cstr->NULLState();
-		cstr->Init(2, false);
-		cstr->operator=(str);
+		int siz = strlen(str) + 1;
+		char* cstr = (char*)fm->_New(siz, true);
+		strcpy_s(cstr, siz, str);
 		wordlist.push_back(cstr);
+		return cstr;
 	}
 
-	char *searchword(char *str)
+	char* searchword(char* str)
 	{
 		for (int i = 0; i < wordlist.size(); ++i)
 		{
-			if (strcmp(wordlist.at(i)->Arr, str) == 0)
+			if (strcmp(wordlist.at(i), str) == 0)
 			{
-				return wordlist[i]->Arr;
+				return wordlist[i];
 			}
 		}
 		return nullptr;
 	}
 
-	sen *makesen(const char *segs)
+	sen* makesen(const char* segs)
 	{
-		sen *ten = (sen *) fm->_New(sizeof(sen), true);
-		ten->NULLState();
-		ten->Init(8, false);
+		sen* ten = (sen*)fm->_New(sizeof(sen), true);
 		int len = strlen(segs);
-		lcstr str;
+		fmlcstr str;
 		str.NULLState();
-		str.Init(2, false);
+		str.Init(len + 1, false);
 		int _stack = 0;
 		for (int i = 0; i < len; ++i)
 		{
@@ -155,7 +163,7 @@ class word_base_sen_sys
 						str.push_back(segs[i]);
 					}
 
-					char *cstr = searchword(str.c_str());
+					char* cstr = searchword(str.c_str());
 					if (cstr == nullptr)
 					{
 						continue;
@@ -184,13 +192,13 @@ class word_base_sen_sys
 		return ten;
 	}
 
-	vecarr < seg_range > *searchsen(sen * bigsen, sen * formsen)
+	fmvecarr < seg_range >* searchsen(sen* bigsen, sen* formsen)
 	{
 		int len = bigsen->size() - formsen->size() + 1;
-		vecarr < seg_range > *ret =
-			(vecarr < seg_range > *)fm->_New(sizeof(vecarr < seg_range >), true);
+		fmvecarr < seg_range >* ret =
+			(fmvecarr < seg_range > *)fm->_New(sizeof(fmvecarr < seg_range >), true);
 		ret->NULLState();
-		ret->Init(2, false);
+		ret->Init(2, false, true);
 		int fsiz = formsen->size();
 		for (int i = 0; i < len; ++i)
 		{
@@ -216,29 +224,29 @@ class word_base_sen_sys
 		return ret;
 	}
 
-	var_cases *formming(sen * bigsen, sen * formsen)
+	var_cases* formming(sen* bigsen, sen* formsen)
 	{
-		var_cases *ret = (var_cases *) fm->_New(sizeof(var_cases), true);
+		var_cases* ret = (var_cases*)fm->_New(sizeof(var_cases), true);
 		ret->NULLState();
-		ret->Init(2, false);
+		ret->Init(2, false, true);
 
 		// get sentences not include variable
-		vecarr < sen * >sentences;
+		fmvecarr < sen* >sentences;
 		sentences.NULLState();
-		sentences.Init(2, false);
-		
-		sen *ten = (sen *) fm->_New(sizeof(sen), true);
+		sentences.Init(2, false, true);
+
+		sen* ten = (sen*)fm->_New(sizeof(sen), true);
 		ten->NULLState();
-		ten->Init(2, false);
+		ten->Init(2, false, true);
 		for (int i = 0; i < formsen->size(); ++i)
 		{
 			if (formsen->at(i).type == 'x')
 			{
 				// dbg_sen(ten);
 				sentences.push_back(ten);
-				ten = (sen *) fm->_New(sizeof(sen), true);
+				ten = (sen*)fm->_New(sizeof(sen), true);
 				ten->NULLState();
-				ten->Init(2, false);
+				ten->Init(2, false, true);
 			}
 			else
 			{
@@ -250,12 +258,12 @@ class word_base_sen_sys
 
 
 		// check sentence in bigsen
-		vecarr < vecarr < seg_range > *>rangess;
+		fmvecarr < fmvecarr < seg_range >*>rangess;
 		rangess.NULLState();
-		rangess.Init(2, false);
+		rangess.Init(2, false, true);
 		for (int i = 0; i < sentences.size(); ++i)
 		{
-			vecarr < seg_range > *vecran;
+			fmvecarr < seg_range >* vecran;
 			// dbg_sen(bigsen);
 			// dbg_sen(sentences.at(i));
 			vecran = searchsen(bigsen, sentences.at(i));
@@ -270,12 +278,12 @@ class word_base_sen_sys
 		}
 
 		// multifor for sentences combination
-		vecarr < int >*sizes = (vecarr < int >*)fm->_New(sizeof(vecarr < int >), true);
+		fmvecarr < int >* sizes = (fmvecarr < int >*)fm->_New(sizeof(fmvecarr < int >), true);
 		sizes->NULLState();
-		sizes->Init(2, false);
-		vecarr < seg_range > senranges;
+		sizes->Init(2, false, true);
+		fmvecarr < seg_range > senranges;
 		senranges.NULLState();
-		senranges.Init(2, false);
+		senranges.Init(2, false, true);
 		int rsiz = rangess.size();
 		for (int i = 0; i < rangess.size(); ++i)
 		{
@@ -305,10 +313,10 @@ class word_base_sen_sys
 			if (perfect)
 			{
 				// get symbols in formsen
-				vecarr < seg_variable > *vararr =
-					(vecarr < seg_variable > *)fm->_New(sizeof(vecarr < seg_variable >), true);
+				fmvecarr < seg_variable >* vararr =
+					(fmvecarr < seg_variable > *)fm->_New(sizeof(fmvecarr < seg_variable >), true);
 				vararr->NULLState();
-				vararr->Init(2, false);
+				vararr->Init(2, false, true);
 				seg_variable var;
 				var.symbol = 0;
 				var.value = bigsen;
@@ -327,7 +335,7 @@ class word_base_sen_sys
 				// if code enter here, then update [ret].
 				for (int k = 0; k < rsiz - 1; ++k)
 				{
-					sen *newsen = (sen *) fm->_New(sizeof(sen), true);
+					sen* newsen = (sen*)fm->_New(sizeof(sen), true);
 					for (int h = senranges[k].end + 1; h < senranges[k + 1].start; ++h)
 					{
 						// push variable
@@ -342,54 +350,54 @@ class word_base_sen_sys
 
 		return ret;
 	}
-	
-	int search_word_first(int index, sen* arr, const char* word){
-		for(int i=index;i<arr->size();++i){
-			if(strcmp(arr->at(i).data.str, word) == 0){
+
+	int search_word_first(int index, sen* arr, const char* word) {
+		for (int i = index; i < arr->size(); ++i) {
+			if (strcmp(arr->at(i).data.str, word) == 0) {
 				return i;
 			}
 		}
-		
+
 		return -1;
 	}
-	
-	int search_word_first_cd(int index, sen* arr, bool (*cd)(char*)){
-		for(int i=index;i<arr->size();++i){
-			if(cd(arr->at(i).data.str)){
+
+	int search_word_first_cd(int index, sen* arr, bool (*cd)(char*)) {
+		for (int i = index; i < arr->size(); ++i) {
+			if (cd(arr->at(i).data.str)) {
 				return i;
 			}
 		}
-		
+
 		return -1;
 	}
-	
-	sen* sen_cut(sen* arr, int start, int end){
+
+	sen* sen_cut(sen* arr, int start, int end) {
 		sen* rarr = (sen*)fm->_New(sizeof(sen), true);
 		rarr->NULLState();
-		rarr->Init(2, false);
-		for(int i=start;i<=end;++i){
+		rarr->Init(2, false, true);
+		for (int i = start; i <= end; ++i) {
 			rarr->push_back(arr->at(i));
 		}
 		return rarr;
 	}
 
-	sen *oc_search(sen * arr, int start, const char *open, const char *close)
+	sen* oc_search(sen* arr, int start, const char* open, const char* close)
 	{
-		sen *rarr = (sen *) fm->_New(sizeof(sen), true);
+		sen* rarr = (sen*)fm->_New(sizeof(sen), true);
 		rarr->NULLState();
-		rarr->Init(2, false);
+		rarr->Init(2, false, true);
 		int stack = 0;
 		bool isin = false;
 		for (int i = start; i < (int)arr->size(); ++i)
 		{
-			if (strcmp(arr->at(i).data.str, open)==0)
+			if (strcmp(arr->at(i).data.str, open) == 0)
 			{
 				if (isin == false)
 					isin = true;
 				++stack;
 			}
 
-			if (strcmp(arr->at(i).data.str, close)==0)
+			if (strcmp(arr->at(i).data.str, close) == 0)
 			{
 				--stack;
 			}
@@ -407,24 +415,24 @@ class word_base_sen_sys
 		return rarr;
 	}
 
-	sen *oc_search_inv(sen * arr, int end, const char *open, const char *close)
+	sen* oc_search_inv(sen* arr, int end, const char* open, const char* close)
 	{
-		sen *rarr = (sen *) fm->_New(sizeof(sen), true);
+		sen* rarr = (sen*)fm->_New(sizeof(sen), true);
 		rarr->NULLState();
-		rarr->Init(2, false);
+		rarr->Init(2, false, true);
 		int stack = 0;
 		bool isin = false;
 		int start = 0;
 		for (int i = end; i >= 0; --i)
 		{
-			if (strcmp(arr->at(i).data.str, close)==0)
+			if (strcmp(arr->at(i).data.str, close) == 0)
 			{
 				if (isin == false)
 					isin = true;
 				++stack;
 			}
 
-			if (strcmp(arr->at(i).data.str, open)==0)
+			if (strcmp(arr->at(i).data.str, open) == 0)
 			{
 				--stack;
 			}
@@ -446,7 +454,7 @@ class word_base_sen_sys
 
 		return rarr;
 	}
-	
+
 	int search_word_first_in_specific_oc_layer(sen* arr, int start, const char* open, const char* close, int layer, const char* word) {
 		int stack = 0;
 		for (int i = start; i < (int)arr->size(); ++i)
