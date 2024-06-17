@@ -75,3 +75,7 @@ SFML의 드로우 명령, 기초적 폰트 출력 등. 기반 인스트럭션을
 	- PARAM inst 가 제대로 작동안함. (값 복사를 안함 ) > extension 함수가 뭘 못함
 	
 	- vec3f struct 타입은 float 타입 맴버 x, y, z를 가지는데, 메모리에 적제될때 uint형태로 저장됨. 케스팅이 제대로 작동 안하는듯.
+
+고칠거
+-> sen release 가 안된듯?
+-> 일반함수의 return type이 설정 되나 확인

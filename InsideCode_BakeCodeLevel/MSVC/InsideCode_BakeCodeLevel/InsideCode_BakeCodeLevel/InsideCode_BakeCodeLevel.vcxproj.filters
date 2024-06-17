@@ -69,6 +69,7 @@
       <Filter>헤더 파일</Filter>
     </Text>
     <Text Include="icb_dbg.txt" />
+    <Text Include="fm_NonReleaseHeapData.txt" />
   </ItemGroup>
   <ItemGroup>
     <None Include="fm1_sizetable.bin">

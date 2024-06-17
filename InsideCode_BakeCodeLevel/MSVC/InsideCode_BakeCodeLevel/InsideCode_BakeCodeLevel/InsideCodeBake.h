@@ -2150,21 +2150,30 @@ public:
 
 		for (int i = 0; i < (int)allcode_sen.size(); ++i)
 		{
+			fm->_tempPushLayer();
 			fmlcstr s;
+			s.NULLState();
+			s.Init(8, false, false);
 			s = allcode_sen[i];
 			if (s == "-")
 			{
 				if (i == 0)
 					continue;
 				fmlcstr t0;
+				t0.NULLState();
+				t0.Init(8, false, false);
 				t0 = allcode_sen[i - 1];
 				fmlcstr t1;
+				t1.NULLState();
+				t1.Init(8, false, false);
 				t1 = allcode_sen[i + 1];
 
 				bool bequ = (DecodeTextBlock(t0) == TBT::_operation) && (DecodeTextBlock(t1) != TBT::_operation);
 				if (bequ)
 				{
 					fmlcstr insstr;
+					insstr.NULLState();
+					insstr.Init(8, false, false);
 					insstr = allcode_sen[i];
 					if (icldetail) icl << "combine block : " << i << " : \"" << insstr.c_str() << "\" + ";
 					for (int k = 0; k < t1.size(); k++)
@@ -2190,6 +2199,8 @@ public:
 				if (bequ)
 				{
 					fmlcstr insstr;
+					insstr.NULLState();
+					insstr.Init(8, false, false);
 					insstr = allcode_sen[i - 1];
 					if (icldetail) icl << "combine block : " << i - 1 << " : \"" << insstr.c_str() << "\" + ";
 					insstr.push_back('=');
@@ -2207,6 +2218,8 @@ public:
 				if (bequ)
 				{
 					fmlcstr insstr;
+					insstr.NULLState();
+					insstr.Init(8, false, false);
 					insstr = allcode_sen[i];
 					if (icldetail) icl << "combine block : " << i - 1 << " : \"" << insstr.c_str() << "\" + ";
 					insstr.push_back('|');
@@ -2224,6 +2237,8 @@ public:
 				if (bequ)
 				{
 					fmlcstr insstr;
+					insstr.NULLState();
+					insstr.Init(8, false, false);
 					insstr = allcode_sen[i];
 					if (icldetail) icl << "combine block : " << i << " : \"" << insstr.c_str() << "\" + ";
 					insstr.push_back('&');
@@ -2237,8 +2252,12 @@ public:
 				if (i - 1 < 0 && i + 1 > allcode_sen.size() - 1)
 					continue;
 				fmlcstr front;
+				front.NULLState();
+				front.Init(8, false, false);
 				front = allcode_sen[i - 1];
 				fmlcstr back;
+				back.NULLState();
+				back.Init(8, false, false);
 				back = allcode_sen[i + 1];
 				bool bequ = true;
 				for (int k = 0; k < front.size(); k++)
@@ -2260,6 +2279,8 @@ public:
 				if (bequ)
 				{
 					fmlcstr insstr;
+					insstr.NULLState();
+					insstr.Init(8, false, false);
 					insstr = allcode_sen[i - 1];
 					if (icldetail) icl << "combine block : " << i - 1 << " : \"" << insstr.c_str() << "\" + \".\" + ";
 					insstr.push_back('.');
@@ -2279,10 +2300,16 @@ public:
 				if (strcmp(allcode_sen[i + 2], "\'") == 0)
 				{
 					fmlcstr insstr;
+					insstr.NULLState();
+					insstr.Init(8, false, false);
 					insstr = allcode_sen[i];
 					fmlcstr cent;
+					cent.NULLState();
+					cent.Init(8, false, false);
 					cent = allcode_sen[i + 1];
 					fmlcstr back;
+					back.NULLState();
+					back.Init(8, false, false);
 					back = allcode_sen[i + 2];
 					for (int k = 0; k < cent.size(); k++)
 					{
@@ -2303,12 +2330,20 @@ public:
 				else if (strcmp(allcode_sen[i + 1], "\\") == 0 && strcmp(allcode_sen[i + 3], "\'") == 0)
 				{
 					fmlcstr insstr;
+					insstr.NULLState();
+					insstr.Init(8, false, false);
 					insstr = allcode_sen[i];
 					fmlcstr cent;
+					cent.NULLState();
+					cent.Init(8, false, false);
 					cent = allcode_sen[i + 1];
 					fmlcstr back;
+					back.NULLState();
+					back.Init(8, false, false);
 					back = allcode_sen[i + 2];
 					fmlcstr backback;
+					backback.NULLState();
+					backback.Init(8, false, false);
 					backback = allcode_sen[i + 3];
 					for (int k = 0; k < cent.size(); k++)
 					{
@@ -2334,6 +2369,8 @@ public:
 					allcode_sen.erase(i + 1);
 				}
 			}
+
+			fm->_tempPopLayer();
 		}
 
 		insstr.islocal = true;
@@ -3226,8 +3263,8 @@ public:
 					if (strcmp(funcname, efd->name.c_str()) == 0)
 					{
 						isext = true;
-						sen* typen = wbss.sen_cut(code, 0, nameloc - 1);
-						sen* params_sen = wbss.sen_cut(code, nameloc + 2, loc - 1);
+						//sen* typen = wbss.sen_cut(code, 0, nameloc - 1);
+						//sen* params_sen = wbss.sen_cut(code, nameloc + 2, loc - 1);
 						fd = efd;
 						extID = i;
 						exfuncID = k;
@@ -3336,7 +3373,7 @@ public:
 					return tm;
 				}
 
-				wbss.dbg_sen(params_sen);
+				//wbss.dbg_sen(params_sen);
 				int coma = wbss.search_word_first_in_specific_oc_layer(params_sen, 0, "(", ")", 0, ",");
 				int savecoma = -1;
 				int last = params_sen->size() - 1;
@@ -3422,9 +3459,9 @@ public:
 					paramCount += 1;
 				}
 
-				wbss.dbg_sen(params_sen);
+				//wbss.dbg_sen(params_sen);
 				sen* param_sen = wbss.sen_cut(params_sen, savecoma + 1, last);
-				wbss.dbg_sen(param_sen);
+				//wbss.dbg_sen(param_sen);
 				temp_mem* rtm = get_asm_from_sen(param_sen, true, true);
 				if (rtm->valuetype_detail->typetype == 's')
 				{
@@ -3605,7 +3642,6 @@ public:
 							tm->mem.push_back(N[i]);
 						}
 					}
-
 
 
 					param_sen->release();
@@ -4180,9 +4216,17 @@ public:
 								result_ten->valuetype_detail =
 									get_basic_type_with_int(result_ten->valuetype);
 
+								sen* tempseg = segs.at(i + 1);
+								tempseg->release();
+								fm->_Delete((byte8*)tempseg, sizeof(sen));
 								segs.erase(i + 1);
+
 								segs[i]->at(0).type = 'a'; // asm
 								segs[i]->at(0).data.str = reinterpret_cast<char*>(result_ten);
+
+								tempseg = segs.at(i - 1);
+								tempseg->release();
+								fm->_Delete((byte8*)tempseg, sizeof(sen));
 								segs.erase(i - 1);
 								--i;
 
@@ -4267,9 +4311,17 @@ public:
 										get_basic_type_with_int(result_ten->valuetype);
 									result_ten->isValue = true;
 
+									sen* tempseg = segs.at(i + 1);
+									tempseg->release();
+									fm->_Delete((byte8*)tempseg, sizeof(sen));
 									segs.erase(i + 1);
+
 									segs[i]->at(0).type = 'a'; // asm
 									segs[i]->at(0).data.str = reinterpret_cast<char*>(result_ten);
+
+									tempseg = segs.at(i - 1);
+									tempseg->release();
+									fm->_Delete((byte8*)tempseg, sizeof(sen));
 									segs.erase(i - 1);
 									--i;
 
@@ -4313,7 +4365,11 @@ public:
 										get_basic_type_with_int(result_ten->valuetype);
 									result_ten->isValue = true;
 
+									sen* tempseg = segs.at(i + 1);
+									tempseg->release();
+									fm->_Delete((byte8*)tempseg, sizeof(sen));
 									segs.erase(i + 1);
+
 									segs[i]->at(0).type = 'a'; // asm
 									segs[i]->at(0).data.str =
 										reinterpret_cast<char*>(result_ten);
@@ -4361,12 +4417,18 @@ public:
 										get_basic_type_with_int(result_ten->valuetype);
 									result_ten->isValue = true;
 
-
+									sen* tempseg = segs.at(i + 1);
+									tempseg->release();
+									fm->_Delete((byte8*)tempseg, sizeof(sen));
 									segs.erase(i + 1);
 
 									segs[i]->at(0).type = 'a'; // asm
 									segs[i]->at(0).data.str =
 										reinterpret_cast<char*>(result_ten);
+
+									tempseg = segs.at(i - 1);
+									tempseg->release();
+									fm->_Delete((byte8*)tempseg, sizeof(sen));
 									segs.erase(i - 1);
 
 									release_tempmem(left_ten);
@@ -4569,12 +4631,23 @@ public:
 									result_ten->valuetype_detail = get_addpointer_type(td);
 								}
 
+								sen* tempseg = segs.at(i + 1);
+								tempseg->release();
+								fm->_Delete((byte8*)tempseg, sizeof(sen));
 								segs.erase(i + 1);
+
+								tempseg = segs.at(i + 1);
+								tempseg->release();
+								fm->_Delete((byte8*)tempseg, sizeof(sen));
 								segs.erase(i + 1);
 
 								segs[i]->at(0).type = 'a'; // asm
 								segs[i]->at(0).data.str =
 									reinterpret_cast<char*>(result_ten);
+
+								tempseg = segs.at(i - 1);
+								tempseg->release();
+								fm->_Delete((byte8*)tempseg, sizeof(sen));
 								segs.erase(i - 1);
 								--i;
 								release_tempmem(left_ten);
@@ -4696,9 +4769,17 @@ public:
 										result_ten->valuetype = get_int_with_basictype(result_ten->valuetype_detail); // ptr
 									}
 
+									sen* tempseg = segs.at(i + 1);
+									tempseg->release();
+									fm->_Delete((byte8*)tempseg, sizeof(sen));
 									segs.erase(i + 1);
+
 									segs[i]->at(0).type = 'a'; // asm
 									segs[i]->at(0).data.str = reinterpret_cast<char*>(result_ten);
+
+									tempseg = segs.at(i - 1);
+									tempseg->release();
+									fm->_Delete((byte8*)tempseg, sizeof(sen));
 									segs.erase(i - 1);
 									i -= 2;
 
@@ -4753,17 +4834,16 @@ public:
 										result_ten->mem.push_back((byte8)insttype::IT_PUSH_A_FROM_VALUE_OF_A);
 										// b = const
 										result_ten->mem.push_back((byte8)insttype::IT_PUSH_B_CONST_4);
-										// axby
-										// 
-										//result_ten->mem.push_back(52);
-										//result_ten->mem.push_back(218); // POP
-										// set y const4
-										//result_ten->mem.push_back(45);
-
 										char cc[4] = {};
 										*reinterpret_cast<uint*>(cc) = bid;
 										for (int u = 0; u < 4; ++u)
 											result_ten->mem.push_back(cc[u]);
+
+										// axby
+										//result_ten->mem.push_back((byte8)insttype::IT_AXBY);
+										//result_ten->mem.push_back((byte8)insttype::IT_POP_AB); // POP
+										// set y const4
+										//result_ten->mem.push_back((byte8)insttype::IT_SET_Y_CONST_4);
 
 										if (is_a)
 										{
@@ -4776,25 +4856,31 @@ public:
 											result_ten->mem.push_back((byte8)insttype::IT_AU_INT_ADD_B);
 										}
 
-										
+										// ptr
+										result_ten->valuetype = 8;
+										result_ten->valuetype_detail =
+											sptr->member_data[su].td;
+
+										sen* tempseg = segs.at(i + 1);
+										tempseg->release();
+										fm->_Delete((byte8*)tempseg, sizeof(sen));
+										segs.erase(i + 1);
+
+										segs[i]->at(0).type = 'a'; // asm
+										segs[i]->at(0).data.str =
+											reinterpret_cast<char*>(result_ten);
+
+										tempseg = segs.at(i - 1);
+										tempseg->release();
+										fm->_Delete((byte8*)tempseg, sizeof(sen));
+										segs.erase(i - 1);
+
+										--i;
 									}
 
-									// ptr
-									result_ten->valuetype = 8;
-									result_ten->valuetype_detail =
-										sptr->member_data[su].td;
-
-									segs.erase(i + 1);
-
-									segs[i]->at(0).type = 'a'; // asm
-									segs[i]->at(0).data.str =
-										reinterpret_cast<char*>(result_ten);
-									segs.erase(i - 1);
-
-									--i;
-
-									release_tempmem(left_ten);
 								}
+
+								release_tempmem(left_ten);
 							}
 							break;
 							case '&':
@@ -4821,10 +4907,16 @@ public:
 								// ptr
 								result_ten->valuetype = 8;
 								result_ten->valuetype_detail = right_ten->valuetype_detail;
+
+								sen* tempseg = segs.at(i + 1);
+								tempseg->release();
+								fm->_Delete((byte8*)tempseg, sizeof(sen));
 								segs.erase(i + 1);
+
 								segs[i]->at(0).type = 'a'; // asm
 								segs[i]->at(0).data.str =
 									reinterpret_cast<char*>(result_ten);
+
 								release_tempmem(right_ten);
 							}
 							break;
@@ -4864,10 +4956,16 @@ public:
 								// ptr
 								result_ten->valuetype = 8;
 								result_ten->valuetype_detail = td;
+
+								sen* tempseg = segs.at(i + 1);
+								tempseg->release();
+								fm->_Delete((byte8*)tempseg, sizeof(sen));
 								segs.erase(i + 1);
+
 								segs[i]->at(0).type = 'a'; // asm
 								segs[i]->at(0).data.str =
 									reinterpret_cast<char*>(result_ten);
+
 								release_tempmem(right_ten);
 							}
 							break;
@@ -5080,9 +5178,7 @@ public:
 		{
 			// global variable
 			NamingData *nd = (NamingData *)fm->_New(sizeof(NamingData), true);
-			int vnlen = strlen(variable_name) + 1;
-			nd->name = (char *)fm->_New(vnlen, true);
-			strcpy_s(nd->name, vnlen, variable_name);
+			nd->name = variable_name;
 			nd->td = get_type_with_namesen(type_name);
 			if (globalVariables.size() == 0)
 			{
@@ -5118,9 +5214,7 @@ public:
 			writeup += 4;
 
 			NamingData nd;
-			int vnlen = strlen(variable_name) + 1;
-			nd.name = (char *)fm->_New(vnlen, true);
-			strcpy_s(nd.name, vnlen, variable_name);
+			nd.name = variable_name;
 			nd.td = td;
 			nd.add_address = blockstack.last()->add_address_up + td->typesiz;
 			blockstack.last()->add_address_up += td->typesiz;
@@ -5747,9 +5841,9 @@ public:
 
 		fd->name = code->at(nameloc).data.str;
 
-		sen *typen = wbss.sen_cut(code, 0, nameloc - 1);
+		//sen *typen = wbss.sen_cut(code, 0, nameloc - 1);
 		sen *params_sen = wbss.sen_cut(code, nameloc + 2, loc - 1);
-		wbss.dbg_sen(params_sen);
+		//wbss.dbg_sen(params_sen);
 		int coma = wbss.search_word_first(0, params_sen, ",");
 		int savecoma = -1;
 		int last = params_sen->size() - 1;
@@ -5834,6 +5928,9 @@ public:
 		fm->_Delete((byte8 *)code, sizeof(sen));
 
 		param_sen->release();
+		fm->_Delete((byte8*)param_sen, sizeof(sen));
+
+		param_sen->release();
 		fm->_Delete((byte8 *)param_sen, sizeof(sen));
 
 		typestr->release();
@@ -5862,8 +5959,8 @@ public:
 				if (strcmp(funcname, efd->name.c_str()) == 0)
 				{
 					isext = true;
-					sen* typen = wbss.sen_cut(code, 0, nameloc - 1);
-					sen* params_sen = wbss.sen_cut(code, nameloc + 2, loc - 1);
+					//sen* typen = wbss.sen_cut(code, 0, nameloc - 1);
+					//sen* params_sen = wbss.sen_cut(code, nameloc + 2, loc - 1);
 					fd = efd;
 					extID = i;
 					exfuncID = k;
@@ -5893,6 +5990,9 @@ public:
 				mem[writeup++] = (byte8)tm->valuetype;
 				savecomma = coma;
 				coma = wbss.search_word_first_in_specific_oc_layer(inner_params, savecomma + 1, "(", ")", 0, ",");
+			
+				param_sen->release();
+				fm->_Delete((byte8*)param_sen, sizeof(sen));
 			}
 
 			sen* param_sen = wbss.sen_cut(inner_params, savecomma + 1, inner_params->size() - 1);
@@ -5911,6 +6011,9 @@ public:
 
 			inner_params->release();
 			fm->_Delete((byte8*)inner_params, sizeof(sen));
+
+			param_sen->release();
+			fm->_Delete((byte8*)param_sen, sizeof(sen));
 
 			release_tempmem(tm);
 			return;
@@ -6801,8 +6904,8 @@ public:
 
 		fm->_Delete((byte8 *)cs0->sen, sizeof(char *) * loc);
 		fm->_Delete((byte8 *)cs1->sen, sizeof(char *) * loc1);
-		fm->_Delete((byte8 *)cs0, sizeof(sen));
-		fm->_Delete((byte8 *)cs1, sizeof(sen));
+		fm->_Delete((byte8 *)cs0, sizeof(code_sen));
+		fm->_Delete((byte8 *)cs1, sizeof(code_sen));
 	}
 
 	int get_typesiz_with_addVariableCs(code_sen *cs)
@@ -6816,7 +6919,11 @@ public:
 			sen *type_name = wbss.sen_cut(code, 0, loc - 1);
 			type_data *td = get_type_with_namesen(type_name);
 			int n = td->typesiz;
-			// reqiure releasr typedata
+
+			code->release();
+			fm->_Delete((byte8*)code, sizeof(sen));
+			type_name->release();
+			fm->_Delete((byte8*)type_name, sizeof(sen));
 			return n;
 		}
 		else
@@ -6843,7 +6950,15 @@ public:
 			sen *type_name = wbss.sen_cut(code2, 0, loc2 - 1);
 			type_data *td = get_type_with_namesen(type_name);
 			int n = td->typesiz;
-			// reqiure releasr typedata
+
+			ReleaseCodeSen(cs0);
+			fm->_Delete((byte8*)cs0, sizeof(code_sen));
+			code->release();
+			fm->_Delete((byte8*)code, sizeof(sen));
+			code2->release();
+			fm->_Delete((byte8*)code2, sizeof(sen));
+			type_name->release();
+			fm->_Delete((byte8*)type_name, sizeof(sen));
 			return n;
 		}
 	}

@@ -149,6 +149,7 @@
     <Text Include="code.txt" />
     <Text Include="exAdd.txt" />
     <Text Include="exGeometry.txt" />
+    <Text Include="fm_NonReleaseHeapData.txt" />
     <Text Include="icb_dbg.txt" />
     <Text Include="instruction_table.txt" />
     <Text Include="memo.txt" />

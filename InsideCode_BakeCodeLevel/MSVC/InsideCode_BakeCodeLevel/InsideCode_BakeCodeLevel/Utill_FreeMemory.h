@@ -16,7 +16,7 @@ namespace freemem
 #define ptr_max 0xFFFFFFFFFFFFFFFF
 #define ptr_type int64_t
 
-#define _GetByte(dat, loc) (dat >> loc) % 2
+#define _GetByte(dat, loc) (dat >> loc) & 1
 #define _SetByte(dat, loc, is) dat = freemem::SetByte8(dat, loc, is);
 #define vins_New(FM, T, VariablePtr) ((T*)FM._New(sizeof(T)))->Init(); Init_VPTR<T>(VariablePtr);
 #define ins_New(FM, T, VariablePtr) ((T*)FM._New(sizeof(T)))->Init();
@@ -219,6 +219,503 @@ namespace freemem
 		return (is1) ? dat | locdata[loc] : dat & invlocdata[loc];
 	}
 
+
+	class FM_Model1 :FM_Model
+	{
+	public:
+		// static ofstream *fmout;
+		// static int updateid;
+		int id = 0;
+		bool isHeap = false;	// true�� heap, false�� stack
+		byte8* DataPtr = nullptr;
+		unsigned int realDataSiz = 0;
+		unsigned int sumDataSiz = 0;
+
+		unsigned int Fup = 0;
+		int isvalidNum = 0;
+
+		int dbg_bitsize = 8;
+		int dbg_bytesize = 1;
+
+		FM_Model1()
+		{
+
+		}
+
+		FM_Model1(unsigned int RDS, byte8* dataptr)
+		{
+			DataPtr = dataptr;
+			realDataSiz = RDS;
+			sumDataSiz = (dbg_bitsize + 1) * realDataSiz / dbg_bitsize;
+		}
+
+		virtual ~FM_Model1()
+		{
+			if (isHeap && DataPtr != nullptr)
+			{
+				delete[]DataPtr;
+			}
+		}
+
+		inline int getfitsize(int siz)
+		{
+			return (siz % dbg_bytesize) ? dbg_bytesize * (1 + (siz / dbg_bytesize)) : siz;
+		}
+
+		inline int getallocbit(int siz)
+		{
+			return siz / dbg_bytesize;
+		}
+
+		void SetHeapData(unsigned int RDS, int dbgs)
+		{
+			isHeap = true;
+			realDataSiz = RDS;
+			dbg_bitsize = dbgs;
+			dbg_bytesize = dbgs / 8;
+			sumDataSiz = (dbg_bitsize + 1) * realDataSiz / (dbg_bitsize);
+			DataPtr = new byte8[sumDataSiz];
+			for (int i = 0; i < sumDataSiz; ++i) {
+				DataPtr[i] = 0;
+			}
+		}
+
+		bool isValid(unsigned int address)
+		{
+			int bigloc = address / dbg_bitsize;
+			int smallLoc = (address / (dbg_bytesize)) % 8;
+			if (_GetByte(DataPtr[realDataSiz + bigloc], smallLoc))
+			{
+				return false;
+			}
+			else
+				return true;
+		}
+
+		bool canAlloc(int start, int end)
+		{
+			int start_bit = getallocbit(start);
+			int end_bit = getallocbit(end);
+			if (end_bit - start_bit < 8)
+			{
+				for (int i = start_bit; i <= end_bit; ++i)
+				{
+					int bad = i / 8;
+					int sad = i % 8;
+					if (GetByte8(DataPtr[realDataSiz + bad], sad))
+					{
+						return false;
+					}
+				}
+			}
+			else
+			{
+				int sbad = start_bit / 8;
+				int ssad = start_bit % 8;
+				int ebad = end_bit / 8;
+				int esad = end_bit % 8;
+				byte8 a = DataPtr[realDataSiz + sbad];
+				a &= flocdata[ssad];
+				if (a)
+				{
+					return false;
+				}
+				for (int i = sbad + 1; i < ebad; ++i)
+				{
+					if (DataPtr[realDataSiz + i] != 0)
+					{
+						return false;
+					}
+				}
+				a = DataPtr[realDataSiz + ebad];
+				a &= invflocdata[esad + 1];
+				if (a)
+				{
+					return false;
+				}
+			}
+
+			return true;
+		}
+
+		bool isAlloced(int start, int end)
+		{
+			int start_bit = getallocbit(start);
+			int end_bit = getallocbit(end);
+			if (end_bit - start_bit < 8)
+			{
+				for (int i = start_bit; i <= end_bit; ++i)
+				{
+					int bad = i / 8;
+					int sad = i % 8;
+					bool b = GetByte8(DataPtr[realDataSiz + bad], sad);
+					if (b == false)
+					{
+						return false;
+					}
+				}
+			}
+			else
+			{
+				int sbad = start_bit / 8;
+				int ssad = start_bit % 8;
+				int ebad = end_bit / 8;
+				int esad = end_bit % 8;
+				byte8 a = DataPtr[realDataSiz + sbad];
+				a |= invflocdata[ssad];
+				if (a != 255)
+				{
+					return false;
+				}
+				for (int i = sbad + 1; i < ebad; ++i)
+				{
+					if (DataPtr[realDataSiz + i] != 255)
+					{
+						return false;
+					}
+				}
+				a = DataPtr[realDataSiz + ebad];
+				a |= flocdata[esad + 1];
+				if (a != 255)
+				{
+					return false;
+				}
+			}
+
+			return true;
+		}
+
+		void SetAllocs(int start, int end, bool is1)
+		{
+			int start_bit = getallocbit(start);
+			int end_bit = getallocbit(end);
+
+			if (end_bit - start_bit < 8)
+			{
+				for (int i = start_bit; i <= end_bit; ++i)
+				{
+					int bad = i / 8;
+					int sad = i % 8;
+					DataPtr[realDataSiz + bad] = SetByte8(DataPtr[realDataSiz + bad], sad, is1);
+				}
+			}
+			else
+			{
+				int sbad = start_bit / 8;
+				int ssad = start_bit % 8;
+				int ebad = end_bit / 8;
+				int esad = end_bit % 8;
+
+				if (is1)
+				{
+					DataPtr[realDataSiz + sbad] |= flocdata[ssad];
+					for (int i = sbad + 1; i < ebad; ++i)
+					{
+						DataPtr[realDataSiz + i] = 255;
+					}
+					DataPtr[realDataSiz + ebad] |= invflocdata[esad + 1];
+				}
+				else
+				{
+					DataPtr[realDataSiz + sbad] &= invflocdata[ssad];
+					for (int i = sbad + 1; i < ebad; ++i)
+					{
+						DataPtr[realDataSiz + i] = 0;
+					}
+					DataPtr[realDataSiz + ebad] &= flocdata[esad + 1];
+				}
+			}
+		}
+
+		void dbg_lifecheck()
+		{
+			int count = 0;
+			cout << (int*)&DataPtr[0] << " : \t";
+			for (int i = 0; i < realDataSiz; i += dbg_bytesize)
+			{
+				switch (isValid(i))
+				{
+				case true:
+					cout << '_';
+					break;
+				case false:
+					cout << '1';
+					break;
+				}
+				if (count >= 32)
+				{
+					cout << endl;
+					int ad = i;
+					cout << (int*)&DataPtr[ad] << " : \t";
+					count = 0;
+				}
+
+				++count;
+			}
+			cout << endl;
+		}
+
+		void dbg_lifecheck_char()
+		{
+			int count = 0;
+			cout << (int*)&DataPtr[0] << " : \t";
+			for (int i = 0; i < realDataSiz; i += dbg_bytesize)
+			{
+				char c = DataPtr[i];
+				if (!(33 <= c && c <= 126)) {
+					c = '?';
+				}
+				switch (isValid(i))
+				{
+				case true:
+					cout << '_';
+					break;
+				case false:
+					cout << c;
+					break;
+				}
+				if (count >= 32)
+				{
+					cout << endl;
+					int ad = i;
+					cout << (int*)&DataPtr[ad] << " : \t";
+					count = 0;
+				}
+
+				++count;
+			}
+			cout << endl;
+		}
+
+		void Set(unsigned int address, bool enable)
+		{
+			int bigloc = address / dbg_bitsize;
+			int smallLoc = (address / (dbg_bytesize)) % 8;
+			DataPtr[realDataSiz + bigloc] =
+				SetByte8(DataPtr[realDataSiz + bigloc], smallLoc, enable);
+		}
+
+		byte8* _New(unsigned int size)
+		{
+			return _savenew(size);
+		}
+
+		byte8* _fastnew(unsigned int size)
+		{
+			int fups = Fup + size - 1;
+			if (fups < realDataSiz)
+			{
+				int f = Fup;
+				int a = getfitsize(size);
+				SetAllocs(Fup, Fup + a - 1, true);
+				Fup += a;
+				return &DataPtr[f];
+			}
+			return nullptr;
+		}
+
+		byte8* _savenew(unsigned int size)
+		{
+			int fups = Fup + size - 1;
+			if (fups < realDataSiz)
+			{
+				int f = Fup;
+				int a = getfitsize(size);
+				SetAllocs(Fup, Fup + a - 1, true);
+				Fup += a;
+				return &DataPtr[f];
+			}
+			else
+			{
+				int end = sumDataSiz - size / dbg_bytesize;
+				int start = realDataSiz;
+				int reqstack = 1 + size / dbg_bitsize;
+				int rstack = 0;
+				for (int ad = start; ad <= end; ad += dbg_bytesize)
+				{
+					if (DataPtr[ad] != 255)
+					{
+						++rstack;
+						if (rstack >= reqstack)
+						{
+							for (int k = 0; k < 9; ++k)
+							{
+								int add =
+									dbg_bitsize * (ad - reqstack - realDataSiz + 1) +
+									k * dbg_bytesize;
+								int addc = getfitsize(size);
+								int adds = add + addc - 1;
+								if (canAlloc(add, adds))
+								{
+									// add, adds range hole update
+									int n = add;
+									while (n - add < addc)
+									{
+										n += DataPtr[n];
+										if (DataPtr[n] == 0)
+										{
+											n += 1;
+										}
+									}
+
+									int len = n - adds;
+									n -= 1;
+									int nn = n - adds;
+									switch (len)
+									{
+									case 2:
+										DataPtr[n] = 0;
+										break;
+									case 1:
+										break;
+									default:
+									{
+										if (isValid(adds + 1))
+										{
+											DataPtr[adds + 1] = nn;
+										}
+										if (isValid(n))
+										{
+											DataPtr[n] = nn;
+										}
+									}
+									break;
+									}
+									SetAllocs(add, adds, true);
+									return &DataPtr[add];
+								}
+							}
+						}
+					}
+					else
+					{
+						rstack = 0;
+					}
+				}
+			}
+			return nullptr;
+		}
+
+		bool _Delete(byte8* variable, unsigned int size)
+		{
+			int address = variable - DataPtr;
+			int ads = address + getfitsize(size);
+
+			if (ads - 1 > realDataSiz || address < 0)
+			{
+				return false;
+			}
+
+			if (isAlloced(address, ads - 1))
+			{
+				SetAllocs(address, ads - 1, false);
+
+				if (ads >= Fup)
+				{
+					// Fup = address;
+					int n = address - 1;
+					while (0 <= n && isValid(n))
+					{
+						n -= DataPtr[n];
+						if (DataPtr[n] == 0)
+						{
+							n -= 1;
+						}
+					}
+					if (n < 0)
+					{
+						Fup = 0;
+					}
+					else
+					{
+						Fup = n + 1;
+						// This while code should not be executed within
+						// normal operation. However, it is a precautionary
+						// code for safety in exceptional, error-prone, or
+						// unintended situations.
+						while (isValid(Fup) == false)
+						{
+							++Fup;
+						}
+					}
+					return (bool)2;
+				}
+				else
+				{
+					int ss = ads - address;
+					if (1 < ss < 256)
+					{
+						*(variable + (ss - 1)) = ss;
+						*(variable) = ss;
+					}
+					else if (ss == 1)
+					{
+						*variable = 0;
+					}
+				}
+				return true;
+			}
+
+			return false;
+		}
+
+		int get_fupm()
+		{
+			return realDataSiz - Fup;
+		}
+
+		// �ش� �ּҿ� �޸𸮰� �Ҵ�Ǿ�����.
+		bool bAlloc(byte8* variable, unsigned int size)
+		{
+			unsigned int address = variable - DataPtr;
+			return isAlloced(address, address + size - 1);
+		}
+
+		void DebugAddresses()
+		{
+			int count = 0;
+			isvalidNum = 0;
+			for (int i = 0; i < (int)realDataSiz; ++i)
+			{
+				if (isValid(i) == false)
+				{
+					count += 1;
+				}
+			}
+
+			cout << "Non Release Free Memory(no matter) : " << count << endl;
+
+			ofstream out;
+			out.open("DebugFile.txt");
+			for (int i = 0; i < (int)Fup; ++i)
+			{
+				if (isValid(i))
+				{
+					out << '0';
+					isvalidNum += 1;
+				}
+				else
+				{
+					out << '1';
+				}
+			}
+			out.close();
+		}
+
+		void ClearAll()
+		{
+			SetAllocs(0, realDataSiz, false);
+			Fup = 0;
+		}
+
+		virtual bool canInclude(byte8* var, int size)
+		{
+			if (DataPtr <= var && var + size - 1 < &DataPtr[realDataSiz])
+				return true;
+			return false;
+		}
+	};
+	/*
 	class FM_Model1 :FM_Model
 	{
 	public:
@@ -715,7 +1212,7 @@ namespace freemem
 			return false;
 		}
 	};
-
+	*/
 	typedef byte8* AllocPtr;
 
 	class FM_Model2 :FM_Model

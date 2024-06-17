@@ -16,7 +16,7 @@ namespace freemem
 #define ptr_max 0xFFFFFFFFFFFFFFFF
 #define ptr_type uintptr_t
 
-#define _GetByte(dat, loc) (dat >> loc) % 2
+#define _GetByte(dat, loc) (dat >> loc) & 1
 #define _SetByte(dat, loc, is) dat = freemem::SetByte8(dat, loc, is);
 #define vins_New(FM, T, VariablePtr) ((T*)FM._New(sizeof(T)))->Init(); Init_VPTR<T>(VariablePtr);
 #define ins_New(FM, T, VariablePtr) ((T*)FM._New(sizeof(T)))->Init();
