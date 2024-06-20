@@ -5863,6 +5863,9 @@ public:
 
 			params_sen->release();
 			fm->_Delete((byte8 *)params_sen, sizeof(sen));
+
+			inner_params->release();
+			fm->_Delete((byte8*)inner_params, sizeof(sen));
 			return;
 		}
 
@@ -5932,6 +5935,9 @@ public:
 
 		param_sen->release();
 		fm->_Delete((byte8 *)param_sen, sizeof(sen));
+
+		inner_params->release();
+		fm->_Delete((byte8*)inner_params, sizeof(sen));
 
 		typestr->release();
 		fm->_Delete((byte8 *)typestr, sizeof(sen));
@@ -7256,6 +7262,9 @@ public:
 					}
 					// tm->valuetype_detail = get_basic_type_with_int(tm->valuetype);
 					str.islocal = true;
+
+					code->release();
+					fm->_Delete((byte8*)code, sizeof(sen));
 				}
 			}
 		}
