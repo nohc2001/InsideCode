@@ -1,5 +1,5 @@
 #define FM_GET_NONRELEASE_HEAPPTR
-//#define FM_NONRELEASE_HEAPCHECK
+#define FM_NONRELEASE_HEAPCHECK
 
 #include "InsideCodeBake.h"
 #include "ICB_Extension.h"
@@ -88,8 +88,8 @@ int main() {
     InsideCode_Bake::wbss.Release();
     InsideCode_Bake::StaticRelease();
 
-    fm->dbg_fm1_lifecheck_charprint();
-
     fm->RECORD_NonReleaseHeapData();
+
+    fm->dbg_fm1_lifecheck_charprint();
     return 0;
 }

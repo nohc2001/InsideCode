@@ -7070,6 +7070,9 @@ public:
 
 		icl << "ICB[" << this << "] BakeCode_AddTextBlocks...";
 		AddTextBlocks(allcode);
+		allcodeptr->release();
+		fm->_Delete((byte8*)allcodeptr, sizeof(fmlcstr));
+		allcodeptr = nullptr;
 		icl << "finish" << endl;
 
 		icl << "ICB[" << this << "] BakeCode_ScanStructTypes...";
@@ -7300,6 +7303,10 @@ public:
 		cout << endl;
 
 		mem[writeup++] = (byte8)insttype::IT_EXIT;
+
+		senstptr->release();
+		senstptr->NULLState();
+		fm->_Delete((byte8*)senstptr, sizeof(fmvecarr<code_sen*>));
 
 		dbg_bakecode(csarr, 0);
 

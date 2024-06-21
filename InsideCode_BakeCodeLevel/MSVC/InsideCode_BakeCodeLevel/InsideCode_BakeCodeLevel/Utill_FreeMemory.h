@@ -1783,17 +1783,19 @@ namespace freemem
 				}
 			}
 
-			uint64_t pivot = reinterpret_cast<uint64_t>(&fm1->DataPtr[0]);
-			int count = 0;
-			for (int i = 0; i < fm1->realDataSiz; i += fm1->dbg_bytesize)
-			{
-				if (fm1->isValid(i) == false) {
-					addrs->push_back(i);
-					while (fm1->isValid(i) == false) {
-						i += fm1->dbg_bytesize;
+			if (fm1 != nullptr) {
+				uint64_t pivot = reinterpret_cast<uint64_t>(&(fm1->DataPtr[0]));
+				int count = 0;
+				for (int i = 0; i < fm1->realDataSiz; i += fm1->dbg_bytesize)
+				{
+					if (fm1->isValid(i) == false) {
+						addrs->push_back(i);
+						while (fm1->isValid(i) == false) {
+							i += fm1->dbg_bytesize;
+						}
 					}
+					++count;
 				}
-				++count;
 			}
 			return addrs;
 		}
@@ -2122,6 +2124,7 @@ namespace freemem
 
 					FM_Model1* sshdFM = new FM_Model1();
 					sshdFM->SetHeapData(sshd_Size, 8 * pow(2, index));
+					sshdFM->id = fm1->size();
 					fm1->push_back(sshdFM);
 					byte8* ptr = sshdFM->_New(byteSiz);
 					return ptr;
