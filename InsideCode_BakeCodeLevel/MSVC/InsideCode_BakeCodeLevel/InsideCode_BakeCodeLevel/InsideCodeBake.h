@@ -2638,7 +2638,7 @@ public:
 						}
 
 						cbv->release();
-						fm->_Delete((byte8*)cbv, sizeof(cbv));
+						fm->_Delete((byte8*)cbv, sizeof(fmvecarr<code_sen*>));
 
 						senarr->push_back(cs);
 						if (icldetail) dbg_codesen(cs, false);
@@ -2959,7 +2959,7 @@ public:
 						}
 
 						cbv->release();
-						fm->_Delete((byte8*)cbv, sizeof(cbv));
+						fm->_Delete((byte8*)cbv, sizeof(fmvecarr<code_sen*>));
 
 						set_codesen(cs, cbs);
 						fm->_tempPopLayer();
@@ -3068,7 +3068,7 @@ public:
 				ntd = get_addpointer_type(td);
 				if (i != 1)
 				{
-					fm->_Delete((byte8 *)td, sizeof(td));
+					fm->_Delete((byte8 *)td, sizeof(type_data));
 				}
 				td = ntd;
 			}
@@ -4086,7 +4086,7 @@ public:
 
 					vtemp = (sen*)fm->_New(sizeof(sen), true);
 					vtemp->NULLState();
-					vtemp->Init(2, false);
+					vtemp->Init(2, false, true);
 				}
 
 				vtemp->push_back(ten->at(i));
@@ -4095,7 +4095,7 @@ public:
 
 				vtemp = (sen*)fm->_New(sizeof(sen), true);
 				vtemp->NULLState();
-				vtemp->Init(2, false);
+				vtemp->Init(2, false, true);
 			}
 		}
 
@@ -4110,7 +4110,6 @@ public:
 			fm->_Delete((byte8*)vtemp, sizeof(sen));
 			vtemp = nullptr;
 		}
-
 
 		//for(int k=0;k<segs.size();++k){ wbss.dbg_sen(segs.at(k)); } 
 
@@ -4978,6 +4977,10 @@ public:
 
 		if (segs.size() == 1)
 		{
+			if (tm != nullptr) {
+				release_tempmem(tm);
+				fm->_Delete((byte8*)tm, sizeof(temp_mem));
+			}
 			tm = reinterpret_cast<temp_mem*>(segs[0]->at(0).data.str);
 			if (isvalue)
 			{
@@ -5700,6 +5703,10 @@ public:
 							break;
 						}
 					}
+
+					css2sen->release();
+					fm->_Delete((byte8*)css2sen, sizeof(sen));
+
 					if (ifi != i + 2)
 					{
 						ifi -= 1;

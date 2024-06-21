@@ -6,24 +6,21 @@ NonReleaseHeapNum_: 0
 mulindex_: 1
 fmsiz: 1
 id_: 0
-NonReleaseHeapNum_: 8
-384 412 424 440 452 456 472 478 
+NonReleaseHeapNum_: 0
+
 mulindex_: 2
 fmsiz: 1
 id_: 0
 NonReleaseHeapNum_: 0
 
 mulindex_: 3
-fmsiz: 3
+fmsiz: 2
 id_: 0
-NonReleaseHeapNum_: 16
-40 216 312 936 1168 1344 1440 2064 2160 2336 2432 2784 3016 3368 3600 3776 
+NonReleaseHeapNum_: 0
+
 id_: 0
-NonReleaseHeapNum_: 16
-40 216 312 936 1168 1344 1440 2064 2160 2336 2432 2784 3016 3368 3600 3776 
-id_: 0
-NonReleaseHeapNum_: 16
-40 216 312 936 1168 1344 1440 2064 2160 2336 2432 2784 3016 3368 3600 3776 
+NonReleaseHeapNum_: 0
+
 mulindex_: 4
 fmsiz: 1
 id_: 0
