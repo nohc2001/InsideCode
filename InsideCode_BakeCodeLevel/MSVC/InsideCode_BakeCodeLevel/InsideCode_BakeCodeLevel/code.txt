@@ -1,7 +1,7 @@
 float PI = 3.141592;
 int main(){
 	vec2f pos1 = _vec2f(10, 20);
-	vec2f pos2 = _vec2f(3, 4);
+	vec2f pos2 = _vec2f(3, 4 * (pos1.y - pos1.x) / 10);
 
 	dbg("pos1 : (", pos1.x, ", ", pos1.y, ")\n");
 	dbg("pos2 : (", pos2.x, ", ", pos2.y, ")\n");

@@ -4045,7 +4045,11 @@ public:
 			if (c == '(')
 			{
 				temp = wbss.oc_search(ten, i, "(", ")");
-				i += temp->size();
+				temp->erase(0);
+				temp->pop_back();
+				wbss.dbg_sen(temp);
+				i += temp->size()+1;
+				//wbss.dbg_sen(segs.at(i));
 				segs.push_back(temp);
 			}
 			else if (c == '[')
@@ -4194,12 +4198,14 @@ public:
 								{
 									int opp = basicoper[k].startop + 2 * opertype;
 									result_ten->mem.push_back((byte8)opp);
+									result_ten->mem.push_back((byte8)insttype::IT_POP_B);
 									result_ten->registerMod = 'A';
 								}
 								else
 								{
 									int opp = basicoper[k].startop + 2 * opertype + 1;
 									result_ten->mem.push_back((byte8)opp);
+									result_ten->mem.push_back((byte8)insttype::IT_POP_A);
 									result_ten->registerMod = 'B';
 								}
 
@@ -4289,12 +4295,14 @@ public:
 									{
 										int opp = basicoper[k].startop;
 										result_ten->mem.push_back((byte8)opp);
+										result_ten->mem.push_back((byte8)insttype::IT_POP_B);
 										result_ten->registerMod = 'A';
 									}
 									else
 									{
 										int opp = basicoper[k].startop;
 										result_ten->mem.push_back((byte8)opp);
+										result_ten->mem.push_back((byte8)insttype::IT_POP_A);
 										result_ten->registerMod = 'B';
 									}
 
@@ -6883,7 +6891,7 @@ public:
 	void compile_addsetVariable(code_sen *cs)
 	{
 		sen *code = get_sen_from_codesen(cs);
-		// wbss.dbg_sen(code);
+		wbss.dbg_sen(code);
 		int loc = wbss.search_word_first(0, code, "=");
 
 		code_sen *cs0 = (code_sen *)fm->_New(sizeof(code_sen), true);
