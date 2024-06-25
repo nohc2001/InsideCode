@@ -5377,7 +5377,7 @@ public:
 
 			for (int k = 0; k < basicoper_max; ++k)
 			{
-				if (basicoper[k].symbol[0] == operc)
+				if (basicoper[k].symbol[0] == operc && basicoper[k].mod == 'o')
 				{
 					mem[writeup++] = basicoper[k].startop + ltype * 2;
 					break;
