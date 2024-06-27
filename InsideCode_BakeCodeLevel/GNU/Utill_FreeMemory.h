@@ -113,6 +113,7 @@ namespace freemem
 			isHeap = true;
 			Data = data;
 			siz = Size;
+			Fup = 0;
 		}
 
 		byte8 *_New(unsigned int byteSiz)

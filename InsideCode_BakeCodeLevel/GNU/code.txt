@@ -1,5 +1,12 @@
 float PI = 3.141592;
 int main(){
+	// 하하 안녕하세요. 나는 주석이라 합니다.
+
+	/* 저도 주석이에요!! 
+	vec2f pos1 = _vec2f(10, 20);
+	vec2f pos2 = _vec2f(3, 4);
+	*/
+	
 	vec2f pos1 = _vec2f(10, 20);
 	vec2f pos2 = _vec2f(3, 4);
 

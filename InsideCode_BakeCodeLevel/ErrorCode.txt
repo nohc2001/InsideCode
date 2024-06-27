@@ -1,0 +1,5 @@
+UpdateErrMsg(0, 0, "%s file is not exist.", (char*)filename);
+UpdateErrMsg(1, "%s type is not exist.", bt);
+UpdateErrMsg(2, "%s type typeoperation is not exist", cstr);
+UpdateErrMsg(3, "%s type cannot have sub type.", t->name.c_str());
+UpdateErrMsg(4, "%s function is not exist.", name);

@@ -538,59 +538,6 @@ TBT DecodeTextBlock(fmlcstr &t)
 	}
 }
 
-fmlcstr *GetCodeTXT(const char *filename, FM_System0 *fm)
-{
-	FILE *fp = fopen(filename, "rt");
-	if (fp)
-	{
-		fmlcstr *codetxt = (fmlcstr *)fm->_New(sizeof(fmlcstr), true);
-		codetxt->NULLState();
-		codetxt->Init(10, false);
-		int max = 0;
-		fseek(fp, 0, SEEK_END);
-		max = ftell(fp);
-		fclose(fp);
-
-		int stack = 0;
-		fp = fopen(filename, "rt");
-		int k = 0;
-		while (k < max)
-		{
-			char c;
-			c = fgetc(fp);
-			if (c == '/')
-			{
-				stack += 1;
-			}
-			else
-			{
-				stack = 0;
-			}
-
-			if (stack == 2)
-			{
-				codetxt->pop_back();
-				int mm = 0;
-				while (c != '\n' && k + mm < max)
-				{
-					mm += 1;
-					c = fgetc(fp);
-				}
-				max -= mm + 1;
-				continue;
-			}
-			codetxt->push_back(c);
-			k++;
-		}
-		return codetxt;
-	}
-	else
-	{
-		printf("[ERROR] : %s file is nor exist.", filename);
-		return nullptr;
-	}
-}
-
 enum class codeKind
 {
 	ck_addVariable,
@@ -609,15 +556,17 @@ enum class codeKind
 	ck_none
 };
 
-struct code_sen
+struct code_sen // 32
 {
-	char **sen;
-	int maxlen;
-	codeKind ck;
-	fmvecarr<int *> *codeblocks = nullptr;
+	char **sen; // 8
+	int maxlen; // 4
+	codeKind ck; // 4
+	fmvecarr<int *> *codeblocks = nullptr; // 8
 
-	int start_line = 0;
-	int end_line = 0;
+	//asm line
+	int start_line = 0; // 4
+	int end_line = 0; // 4 > 이거 지우고 코드라인 추가하면 안됨?
+	unsigned int codeline = 0; // 4
 };
 
 struct type_data
@@ -864,6 +813,8 @@ enum class ICL_FLAG {
 	BakeCode_CompileCodes__adsetvar = 21,
 };
 
+#define ICB_ERR_CHECK(A) if(curErrMsg[0] != 0) goto A;
+
 class InsideCode_Bake
 {
 private:
@@ -913,7 +864,136 @@ public:
 	static ofstream icl; // icb log
 	static uint32_t icl_optionFlag;
 
-	fmvecarr<ICB_Extension*> extension; // 확장코드
+	fmvecarr<ICB_Extension *> extension; // 확장코드
+	fmvecarr<unsigned int> codeLineVec;
+	fmvecarr<unsigned int> codeLineVec_Word;
+	fmvecarr<unsigned int> codeLineVec_Code;
+
+	fmlcstr curErrMsg;
+	unsigned int currentCodeLine = 0;
+
+	void UpdateErrMsg(int errorcode, const char* message, char* param){
+		curErrMsg.up = 0;
+		curErrMsg.at(0) = 0;
+
+		curErrMsg = "[COMPILE ERROR ";
+
+		string numstr;
+		numstr = to_string(errorcode);
+		for(int i=0;i<numstr.size();++i){
+			curErrMsg.push_back(numstr[i]);
+		}
+		curErrMsg.push_back(']');
+		curErrMsg.push_back('_');
+		curErrMsg.push_back('l'); curErrMsg.push_back('i'); curErrMsg.push_back('n'); curErrMsg.push_back('e');
+		numstr = to_string(currentCodeLine);
+		for(int i=0;i<numstr.size();++i){
+			curErrMsg.push_back(numstr[i]);
+		}
+		curErrMsg.push_back(' '); curErrMsg.push_back(':'); curErrMsg.push_back(' ');
+
+		int mlen = strlen(message);
+		for(int i=0;i<mlen;++i){
+			if(message[i] == '%'){
+				int plen = strlen(param);
+				for(int k=0;k<plen;++k){
+					curErrMsg.push_back(param[k]);
+				}
+				++i;
+			}
+			curErrMsg.push_back(message[i]);
+		}
+	}
+
+	fmlcstr *GetCodeTXT(const char *filename, FM_System0 *fm)
+	{
+		codeLineVec.push_back(0);
+		char comment_mod = '/';
+		FILE *fp = fopen(filename, "rt");
+		if (fp)
+		{
+			fmlcstr *codetxt = (fmlcstr *)fm->_New(sizeof(fmlcstr), true);
+			codetxt->NULLState();
+			codetxt->Init(10, false);
+			int max = 0;
+			fseek(fp, 0, SEEK_END);
+			max = ftell(fp);
+			fclose(fp);
+
+			int stack = 0;
+			fp = fopen(filename, "rt");
+			int k = 0;
+			while (k < max)
+			{
+				char c;
+				c = fgetc(fp);
+				
+				//line check
+				if(c == '\n'){
+					codeLineVec.push_back(k+1);
+				}
+
+				if (c == '/')
+				{
+					stack += 1;
+				}
+				else if(stack == 1 && c == '*'){
+					stack += 1;
+					comment_mod = '*';
+				}
+				else
+				{
+					stack = 0;
+				}
+
+				if (stack == 2) // 이거 주석 처리 코드?
+				{
+					if(comment_mod == '/'){
+						codetxt->pop_back();
+						int mm = 0;
+						while (c != '\n' && k + mm < max)
+						{
+							mm += 1;
+							c = fgetc(fp);
+							//line check
+							if(c == '\n'){
+								codeLineVec.push_back(k+1);
+							}
+						}
+						max -= mm + 1;
+						continue;
+					}
+					else if(comment_mod == '*'){
+						codetxt->pop_back();
+						int mm = 0;
+						char saveC = 0;
+						while ((saveC != '*' || c != '/') && k + mm < max)
+						{
+							mm += 1;
+							saveC = c;
+							c = fgetc(fp);
+							//line check
+							if(c == '\n'){
+								codeLineVec.push_back(k+1);
+							}
+						}
+						max -= mm + 1;
+						comment_mod = '/';
+						continue;
+					}
+				}
+				codetxt->push_back(c);
+				k++;
+			}
+			return codetxt;
+		}
+		else
+		{
+			UpdateErrMsg(0, 0, "%s file is not exist.", (char*)filename);
+			//printf("[ERROR] : %s file is not exist.", filename);
+			return nullptr;
+		}
+	}
 
 	static void ReleaseCodeSen(code_sen* cs){
 		if((cs->ck == codeKind::ck_blocks || cs->ck == codeKind::ck_addStruct) && cs->codeblocks != nullptr){
@@ -1269,10 +1349,20 @@ public:
 			}
 		}
 
+		UpdateErrMsg(4, "%s function is not exist.", name);
 		return nullptr;
 	}
 
-	static type_data *get_sub_type(type_data *t)
+	type_data *get_sub_type(type_data *t)
+	{
+		if(t->structptr == nullptr){
+			UpdateErrMsg(3, "%s type cannot have sub type.", t->name.c_str());
+			return nullptr;
+		}
+		return reinterpret_cast<type_data *>(t->structptr);
+	}
+
+	static type_data *static_get_sub_type(type_data *t)
 	{
 		return reinterpret_cast<type_data *>(t->structptr);
 	}
@@ -1842,6 +1932,19 @@ public:
 
 		extension.NULLState();
 		extension.Init(8, false, true);
+
+		curErrMsg.NULLState();
+		curErrMsg.Init(128, false);
+
+		codeLineVec.NULLState();
+		codeLineVec.Init(32, false, true);
+
+		codeLineVec_Word.NULLState();
+		codeLineVec_Word.Init(32, false, true);
+
+		codeLineVec_Code.NULLState();
+		codeLineVec_Code.Init(32, false, true);
+
 		icl << "finish" << endl;
 	}
 
@@ -1877,6 +1980,8 @@ public:
 
 	void AddTextBlocks(fmlcstr &codetxt)
 	{
+		codeLineVec_Word.push_back(0);
+		int present_line = 1;
 		fmlcstr insstr;
 		insstr.NULLState();
 		insstr.Init(2, false);
@@ -1902,6 +2007,11 @@ public:
 						++ti;
 					}
 					push_word(insstr.c_str());
+					if(i+1 >= codeLineVec.at(present_line)){
+						codeLineVec_Word.push_back(i+1);
+						++present_line;
+					}
+
 					continue;
 				}
 				insstr.push_back(codetxt.at(i + 1));
@@ -1919,6 +2029,11 @@ public:
 					}
 					push_word(insstr.c_str());
 					insstr.clear();
+
+					if(i+1 >= codeLineVec.at(present_line)){
+						codeLineVec_Word.push_back(i+1);
+						++present_line;
+					}
 				}
 				else
 				{
@@ -1943,6 +2058,10 @@ public:
 						push_word(insstr.c_str());
 						insstr.clear();
 						insstr.push_back(c);
+						if(i+1 >= codeLineVec.at(present_line)){
+							codeLineVec_Word.push_back(i+1);
+							++present_line;
+						}
 						if (icldetail)
 						{
 							if (ti % textper == 0)
@@ -1957,6 +2076,10 @@ public:
 						}
 						push_word(insstr.c_str());
 						insstr.clear();
+						if(i+1 >= codeLineVec.at(present_line)){
+							codeLineVec_Word.push_back(i+1);
+							++present_line;
+						}
 						i++;
 					}
 					else
@@ -2014,6 +2137,12 @@ public:
 					set_word(i, insstr.c_str());
 					if(icldetail) icl << i+1 << " : \"" << t1.c_str() << "\" => "<< insstr.c_str() << endl;
 					allcode_sen.erase(i + 1);
+
+					for(int k=0;k<codeLineVec_Word.size();++k){
+						if(codeLineVec_Word.at(k) >= i+1){
+							codeLineVec_Word.at(k) -= 1;
+						}
+					}
 				}
 			}
 
@@ -2037,6 +2166,12 @@ public:
 					set_word(i - 1, insstr.c_str());
 					if(icldetail) icl << i << " : \"" << allcode_sen[i] << "\" => \""<< insstr.c_str() << "\"" << endl;
 					allcode_sen.erase(i);
+
+					for(int k=0;k<codeLineVec_Word.size();++k){
+						if(codeLineVec_Word.at(k) >= i){
+							codeLineVec_Word.at(k) -= 1;
+						}
+					}
 				}
 			}
 			if (s == "|")
@@ -2056,6 +2191,12 @@ public:
 					set_word(i, insstr.c_str());
 					if(icldetail) icl << i << " : \"" << allcode_sen[i] << "\" => \""<< insstr.c_str() << "\"" << endl;
 					allcode_sen.erase(i + 1);
+
+					for(int k=0;k<codeLineVec_Word.size();++k){
+						if(codeLineVec_Word.at(k) >= i+1){
+							codeLineVec_Word.at(k) -= 1;
+						}
+					}
 				}
 			}
 			if (s == "&")
@@ -2075,6 +2216,11 @@ public:
 					set_word(i, insstr.c_str());
 					if(icldetail) icl << i+1 << " : \"" << allcode_sen[i+1] << "\" => \""<< insstr.c_str() << "\"" << endl;
 					allcode_sen.erase(i + 1);
+					for(int k=0;k<codeLineVec_Word.size();++k){
+						if(codeLineVec_Word.at(k) >= i+1){
+							codeLineVec_Word.at(k) -= 1;
+						}
+					}
 				}
 			}
 			if (s == ".")
@@ -2122,6 +2268,11 @@ public:
 					if(icldetail) icl << i+1 << " : \"" << back.c_str() << "\" => \""<< insstr.c_str() << "\"" << endl;
 					allcode_sen.erase(i);
 					allcode_sen.erase(i);
+					for(int k=0;k<codeLineVec_Word.size();++k){
+						if(codeLineVec_Word.at(k) >= i){
+							codeLineVec_Word.at(k) -= 2;
+						}
+					}
 				}
 			}
 
@@ -2154,6 +2305,11 @@ public:
 					set_word(i, insstr.c_str());
 					allcode_sen.erase(i + 1);
 					allcode_sen.erase(i + 1);
+					for(int k=0;k<codeLineVec_Word.size();++k){
+						if(codeLineVec_Word.at(k) >= i+1){
+							codeLineVec_Word.at(k) -= 2;
+						}
+					}
 
 					if(icldetail) icl << "combine block : " << i << " ~ " << i + 2 << "\"" << insstr.c_str() << "\"" << endl;
 				}
@@ -2195,6 +2351,12 @@ public:
 					allcode_sen.erase(i + 1);
 					allcode_sen.erase(i + 1);
 					allcode_sen.erase(i + 1);
+
+					for(int k=0;k<codeLineVec_Word.size();++k){
+						if(codeLineVec_Word.at(k) >= i+1){
+							codeLineVec_Word.at(k) -= 3;
+						}
+					}
 				}
 			}
 			fm->_tempPopLayer();
@@ -2223,6 +2385,8 @@ public:
 			(fmvecarr<code_sen *> *)fm->_New(sizeof(fmvecarr<code_sen *>), true);
 		senarr->NULLState();
 		senarr->Init(10, false, true);
+
+		unsigned int clwi = 0;
 
 		bool readytoStart = true;
 		int StartI = 0;
@@ -2294,6 +2458,12 @@ public:
 							fm->_tempPopLayer();
 							if (icldetail) dbg_codesen(cs, false);
 
+							while(codeLineVec_Word.at(clwi) <= i && codeLineVec_Word.size() > clwi){
+								clwi += 1;
+							}
+							clwi -= 1;
+							cs->codeline = codeLineVec_Word.at(clwi);
+
 							senarr->push_back(cs);
 							i = startI - 1;
 							StartI = i + 1;
@@ -2352,6 +2522,11 @@ public:
 
 								set_codesen(cs, cbs);
 								fm->_tempPopLayer();
+								while(codeLineVec_Word.at(clwi) <= i && codeLineVec_Word.size() > clwi){
+									clwi += 1;
+								}
+								clwi -= 1;
+								cs->codeline = codeLineVec_Word.at(clwi);
 								senarr->push_back(cs);
 								if (icldetail) dbg_codesen(cs, false);
 								i += k;
@@ -2373,8 +2548,16 @@ public:
 								}
 
 								set_codesen(cs, cbs);
+
+								while(codeLineVec_Word.at(clwi) <= i && codeLineVec_Word.size() > clwi){
+									clwi += 1;
+								}
+								clwi -= 1;
+								cs->codeline = codeLineVec_Word.at(clwi);
+
 								fm->_tempPopLayer();
 								senarr->push_back(cs);
+
 								if (icldetail) dbg_codesen(cs, false);
 								i += v;
 								StartI = i + 1;
@@ -2413,8 +2596,16 @@ public:
 						}
 
 						set_codesen(cs, cbs);
+
+						while(codeLineVec_Word.at(clwi) <= i && codeLineVec_Word.size() > clwi){
+							clwi += 1;
+						}
+						clwi -= 1;
+						cs->codeline = codeLineVec_Word.at(clwi);
+
 						fm->_tempPopLayer();
 						senarr->push_back(cs);
+
 						if (icldetail) dbg_codesen(cs, false);
 						i = startI - 1;
 						StartI = i + 1;
@@ -2467,6 +2658,12 @@ public:
 						}
 						if (icldetail) dbg_codesen(cs, false);
 
+						while(codeLineVec_Word.at(clwi) <= i && codeLineVec_Word.size() > clwi){
+							clwi += 1;
+						}
+						clwi -= 1;
+						cs->codeline = codeLineVec_Word.at(clwi);
+
 						cbv->release();
 						fm->_Delete((byte8 *)cbv, sizeof(fmvecarr<code_sen *>));
 
@@ -2498,6 +2695,13 @@ public:
 						}
 
 						set_codesen(cs, cbs);
+
+						while(codeLineVec_Word.at(clwi) <= StartI && codeLineVec_Word.size() > clwi){
+							clwi += 1;
+						}
+						clwi -= 1;
+						cs->codeline = codeLineVec_Word.at(clwi);
+
 						fm->_tempPopLayer();
 						senarr->push_back(cs);
 						if (icldetail) dbg_codesen(cs, false);
@@ -2528,6 +2732,13 @@ public:
 						}
 
 						set_codesen(cs, cbs);
+
+						while(codeLineVec_Word.at(clwi) <= i && codeLineVec_Word.size() > clwi){
+							clwi += 1;
+						}
+						clwi -= 1;
+						cs->codeline = codeLineVec_Word.at(clwi);
+
 						fm->_tempPopLayer();
 						senarr->push_back(cs);
 						if (icldetail) dbg_codesen(cs, false);
@@ -2561,6 +2772,12 @@ public:
 							}
 
 							set_codesen(cs, cbs);
+							while(codeLineVec_Word.at(clwi) <= i && codeLineVec_Word.size() > clwi){
+								clwi += 1;
+							}
+							clwi -= 1;
+							cs->codeline = codeLineVec_Word.at(clwi);
+
 							fm->_tempPopLayer();
 							senarr->push_back(cs);
 							if (icldetail) dbg_codesen(cs, false);
@@ -2580,6 +2797,14 @@ public:
 							// �׳� else�� ���
 							cbs.push_back(allcodesen[i]);
 							set_codesen(cs, cbs);
+
+							set_codesen(cs, cbs);
+							while(codeLineVec_Word.at(clwi) <= i && codeLineVec_Word.size() > clwi){
+								clwi += 1;
+							}
+							clwi -= 1;
+							cs->codeline = codeLineVec_Word.at(clwi);
+
 							fm->_tempPopLayer();
 							senarr->push_back(cs);
 							if (icldetail) dbg_codesen(cs, false);
@@ -2607,6 +2832,14 @@ public:
 							cbs.push_back(allcodesen[i + h]);
 						}
 						set_codesen(cs, cbs);
+
+						set_codesen(cs, cbs);
+						while(codeLineVec_Word.at(clwi) <= i && codeLineVec_Word.size() > clwi){
+							clwi += 1;
+						}
+						clwi -= 1;
+						cs->codeline = codeLineVec_Word.at(clwi);
+
 						fm->_tempPopLayer();
 						senarr->push_back(cs);
 						if (icldetail) dbg_codesen(cs, false);
@@ -2629,6 +2862,14 @@ public:
 							h++;
 						}
 						set_codesen(cs, cbs);
+
+						set_codesen(cs, cbs);
+						while(codeLineVec_Word.at(clwi) <= i && codeLineVec_Word.size() > clwi){
+							clwi += 1;
+						}
+						clwi -= 1;
+						cs->codeline = codeLineVec_Word.at(clwi);
+
 						fm->_tempPopLayer();
 						senarr->push_back(cs);
 						if (icldetail) dbg_codesen(cs, false);
@@ -2651,6 +2892,14 @@ public:
 							h++;
 						}
 						set_codesen(cs, cbs);
+
+						set_codesen(cs, cbs);
+						while(codeLineVec_Word.at(clwi) <= i && codeLineVec_Word.size() > clwi){
+							clwi += 1;
+						}
+						clwi -= 1;
+						cs->codeline = codeLineVec_Word.at(clwi);
+
 						fm->_tempPopLayer();
 						senarr->push_back(cs);
 						if (icldetail) dbg_codesen(cs, false);
@@ -2668,6 +2917,14 @@ public:
 						cbs.Init(3, false, false);
 						cbs.push_back(allcodesen[i]);
 						set_codesen(cs, cbs);
+
+						set_codesen(cs, cbs);
+						while(codeLineVec_Word.at(clwi) <= i && codeLineVec_Word.size() > clwi){
+							clwi += 1;
+						}
+						clwi -= 1;
+						cs->codeline = codeLineVec_Word.at(clwi);
+
 						fm->_tempPopLayer();
 						senarr->push_back(cs);
 						if (icldetail) dbg_codesen(cs, false);
@@ -2684,6 +2941,14 @@ public:
 						cbs.Init(3, false, false);
 						cbs.push_back(allcodesen[i]);
 						set_codesen(cs, cbs);
+
+						set_codesen(cs, cbs);
+						while(codeLineVec_Word.at(clwi) <= i && codeLineVec_Word.size() > clwi){
+							clwi += 1;
+						}
+						clwi -= 1;
+						cs->codeline = codeLineVec_Word.at(clwi);
+						
 						fm->_tempPopLayer();
 						senarr->push_back(cs);
 						if (icldetail) dbg_codesen(cs, false);
@@ -2724,6 +2989,12 @@ public:
 							else if (strcmp(allcodesen[i + h], "}") == 0)
 								open--;
 							h++;
+
+							if(allcodesen.size()-1 < i + h){
+								//sprintf(curErrMsg.Arr, "[ERROR] : ")
+								break;
+							}
+
 							cbs.push_back(allcodesen[i + h]);
 						}
 						if(icldetail){
@@ -2869,6 +3140,11 @@ public:
 				if(td != nullptr) break;
 			}
 		}
+
+		if(td == nullptr){
+			UpdateErrMsg(1, "%s type is not exist.", bt);
+			return nullptr;
+		}
 		
 		for (int i = 1; i < tname->size(); ++i)
 		{
@@ -2895,6 +3171,11 @@ public:
 				// get array type with siz
 				ntd = get_array_type(td, siz);
 				td = ntd;
+			}
+			else{
+				char cstr[2] = {c, 0};
+				UpdateErrMsg(2, "%s type typeoperation is not exist", cstr);
+				return nullptr;
 			}
 		}
 		return td;
@@ -2969,6 +3250,7 @@ public:
 			if(isvalue){
 				if(tm->isValue == false){
 					tm->valuetype_detail = get_sub_type(tm->valuetype_detail);
+					ICB_ERR_CHECK(ERR_GET_ASM_FROM_SEN);
 					tm->valuetype = get_int_with_basictype(tm->valuetype_detail);
 					tm->isValue = true;
 					switch(tm->registerMod){
@@ -3171,6 +3453,7 @@ public:
 
 			if(isext == false){
 				fd = get_func_with_name(code->at(nameloc).data.str);
+				ICB_ERR_CHECK(ERR_GET_ASM_FROM_SEN_USEFUNCTION_NORMAL_FD_NOTEXIST);
 
 				sen *params_sen = wbss.sen_cut(code, nameloc + 2, loc - 1);
 				if (params_sen->size() == 0)
@@ -3349,9 +3632,6 @@ public:
 				tm->valuetype = get_int_with_basictype(fd->returntype);
 				tm->valuetype_detail = fd->returntype;
 
-				inner_params->release();
-				fm->_Delete((byte8 *)inner_params, sizeof(sen));
-
 				params_sen->release();
 				fm->_Delete((byte8 *)params_sen, sizeof(sen));
 
@@ -3360,7 +3640,16 @@ public:
 
 				release_tempmem(rtm);
 
+				inner_params->release();
+				fm->_Delete((byte8 *)inner_params, sizeof(sen));
+
 				return tm;
+
+				ERR_GET_ASM_FROM_SEN_USEFUNCTION_NORMAL_FD_NOTEXIST:
+				release_tempmem(tm);
+				inner_params->release();
+				fm->_Delete((byte8 *)inner_params, sizeof(sen));
+				return nullptr;
 			}
 			else
 			{
@@ -3863,7 +4152,9 @@ public:
 			if (c == '(')
 			{
 				temp = wbss.oc_search(ten, i, "(", ")");
-				i += temp->size();
+				temp->erase(0);
+				temp->pop_back();
+				i += temp->size() + 1;
 				segs.push_back(temp);
 			}
 			else if (c == '[')
@@ -4325,9 +4616,11 @@ public:
 								}
 
 								type_data *td = get_sub_type(left_ten->valuetype_detail);
+								ICB_ERR_CHECK(ERR_GET_ASM_FROM_SEN_PTROPER_ARRAYINDEX);
 								type_data *std = nullptr;
 								if(is_array_type){
 									std = get_sub_type(td);
+									ICB_ERR_CHECK(ERR_GET_ASM_FROM_SEN_PTROPER_ARRAYINDEX);
 								}
 								else{
 									std = nullptr;
@@ -4486,6 +4779,12 @@ public:
 								--i;
 								release_tempmem(left_ten);
 								release_tempmem(right_ten);
+								break;
+
+								ERR_GET_ASM_FROM_SEN_PTROPER_ARRAYINDEX:
+								release_tempmem(left_ten);
+								release_tempmem(right_ten);
+								goto ERR_GET_ASM_FROM_SEN_RELEASE_SEGS;
 							}
 							break;
 							case '.':
@@ -4501,7 +4800,8 @@ public:
 								int add_address = 0;
 
 								type_data *struct_td = get_sub_type(left_ten->valuetype_detail);
-
+								ICB_ERR_CHECK(ERR_GET_ASM_FROM_SEN_PTROPER_FINDMEMBER);
+								
 								if (struct_td->typetype == 's' && segs.at(i + 1)->at(0).type == 'w')
 								{
 									struct_data *stdataPtr = (struct_data *)struct_td->structptr;
@@ -4598,11 +4898,14 @@ public:
 									fm->_Delete((byte8*)tempseg, sizeof(sen));
 									segs.erase(i - 1);
 									i -= 2;
-
-									release_tempmem(left_ten);
 								}
+								release_tempmem(left_ten);
+								break;
+
+								ERR_GET_ASM_FROM_SEN_PTROPER_FINDMEMBER:
+								release_tempmem(left_ten);
+								goto ERR_GET_ASM_FROM_SEN_RELEASE_SEGS;
 							}
-							break;
 							case '-':
 							{
 								temp_mem *result_ten =
@@ -4745,6 +5048,7 @@ public:
 								temp_mem *right_ten =
 									(temp_mem *)fm->_New(sizeof(temp_mem), true);
 								type_data *td = get_sub_type(right_ten->valuetype_detail);
+								ICB_ERR_CHECK(ERR_GET_ASM_FROM_SEN_PTROPER_GETVALUE);
 
 								if (is_a)
 								{
@@ -4783,8 +5087,13 @@ public:
 									reinterpret_cast<char *>(result_ten);
 
 								release_tempmem(right_ten);
+								break;
+
+								ERR_GET_ASM_FROM_SEN_PTROPER_GETVALUE:
+								release_tempmem(right_ten);
+								goto ERR_GET_ASM_FROM_SEN_RELEASE_SEGS;
 							}
-							break;
+							
 							}
 						}
 					}
@@ -4804,6 +5113,7 @@ public:
 				if (tm->isValue == false)
 				{
 					type_data* std = get_sub_type(tm->valuetype_detail);
+					ICB_ERR_CHECK(ERR_GET_ASM_FROM_SEN_RELEASE_SEGS);
 					if(std->typetype == 's' || std->typetype == 'a'){
 						switch (tm->registerMod)
 						{
@@ -4824,12 +5134,13 @@ public:
 								tm->mem.push_back((byte8)insttype::IT_POP_B); // pop b
 							}
 						}
-						break;
+						break;ERR_GET_ASM_FROM_SEN_RELEASE_SEGS
 						}
 					}
 					else
 					{
 						tm->valuetype_detail = get_sub_type(tm->valuetype_detail);
+						ICB_ERR_CHECK(ERR_GET_ASM_FROM_SEN_RELEASE_SEGS);
 						tm->valuetype = get_int_with_basictype(tm->valuetype_detail);
 						tm->isValue = true;
 						switch (tm->registerMod)
@@ -4935,6 +5246,7 @@ public:
 		}
 		cout << endl;
 
+		ERR_GET_ASM_FROM_SEN_RELEASE_SEGS:
 		for(int u=0;u<segs.size();++u){
 			sen* tempseg = segs.at(u);
 			tempseg->release();
@@ -4942,6 +5254,8 @@ public:
 		}
 
 		fm->_tempPopLayer();
+
+		ERR_GET_ASM_FROM_SEN:
 		return nullptr;
 	}
 
@@ -5004,6 +5318,8 @@ public:
 			nd->name = variable_name; //(char *)fm->_New(strlen(variable_name) + 1, true);
 			//strcpy(nd->name, variable_name);
 			nd->td = get_type_with_namesen(type_name);
+			ICB_ERR_CHECK(ERR_COMPILE_ADD_VARIABLE);
+
 			if (globalVariables.size() == 0)
 			{
 				nd->add_address = 0;
@@ -5018,6 +5334,7 @@ public:
 		else
 		{
 			type_data *td = get_type_with_namesen(type_name);
+			ICB_ERR_CHECK(ERR_COMPILE_ADD_VARIABLE);
 			mem[writeup] = 0;
 			++writeup;
 			int spup = 0;
@@ -5135,6 +5452,8 @@ public:
 				*/
 		}
 
+		ERR_COMPILE_ADD_VARIABLE:
+
 		code->release();
 		fm->_Delete((byte8 *)code, sizeof(sen));
 
@@ -5164,6 +5483,7 @@ public:
 			bool need_casting = false;
 			casting_type castt;
 			type_data *lstd = get_sub_type(left_tm_ptr->valuetype_detail);
+			ICB_ERR_CHECK(ERR_COMPILE_SET_VARIABLE_COMPACTOPER);
 			int ltype = get_int_with_basictype(lstd);
 			if (ltype != right_tm->valuetype)
 			{
@@ -5191,7 +5511,7 @@ public:
 
 			for (int k = 0; k < basicoper_max; ++k)
 			{
-				if (basicoper[k].symbol[0] == operc)
+				if (basicoper[k].symbol[0] == operc && basicoper[k].mod == 'o')
 				{
 					mem[writeup++] = basicoper[k].startop + ltype * 2;
 					break;
@@ -5232,6 +5552,22 @@ public:
 			release_tempmem(left_tm_ptr);
 			release_tempmem(left_tm_v);
 			release_tempmem(right_tm);
+			return;
+
+			ERR_COMPILE_SET_VARIABLE_COMPACTOPER:
+			code->release();
+			fm->_Delete((byte8 *)code, sizeof(sen));
+
+			left_expr->release();
+			fm->_Delete((byte8 *)left_expr, sizeof(sen));
+
+			right_expr->release();
+			fm->_Delete((byte8 *)right_expr, sizeof(sen));
+
+			release_tempmem(left_tm_ptr);
+			release_tempmem(left_tm_v);
+			release_tempmem(right_tm);
+			return;
 		}
 		else
 		{
@@ -5247,6 +5583,7 @@ public:
 			bool need_casting = false;
 			casting_type castt;
 			type_data *lstd = get_sub_type(left_tm->valuetype_detail);
+			ICB_ERR_CHECK(ERR_COMPILE_SET_VARIABLE_NORMAL);
 			int ltype = get_int_with_basictype(lstd);
 			if (ltype != right_tm->valuetype)
 			{
@@ -5308,6 +5645,21 @@ public:
 
 			release_tempmem(left_tm);
 			release_tempmem(right_tm);
+			return;
+
+			ERR_COMPILE_SET_VARIABLE_NORMAL:
+			code->release();
+			fm->_Delete((byte8 *)code, sizeof(sen));
+
+			left_expr->release();
+			fm->_Delete((byte8 *)left_expr, sizeof(sen));
+
+			right_expr->release();
+			fm->_Delete((byte8 *)right_expr, sizeof(sen));
+
+			release_tempmem(left_tm);
+			release_tempmem(right_tm);
+			return;
 		}
 	}
 
@@ -5876,7 +6228,10 @@ public:
 			mem[writeup++] = (byte8)insttype::IT_INP_A_PTR;
 
 			type_data* std = get_sub_type(tm->valuetype_detail);
+			ICB_ERR_CHECK(ERR_COMPILE_USEFUNCTION_INP);
 			mem[writeup++] = (byte8)get_int_with_basictype(std);
+
+			ERR_COMPILE_USEFUNCTION_INP:
 
 			code->release();
 			fm->_Delete((byte8*)code, sizeof(sen));
@@ -5905,6 +6260,7 @@ public:
 		if (isext == false)
 		{
 			fd = get_func_with_name(code->at(nameloc).data.str);
+			ICB_ERR_CHECK(ERR_COMPILE_USEFUNCTION_NORMAL_FD_NOTEXIST);
 			// mem[writeup++] = fd->start_pc; // func
 
 			//sen* typen = wbss.sen_cut(code, 0, nameloc - 1);
@@ -6086,6 +6442,14 @@ public:
 			fm->_Delete((byte8*)param_sen, sizeof(sen));
 
 			release_tempmem(tm);
+			return;
+
+			ERR_COMPILE_USEFUNCTION_NORMAL_FD_NOTEXIST:
+			code->release();
+			fm->_Delete((byte8*)code, sizeof(sen));
+			inner_params->release();
+			fm->_Delete((byte8*)inner_params, sizeof(sen));
+			return;
 		}
 		else
 		{
@@ -6522,10 +6886,14 @@ public:
 
 	void bake_code(const char *filename)
 	{
+		curErrMsg[0] = 0;
 		icl << "ICB[" << this << "] BakeCode start. filename : [" << filename << "]" << endl;
 
 		icl << "ICB[" << this << "] BakeCode_GetCodeFromText...";
 		fmlcstr *allcodeptr = GetCodeTXT(filename, fm);
+		if(curErrMsg[0] != 0){
+			return;
+		}
 		icl << "finish" << endl;
 
 		fmlcstr &allcode = *allcodeptr;
@@ -6745,8 +7113,6 @@ public:
 		datamem_up = gs;
 		if (gmidetail) icl << "BakeCode_GlobalMemoryInit...";
 		icl << "finish" << endl;
-
-		
 
 		writeup = 0;
 		mem[writeup++] = (byte8)insttype::IT_FUNC; // func
