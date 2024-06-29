@@ -1,5 +1,5 @@
-#define FM_GET_NONRELEASE_HEAPPTR
-#define FM_NONRELEASE_HEAPCHECK
+//#define FM_GET_NONRELEASE_HEAPPTR
+//#define FM_NONRELEASE_HEAPCHECK
 
 #include "InsideCodeBake.h"
 #include "ICB_Extension.h"
@@ -61,7 +61,14 @@ int main() {
     icb.init();
     icb.extension.push_back(ext);
 
-    icb.bake_code("code.txt");
+    fmlcstr errorcode;
+    errorcode.NULLState();
+    errorcode.Init(128, false);
+    icb.bake_code("code.txt", &errorcode);
+    if (errorcode[0] != 0) {
+        cout << errorcode.c_str() << endl;
+    }
+    errorcode.release();
 
     fmvecarr<ICB_Context*> exectxs;
     ICB_Context* ctx = (ICB_Context*)fm->_New(sizeof(ICB_Context), true);

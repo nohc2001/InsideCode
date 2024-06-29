@@ -6,6 +6,82 @@
 using namespace freemem;
 
 //basic functions for extension operation
+
+fmlcstr* GetCodeTXT(const char* filename, FM_System0* fm)
+{
+    char comment_mod = '/';
+    FILE* fp;
+    fopen_s(&fp, filename, "rt");
+    if (fp)
+    {
+        fmlcstr* codetxt = (fmlcstr*)fm->_New(sizeof(fmlcstr), true);
+        codetxt->NULLState();
+        codetxt->Init(10, false);
+        int max = 0;
+        fseek(fp, 0, SEEK_END);
+        max = ftell(fp);
+        fclose(fp);
+
+        int stack = 0;
+        fopen_s(&fp, filename, "rt");
+        int k = 0;
+        while (k < max)
+        {
+            char c;
+            c = fgetc(fp);
+            if (c == '/')
+            {
+                stack += 1;
+            }
+            else if (stack == 1 && c == '*') {
+                stack += 1;
+                comment_mod = '*';
+            }
+            else
+            {
+                stack = 0;
+            }
+
+            if (stack == 2) // 이거 주석 처리 코드?
+            {
+                if (comment_mod == '/') {
+                    codetxt->pop_back();
+                    int mm = 0;
+                    while (c != '\n' && k + mm < max)
+                    {
+                        mm += 1;
+                        c = fgetc(fp);
+                    }
+                    max -= mm + 1;
+                    continue;
+                }
+                else if (comment_mod == '*') {
+                    codetxt->pop_back();
+                    int mm = 0;
+                    char saveC = 0;
+                    while ((saveC != '*' || c != '/') && k + mm < max)
+                    {
+                        mm += 1;
+                        saveC = c;
+                        c = fgetc(fp);
+                    }
+                    max -= mm + 1;
+                    comment_mod = '/';
+                    continue;
+                }
+            }
+            codetxt->push_back(c);
+            k++;
+        }
+        return codetxt;
+    }
+    else
+    {
+        //printf("[ERROR] : %s file is not exist.", filename);
+        return nullptr;
+    }
+}
+
 void push_word(char* sptr, fmvecarr<char*>* codesen)
 {
     for (int i = 0; i < InsideCode_Bake::wbss.wordlist.size(); ++i)

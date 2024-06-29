@@ -79,3 +79,30 @@ SFML의 드로우 명령, 기초적 폰트 출력 등. 기반 인스트럭션을
 고칠거
 -> sen release 가 안된듯?
 -> 일반함수의 return type이 설정 되나 확인
+
+> 컴파일 오류 내고 ICB를 컴파일 하는 동안 정상적으로 돌게 하기
+오류발생 -> currentError.txt에 기록 -> 최근 컴파일한 ICB 해제.
+ : 그런데 어짜피 오류 하나 때문에 파일을 만들어야 한다면 좀 그럼. 그냥 데이터로 만들자.
+에러 문장 형식 : 
+[ERROR (error code)]in_Line(line number) : (error message).
+라인은 어떻게 알음? 일단 \n이 나타날 때마다 라인이 바뀜. 컴파일 작업을 할때, 미리 지금 코드의 줄이 몇인지 확인할 필요가 있음.
+
+오류발생
+1. 세미클론 안찍었을때
+2. 함수, 변수, 구조체, 연산자가 식별되지 않을 때.
+3. 입력된 함수의 파라미터 개수가 잘못되었을때,
+4. 입력된 변수의 타입이 잘못되었을 경우 ??
+5. 코드의 {}, () 열고 닫는 것이 정확하지 않을때.
+6. 0으로 나누었을때.
+7. 
+
+UpdateErrMsg(0, 0, "%s file is not exist.", (char*)filename);
+UpdateErrMsg(1, "%s type is not exist.", bt);
+UpdateErrMsg(2, "%s type typeoperation is not exist", cstr);
+UpdateErrMsg(3, "%s type cannot have sub type.", t->name.c_str());
+UpdateErrMsg(4, "%s function is not exist.", name);
+UpdateErrMsg(5, "Unknown identifier %s", segs[i - 1]->at(0).data.str);
+
+> 코딩 규칙. 추가하자.
+1. 블럭의 시작에서 해당 블록의 지역변수들을 모두 선언한다.
+2. 블럭에서 메모리의 헤제는 나중에 할당된 것부터 해제된다.

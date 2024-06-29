@@ -536,6 +536,8 @@ TBT DecodeTextBlock(fmlcstr& t)
 	}
 }
 
+/*
+
 fmlcstr *GetCodeTXT(const char *filename, FM_System0 *fm)
 {
 	FILE* fp;
@@ -590,6 +592,8 @@ fmlcstr *GetCodeTXT(const char *filename, FM_System0 *fm)
 	}
 }
 
+*/
+
 enum class codeKind
 {
 	ck_addVariable,
@@ -617,6 +621,7 @@ struct code_sen
 
 	int start_line = 0;
 	int end_line = 0;
+	int codeline = 0;
 
 	code_sen() :
 		start_line(0),
@@ -624,6 +629,7 @@ struct code_sen
 		codeblocks(nullptr),
 		sen(nullptr),
 		maxlen(0),
+		codeline(0),
 		ck(codeKind::ck_none)
 	{
 
@@ -936,6 +942,8 @@ enum class ICL_FLAG {
 	BakeCode_CompileCodes__adsetvar = 21,
 };
 
+#define ICB_ERR_CHECK(A) if(curErrMsg[0] != 0) goto A;
+
 class InsideCode_Bake
 {
 private:
@@ -985,7 +993,137 @@ public:
 	static ofstream icl; // icb log
 	static uint32_t icl_optionFlag;
 
+	fmvecarr<unsigned int> codeLineVec;
+	fmvecarr<unsigned int> codeLineVec_Word;
+
+	fmlcstr curErrMsg;
+	unsigned int currentCodeLine = 0;
+
 	fmvecarr<ICB_Extension*> extension; // 확장코드
+
+	void UpdateErrMsg(int errorcode, const char* message, char* param) {
+		curErrMsg.up = 0;
+		curErrMsg.at(0) = 0;
+
+		curErrMsg = (char*)"[COMPILE ERROR ";
+
+		string numstr;
+		numstr = to_string(errorcode);
+		for (int i = 0; i < numstr.size(); ++i) {
+			curErrMsg.push_back(numstr[i]);
+		}
+		curErrMsg.push_back(']');
+		curErrMsg.push_back('_');
+		curErrMsg.push_back('l'); curErrMsg.push_back('i'); curErrMsg.push_back('n'); curErrMsg.push_back('e');
+		numstr = to_string(currentCodeLine);
+		for (int i = 0; i < numstr.size(); ++i) {
+			curErrMsg.push_back(numstr[i]);
+		}
+		curErrMsg.push_back(' '); curErrMsg.push_back(':'); curErrMsg.push_back(' ');
+
+		int mlen = strlen(message);
+		for (int i = 0; i < mlen; ++i) {
+			if (message[i] == '%') {
+				int plen = strlen(param);
+				for (int k = 0; k < plen; ++k) {
+					curErrMsg.push_back(param[k]);
+				}
+				++i;
+			}
+			curErrMsg.push_back(message[i]);
+		}
+	}
+
+	fmlcstr* GetCodeTXT(const char* filename, FM_System0* fm)
+	{
+		codeLineVec.push_back(0);
+		char comment_mod = '/';
+		FILE* fp;
+		fopen_s(&fp, filename, "rt");
+		if (fp)
+		{
+			fmlcstr* codetxt = (fmlcstr*)fm->_New(sizeof(fmlcstr), true);
+			codetxt->NULLState();
+			codetxt->Init(10, false);
+			int max = 0;
+			fseek(fp, 0, SEEK_END);
+			max = ftell(fp);
+			fclose(fp);
+
+			int stack = 0;
+			fopen_s(&fp, filename, "rt");
+			int k = 0;
+			while (k < max)
+			{
+				char c;
+				c = fgetc(fp);
+
+				//line check
+				if (c == '\n') {
+					codeLineVec.push_back(k + 1);
+				}
+
+				if (c == '/')
+				{
+					stack += 1;
+				}
+				else if (stack == 1 && c == '*') {
+					stack += 1;
+					comment_mod = '*';
+				}
+				else
+				{
+					stack = 0;
+				}
+
+				if (stack == 2) // 이거 주석 처리 코드?
+				{
+					if (comment_mod == '/') {
+						codetxt->pop_back();
+						int mm = 0;
+						while (c != '\n' && k + mm < max)
+						{
+							mm += 1;
+							c = fgetc(fp);
+							//line check
+							if (c == '\n') {
+								codeLineVec.push_back(k + 1);
+							}
+						}
+						max -= mm + 1;
+						continue;
+					}
+					else if (comment_mod == '*') {
+						codetxt->pop_back();
+						int mm = 0;
+						char saveC = 0;
+						while ((saveC != '*' || c != '/') && k + mm < max)
+						{
+							mm += 1;
+							saveC = c;
+							c = fgetc(fp);
+							//line check
+							if (c == '\n') {
+								codeLineVec.push_back(k + 1);
+							}
+						}
+						max -= mm + 1;
+						comment_mod = '/';
+						continue;
+					}
+				}
+				codetxt->push_back(c);
+				k++;
+			}
+			return codetxt;
+		}
+		else
+		{
+			UpdateErrMsg(0, "<%s> file is not exist.", (char*)filename);
+			//printf("[ERROR] : %s file is not exist.", filename);
+			return nullptr;
+		}
+	}
 
 	static void ReleaseCodeSen(code_sen* cs) {
 		if ((cs->ck == codeKind::ck_blocks || cs->ck == codeKind::ck_addStruct) && cs->codeblocks != nullptr) {
@@ -1057,6 +1195,11 @@ public:
 	struct_data *nextsd;
 	fmvecarr<ICB_Extension*> extension; // 확장코드
 		*/
+
+		codeLineVec.release();
+		codeLineVec_Word.release();
+		curErrMsg.release();
+
 		for (int i = 0; i < allcode_sen.size(); ++i) {
 			allcode_sen.at(i) = nullptr;
 		}
@@ -1197,6 +1340,7 @@ public:
 
 	void release_tempmem(temp_mem *ptr)
 	{
+		if (ptr == nullptr) return;
 		ptr->mem.release();
 		fm->_Delete((byte8 *)ptr, sizeof(temp_mem));
 		// type_data memeory management reqired.. but how?
@@ -1342,12 +1486,22 @@ public:
 			}
 		}
 
+		UpdateErrMsg(4, "<%s> function is not exist.", name);
 		return nullptr;
 	}
 
-	static type_data *get_sub_type(type_data *t)
+	type_data *get_sub_type(type_data *t)
 	{
+		if (t->structptr == nullptr) {
+			UpdateErrMsg(3, "<%s> type cannot have sub type.", t->name.c_str());
+			return nullptr;
+		}
 		return reinterpret_cast<type_data *>(t->structptr);
+	}
+
+	static type_data* static_get_sub_type(type_data* t)
+	{
+		return reinterpret_cast<type_data*>(t->structptr);
 	}
 
 	static type_data* static_get_addpointer_type(type_data* td)
@@ -2020,6 +2174,16 @@ public:
 
 		extension.NULLState();
 		extension.Init(8, false, true);
+
+		curErrMsg.NULLState();
+		curErrMsg.Init(128, false);
+
+		codeLineVec.NULLState();
+		codeLineVec.Init(32, false, true);
+
+		codeLineVec_Word.NULLState();
+		codeLineVec_Word.Init(32, false, true);
+
 		icl << "finish" << endl;
 	}
 
@@ -3054,6 +3218,11 @@ public:
 				if(td != nullptr) break;
 			}
 		}
+
+		if (td == nullptr) {
+			UpdateErrMsg(1, "<%s> type is not exist.", bt);
+			return nullptr;
+		}
 		
 		for (int i = 1; i < tname->size(); ++i)
 		{
@@ -3079,6 +3248,11 @@ public:
 				ntd = get_array_type(td, siz);
 				td = ntd;
 			}
+			else {
+				char cstr[2] = { c, 0 };
+				UpdateErrMsg(2, "<%s> type typeoperation is not exist", cstr);
+				return nullptr;
+			}
 		}
 		return td;
 	}
@@ -3094,6 +3268,7 @@ public:
 				return nd.td;
 			}
 		}
+
 		return nullptr;
 	}
 
@@ -3146,12 +3321,16 @@ public:
 	{
 		// fm->dbg_fm1_lifecheck();
 		temp_mem* tm = nullptr;
+		fmvecarr<sen*> segs; // term
+		sen* vtemp = nullptr;
+		sen* temp = nullptr;
 		if (ten->at(0).type == 'a')
 		{
 			tm = reinterpret_cast<temp_mem*>(ten->at(0).data.str);
 			if (isvalue) {
 				if (tm->isValue == false) {
 					tm->valuetype_detail = get_sub_type(tm->valuetype_detail);
+					ICB_ERR_CHECK(ERR_GETASMFROMSEN_EXIT);
 					tm->valuetype = get_int_with_basictype(tm->valuetype_detail);
 					tm->isValue = true;
 					switch (tm->registerMod) {
@@ -3280,11 +3459,15 @@ public:
 				wbss.dbg_sen(inner_params);
 				int coma = wbss.search_word_first_in_specific_oc_layer(inner_params, 0, "(", ")", 0, ",");
 				int savecomma = -1;
+				temp_mem* rtm = nullptr;
+				sen* param_sen = nullptr;
 				while (coma != -1)
 				{
-					sen* param_sen = wbss.sen_cut(inner_params, savecomma + 1, coma - 1);
+					param_sen = wbss.sen_cut(inner_params, savecomma + 1, coma - 1);
 					wbss.dbg_sen(param_sen);
-					temp_mem* rtm = get_asm_from_sen(param_sen, true, true);
+					rtm = get_asm_from_sen(param_sen, true, true);
+					ICB_ERR_CHECK(ERR_GETASMFROMSEN_USEFUNCTION_DBG_RTM);
+
 					for (int k = 0; k < rtm->mem.size(); ++k)
 					{
 						tm->mem.push_back(rtm->mem[k]);
@@ -3298,9 +3481,10 @@ public:
 					fm->_Delete((byte8*)param_sen, sizeof(sen));
 				}
 
-				sen* param_sen = wbss.sen_cut(inner_params, savecomma + 1, inner_params->size() - 1);
+				param_sen = wbss.sen_cut(inner_params, savecomma + 1, inner_params->size() - 1);
 				wbss.dbg_sen(param_sen);
-				temp_mem* rtm = get_asm_from_sen(param_sen, true, true);
+				rtm = get_asm_from_sen(param_sen, true, true);
+				ICB_ERR_CHECK(ERR_GETASMFROMSEN_USEFUNCTION_DBG_RTM);
 
 				for (int k = 0; k < rtm->mem.size(); ++k)
 				{
@@ -3315,12 +3499,22 @@ public:
 				fm->_Delete((byte8*)param_sen, sizeof(sen));
 				release_tempmem(rtm);
 				return tm;
+
+			ERR_GETASMFROMSEN_USEFUNCTION_DBG_RTM:
+				inner_params->release();
+				fm->_Delete((byte8*)inner_params, sizeof(sen));
+				param_sen->release();
+				fm->_Delete((byte8*)param_sen, sizeof(sen));
+				release_tempmem(rtm);
+				release_tempmem(tm);
+				return nullptr;
 			}
 			else if (strcmp(funcname, "inp") == 0)
 			{
 				inner_params->pop_back();
 				inner_params->erase(0);
 				temp_mem* rtm = get_asm_from_sen(inner_params, true, true);
+				ICB_ERR_CHECK(ERR_GETASMFROMSEN_USEFUNCTION_INP_RTM);
 				for (int k = 0; k < rtm->mem.size(); ++k)
 				{
 					tm->mem.push_back(rtm->mem[k]);
@@ -3332,28 +3526,30 @@ public:
 				fm->_Delete((byte8*)inner_params, sizeof(sen));
 				release_tempmem(rtm);
 				return tm;
-			}
-			else if (strcmp(funcname, "sizeof") == 0)
-			{
-				inner_params->pop_back();
-				inner_params->erase(0);
-				// type_data* td = get_type_with_namesen(inner_params);
 
-				// release_tempmem(rtm);
-			}
-			else if (strcmp(funcname, "codeptr") == 0)
-			{
-				// release_tempmem(rtm);
-			}
-			else if (strcmp(funcname, "goto") == 0)
-			{
-				// release_tempmem(rtm);
+			ERR_GETASMFROMSEN_USEFUNCTION_INP_RTM:
+				inner_params->release();
+				fm->_Delete((byte8*)inner_params, sizeof(sen));
+				release_tempmem(rtm);
+				release_tempmem(tm);
+				return nullptr;
 			}
 
 			if (isext == false) {
+				sen* params_sen = nullptr;
+				sen* param_sen = nullptr;
+				temp_mem* rtm = nullptr;
+				int coma = 0;
+				int savecoma = -1;
+				int last = 0;
+				int addadd = 0;
+				int paramid = 0;
+				int paramCount = 0;
+				int ll = 0;
 				fd = get_func_with_name(code->at(nameloc).data.str);
+				ICB_ERR_CHECK(ERR_GETASMFROMSEN_USEFUNCTION_NORMAL_FD_NOTEXIST);
 
-				sen* params_sen = wbss.sen_cut(code, nameloc + 2, loc - 1);
+				params_sen = wbss.sen_cut(code, nameloc + 2, loc - 1);
 				if (params_sen->size() == 0)
 				{
 					tm->mem.push_back((byte8)insttype::IT_FUNC); // FUNC
@@ -3374,21 +3570,22 @@ public:
 				}
 
 				//wbss.dbg_sen(params_sen);
-				int coma = wbss.search_word_first_in_specific_oc_layer(params_sen, 0, "(", ")", 0, ",");
-				int savecoma = -1;
-				int last = params_sen->size() - 1;
+				coma = wbss.search_word_first_in_specific_oc_layer(params_sen, 0, "(", ")", 0, ",");
+				savecoma = -1;
+				last = params_sen->size() - 1;
 
-				int addadd = 0;
-				int paramid = 0;
-				int paramCount = 0;
+				addadd = 0;
+				paramid = 0;
+				paramCount = 0;
 
 				tm->mem.push_back((byte8)insttype::IT_FUNC);
 
 				while (coma != -1)
 				{
-					sen* param_sen = wbss.sen_cut(params_sen, savecoma + 1, coma - 1);
+					param_sen = wbss.sen_cut(params_sen, savecoma + 1, coma - 1);
 					wbss.dbg_sen(param_sen);
-					temp_mem* rtm = get_asm_from_sen(param_sen, true, true);
+					rtm = get_asm_from_sen(param_sen, true, true);
+					ICB_ERR_CHECK(ERR_GETASMFROMSEN_USEFUNCTION_NORMAL_RTM);
 
 					if (rtm->valuetype_detail->typetype == 's')
 					{
@@ -3398,6 +3595,7 @@ public:
 							tm->mem.push_back(ptrtm->mem[i]);
 						}
 						release_tempmem(ptrtm);
+						ICB_ERR_CHECK(ERR_GETASMFROMSEN_USEFUNCTION_NORMAL_RTM);
 					}
 					else
 					{
@@ -3447,22 +3645,25 @@ public:
 					}
 
 					++paramid;
-
-					param_sen->release();
-					fm->_Delete((byte8*)param_sen, sizeof(sen));
-
-					release_tempmem(rtm);
-
 					savecoma = coma;
 					coma = wbss.search_word_first_in_specific_oc_layer(params_sen, coma + 1, "(", ")", 0, ",");
 					// coma = wbss.search_word_first(coma + 1, params_sen, ",");
 					paramCount += 1;
+
+					param_sen->release();
+					fm->_Delete((byte8*)param_sen, sizeof(sen));
+					release_tempmem(rtm);
+
+					continue;
+
+				
 				}
 
 				//wbss.dbg_sen(params_sen);
-				sen* param_sen = wbss.sen_cut(params_sen, savecoma + 1, last);
+				param_sen = wbss.sen_cut(params_sen, savecoma + 1, last);
 				//wbss.dbg_sen(param_sen);
-				temp_mem* rtm = get_asm_from_sen(param_sen, true, true);
+				rtm = get_asm_from_sen(param_sen, true, true);
+				ICB_ERR_CHECK(ERR_GETASMFROMSEN_USEFUNCTION_NORMAL_RTM);
 				if (rtm->valuetype_detail->typetype == 's')
 				{
 					temp_mem* ptrtm = get_asm_from_sen(param_sen, true, false);
@@ -3471,6 +3672,7 @@ public:
 						tm->mem.push_back(ptrtm->mem[i]);
 					}
 					release_tempmem(ptrtm);
+					ICB_ERR_CHECK(ERR_GETASMFROMSEN_USEFUNCTION_NORMAL_RTM);
 				}
 				else
 				{
@@ -3519,7 +3721,7 @@ public:
 				}
 
 				tm->mem.push_back((byte8)insttype::IT_FUNCJMP); // jmp
-				int ll = tm->mem.size();
+				ll = tm->mem.size();
 				for (int k = 0; k < 4; ++k)
 				{
 					tm->mem.push_back(0);
@@ -3541,10 +3743,31 @@ public:
 				release_tempmem(rtm);
 
 				return tm;
+
+			ERR_GETASMFROMSEN_USEFUNCTION_NORMAL_RTM:
+				inner_params->release();
+				fm->_Delete((byte8*)inner_params, sizeof(sen));
+				params_sen->release();
+				fm->_Delete((byte8*)params_sen, sizeof(sen));
+				param_sen->release();
+				fm->_Delete((byte8*)param_sen, sizeof(sen));
+				release_tempmem(rtm);
+				release_tempmem(tm);
+
+			ERR_GETASMFROMSEN_USEFUNCTION_NORMAL_FD_NOTEXIST:
+				return nullptr;
 			}
 			else
 			{
 				sen* params_sen = wbss.sen_cut(code, nameloc + 2, loc - 1);
+				int last = 0;
+				int coma = 0;
+				int savecoma = 0;
+				int paramCount = 0;
+				temp_mem* rtm = nullptr;
+				sen* param_sen = nullptr;
+				int ll = 0;
+
 				if (params_sen->size() == 0)
 				{
 					tm->mem.push_back((byte8)insttype::IT_FUNC);		// FUNC
@@ -3572,20 +3795,21 @@ public:
 				}
 
 				wbss.dbg_sen(params_sen);
-				int last = params_sen->size() - 1;
+				last = params_sen->size() - 1;
 
-				int coma = wbss.search_word_end_in_specific_oc_layer(params_sen, last, "(", ")", 0, ",");
-				int savecoma = last + 1;
+				coma = wbss.search_word_end_in_specific_oc_layer(params_sen, last, "(", ")", 0, ",");
+				savecoma = last + 1;
 
-				int paramCount = fd->param_data.size() - 1;
+				paramCount = fd->param_data.size() - 1;
 
 				tm->mem.push_back((byte8)insttype::IT_FUNC);
 
 				while (coma != -1)
 				{
-					sen* param_sen = wbss.sen_cut(params_sen, coma + 1, savecoma - 1);
+					param_sen = wbss.sen_cut(params_sen, coma + 1, savecoma - 1);
 					wbss.dbg_sen(param_sen);
-					temp_mem* rtm = get_asm_from_sen(param_sen, true, true);
+					rtm = get_asm_from_sen(param_sen, true, true);
+					ICB_ERR_CHECK(ERR_GETASMFROMSEN_USEFUNCTION_EXT_RTM);
 
 					if (rtm->valuetype_detail->typetype == 's')
 					{
@@ -3595,6 +3819,7 @@ public:
 							tm->mem.push_back(ptrtm->mem[i]);
 						}
 						release_tempmem(ptrtm);
+						ICB_ERR_CHECK(ERR_GETASMFROMSEN_USEFUNCTION_EXT_RTM);
 					}
 					else
 					{
@@ -3643,22 +3868,21 @@ public:
 						}
 					}
 
-
-					param_sen->release();
-					fm->_Delete((byte8*)param_sen, sizeof(sen));
-
-					release_tempmem(rtm);
-
 					savecoma = coma;
 					coma = wbss.search_word_end_in_specific_oc_layer(params_sen, savecoma - 1, "(", ")", 0, ",");
 					// coma = wbss.search_word_first(coma + 1, params_sen, ",");
 					--paramCount;
+
+					param_sen->release();
+					fm->_Delete((byte8*)param_sen, sizeof(sen));
+					release_tempmem(rtm);
 				}
 
-				wbss.dbg_sen(params_sen);
-				sen* param_sen = wbss.sen_cut(params_sen, 0, savecoma - 1);
-				wbss.dbg_sen(param_sen);
-				temp_mem* rtm = get_asm_from_sen(param_sen, true, true);
+				//wbss.dbg_sen(params_sen);
+				param_sen = wbss.sen_cut(params_sen, 0, savecoma - 1);
+				//wbss.dbg_sen(param_sen);
+				rtm = get_asm_from_sen(param_sen, true, true);
+				ICB_ERR_CHECK(ERR_GETASMFROMSEN_USEFUNCTION_EXT_RTM);
 				if (rtm->valuetype_detail->typetype == 's')
 				{
 					temp_mem* ptrtm = get_asm_from_sen(param_sen, true, false);
@@ -3667,6 +3891,7 @@ public:
 						tm->mem.push_back(ptrtm->mem[i]);
 					}
 					release_tempmem(ptrtm);
+					ICB_ERR_CHECK(ERR_GETASMFROMSEN_USEFUNCTION_EXT_RTM);
 				}
 				else
 				{
@@ -3716,7 +3941,7 @@ public:
 				}
 
 				tm->mem.push_back((byte8)insttype::EXTENSION_INST); // ext instruction
-				int ll = tm->mem.size();
+				ll = tm->mem.size();
 				for (int k = 0; k < 4; ++k)
 				{
 					tm->mem.push_back(0);
@@ -3744,6 +3969,17 @@ public:
 				release_tempmem(rtm);
 
 				return tm;
+
+			ERR_GETASMFROMSEN_USEFUNCTION_EXT_RTM:
+				inner_params->release();
+				fm->_Delete((byte8*)inner_params, sizeof(sen));
+				params_sen->release();
+				fm->_Delete((byte8*)params_sen, sizeof(sen));
+				param_sen->release();
+				fm->_Delete((byte8*)param_sen, sizeof(sen));
+				release_tempmem(rtm);
+				release_tempmem(tm);
+				return nullptr;
 			}
 		}
 
@@ -3800,6 +4036,9 @@ public:
 			}
 
 			wbss.dbg_sen(ten);
+			if (ten->Arr[0].data.str[0] == 'c') {
+				cout << "hor" << endl;
+			}
 			int varid = get_address_with_name(ten->at(0).data.str);
 			if (varid >= 0)
 			{
@@ -3855,6 +4094,7 @@ public:
 				str.Init(2, false);
 				str = ten->at(0).data.str;
 				TBT t = DecodeTextBlock(str);
+				
 				switch (t)
 				{
 				case TBT::_value_bool:
@@ -4022,6 +4262,14 @@ public:
 					tm->valuetype = 8;
 				}
 				break;
+				default:
+				{
+					UpdateErrMsg(5, "Unknown identifier <%s>", str.c_str());
+					str.release();
+					release_tempmem(tm);
+					return nullptr;
+				}
+					break;
 				}
 				tm->valuetype_detail = get_basic_type_with_int(tm->valuetype);
 				str.islocal = true;
@@ -4031,14 +4279,13 @@ public:
 
 		// seperate term and operator of expr
 		fm->_tempPushLayer(); // this layer pop when return.
-		fmvecarr<sen*> segs; // term
+		
 		segs.NULLState();
 		segs.Init(2, false, false);
-		sen* vtemp = (sen*)fm->_New(sizeof(sen), true);
+		vtemp = (sen*)fm->_New(sizeof(sen), true);
 		vtemp->NULLState();
 		vtemp->Init(2, false, true);
 
-		sen* temp = nullptr;
 		for (int i = 0; i < ten->size(); ++i)
 		{
 			char c = ten->at(i).data.str[0];
@@ -4149,18 +4396,26 @@ public:
 									(temp_mem*)fm->_New(sizeof(temp_mem), true);
 								temp_mem* left_ten = nullptr;
 								temp_mem* right_ten = nullptr;
+								int opertype = 0;
+								int add = 1;
+								int leftcast = 0;
+								int rightcast = 0;
+								sen* tempseg = nullptr;
+
 								left_ten = get_asm_from_sen(segs.at(i - 1), true, true);
+								ICB_ERR_CHECK(ERR_GETASMFROMSEN_OPER_ARITHMATH_TEMPMEM);
 								right_ten = get_asm_from_sen(segs.at(i + 1), false, true);
+								ICB_ERR_CHECK(ERR_GETASMFROMSEN_OPER_ARITHMATH_TEMPMEM);
 								/*
 								wbss.dbg_sen(segs.at(i-1));
 								cout << basicoper[k].symbol << endl;
 								wbss.dbg_sen(segs.at(i+1));
 								*/
-								int opertype = combine_opertype(left_ten->valuetype,
+								opertype = combine_opertype(left_ten->valuetype,
 									right_ten->valuetype);
-								int add = 1;
-								int leftcast = (int)get_cast_type(left_ten->valuetype, opertype);
-								int rightcast = (int)get_cast_type(right_ten->valuetype, opertype);
+								add = 1;
+								leftcast = (int)get_cast_type(left_ten->valuetype, opertype);
+								rightcast = (int)get_cast_type(right_ten->valuetype, opertype);
 
 								if (leftcast != (int)casting_type::nocasting)
 									++add;
@@ -4221,7 +4476,7 @@ public:
 								result_ten->valuetype_detail =
 									get_basic_type_with_int(result_ten->valuetype);
 
-								sen* tempseg = segs.at(i + 1);
+								tempseg = segs.at(i + 1);
 								tempseg->release();
 								fm->_Delete((byte8*)tempseg, sizeof(sen));
 								segs.erase(i + 1);
@@ -4237,6 +4492,13 @@ public:
 
 								release_tempmem(left_ten);
 								release_tempmem(right_ten);
+								continue;
+
+							ERR_GETASMFROMSEN_OPER_ARITHMATH_TEMPMEM:
+								release_tempmem(left_ten);
+								release_tempmem(right_ten);
+								release_tempmem(result_ten);
+								goto ERR_GETASMFROMSEN_RELEASE_SEGS;
 							}
 							else if (basicoper[k].endop - basicoper[k].startop == 1)
 							{
@@ -4246,18 +4508,26 @@ public:
 										(temp_mem*)fm->_New(sizeof(temp_mem), true);
 									temp_mem* left_ten = nullptr;
 									temp_mem* right_ten = nullptr;
+									int opertype = 0;
+									int add = 1;
+									int leftcast = 0;
+									int rightcast = 0;
+									sen* tempseg = nullptr;
+
 									left_ten = get_asm_from_sen(segs.at(i - 1), true, true);
+									ICB_ERR_CHECK(ERR_GETASMFROMSEN_OPER_CONDITIONAL_TEMPMEM);
 									right_ten = get_asm_from_sen(segs.at(i + 1), false, true);
+									ICB_ERR_CHECK(ERR_GETASMFROMSEN_OPER_CONDITIONAL_TEMPMEM);
 									/*
 									wbss.dbg_sen(segs.at(i-1));
 									cout << basicoper[k].symbol << endl;
 									wbss.dbg_sen(segs.at(i+1));
 									*/
-									int opertype = combine_opertype(left_ten->valuetype,
+									opertype = combine_opertype(left_ten->valuetype,
 										right_ten->valuetype);
-									int add = 1;
-									int leftcast = (int)get_cast_type(left_ten->valuetype, opertype);
-									int rightcast = (int)get_cast_type(right_ten->valuetype, opertype);
+									add = 1;
+									leftcast = (int)get_cast_type(left_ten->valuetype, opertype);
+									rightcast = (int)get_cast_type(right_ten->valuetype, opertype);
 
 									if (leftcast != (int)casting_type::nocasting)
 										++add;
@@ -4318,7 +4588,7 @@ public:
 										get_basic_type_with_int(result_ten->valuetype);
 									result_ten->isValue = true;
 
-									sen* tempseg = segs.at(i + 1);
+									tempseg = segs.at(i + 1);
 									tempseg->release();
 									fm->_Delete((byte8*)tempseg, sizeof(sen));
 									segs.erase(i + 1);
@@ -4334,16 +4604,26 @@ public:
 
 									release_tempmem(left_ten);
 									release_tempmem(right_ten);
+
+									continue;
+
+								ERR_GETASMFROMSEN_OPER_CONDITIONAL_TEMPMEM:
+									release_tempmem(left_ten);
+									release_tempmem(right_ten);
+									release_tempmem(result_ten);
+									goto ERR_GETASMFROMSEN_RELEASE_SEGS;
 								}
 								else if (k == 16)
 								{
 
 									// ! not
+									sen* tempseg = nullptr;
+									int add = 1;
 									temp_mem* result_ten =
 										(temp_mem*)fm->_New(sizeof(temp_mem), true);
 									temp_mem* right_ten = nullptr;
 									right_ten = get_asm_from_sen(segs.at(i + 1), true, true);
-									int add = 1;
+									ICB_ERR_CHECK(ERR_GETASMFROMSEN_NOTOPER_TEMPMEM);
 									result_ten->mem.NULLState();
 									result_ten->mem.Init(result_ten->mem.size() + 1, false, true);
 									for (int u = 0; u < right_ten->mem.size(); ++u)
@@ -4372,7 +4652,7 @@ public:
 										get_basic_type_with_int(result_ten->valuetype);
 									result_ten->isValue = true;
 
-									sen* tempseg = segs.at(i + 1);
+									tempseg = segs.at(i + 1);
 									tempseg->release();
 									fm->_Delete((byte8*)tempseg, sizeof(sen));
 									segs.erase(i + 1);
@@ -4382,16 +4662,26 @@ public:
 										reinterpret_cast<char*>(result_ten);
 
 									release_tempmem(right_ten);
+
+									continue;
+
+								ERR_GETASMFROMSEN_NOTOPER_TEMPMEM:
+									release_tempmem(right_ten);
+									release_tempmem(result_ten);
+									goto ERR_GETASMFROMSEN_RELEASE_SEGS;
 								}
 								else
 								{
 									// && and ||
+									sen* tempseg = nullptr;
 									temp_mem* result_ten =
 										(temp_mem*)fm->_New(sizeof(temp_mem), true);
 									temp_mem* left_ten = nullptr;
 									temp_mem* right_ten = nullptr;
 									left_ten = get_asm_from_sen(segs.at(i - 1), true, true);
+									ICB_ERR_CHECK(ERR_GETASMFROMSEN_BOOLOPER_TEMPMEM);
 									right_ten = get_asm_from_sen(segs.at(i + 1), false, true);
+									ICB_ERR_CHECK(ERR_GETASMFROMSEN_BOOLOPER_TEMPMEM);
 									result_ten->mem.NULLState();
 									result_ten->mem.Init(result_ten->mem.size() + 1, false, true);
 									for (int u = 0; u < left_ten->mem.size(); ++u)
@@ -4424,7 +4714,7 @@ public:
 										get_basic_type_with_int(result_ten->valuetype);
 									result_ten->isValue = true;
 
-									sen* tempseg = segs.at(i + 1);
+									tempseg = segs.at(i + 1);
 									tempseg->release();
 									fm->_Delete((byte8*)tempseg, sizeof(sen));
 									segs.erase(i + 1);
@@ -4441,7 +4731,13 @@ public:
 									release_tempmem(left_ten);
 									release_tempmem(right_ten);
 									--i;
+									continue;
 
+								ERR_GETASMFROMSEN_BOOLOPER_TEMPMEM:
+									release_tempmem(left_ten);
+									release_tempmem(right_ten);
+									release_tempmem(result_ten);
+									goto ERR_GETASMFROMSEN_RELEASE_SEGS;
 								}
 							}
 						}
@@ -4461,16 +4757,28 @@ public:
 								temp_mem* left_ten = nullptr;
 								temp_mem* right_ten = nullptr;
 
+								type_data* std = nullptr;
+								char cc[4] = {};
+								sen* tempseg = nullptr;
+								type_data* td = nullptr;
+
 								bool is_array_type = false;
 								if (segs[i - 1]->at(0).type == 'a') {
 									//if asm
 									type_data* imtd = reinterpret_cast<type_data*>(reinterpret_cast<temp_mem*>(segs[i - 1]->at(0).data.str)->valuetype_detail->structptr);
 									is_array_type = imtd->typetype == 'a';
 								}
-								type_data* ltd = get_type_with_vname(segs[i - 1]->at(0).data.str);
+
+								type_data* ltd = get_type_with_global_vname(segs[i - 1]->at(0).data.str);;
 								if (ltd == nullptr) {
-									ltd = get_type_with_global_vname(segs[i - 1]->at(0).data.str);
+									ltd = get_type_with_vname(segs[i - 1]->at(0).data.str);
 								}
+								
+								if (ltd == nullptr) {
+									UpdateErrMsg(5, "Unknown identifier %s", segs[i - 1]->at(0).data.str);
+									release_tempmem(result_ten);
+								}
+								ICB_ERR_CHECK(ERR_GETASMFROMSEN_RELEASE_SEGS);
 
 								if (ltd == nullptr) {
 									is_array_type |= false;
@@ -4482,12 +4790,15 @@ public:
 								if (is_array_type) {
 									//case 1 : array type
 									left_ten = get_asm_from_sen(segs.at(i - 1), true, false);
+									ICB_ERR_CHECK(ERR_GETASMFROMSEN_PTROPER_ARRAYINDEX_SUBTYPE_NOTEXIST);
 								}
 								else {
 									//case 2 : pointer type
 									left_ten = get_asm_from_sen(segs.at(i - 1), true, true);
+									ICB_ERR_CHECK(ERR_GETASMFROMSEN_PTROPER_ARRAYINDEX_SUBTYPE_NOTEXIST);
 								}
 								right_ten = get_asm_from_sen(segs.at(i + 1), true, true);
+								ICB_ERR_CHECK(ERR_GETASMFROMSEN_PTROPER_ARRAYINDEX_SUBTYPE_NOTEXIST);
 
 								result_ten->mem.NULLState();
 								result_ten->mem.Init(result_ten->mem.size() + 1, false, true);
@@ -4497,8 +4808,9 @@ public:
 									result_ten->mem.push_back(right_ten->mem[u]);
 								}
 
-								type_data* td = get_sub_type(left_ten->valuetype_detail);
-								type_data* std = nullptr;
+								td = get_sub_type(left_ten->valuetype_detail);
+								ICB_ERR_CHECK(ERR_GETASMFROMSEN_PTROPER_ARRAYINDEX_SUBTYPE_NOTEXIST);
+								
 								if (is_array_type) {
 									std = get_sub_type(td);
 								}
@@ -4507,7 +4819,7 @@ public:
 								}
 								//type_data *std = get_sub_type(td);
 								result_ten->mem.push_back((byte8)insttype::IT_PUSH_B_CONST_4);
-								char cc[4] = {};
+								
 								if (is_array_type) {
 									*reinterpret_cast<uint*>(cc) = std->typesiz;
 								}
@@ -4638,7 +4950,7 @@ public:
 									result_ten->valuetype_detail = get_addpointer_type(td);
 								}
 
-								sen* tempseg = segs.at(i + 1);
+								tempseg = segs.at(i + 1);
 								tempseg->release();
 								fm->_Delete((byte8*)tempseg, sizeof(sen));
 								segs.erase(i + 1);
@@ -4657,10 +4969,17 @@ public:
 								fm->_Delete((byte8*)tempseg, sizeof(sen));
 								segs.erase(i - 1);
 								--i;
+
 								release_tempmem(left_ten);
 								release_tempmem(right_ten);
+								break;
+
+							ERR_GETASMFROMSEN_PTROPER_ARRAYINDEX_SUBTYPE_NOTEXIST:
+								release_tempmem(left_ten);
+								release_tempmem(right_ten);
+								release_tempmem(result_ten);
+								goto ERR_GETASMFROMSEN_RELEASE_SEGS;
 							}
-							break;
 							case '.':
 							{
 								temp_mem* result_ten =
@@ -4668,11 +4987,16 @@ public:
 
 								temp_mem* left_ten = nullptr;
 								wbss.dbg_sen(segs.at(i - 1));
-								left_ten = get_asm_from_sen(segs.at(i - 1), true, false);
+								
 								type_data* member_td = nullptr;
 								int add_address = 0;
+								type_data* struct_td = nullptr;
 
-								type_data* struct_td = get_sub_type(left_ten->valuetype_detail);
+								left_ten = get_asm_from_sen(segs.at(i - 1), true, false);
+								ICB_ERR_CHECK(ERR_GETASMFROMSEN_PTROPER_STRUCTMEMBER_SUBTYPE_NOTEXIST);
+
+								struct_td = get_sub_type(left_ten->valuetype_detail);
+								ICB_ERR_CHECK(ERR_GETASMFROMSEN_PTROPER_STRUCTMEMBER_SUBTYPE_NOTEXIST);
 								member_td = struct_td;
 
 								if (struct_td->typetype == 's' && segs.at(i + 1)->at(0).type == 'w') {
@@ -4789,21 +5113,39 @@ public:
 									fm->_Delete((byte8*)tempseg, sizeof(sen));
 									segs.erase(i - 1);
 									i -= 2;
-
-									release_tempmem(left_ten);
 								}
+
+								release_tempmem(left_ten);
+								break;
+
+							ERR_GETASMFROMSEN_PTROPER_STRUCTMEMBER_SUBTYPE_NOTEXIST:
+								release_tempmem(left_ten);
+								release_tempmem(result_ten);
+								goto ERR_GETASMFROMSEN_RELEASE_SEGS;
 							}
-							break;
+							
 							case '-':
 							{
 								temp_mem* result_ten =
 									(temp_mem*)fm->_New(sizeof(temp_mem), true);
 								temp_mem* left_ten = nullptr;
+								type_data* td = nullptr;
 								left_ten = get_asm_from_sen(segs.at(i - 1), true, false);
-								type_data* td;
+								ICB_ERR_CHECK(ERR_GETASMFROMSEN_PTROPER_ARROW_TEMPMEM);
 								if (segs.at(i + 1)->size() == 1 && segs.at(i + 1)->at(0).type == 'w')
 								{
-									td = get_type_with_vname(segs.at(i + 1)->at(0).data.str);
+									type_data* td = get_type_with_global_vname(segs.at(i + 1)->at(0).data.str);
+									if (td == nullptr) {
+										td = get_type_with_vname(segs.at(i + 1)->at(0).data.str);
+									}
+
+									if (td == nullptr) {
+										UpdateErrMsg(5, "Unknown identifier %s", segs.at(i + 1)->at(0).data.str);
+										release_tempmem(result_ten);
+										release_tempmem(left_ten);
+									}
+									ICB_ERR_CHECK(ERR_GETASMFROMSEN_RELEASE_SEGS);
+									//td = get_type_with_vname(segs.at(i + 1)->at(0).data.str);
 									// a.b
 									uint bid = 0;
 									bool perfect = false;
@@ -4888,6 +5230,13 @@ public:
 								}
 
 								release_tempmem(left_ten);
+
+								break;
+
+							ERR_GETASMFROMSEN_PTROPER_ARROW_TEMPMEM:
+								release_tempmem(left_ten);
+								release_tempmem(result_ten);
+								goto ERR_GETASMFROMSEN_RELEASE_SEGS;
 							}
 							break;
 							case '&':
@@ -4895,13 +5244,16 @@ public:
 								temp_mem* result_ten =
 									(temp_mem*)fm->_New(sizeof(temp_mem), true);
 								temp_mem* right_ten = nullptr;
+								sen* tempseg = nullptr;
 								if (is_a)
 								{
 									right_ten = get_asm_from_sen(segs.at(i + 1), true, false);
+									ICB_ERR_CHECK(ERR_GETASMFROMSEN_PTROPER_GETADDR_TEMPMEM);
 								}
 								else
 								{
 									right_ten = get_asm_from_sen(segs.at(i + 1), false, false);
+									ICB_ERR_CHECK(ERR_GETASMFROMSEN_PTROPER_GETADDR_TEMPMEM);
 								}
 
 								result_ten->mem.NULLState();
@@ -4915,7 +5267,7 @@ public:
 								result_ten->valuetype = 8;
 								result_ten->valuetype_detail = right_ten->valuetype_detail;
 
-								sen* tempseg = segs.at(i + 1);
+								tempseg = segs.at(i + 1);
 								tempseg->release();
 								fm->_Delete((byte8*)tempseg, sizeof(sen));
 								segs.erase(i + 1);
@@ -4925,6 +5277,13 @@ public:
 									reinterpret_cast<char*>(result_ten);
 
 								release_tempmem(right_ten);
+
+								break;
+
+							ERR_GETASMFROMSEN_PTROPER_GETADDR_TEMPMEM:
+								release_tempmem(right_ten);
+								release_tempmem(result_ten);
+								goto ERR_GETASMFROMSEN_RELEASE_SEGS;
 							}
 							break;
 							case '*':
@@ -4935,15 +5294,19 @@ public:
 									(temp_mem*)fm->_New(sizeof(temp_mem), true);
 								temp_mem* right_ten =
 									(temp_mem*)fm->_New(sizeof(temp_mem), true);
+								sen* tempseg = nullptr;
 								type_data* td = get_sub_type(right_ten->valuetype_detail);
+								ICB_ERR_CHECK(ERR_GETASMFROMSEN_PTROPER_GETVALUE_SUBTYPE_NOTEXIST);
 
 								if (is_a)
 								{
 									right_ten = get_asm_from_sen(segs.at(i + 1), true, true);
+									ICB_ERR_CHECK(ERR_GETASMFROMSEN_PTROPER_GETVALUE_SUBTYPE_NOTEXIST);
 								}
 								else
 								{
 									right_ten = get_asm_from_sen(segs.at(i + 1), false, true);
+									ICB_ERR_CHECK(ERR_GETASMFROMSEN_PTROPER_GETVALUE_SUBTYPE_NOTEXIST);
 								}
 								result_ten->mem.NULLState();
 								result_ten->mem.Init(2, false, true);
@@ -4964,7 +5327,7 @@ public:
 								result_ten->valuetype = 8;
 								result_ten->valuetype_detail = td;
 
-								sen* tempseg = segs.at(i + 1);
+								tempseg = segs.at(i + 1);
 								tempseg->release();
 								fm->_Delete((byte8*)tempseg, sizeof(sen));
 								segs.erase(i + 1);
@@ -4972,8 +5335,13 @@ public:
 								segs[i]->at(0).type = 'a'; // asm
 								segs[i]->at(0).data.str =
 									reinterpret_cast<char*>(result_ten);
-
 								release_tempmem(right_ten);
+								break;
+
+							ERR_GETASMFROMSEN_PTROPER_GETVALUE_SUBTYPE_NOTEXIST:
+								release_tempmem(right_ten);
+								release_tempmem(result_ten);
+								goto ERR_GETASMFROMSEN_RELEASE_SEGS;
 							}
 							break;
 							}
@@ -4995,6 +5363,7 @@ public:
 				if (tm->isValue == false)
 				{
 					type_data* std = get_sub_type(tm->valuetype_detail);
+					ICB_ERR_CHECK(ERR_GETASMFROMSEN_RELEASE_SEGS);
 					if (std->typetype == 's' || std->typetype == 'a') {
 						switch (tm->registerMod)
 						{
@@ -5021,6 +5390,7 @@ public:
 					else
 					{
 						tm->valuetype_detail = get_sub_type(tm->valuetype_detail);
+						ICB_ERR_CHECK(ERR_GETASMFROMSEN_RELEASE_SEGS);
 						tm->valuetype = get_int_with_basictype(tm->valuetype_detail);
 						tm->isValue = true;
 						switch (tm->registerMod)
@@ -5126,6 +5496,8 @@ public:
 		}
 		cout << endl;
 
+	ERR_GETASMFROMSEN_RELEASE_SEGS:
+
 		for (int u = 0; u < segs.size(); ++u) {
 			sen* tempseg = segs.at(u);
 			tempseg->release();
@@ -5133,6 +5505,9 @@ public:
 		}
 
 		fm->_tempPopLayer();
+
+	ERR_GETASMFROMSEN_EXIT:
+
 		return nullptr;
 	}
 
@@ -5150,6 +5525,8 @@ public:
 		int cpivot = 3;
 		int totalSiz = 0;
 		while (cpivot < code->size() - 1) {
+			sen* type_sen = nullptr;
+			type_data* td = nullptr;
 			int loc = wbss.search_word_first(cpivot, code, ";");
 			sen* member_sen = wbss.sen_cut(code, cpivot, loc - 1);
 			//wbss.dbg_sen(member_sen);
@@ -5157,8 +5534,9 @@ public:
 			cname = member_sen->last().data.str;
 			nd.name = cname; //(char*)fm->_New(strlen(cname)+1, true);
 			//strcpy(nd.name, cname);
-			sen* type_sen = wbss.sen_cut(member_sen, 0, member_sen->size() - 1);
-			type_data* td = get_type_with_namesen(type_sen);
+			type_sen = wbss.sen_cut(member_sen, 0, member_sen->size() - 1);
+			td = get_type_with_namesen(type_sen);
+			ICB_ERR_CHECK(ERR_INTERPRET_ADDSTRUCT_TD_NOTEXIST);
 			nd.td = td;
 			nd.add_address = totalSiz;
 			totalSiz += td->typesiz;
@@ -5170,10 +5548,31 @@ public:
 
 			type_sen->release();
 			fm->_Delete((byte8*)type_sen, sizeof(sen));
+
+			continue;
+
+		ERR_INTERPRET_ADDSTRUCT_TD_NOTEXIST:
+			member_sen->release();
+			fm->_Delete((byte8*)member_sen, sizeof(sen));
+
+			type_sen->release();
+			fm->_Delete((byte8*)type_sen, sizeof(sen));
+
+			stdata->member_data.release();
+			stdata->name.release();
+
+			code->release();
+			fm->_Delete((byte8*)code, sizeof(sen));
+
+			return;
 		}
 		type_data* newtype = (type_data*)fm->_New(sizeof(type_data), true);
 		*newtype = create_type(cname, totalSiz, 's', reinterpret_cast<int*>(stdata));
+
 		types.push_back(newtype);
+
+		code->release();
+		fm->_Delete((byte8*)code, sizeof(sen));
 	}
 
 	void compile_addVariable(code_sen *cs)
@@ -5188,9 +5587,12 @@ public:
 		if (blockstack.size() == 0)
 		{
 			// global variable
-			NamingData *nd = (NamingData *)fm->_New(sizeof(NamingData), true);
+			NamingData* nd = nullptr;
+			type_data* td = get_type_with_namesen(type_name);
+			ICB_ERR_CHECK(ERR_COMPILE_ADDVARIABLE_GLOBAL_TD_NOTEXIST);
+			nd = (NamingData *)fm->_New(sizeof(NamingData), true);
 			nd->name = variable_name;
-			nd->td = get_type_with_namesen(type_name);
+			nd->td = td;
 			if (globalVariables.size() == 0)
 			{
 				nd->add_address = 0;
@@ -5204,11 +5606,13 @@ public:
 		}
 		else
 		{
-			type_data *td = get_type_with_namesen(type_name);
-			mem[writeup] = 0;
-			++writeup;
 			int spup = 0;
 			int kst = 0;
+			NamingData nd;
+			type_data *td = get_type_with_namesen(type_name);
+			ICB_ERR_CHECK(ERR_COMPILE_ADDVARIABLE_NORMAL_TD_NOTEXIST);
+			mem[writeup] = 0;
+			++writeup;
 			for (int k = blockstack.size() - 1; k >= 0; --k)
 			{
 				if (blockstack.at(k)->bs == blockstate::bs_function)
@@ -5224,7 +5628,6 @@ public:
 			*reinterpret_cast<int *>(&mem[writeup]) = spup;
 			writeup += 4;
 
-			NamingData nd;
 			nd.name = variable_name;
 			nd.td = td;
 			nd.add_address = blockstack.last()->add_address_up + td->typesiz;
@@ -5321,6 +5724,9 @@ public:
 				*/
 		}
 
+	ERR_COMPILE_ADDVARIABLE_GLOBAL_TD_NOTEXIST:
+	ERR_COMPILE_ADDVARIABLE_NORMAL_TD_NOTEXIST:
+
 		code->release();
 		fm->_Delete((byte8 *)code, sizeof(sen));
 
@@ -5339,18 +5745,26 @@ public:
 			// += oper
 			loc = wbss.search_word_first_cd(0, code, cd_eqoper);
 			char operc = code->at(loc).data.str[0];
-
 			sen *left_expr = wbss.sen_cut(code, 0, loc - 1);
 			sen *right_expr = wbss.sen_cut(code, loc + 1, code->size() - 1);
-
-			temp_mem *left_tm_ptr = get_asm_from_sen(left_expr, true, false);
-			temp_mem *left_tm_v = get_asm_from_sen(left_expr, true, true);
-			temp_mem *right_tm = get_asm_from_sen(right_expr, false, true);
-
+			temp_mem* left_tm_ptr = nullptr;
+			temp_mem *left_tm_v = nullptr;
+			temp_mem *right_tm = nullptr;
 			bool need_casting = false;
 			casting_type castt;
-			type_data *lstd = get_sub_type(left_tm_ptr->valuetype_detail);
-			int ltype = get_int_with_basictype(lstd);
+			int ltype = 0;
+			type_data* lstd = nullptr;
+
+			left_tm_ptr = get_asm_from_sen(left_expr, true, false);
+			ICB_ERR_CHECK(ERR_COMPILE_SETVARIABLE_COMPACTOPER_SUBTYPE_NOTEXIST);
+			left_tm_v = get_asm_from_sen(left_expr, true, true);
+			ICB_ERR_CHECK(ERR_COMPILE_SETVARIABLE_COMPACTOPER_SUBTYPE_NOTEXIST);
+			right_tm = get_asm_from_sen(right_expr, false, true);
+			ICB_ERR_CHECK(ERR_COMPILE_SETVARIABLE_COMPACTOPER_SUBTYPE_NOTEXIST);
+			lstd = get_sub_type(left_tm_ptr->valuetype_detail);
+			ICB_ERR_CHECK(ERR_COMPILE_SETVARIABLE_COMPACTOPER_SUBTYPE_NOTEXIST);
+			ltype = get_int_with_basictype(lstd);
+
 			if (ltype != right_tm->valuetype)
 			{
 				castt = get_cast_type(right_tm->valuetype, ltype);
@@ -5406,15 +5820,13 @@ public:
 				break;
 			}
 
+		ERR_COMPILE_SETVARIABLE_COMPACTOPER_SUBTYPE_NOTEXIST:
 			code->release();
 			fm->_Delete((byte8 *)code, sizeof(sen));
-
 			left_expr->release();
 			fm->_Delete((byte8 *)left_expr, sizeof(sen));
-
 			right_expr->release();
 			fm->_Delete((byte8 *)right_expr, sizeof(sen));
-
 			release_tempmem(left_tm_ptr);
 			release_tempmem(left_tm_v);
 			release_tempmem(right_tm);
@@ -5427,14 +5839,22 @@ public:
 			wbss.dbg_sen(left_expr);
 			// wbss.dbg_sen(right_expr);
 
-			temp_mem *left_tm = get_asm_from_sen(left_expr, true, false);
-			temp_mem *right_tm = get_asm_from_sen(right_expr, true, true);
+			temp_mem* left_tm = nullptr;
+			temp_mem *right_tm = nullptr;
 			//dbg_temp_codemem(right_tm);
 
 			bool need_casting = false;
 			casting_type castt;
-			type_data *lstd = get_sub_type(left_tm->valuetype_detail);
-			int ltype = get_int_with_basictype(lstd);
+			int ltype = 0;
+			type_data* lstd;
+
+			left_tm = get_asm_from_sen(left_expr, true, false);
+			ICB_ERR_CHECK(ERR_COMPILE_SETVARIABLE_OPER_SUBTYPE_NOTEXIST);
+			right_tm = get_asm_from_sen(right_expr, true, true);
+			ICB_ERR_CHECK(ERR_COMPILE_SETVARIABLE_OPER_SUBTYPE_NOTEXIST);
+			lstd = get_sub_type(left_tm->valuetype_detail);
+			ICB_ERR_CHECK(ERR_COMPILE_SETVARIABLE_OPER_SUBTYPE_NOTEXIST);
+			ltype = get_int_with_basictype(lstd);
 			if (ltype != right_tm->valuetype)
 			{
 				castt = get_cast_type(right_tm->valuetype, ltype);
@@ -5484,6 +5904,8 @@ public:
 				break;
 			}
 
+		ERR_COMPILE_SETVARIABLE_OPER_SUBTYPE_NOTEXIST:
+
 			code->release();
 			fm->_Delete((byte8 *)code, sizeof(sen));
 
@@ -5516,6 +5938,7 @@ public:
 		inner_expr->pop_back();
 		inner_expr->erase(0);
 		temp_mem *inner_tm = get_asm_from_sen(inner_expr, true, true);
+		ICB_ERR_CHECK(ERR_COMPILEIF_PROBLEM);
 		for (int i = 0; i < inner_tm->mem.size(); ++i)
 		{
 			mem[writeup++] = inner_tm->mem[i];
@@ -5531,6 +5954,15 @@ public:
 		inner_expr->release();
 		fm->_Delete((byte8 *)inner_expr, sizeof(sen));
 
+		release_tempmem(inner_tm);
+
+		return;
+
+	ERR_COMPILEIF_PROBLEM:
+		code->release();
+		fm->_Delete((byte8*)code, sizeof(sen));
+		inner_expr->release();
+		fm->_Delete((byte8*)inner_expr, sizeof(sen));
 		release_tempmem(inner_tm);
 	}
 
@@ -5548,6 +5980,8 @@ public:
 		wbss.dbg_sen(inner_expr);
 		int save = writeup;
 		temp_mem *inner_tm = get_asm_from_sen(inner_expr, true, true);
+		ICB_ERR_CHECK(ERR_COMPILEWHILE_PROBLEM);
+
 		for (int i = 0; i < inner_tm->mem.size(); ++i)
 		{
 			mem[writeup++] = inner_tm->mem[i];
@@ -5584,6 +6018,15 @@ public:
 		fm->_Delete((byte8 *)inner_expr, sizeof(sen));
 
 		release_tempmem(inner_tm);
+
+		return;
+
+	ERR_COMPILEWHILE_PROBLEM:
+		code->release();
+		fm->_Delete((byte8*)code, sizeof(sen));
+		inner_expr->release();
+		fm->_Delete((byte8*)inner_expr, sizeof(sen));
+		release_tempmem(inner_tm);
 	}
 
 	void compile_block(code_sen *cs)
@@ -5599,8 +6042,9 @@ public:
 				if (css->ck == codeKind::ck_addVariable)
 				{
 					NamingData nd;
-					nd.name = css->sen[css->maxlen - 1];
 					sen *typesen = (sen *)fm->_New(sizeof(sen), true);
+					
+					nd.name = css->sen[css->maxlen - 1];
 					typesen->NULLState();
 					typesen->Init(2, false, true);
 					for (int k = 0; k < css->maxlen - 1; ++k)
@@ -5610,13 +6054,24 @@ public:
 						seg.type = 'w';
 						typesen->push_back(seg);
 					}
-					nd.td = get_type_with_namesen(typesen);
+					nd.td = get_type_with_namesen(typesen);;
+					ICB_ERR_CHECK(ERR_COMPILE_BLOCK_STRUCT_TD_NOTEXIST);
 					nd.add_address = addadd;
 					addadd += nd.td->typesiz;
 					nextsd->member_data.push_back(nd);
 
 					typesen->release();
 					fm->_Delete((byte8 *)typesen, sizeof(sen));
+
+					continue;
+
+				ERR_COMPILE_BLOCK_STRUCT_TD_NOTEXIST:
+					typesen->release();
+					fm->_Delete((byte8*)typesen, sizeof(sen));
+
+					nextsd->name.release();
+					nextsd->member_data.release();
+					return;
 				}
 			}
 
@@ -5693,14 +6148,17 @@ public:
 					ifptr_arr.Init(2, true);
 					int ifi = i + 2;
 					int stack = 0;
+					code_sen* css2 = nullptr;
+					sen* css2sen = nullptr;
 					if (cs->codeblocks->size() <= i + 2)
 					{
 						current_if_is_multiple = false;
 						compile_code(css);
+						ICB_ERR_CHECK(ERR_COMPILEBLOCK_PROBLEM);
 						continue;
 					}
-					code_sen *css2 = reinterpret_cast<code_sen *>(cs->codeblocks->at(i + 2));
-					sen* css2sen = get_sen_from_codesen(css2);
+					css2 = reinterpret_cast<code_sen *>(cs->codeblocks->at(i + 2));
+					css2sen = get_sen_from_codesen(css2);
 					while (css2 != nullptr && css2->ck == codeKind::ck_if && strcmp(css2sen->at(0).data.str, "else") == 0)
 					{
 						stack += 1;
@@ -5725,16 +6183,20 @@ public:
 					{
 						current_if_is_multiple = false;
 						compile_code(css);
+						ICB_ERR_CHECK(ERR_COMPILEBLOCK_PROBLEM);
 						continue;
 					}
 					else
 					{
 						current_if_is_multiple = true;
 						// else if if
+						uint address = 0;
 						compile_code(css);
+						ICB_ERR_CHECK(ERR_COMPILEBLOCK_PROBLEM);
 						css2 = reinterpret_cast<code_sen *>(cs->codeblocks->at(i + 1));
-						uint address = nextbd.parameter[0];
+						address = nextbd.parameter[0];
 						compile_code(css2);
+						ICB_ERR_CHECK(ERR_COMPILEBLOCK_PROBLEM);
 						mem[writeup++] = (byte8)insttype::IT_JMP;
 						ifptr_arr.push_back(writeup);
 						writeup += 4;
@@ -5749,19 +6211,23 @@ public:
 							{
 								// else
 								compile_code(css2);
+								ICB_ERR_CHECK(ERR_COMPILEBLOCK_PROBLEM);
 								css2 = reinterpret_cast<code_sen *>(cs->codeblocks->at(ifk + 1));
 								compile_code(css2);
+								ICB_ERR_CHECK(ERR_COMPILEBLOCK_PROBLEM);
 								ifk += 2;
 								continue;
 							}
 							else
 							{
 								compile_code(css2);
+								ICB_ERR_CHECK(ERR_COMPILEBLOCK_PROBLEM);
 								address = nextbd.parameter[0];
 							}
 
 							css2 = reinterpret_cast<code_sen *>(cs->codeblocks->at(ifk + 1));
 							compile_code(css2);
+							ICB_ERR_CHECK(ERR_COMPILEBLOCK_PROBLEM);
 							mem[writeup++] = (byte8)insttype::IT_JMP;
 							ifptr_arr.push_back(writeup);
 							writeup += 4;
@@ -5780,6 +6246,7 @@ public:
 				else
 				{
 					compile_code(css);
+					ICB_ERR_CHECK(ERR_COMPILEBLOCK_PROBLEM);
 				}
 			}
 
@@ -5840,6 +6307,23 @@ public:
 			}
 			fm->_Delete((byte8 *)bd, sizeof(block_data));
 			blockstack.pop_back();
+			return;
+
+		ERR_COMPILEBLOCK_PROBLEM:
+			if (bd->breakpoints != nullptr)
+			{
+				bd->breakpoints->release();
+				fm->_Delete((byte8*)bd->breakpoints, sizeof(fmvecarr<int>));
+			}
+			bd->variable_data.release();
+			if (bd->continuepoints != nullptr)
+			{
+				bd->continuepoints->release();
+				fm->_Delete((byte8*)bd->continuepoints, sizeof(fmvecarr<int>));
+			}
+			fm->_Delete((byte8*)bd, sizeof(block_data));
+			blockstack.pop_back();
+			return;
 		}
 	}
 
@@ -5888,7 +6372,6 @@ public:
 		{
 			sen *param_sen = wbss.sen_cut(params_sen, savecoma+1, coma - 1);
 			NamingData nd;
-
 			sen *typestr = (sen *)fm->_New(sizeof(sen), true);
 			typestr->NULLState();
 			typestr->Init(2, false);
@@ -5898,6 +6381,7 @@ public:
 			}
 
 			nd.td = get_type_with_namesen(typestr);
+			ICB_ERR_CHECK(ERR_COMPILE_ADDFUNCTION_PARAM_TD_NOTEXIST);
 			nd.name = param_sen->last().data.str;
 
 			addadd += nd.td->typesiz; //
@@ -5907,14 +6391,38 @@ public:
 			savecoma = coma + 1;
 			coma = wbss.search_word_first(savecoma, params_sen, ",");
 
-			param_sen->release();
-			fm->_Delete((byte8 *)param_sen, sizeof(sen));
-
-			typestr->release();
-			fm->_Delete((byte8 *)typestr, sizeof(sen));
-
 			savecoma = coma;
 			coma = wbss.search_word_first(savecoma+1, params_sen, ",");
+
+			typestr->release();
+			fm->_Delete((byte8*)typestr, sizeof(sen));
+
+			param_sen->release();
+			fm->_Delete((byte8*)param_sen, sizeof(sen));
+
+			continue;
+
+		ERR_COMPILE_ADDFUNCTION_PARAM_TD_NOTEXIST:
+			typestr->release();
+			fm->_Delete((byte8*)typestr, sizeof(sen));
+
+			param_sen->release();
+			fm->_Delete((byte8*)param_sen, sizeof(sen));
+
+			param_sen->release();
+			fm->_Delete((byte8*)param_sen, sizeof(sen));
+
+			inner_params->release();
+			fm->_Delete((byte8*)inner_params, sizeof(sen));
+
+			code->release();
+			fm->_Delete((byte8*)code, sizeof(sen));
+
+			fd->name.release();
+			fd->param_data.release();
+			fm->_Delete((byte8*)fd, sizeof(func_data));
+
+			return;
 		}
 
 		sen *param_sen = wbss.sen_cut(params_sen, savecoma+1, last);
@@ -5931,6 +6439,7 @@ public:
 
 		wbss.dbg_sen(typestr);
 		nd.td = get_type_with_namesen(typestr);
+		ICB_ERR_CHECK(ERR_COMPILE_ADDFUNCTION_LASTPARAM_TD_NOTEXIST);
 		nd.name = param_sen->last().data.str;
 
 		addadd += nd.td->typesiz;
@@ -5956,6 +6465,26 @@ public:
 
 		typestr->release();
 		fm->_Delete((byte8 *)typestr, sizeof(sen));
+
+	ERR_COMPILE_ADDFUNCTION_LASTPARAM_TD_NOTEXIST:
+		typestr->release();
+		fm->_Delete((byte8*)typestr, sizeof(sen));
+
+		param_sen->release();
+		fm->_Delete((byte8*)param_sen, sizeof(sen));
+
+		param_sen->release();
+		fm->_Delete((byte8*)param_sen, sizeof(sen));
+
+		inner_params->release();
+		fm->_Delete((byte8*)inner_params, sizeof(sen));
+
+		code->release();
+		fm->_Delete((byte8*)code, sizeof(sen));
+
+		fd->name.release();
+		fd->param_data.release();
+		fm->_Delete((byte8*)fd, sizeof(func_data));
 	}
 
 	void compile_useFunction(code_sen* cs)
@@ -5997,11 +6526,14 @@ public:
 			//wbss.dbg_sen(inner_params);
 			int coma = wbss.search_word_first_in_specific_oc_layer(inner_params, 0, "(", ")", 0, ",");
 			int savecomma = -1;
+			sen* param_sen = nullptr;
+			temp_mem* tm = nullptr;
 			while (coma != -1)
 			{
-				sen* param_sen = wbss.sen_cut(inner_params, savecomma + 1, coma - 1);
+				param_sen = wbss.sen_cut(inner_params, savecomma + 1, coma - 1);
 				wbss.dbg_sen(param_sen);
-				temp_mem* tm = get_asm_from_sen(param_sen, true, true);
+				tm = get_asm_from_sen(param_sen, true, true);
+				ICB_ERR_CHECK(ERR_COMPILEUSEFUNCTION_DBG_TEMPMEM);
 				for (int k = 0; k < tm->mem.size(); ++k)
 				{
 					mem[writeup++] = tm->mem[k];
@@ -6016,9 +6548,10 @@ public:
 				fm->_Delete((byte8*)param_sen, sizeof(sen));
 			}
 
-			sen* param_sen = wbss.sen_cut(inner_params, savecomma + 1, inner_params->size() - 1);
+			param_sen = wbss.sen_cut(inner_params, savecomma + 1, inner_params->size() - 1);
 			//wbss.dbg_sen(param_sen);
-			temp_mem* tm = get_asm_from_sen(param_sen, true, true);
+			tm = get_asm_from_sen(param_sen, true, true);
+			ICB_ERR_CHECK(ERR_COMPILEUSEFUNCTION_DBG_TEMPMEM);
 
 			for (int k = 0; k < tm->mem.size(); ++k)
 			{
@@ -6026,6 +6559,8 @@ public:
 			}
 			mem[writeup++] = (byte8)insttype::IT_DBG_A;
 			mem[writeup++] = (byte8)tm->valuetype;
+
+			ERR_COMPILEUSEFUNCTION_DBG_TEMPMEM:
 
 			code->release();
 			fm->_Delete((byte8*)code, sizeof(sen));
@@ -6044,7 +6579,10 @@ public:
 			inner_params->pop_back();
 			inner_params->erase(0);
 			//wbss.dbg_sen(inner_params);
-			temp_mem* tm = get_asm_from_sen(inner_params, true, true);
+			temp_mem* tm = nullptr;
+			type_data* std = nullptr;
+			tm = get_asm_from_sen(inner_params, true, true);
+			ICB_ERR_CHECK(ERR_COMPILE_USEFUNCTION_INP_SUBTYPE_NOTEXIST);
 			for (int k = 0; k < tm->mem.size(); ++k)
 			{
 				mem[writeup++] = tm->mem[k];
@@ -6052,8 +6590,11 @@ public:
 			release_tempmem(tm);
 			mem[writeup++] = (byte8)insttype::IT_INP_A_PTR;
 
-			type_data* std = get_sub_type(tm->valuetype_detail);
+			std = get_sub_type(tm->valuetype_detail);
+			ICB_ERR_CHECK(ERR_COMPILE_USEFUNCTION_INP_SUBTYPE_NOTEXIST);
 			mem[writeup++] = (byte8)get_int_with_basictype(std);
+
+			ERR_COMPILE_USEFUNCTION_INP_SUBTYPE_NOTEXIST:
 
 			code->release();
 			fm->_Delete((byte8*)code, sizeof(sen));
@@ -6062,27 +6603,28 @@ public:
 			fm->_Delete((byte8*)inner_params, sizeof(sen));
 			return;
 		}
-		else if (strcmp(funcname, "sizeof") == 0)
-		{
-			inner_params->pop_back();
-			inner_params->erase(0);
-			// type_data* td = get_type_with_namesen(inner_params);
-		}
-		else if (strcmp(funcname, "codeptr") == 0)
-		{
-		}
-		else if (strcmp(funcname, "goto") == 0)
-		{
-		}
 
 		if (isext == false)
 		{
+			sen* typen = nullptr;
+			sen* params_sen = nullptr;
+			int last = 0;
+			//wbss.dbg_sen(params_sen);
+			int coma = 0;
+			int savecoma = -1;
+			int addadd = 0;
+			int paramid = 0;
+			int paramCount = 0;
+			sen* param_sen = nullptr;
+			temp_mem* tm = nullptr;
+
 			fd = get_func_with_name(code->at(nameloc).data.str);
+			ICB_ERR_CHECK(ERR_COMPILE_USEFUNCTION_NORMAL_FD_NOTEXIST);
 			// mem[writeup++] = fd->start_pc; // func
 
-			sen* typen = wbss.sen_cut(code, 0, nameloc - 1);
+			typen = wbss.sen_cut(code, 0, nameloc - 1);
 
-			sen* params_sen = wbss.sen_cut(code, nameloc + 2, loc - 1);
+			params_sen = wbss.sen_cut(code, nameloc + 2, loc - 1);
 			if (params_sen->size() == 0)
 			{
 				mem[writeup++] = (byte8)insttype::IT_FUNC;	  // FUNC
@@ -6100,22 +6642,23 @@ public:
 				fm->_Delete((byte8*)params_sen, sizeof(sen));
 				return;
 			}
-			int last = params_sen->size() - 1;
+			last = params_sen->size() - 1;
 			//wbss.dbg_sen(params_sen);
-			int coma = wbss.search_word_first_in_specific_oc_layer(params_sen, 0, "(", ")", 0, ",");
-			int savecoma = -1;
+			coma = wbss.search_word_first_in_specific_oc_layer(params_sen, 0, "(", ")", 0, ",");
+			savecoma = -1;
 
-			int addadd = 0;
-			int paramid = 0;
-			int paramCount = 0;
+			addadd = 0;
+			paramid = 0;
+			paramCount = 0;
 
 			mem[writeup++] = (byte8)insttype::IT_FUNC; // FUNC
 
 			while (coma != -1)
 			{
-				sen* param_sen = wbss.sen_cut(params_sen, savecoma + 1, coma - 1);
+				param_sen = wbss.sen_cut(params_sen, savecoma + 1, coma - 1);
 				//wbss.dbg_sen(param_sen);
-				temp_mem* tm = get_asm_from_sen(param_sen, true, true);
+				tm = get_asm_from_sen(param_sen, true, true);
+				ICB_ERR_CHECK(ERR_COMPILEUSEFUNCTION_NORMAL_TEMPMEM);
 				if (tm->valuetype_detail->typetype == 's')
 				{
 					temp_mem* ptrtm = get_asm_from_sen(param_sen, true, false);
@@ -6124,6 +6667,7 @@ public:
 						mem[writeup++] = ptrtm->mem[i];
 					}
 					release_tempmem(ptrtm);
+					ICB_ERR_CHECK(ERR_COMPILEUSEFUNCTION_NORMAL_TEMPMEM);
 				}
 				else
 				{
@@ -6161,378 +6705,6 @@ public:
 				}
 				else
 				{
-					if (isext == false)
-					{
-						fd = get_func_with_name(code->at(nameloc).data.str);
-						// mem[writeup++] = fd->start_pc; // func
-
-						sen* typen = wbss.sen_cut(code, 0, nameloc - 1);
-
-						sen* params_sen = wbss.sen_cut(code, nameloc + 2, loc - 1);
-						if (params_sen->size() == 0)
-						{
-							mem[writeup++] = (byte8)insttype::IT_FUNC;	  // FUNC
-							mem[writeup++] = (byte8)insttype::IT_FUNCJMP; // jmp
-							*reinterpret_cast<uint*>(&mem[writeup]) = (uint)(fd->start_pc - &mem[0]);
-							writeup += 4;
-
-							code->release();
-							fm->_Delete((byte8*)code, sizeof(sen));
-
-							inner_params->release();
-							fm->_Delete((byte8*)inner_params, sizeof(sen));
-
-							params_sen->release();
-							fm->_Delete((byte8*)params_sen, sizeof(sen));
-							return;
-						}
-						int last = params_sen->size() - 1;
-						//wbss.dbg_sen(params_sen);
-						int coma = wbss.search_word_first_in_specific_oc_layer(params_sen, 0, "(", ")", 0, ",");
-						int savecoma = -1;
-
-						int addadd = 0;
-						int paramid = 0;
-						int paramCount = 0;
-
-						mem[writeup++] = (byte8)insttype::IT_FUNC; // FUNC
-
-						while (coma != -1)
-						{
-							sen* param_sen = wbss.sen_cut(params_sen, savecoma + 1, coma - 1);
-							//wbss.dbg_sen(param_sen);
-							temp_mem* tm = get_asm_from_sen(param_sen, true, true);
-							if (tm->valuetype_detail->typetype == 's')
-							{
-								temp_mem* ptrtm = get_asm_from_sen(param_sen, true, false);
-								for (int i = 0; i < ptrtm->mem.size(); ++i)
-								{
-									mem[writeup++] = ptrtm->mem[i];
-								}
-								release_tempmem(ptrtm);
-							}
-							else
-							{
-								for (int i = 0; i < tm->mem.size(); ++i)
-								{
-									mem[writeup++] = tm->mem[i];
-								}
-
-								casting_type ct = get_cast_type(tm->valuetype, get_int_with_basictype(fd->param_data.at(paramCount).td));
-								if (ct != casting_type::nocasting)
-								{
-									mem[writeup++] = (byte8)insttype::IT_CASTING_A;
-									mem[writeup++] = (byte8)ct;
-								}
-								/*
-					*reinterpret_cast<uint*>(&mem[writeup]) = (uint)ct;
-					writeup += 4;
-					*/
-							}
-
-							if (fd->param_data[paramid].td->typetype != 's')
-							{
-								switch (fd->param_data[paramid].td->typesiz)
-								{
-								case 1:
-									mem[writeup++] = (byte8)insttype::IT_PARAM_1; // param
-									break;
-								case 2:
-									mem[writeup++] = (byte8)insttype::IT_PARAM_2; // param
-									break;
-								case 4:
-									mem[writeup++] = (byte8)insttype::IT_PARAM_4; // param
-									break;
-								}
-							}
-							else
-							{
-								mem[writeup++] = (byte8)insttype::PARAM_N_COPY_BY_ADDRESS; // param N by address(a)
-								byte8* N = (byte8*)&fd->param_data[paramid].td->typesiz;
-								// write siz of struct type
-								for (int i = 0; i < 4; ++i)
-								{
-									mem[writeup++] = N[i];
-								}
-							}
-
-							savecoma = coma;
-							coma = wbss.search_word_first_in_specific_oc_layer(params_sen, savecoma + 1, "(", ")", 0, ",");
-							// coma = wbss.search_word_first(savecoma+1, params_sen, ",");
-
-							++paramid;
-
-							param_sen->release();
-							fm->_Delete((byte8*)param_sen, sizeof(sen));
-
-							release_tempmem(tm);
-							++paramCount;
-						}
-
-						//wbss.dbg_sen(params_sen);
-
-						sen* param_sen = wbss.sen_cut(params_sen, savecoma + 1, last);
-						//wbss.dbg_sen(param_sen);
-						temp_mem* tm = get_asm_from_sen(param_sen, true, true);
-						if (tm->valuetype_detail->typetype == 's')
-						{
-							temp_mem* ptrtm = get_asm_from_sen(param_sen, true, false);
-							for (int i = 0; i < ptrtm->mem.size(); ++i)
-							{
-								mem[writeup++] = ptrtm->mem[i];
-							}
-							release_tempmem(ptrtm);
-						}
-						else
-						{
-							for (int i = 0; i < tm->mem.size(); ++i)
-							{
-								mem[writeup++] = tm->mem[i];
-							}
-
-							casting_type ct = get_cast_type(tm->valuetype, get_int_with_basictype(fd->param_data.at(paramCount).td));
-							if (ct != casting_type::nocasting)
-							{
-								mem[writeup++] = (byte8)insttype::IT_CASTING_A;
-								mem[writeup++] = (byte8)ct;
-							}
-							/*
-				*reinterpret_cast<uint*>(&mem[writeup]) = (uint)ct;
-				writeup += 4;
-				*/
-						}
-
-						if (fd->param_data[paramid].td->typetype != 's')
-						{
-							switch (fd->param_data[paramid].td->typesiz)
-							{
-							case 1:
-								mem[writeup++] = (byte8)insttype::IT_PARAM_1; // param
-								break;
-							case 2:
-								mem[writeup++] = (byte8)insttype::IT_PARAM_2; // param
-								break;
-							case 4:
-								mem[writeup++] = (byte8)insttype::IT_PARAM_4; // param
-								break;
-							}
-						}
-						else
-						{
-							mem[writeup++] = (byte8)insttype::PARAM_N_COPY_BY_ADDRESS; // param N by address(a)
-							byte8* N = (byte8*)&fd->param_data[paramid].td->typesiz;
-							// write siz of struct type
-							for (int i = 0; i < 4; ++i)
-							{
-								mem[writeup++] = N[i];
-							}
-						}
-
-						mem[writeup++] = (byte8)insttype::IT_FUNCJMP; // jmp
-						*reinterpret_cast<uint*>(&mem[writeup]) = (uint)(fd->start_pc - &mem[0]);
-						writeup += 4;
-
-						code->release();
-						fm->_Delete((byte8*)code, sizeof(sen));
-
-						inner_params->release();
-						fm->_Delete((byte8*)inner_params, sizeof(sen));
-
-						typen->release();
-						fm->_Delete((byte8*)typen, sizeof(sen));
-
-						params_sen->release();
-						fm->_Delete((byte8*)params_sen, sizeof(sen));
-
-						param_sen->release();
-						fm->_Delete((byte8*)param_sen, sizeof(sen));
-
-						release_tempmem(tm);
-					}
-					else
-					{
-						sen* typen = wbss.sen_cut(code, 0, nameloc - 1);
-
-						sen* params_sen = wbss.sen_cut(code, nameloc + 2, loc - 1);
-						if (params_sen->size() == 0)
-						{
-							mem[writeup++] = (byte8)insttype::IT_FUNC;	  // FUNC
-							mem[writeup++] = (byte8)insttype::IT_FUNCJMP; // jmp
-							*reinterpret_cast<uint*>(&mem[writeup]) = (uint)(fd->start_pc - &mem[0]);
-							writeup += 4;
-
-							code->release();
-							fm->_Delete((byte8*)code, sizeof(sen));
-
-							inner_params->release();
-							fm->_Delete((byte8*)inner_params, sizeof(sen));
-
-							params_sen->release();
-							fm->_Delete((byte8*)params_sen, sizeof(sen));
-							return;
-						}
-						int last = params_sen->size() - 1;
-						//wbss.dbg_sen(params_sen);
-						int coma = wbss.search_word_end_in_specific_oc_layer(params_sen, last, "(", ")", 0, ",");
-						int savecoma = last + 1;
-
-						int addadd = 0;
-						int paramCount = fd->param_data.size() - 1;
-
-						mem[writeup++] = (byte8)insttype::IT_FUNC; // FUNC
-
-						while (coma != -1)
-						{
-							sen* param_sen = wbss.sen_cut(params_sen, coma + 1, savecoma - 1);
-							//wbss.dbg_sen(param_sen);
-							temp_mem* tm = get_asm_from_sen(param_sen, true, true);
-							if (tm->valuetype_detail->typetype == 's')
-							{
-								temp_mem* ptrtm = get_asm_from_sen(param_sen, true, false);
-								for (int i = 0; i < ptrtm->mem.size(); ++i)
-								{
-									mem[writeup++] = ptrtm->mem[i];
-								}
-								release_tempmem(ptrtm);
-							}
-							else
-							{
-								for (int i = 0; i < tm->mem.size(); ++i)
-								{
-									mem[writeup++] = tm->mem[i];
-								}
-
-								casting_type ct = get_cast_type(tm->valuetype, get_int_with_basictype(fd->param_data.at(paramCount).td));
-								if (ct != casting_type::nocasting)
-								{
-									mem[writeup++] = (byte8)insttype::IT_CASTING_A;
-									mem[writeup++] = (byte8)ct;
-								}
-								/*
-					*reinterpret_cast<uint*>(&mem[writeup]) = (uint)ct;
-					writeup += 4;
-					*/
-							}
-
-							if (fd->param_data[paramCount].td->typetype != 's')
-							{
-								switch (fd->param_data[paramCount].td->typesiz)
-								{
-								case 1:
-									mem[writeup++] = (byte8)insttype::IT_PARAM_1; // param
-									break;
-								case 2:
-									mem[writeup++] = (byte8)insttype::IT_PARAM_2; // param
-									break;
-								case 4:
-									mem[writeup++] = (byte8)insttype::IT_PARAM_4; // param
-									break;
-								}
-							}
-							else
-							{
-								mem[writeup++] = (byte8)insttype::PARAM_N_COPY_BY_ADDRESS; // param N by address(a)
-								byte8* N = (byte8*)&fd->param_data[paramCount].td->typesiz;
-								// write siz of struct type
-								for (int i = 0; i < 4; ++i)
-								{
-									mem[writeup++] = N[i];
-								}
-							}
-
-							savecoma = coma;
-							coma = wbss.search_word_end_in_specific_oc_layer(params_sen, savecoma - 1, "(", ")", 0, ",");
-							// coma = wbss.search_word_first(savecoma+1, params_sen, ",");
-
-							param_sen->release();
-							fm->_Delete((byte8*)param_sen, sizeof(sen));
-
-							release_tempmem(tm);
-							--paramCount;
-						}
-
-						//wbss.dbg_sen(params_sen);
-
-						sen* param_sen = wbss.sen_cut(params_sen, 0, savecoma - 1);
-						//wbss.dbg_sen(param_sen);
-						temp_mem* tm = get_asm_from_sen(param_sen, true, true);
-						if (tm->valuetype_detail->typetype == 's')
-						{
-							temp_mem* ptrtm = get_asm_from_sen(param_sen, true, false);
-							for (int i = 0; i < ptrtm->mem.size(); ++i)
-							{
-								mem[writeup++] = ptrtm->mem[i];
-							}
-							release_tempmem(ptrtm);
-						}
-						else
-						{
-							for (int i = 0; i < tm->mem.size(); ++i)
-							{
-								mem[writeup++] = tm->mem[i];
-							}
-
-							casting_type ct = get_cast_type(tm->valuetype, get_int_with_basictype(fd->param_data.at(paramCount).td));
-							if (ct != casting_type::nocasting)
-							{
-								mem[writeup++] = (byte8)insttype::IT_CASTING_A;
-								mem[writeup++] = (byte8)ct;
-							}
-							/*
-				*reinterpret_cast<uint*>(&mem[writeup]) = (uint)ct;
-				writeup += 4;
-				*/
-						}
-
-						if (fd->param_data[paramCount].td->typetype != 's')
-						{
-							switch (fd->param_data[paramCount].td->typesiz)
-							{
-							case 1:
-								mem[writeup++] = (byte8)insttype::IT_PARAM_1; // param
-								break;
-							case 2:
-								mem[writeup++] = (byte8)insttype::IT_PARAM_2; // param
-								break;
-							case 4:
-								mem[writeup++] = (byte8)insttype::IT_PARAM_4; // param
-								break;
-							}
-						}
-						else
-						{
-							mem[writeup++] = (byte8)insttype::PARAM_N_COPY_BY_ADDRESS; // param N by address(a)
-							byte8* N = (byte8*)&fd->param_data[paramCount].td->typesiz;
-							// write siz of struct type
-							for (int i = 0; i < 4; ++i)
-							{
-								mem[writeup++] = N[i];
-							}
-						}
-
-						mem[writeup++] = (byte8)insttype::EXTENSION_INST; // ext instruction
-						*reinterpret_cast<uint*>(&mem[writeup]) = (uint)(extID);
-						writeup += 4;
-						*reinterpret_cast<uint*>(&mem[writeup]) = (uint)(exfuncID); // byte8* but real value is function pointer of extension.
-						writeup += 4;
-
-						code->release();
-						fm->_Delete((byte8*)code, sizeof(sen));
-
-						inner_params->release();
-						fm->_Delete((byte8*)inner_params, sizeof(sen));
-
-						typen->release();
-						fm->_Delete((byte8*)typen, sizeof(sen));
-
-						params_sen->release();
-						fm->_Delete((byte8*)params_sen, sizeof(sen));
-
-						param_sen->release();
-						fm->_Delete((byte8*)param_sen, sizeof(sen));
-
-						release_tempmem(tm);
-					}
 					mem[writeup++] = (byte8)insttype::PARAM_N_COPY_BY_ADDRESS; // param N by address(a)
 					byte8* N = (byte8*)&fd->param_data[paramid].td->typesiz;
 					// write siz of struct type
@@ -6557,9 +6729,10 @@ public:
 
 			//wbss.dbg_sen(params_sen);
 
-			sen* param_sen = wbss.sen_cut(params_sen, savecoma + 1, last);
+			param_sen = wbss.sen_cut(params_sen, savecoma + 1, last);
 			//wbss.dbg_sen(param_sen);
-			temp_mem* tm = get_asm_from_sen(param_sen, true, true);
+			tm = get_asm_from_sen(param_sen, true, true);
+			ICB_ERR_CHECK(ERR_COMPILEUSEFUNCTION_NORMAL_TEMPMEM);
 			if (tm->valuetype_detail->typetype == 's')
 			{
 				temp_mem* ptrtm = get_asm_from_sen(param_sen, true, false);
@@ -6568,6 +6741,7 @@ public:
 					mem[writeup++] = ptrtm->mem[i];
 				}
 				release_tempmem(ptrtm);
+				ICB_ERR_CHECK(ERR_COMPILEUSEFUNCTION_NORMAL_TEMPMEM);
 			}
 			else
 			{
@@ -6618,28 +6792,33 @@ public:
 			*reinterpret_cast<uint*>(&mem[writeup]) = (uint)(fd->start_pc - &mem[0]);
 			writeup += 4;
 
-			code->release();
-			fm->_Delete((byte8*)code, sizeof(sen));
+		ERR_COMPILEUSEFUNCTION_NORMAL_TEMPMEM:
 
-			inner_params->release();
-			fm->_Delete((byte8*)inner_params, sizeof(sen));
-
-			typen->release();
-			fm->_Delete((byte8*)typen, sizeof(sen));
+			release_tempmem(tm);
+			
+			param_sen->release();
+			fm->_Delete((byte8*)param_sen, sizeof(sen));
 
 			params_sen->release();
 			fm->_Delete((byte8*)params_sen, sizeof(sen));
 
-			param_sen->release();
-			fm->_Delete((byte8*)param_sen, sizeof(sen));
+			typen->release();
+			fm->_Delete((byte8*)typen, sizeof(sen));
 
-			release_tempmem(tm);
+			ERR_COMPILE_USEFUNCTION_NORMAL_FD_NOTEXIST:
+
+			inner_params->release();
+			fm->_Delete((byte8*)inner_params, sizeof(sen));
+
+			code->release();
+			fm->_Delete((byte8*)code, sizeof(sen));
 		}
 		else
 		{
 			sen* typen = wbss.sen_cut(code, 0, nameloc - 1);
-
 			sen* params_sen = wbss.sen_cut(code, nameloc + 2, loc - 1);
+			sen* param_sen = nullptr;
+			temp_mem* tm = nullptr;
 			if (params_sen->size() == 0)
 			{
 				mem[writeup++] = (byte8)insttype::IT_FUNC;	  // FUNC
@@ -6671,9 +6850,10 @@ public:
 
 			while (coma != -1)
 			{
-				sen* param_sen = wbss.sen_cut(params_sen, coma + 1, savecoma - 1);
+				param_sen = wbss.sen_cut(params_sen, coma + 1, savecoma - 1);
 				//wbss.dbg_sen(param_sen);
-				temp_mem* tm = get_asm_from_sen(param_sen, true, true);
+				tm = get_asm_from_sen(param_sen, true, true);
+				ICB_ERR_CHECK(ERR_COMPILEUSEFUNCTION_EXT_TEMPMEM);
 				if (tm->valuetype_detail->typetype == 's')
 				{
 					temp_mem* ptrtm = get_asm_from_sen(param_sen, true, false);
@@ -6682,6 +6862,7 @@ public:
 						mem[writeup++] = ptrtm->mem[i];
 					}
 					release_tempmem(ptrtm);
+					ICB_ERR_CHECK(ERR_COMPILEUSEFUNCTION_EXT_TEMPMEM);
 				}
 				else
 				{
@@ -6741,9 +6922,10 @@ public:
 
 			//wbss.dbg_sen(params_sen);
 
-			sen* param_sen = wbss.sen_cut(params_sen, 0, savecoma - 1);
+			param_sen = wbss.sen_cut(params_sen, 0, savecoma - 1);
 			//wbss.dbg_sen(param_sen);
-			temp_mem* tm = get_asm_from_sen(param_sen, true, true);
+			tm = get_asm_from_sen(param_sen, true, true);
+			ICB_ERR_CHECK(ERR_COMPILEUSEFUNCTION_EXT_TEMPMEM);
 			if (tm->valuetype_detail->typetype == 's')
 			{
 				temp_mem* ptrtm = get_asm_from_sen(param_sen, true, false);
@@ -6752,6 +6934,7 @@ public:
 					mem[writeup++] = ptrtm->mem[i];
 				}
 				release_tempmem(ptrtm);
+				ICB_ERR_CHECK(ERR_COMPILEUSEFUNCTION_EXT_TEMPMEM);
 			}
 			else
 			{
@@ -6804,6 +6987,9 @@ public:
 			*reinterpret_cast<uint*>(&mem[writeup]) = (uint)(exfuncID); // byte8* but real value is function pointer of extension.
 			writeup += 4;
 
+		ERR_COMPILEUSEFUNCTION_EXT_TEMPMEM:
+
+
 			code->release();
 			fm->_Delete((byte8*)code, sizeof(sen));
 
@@ -6829,12 +7015,15 @@ public:
 		int loc = wbss.search_word_first(0, code, "return");
 		sen *right_expr = wbss.sen_cut(code, loc + 1, code->size() - 1);
 		temp_mem *right_tm = get_asm_from_sen(right_expr, true, true);
+		ICB_ERR_CHECK(ERR_COMPILERETURNINFUNCTION_PROBLEM);
 
 		for (int i = 0; i < right_tm->mem.size(); ++i)
 		{
 			mem[writeup++] = right_tm->mem[i];
 		}
 		mem[writeup++] = (byte8)insttype::IT_RETURN;
+
+	ERR_COMPILERETURNINFUNCTION_PROBLEM:
 
 		code->release();
 		fm->_Delete((byte8 *)code, sizeof(sen));
@@ -6939,13 +7128,22 @@ public:
 			char *variable_name = code->at(loc).data.str;
 			sen *type_name = wbss.sen_cut(code, 0, loc - 1);
 			type_data *td = get_type_with_namesen(type_name);
-			int n = td->typesiz;
-
+			int n = 0;
+			ICB_ERR_CHECK(ERR_GETTYPESIZ_ADDVARCS_TD_NOTEXIST);
+			
+			n = td->typesiz;
 			code->release();
 			fm->_Delete((byte8*)code, sizeof(sen));
 			type_name->release();
 			fm->_Delete((byte8*)type_name, sizeof(sen));
 			return n;
+
+		ERR_GETTYPESIZ_ADDVARCS_TD_NOTEXIST:
+			code->release();
+			fm->_Delete((byte8*)code, sizeof(sen));
+			type_name->release();
+			fm->_Delete((byte8*)type_name, sizeof(sen));
+			return -1;
 		}
 		else
 		{
@@ -6969,8 +7167,10 @@ public:
 			int loc2 = code2->up - 1;
 			char *variable_name = code2->at(loc2).data.str;
 			sen *type_name = wbss.sen_cut(code2, 0, loc2 - 1);
+			int n = 0;
 			type_data *td = get_type_with_namesen(type_name);
-			int n = td->typesiz;
+			ICB_ERR_CHECK(ERR_GETTYPESIZ_NONADDVARCS_TD_NOTEXIST);
+			n = td->typesiz;
 
 			ReleaseCodeSen(cs0);
 			fm->_Delete((byte8*)cs0, sizeof(code_sen));
@@ -6981,6 +7181,17 @@ public:
 			type_name->release();
 			fm->_Delete((byte8*)type_name, sizeof(sen));
 			return n;
+
+		ERR_GETTYPESIZ_NONADDVARCS_TD_NOTEXIST:
+			ReleaseCodeSen(cs0);
+			fm->_Delete((byte8*)cs0, sizeof(code_sen));
+			code->release();
+			fm->_Delete((byte8*)code, sizeof(sen));
+			code2->release();
+			fm->_Delete((byte8*)code2, sizeof(sen));
+			type_name->release();
+			fm->_Delete((byte8*)type_name, sizeof(sen));
+			return -1;
 		}
 	}
 
@@ -7060,35 +7271,52 @@ public:
 			break;
 		}
 		
+		ICB_ERR_CHECK(ERR_COMPILE_CODE_PROBLEM);
+
 		//dbg_bakecode(csarr, 0);
 		if (icldetail && cs->ck == codeKind::ck_blocks)
 		{
 			icl << "}; BakeCode_CompileCodes Block Finish" << endl;
 		}
+
+	ERR_COMPILE_CODE_PROBLEM:
+		return;
 	}
 
-	void bake_code(const char *filename)
+	void bake_code(const char *filename, fmlcstr* PtrErrorCode = nullptr)
 	{
+		curErrMsg[0] = 0;
+		bool astdetail = GetICLFlag(ICL_FLAG::BakeCode_AddStructTypes);
+		bool gmidetail = GetICLFlag(ICL_FLAG::BakeCode_GlobalMemoryInit);
+		bool ccdetail = GetICLFlag(ICL_FLAG::BakeCode_CompileCodes);
+		int gs = 0;
+		fmvecarr<code_sen*>* senptr = nullptr;
+		fmvecarr<code_sen*>* senstptr = nullptr;
+
 		icl << "ICB[" << this << "] BakeCode start. filename : [" << filename << "]" << endl;
 
 		icl << "ICB[" << this << "] BakeCode_GetCodeFromText...";
 		fmlcstr *allcodeptr = GetCodeTXT(filename, fm);
 		icl << "finish" << endl;
-		fmlcstr &allcode = *allcodeptr;
+		
+		ICB_ERR_CHECK(ERR_BAKECODE_GETCODETXT);
 
-		icl << "ICB[" << this << "] BakeCode_AddTextBlocks...";
-		AddTextBlocks(allcode);
-		allcodeptr->release();
-		fm->_Delete((byte8*)allcodeptr, sizeof(fmlcstr));
-		allcodeptr = nullptr;
-		icl << "finish" << endl;
+		{
+			fmlcstr& allcode = *allcodeptr;
+			icl << "ICB[" << this << "] BakeCode_AddTextBlocks...";
+			AddTextBlocks(allcode);
+			allcodeptr->release();
+			fm->_Delete((byte8*)allcodeptr, sizeof(fmlcstr));
+			allcodeptr = nullptr;
+			icl << "finish" << endl;
+		}
 
 		icl << "ICB[" << this << "] BakeCode_ScanStructTypes...";
-		fmvecarr<code_sen *> *senstptr = AddCodeFromBlockData(allcode_sen, "struct");
+		senstptr = AddCodeFromBlockData(allcode_sen, "struct");
 		icl << "finish" << endl;
 
 		icl << "ICB[" << this << "] BakeCode_AddStructTypes...";
-		bool astdetail = GetICLFlag(ICL_FLAG::BakeCode_AddStructTypes);
+		
 		if (astdetail) icl << "start" << endl;
 		for (int i = 0; i < senstptr->size(); ++i)
 		{
@@ -7104,21 +7332,18 @@ public:
 		icl << "finish" << endl;
 
 		icl << "ICB[" << this << "] BakeCode_ScanCodes...";
-		fmvecarr<code_sen *> *senptr = AddCodeFromBlockData(allcode_sen, "none");
+		senptr = AddCodeFromBlockData(allcode_sen, "none");
 		icl << "finish" << endl;
 		senptr->islocal = false;
-
 		csarr = senptr;
 
 		cout << endl;
 
 		icl << "ICB[" << this << "] BakeCode_GlobalMemoryInit...";
 
-		int gs = 0;
 		init_datamem.NULLState();
 		init_datamem.Init(8, false);
 
-		bool gmidetail = GetICLFlag(ICL_FLAG::BakeCode_GlobalMemoryInit);
 		if (gmidetail) icl << "start" << endl;
 		for (int i = 0; i < senptr->size(); ++i)
 		{
@@ -7296,7 +7521,7 @@ public:
 		writeup += 4;		  // start function address
 
 		icl << "ICB[" << this << "] BakeCode_CompileCodes...";
-		bool ccdetail = GetICLFlag(ICL_FLAG::BakeCode_CompileCodes);
+		
 		if (ccdetail) icl << "start" << endl;
 		for (int i = 0; i < senptr->size(); ++i)
 		{
@@ -7304,6 +7529,7 @@ public:
 			code_sen *cs = senptr->at(i);
 			//dbg_codesen(cs);
 			compile_code(cs);
+			ICB_ERR_CHECK(ERR_BAKECODE_PROBLEM);
 		}
 		if (ccdetail) icl << "BakeCode_CompileCodes...";
 		icl << "finish" << endl;
@@ -7319,6 +7545,24 @@ public:
 		dbg_bakecode(csarr, 0);
 
 		icl << "ICB[" << this << "] BakeCode finish." << endl;
+
+		return;
+
+	ERR_BAKECODE_GETCODETXT:
+		allcodeptr->release();
+		fm->_Delete((byte8*)allcodeptr, sizeof(fmlcstr));
+		allcodeptr = nullptr;
+		return;
+
+	ERR_BAKECODE_PROBLEM:
+		senstptr->release();
+		senstptr->NULLState();
+		fm->_Delete((byte8*)senstptr, sizeof(fmvecarr<code_sen*>));
+		if (PtrErrorCode != nullptr) {
+			*PtrErrorCode = curErrMsg;
+		}
+		Release();
+		return;
 	}
 };
 
