@@ -2170,6 +2170,7 @@ namespace freemem
 
 		bool _Delete(byte8* variable, unsigned int size)
 		{
+			if (variable == nullptr) return false;
 			if (1 <= size && size <= midminsize)
 			{
 				int index = fm1_sizetable[size];

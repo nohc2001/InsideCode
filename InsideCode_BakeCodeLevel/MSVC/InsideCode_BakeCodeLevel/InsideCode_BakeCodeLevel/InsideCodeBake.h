@@ -3247,6 +3247,7 @@ public:
 				// get array type with siz
 				ntd = get_array_type(td, siz);
 				td = ntd;
+				i += 2;
 			}
 			else {
 				char cstr[2] = { c, 0 };
@@ -4036,9 +4037,6 @@ public:
 			}
 
 			wbss.dbg_sen(ten);
-			if (ten->Arr[0].data.str[0] == 'c') {
-				cout << "hor" << endl;
-			}
 			int varid = get_address_with_name(ten->at(0).data.str);
 			if (varid >= 0)
 			{
@@ -7084,6 +7082,8 @@ public:
 		int loc = wbss.search_word_first(0, code, "=");
 
 		code_sen *cs0 = (code_sen *)fm->_New(sizeof(code_sen), true);
+		code_sen* cs1 = nullptr;
+		int loc1 = 0;
 		*cs0 = code_sen();
 		cs0->sen = (char **)fm->_New(sizeof(char *) * loc, true);
 		cs0->maxlen = loc;
@@ -7094,10 +7094,11 @@ public:
 			cs0->sen[i] = cs->sen[i];
 		}
 		compile_addVariable(cs0);
+		ICB_ERR_CHECK(ERR_COMPILEADDSETVARIABLE_PROBLEM);
 
-		code_sen *cs1 = (code_sen *)fm->_New(sizeof(code_sen), true);
+		cs1 = (code_sen *)fm->_New(sizeof(code_sen), true);
 		*cs1 = code_sen();
-		int loc1 = cs->maxlen - loc + 1;
+		loc1 = cs->maxlen - loc + 1;
 		cs1->maxlen = loc1;
 		cs1->codeblocks = nullptr;
 		cs1->ck = codeKind::ck_setVariable;
@@ -7108,12 +7109,21 @@ public:
 		}
 		// dbg_codesen(cs1);
 		compile_setVariable(cs1);
+		ICB_ERR_CHECK(ERR_COMPILEADDSETVARIABLE_PROBLEM);
+
+	ERR_COMPILEADDSETVARIABLE_PROBLEM:
 
 		code->release();
 		fm->_Delete((byte8 *)code, sizeof(sen));
 
-		fm->_Delete((byte8 *)cs0->sen, sizeof(char *) * loc);
-		fm->_Delete((byte8 *)cs1->sen, sizeof(char *) * loc1);
+		if (cs0 != nullptr) {
+			fm->_Delete((byte8*)cs0->sen, sizeof(char*) * loc);
+		}
+		
+		if (cs1 != nullptr) {
+			fm->_Delete((byte8*)cs1->sen, sizeof(char*) * loc1);
+		}
+		
 		fm->_Delete((byte8 *)cs0, sizeof(code_sen));
 		fm->_Delete((byte8 *)cs1, sizeof(code_sen));
 	}

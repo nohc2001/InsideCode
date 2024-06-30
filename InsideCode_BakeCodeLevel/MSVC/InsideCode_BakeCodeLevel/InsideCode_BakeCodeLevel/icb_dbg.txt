@@ -1,11 +1,11 @@
 Inside Code Bake System Start
 ICB_StaticInit...finish
 Create_New_ICB_Extension_Init : exGeometry Initialization...finish
-Create_New_ICB[0000006464379010] Initialization...finish
-ICB[0000006464379010] BakeCode start. filename : [code.txt]
-ICB[0000006464379010] BakeCode_GetCodeFromText...finish
-ICB[0000006464379010] BakeCode_AddTextBlocks...finish
-ICB[0000006464379010] BakeCode_ScanStructTypes...finish
-ICB[0000006464379010] BakeCode_AddStructTypes...finish
-ICB[0000006464379010] BakeCode_ScanCodes...finish
-ICB[0000006464379010] BakeCode_GlobalMemoryInit...finish
+Create_New_ICB[00000085ACCF9070] Initialization...finish
+ICB[00000085ACCF9070] BakeCode start. filename : [code.txt]
+ICB[00000085ACCF9070] BakeCode_GetCodeFromText...finish
+ICB[00000085ACCF9070] BakeCode_AddTextBlocks...finish
+ICB[00000085ACCF9070] BakeCode_ScanStructTypes...finish
+ICB[00000085ACCF9070] BakeCode_AddStructTypes...finish
+ICB[00000085ACCF9070] BakeCode_ScanCodes...finish
+ICB[00000085ACCF9070] BakeCode_GlobalMemoryInit...finish
