@@ -67,8 +67,9 @@ int main() {
     icb.bake_code("code.txt", &errorcode);
     if (errorcode[0] != 0) {
         cout << errorcode.c_str() << endl;
+        errorcode.release();
+        return 0;
     }
-    errorcode.release();
 
     fmvecarr<ICB_Context*> exectxs;
     ICB_Context* ctx = (ICB_Context*)fm->_New(sizeof(ICB_Context), true);

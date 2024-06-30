@@ -1057,7 +1057,7 @@ public:
 			{
 				char c;
 				c = fgetc(fp);
-
+				
 				//line check
 				if (c == '\n') {
 					codeLineVec.push_back(k + 1);
@@ -1076,7 +1076,7 @@ public:
 					stack = 0;
 				}
 
-				if (stack == 2) // 이거 주석 처리 코드?
+				if (stack == 2)
 				{
 					if (comment_mod == '/') {
 						codetxt->pop_back();
@@ -1087,7 +1087,7 @@ public:
 							c = fgetc(fp);
 							//line check
 							if (c == '\n') {
-								codeLineVec.push_back(k + 1);
+								codeLineVec.push_back(codeLineVec.last());
 							}
 						}
 						max -= mm + 1;
@@ -1104,7 +1104,7 @@ public:
 							c = fgetc(fp);
 							//line check
 							if (c == '\n') {
-								codeLineVec.push_back(k + 1);
+								codeLineVec.push_back(codeLineVec.last());
 							}
 						}
 						max -= mm + 1;
@@ -2219,6 +2219,8 @@ public:
 
 	void AddTextBlocks(fmlcstr &codetxt)
 	{
+		//codeLineVec_Word.push_back(0);
+		int present_line = 1;
 		fmlcstr insstr;
 		insstr.NULLState();
 		insstr.Init(2, false);
@@ -2244,6 +2246,11 @@ public:
 						++ti;
 					}
 					push_word(insstr.c_str());
+					while (i + 1 >= codeLineVec.at(present_line - 1)) {
+						codeLineVec_Word.push_back(allcode_sen.size()-1);
+						++present_line;
+					}
+
 					continue;
 				}
 				insstr.push_back(codetxt.at(i + 1));
@@ -2260,6 +2267,10 @@ public:
 						++ti;
 					}
 					push_word(insstr.c_str());
+					while (i + 1 >= codeLineVec.at(present_line - 1)) {
+						codeLineVec_Word.push_back(allcode_sen.size() - 1);
+						++present_line;
+					}
 					insstr.clear();
 				}
 				else
@@ -2282,6 +2293,10 @@ public:
 						push_word(insstr.c_str());
 						insstr.clear();
 						insstr.push_back(c);
+						while (i + 1 >= codeLineVec.at(present_line - 1)) {
+							codeLineVec_Word.push_back(allcode_sen.size() - 1);
+							++present_line;
+						}
 						if (icldetail) {
 							if (ti % textper == 0) {
 								icl << i << "\"" << insstr.c_str() << "\"" << endl;
@@ -2293,6 +2308,10 @@ public:
 						}
 						push_word(insstr.c_str());
 						insstr.clear();
+						while (i + 1 >= codeLineVec.at(present_line - 1)) {
+							codeLineVec_Word.push_back(allcode_sen.size() - 1);
+							++present_line;
+						}
 						i++;
 					}
 					else
@@ -2348,6 +2367,12 @@ public:
 					set_word(i, insstr.c_str());
 					if (icldetail) icl << i + 1 << " : \"" << t1.c_str() << "\" => " << insstr.c_str() << endl;
 					allcode_sen.erase(i + 1);
+
+					for (int k = 0; k < codeLineVec_Word.size(); ++k) {
+						if (codeLineVec_Word.at(k) >= i + 1) {
+							codeLineVec_Word.at(k) -= 1;
+						}
+					}
 				}
 			}
 
@@ -2371,6 +2396,12 @@ public:
 					set_word(i - 1, insstr.c_str());
 					if (icldetail) icl << i << " : \"" << allcode_sen[i] << "\" => \"" << insstr.c_str() << "\"" << endl;
 					allcode_sen.erase(i);
+
+					for (int k = 0; k < codeLineVec_Word.size(); ++k) {
+						if (codeLineVec_Word.at(k) >= i) {
+							codeLineVec_Word.at(k) -= 1;
+						}
+					}
 				}
 			}
 			if (s == "|")
@@ -2390,6 +2421,12 @@ public:
 					set_word(i, insstr.c_str());
 					if (icldetail) icl << i << " : \"" << allcode_sen[i] << "\" => \"" << insstr.c_str() << "\"" << endl;
 					allcode_sen.erase(i + 1);
+
+					for (int k = 0; k < codeLineVec_Word.size(); ++k) {
+						if (codeLineVec_Word.at(k) >= i + 1) {
+							codeLineVec_Word.at(k) -= 1;
+						}
+					}
 				}
 			}
 			if (s == "&")
@@ -2409,6 +2446,12 @@ public:
 					set_word(i, insstr.c_str());
 					if (icldetail) icl << i + 1 << " : \"" << allcode_sen[i + 1] << "\" => \"" << insstr.c_str() << "\"" << endl;
 					allcode_sen.erase(i + 1);
+
+					for (int k = 0; k < codeLineVec_Word.size(); ++k) {
+						if (codeLineVec_Word.at(k) >= i + 1) {
+							codeLineVec_Word.at(k) -= 1;
+						}
+					}
 				}
 			}
 			if (s == ".")
@@ -2456,6 +2499,12 @@ public:
 					if (icldetail) icl << i + 1 << " : \"" << back.c_str() << "\" => \"" << insstr.c_str() << "\"" << endl;
 					allcode_sen.erase(i);
 					allcode_sen.erase(i);
+
+					for (int k = 0; k < codeLineVec_Word.size(); ++k) {
+						if (codeLineVec_Word.at(k) >= i) {
+							codeLineVec_Word.at(k) -= 2;
+						}
+					}
 				}
 			}
 
@@ -2488,6 +2537,12 @@ public:
 					set_word(i, insstr.c_str());
 					allcode_sen.erase(i + 1);
 					allcode_sen.erase(i + 1);
+
+					for (int k = 0; k < codeLineVec_Word.size(); ++k) {
+						if (codeLineVec_Word.at(k) >= i + 1) {
+							codeLineVec_Word.at(k) -= 2;
+						}
+					}
 
 					if (icldetail) icl << "combine block : " << i << " ~ " << i + 2 << "\"" << insstr.c_str() << "\"" << endl;
 				}
@@ -2531,6 +2586,12 @@ public:
 					allcode_sen.erase(i + 1);
 					allcode_sen.erase(i + 1);
 					allcode_sen.erase(i + 1);
+
+					for (int k = 0; k < codeLineVec_Word.size(); ++k) {
+						if (codeLineVec_Word.at(k) >= i + 1) {
+							codeLineVec_Word.at(k) -= 3;
+						}
+					}
 				}
 			}
 
@@ -2550,7 +2611,7 @@ public:
 		}
 	}
 
-	fmvecarr<code_sen *> *AddCodeFromBlockData(fmvecarr<char *> &allcodesen, const char *ScanMod)
+	fmvecarr<code_sen*>* AddCodeFromBlockData(fmvecarr<char*>& allcodesen, const char* ScanMod, unsigned int currentLine = 0)
 	{
 		// allcode_sen-> allcode_sen
 		// ic -> this
@@ -2560,6 +2621,8 @@ public:
 			(fmvecarr<code_sen *> *)fm->_New(sizeof(fmvecarr<code_sen *>), true);
 		senarr->NULLState();
 		senarr->Init(10, false, true);
+
+		unsigned int clwi = currentLine;
 
 		bool readytoStart = true;
 		int StartI = 0;
@@ -2629,6 +2692,12 @@ public:
 							fm->_tempPopLayer();
 							if (icldetail) dbg_codesen(cs, false);
 
+							while (codeLineVec_Word.at(clwi) <= i + codeLineVec_Word.at(currentLine) && codeLineVec_Word.size() > clwi) {
+								clwi += 1;
+							}
+							clwi -= 1;
+							cs->codeline = clwi+1;
+
 							senarr->push_back(cs);
 							i = startI - 1;
 							StartI = i + 1;
@@ -2688,6 +2757,11 @@ public:
 
 								set_codesen(cs, cbs);
 								fm->_tempPopLayer();
+								while (codeLineVec_Word.at(clwi) <= i + codeLineVec_Word.at(currentLine) && codeLineVec_Word.size() > clwi) {
+									clwi += 1;
+								}
+								clwi -= 1;
+								cs->codeline = clwi+1;
 								if (icldetail) dbg_codesen(cs, false);
 								senarr->push_back(cs);
 								i += k;
@@ -2709,6 +2783,13 @@ public:
 								}
 
 								set_codesen(cs, cbs);
+
+								while (codeLineVec_Word.at(clwi) <= i + codeLineVec_Word.at(currentLine) && codeLineVec_Word.size() > clwi) {
+									clwi += 1;
+								}
+								clwi -= 1;
+								cs->codeline = clwi + 1;
+
 								fm->_tempPopLayer();
 								if (icldetail) dbg_codesen(cs, false);
 								senarr->push_back(cs);
@@ -2750,6 +2831,13 @@ public:
 						}
 
 						set_codesen(cs, cbs);
+
+						while (codeLineVec_Word.at(clwi) <= i + codeLineVec_Word.at(currentLine) && codeLineVec_Word.size() > clwi) {
+							clwi += 1;
+						}
+						clwi -= 1;
+						cs->codeline = clwi + 1;
+
 						fm->_tempPopLayer();
 						senarr->push_back(cs);
 						if (icldetail) dbg_codesen(cs, false);
@@ -2787,7 +2875,7 @@ public:
 						// cbs.pop_back();
 						// cbs.erase(0);
 
-						fmvecarr<code_sen*>* cbv = AddCodeFromBlockData(cbs, "none");
+						fmvecarr<code_sen*>* cbv = AddCodeFromBlockData(cbs, "none", clwi);
 						cbs.release();
 						cbs.NULLState();
 
@@ -2800,6 +2888,12 @@ public:
 						{
 							cs->codeblocks->push_back(reinterpret_cast<int*>((*cbv)[u]));
 						}
+
+						while (codeLineVec_Word.at(clwi) <= i + codeLineVec_Word.at(currentLine) && codeLineVec_Word.size() > clwi) {
+							clwi += 1;
+						}
+						clwi -= 1;
+						cs->codeline = clwi + 1;
 
 						cbv->release();
 						fm->_Delete((byte8*)cbv, sizeof(fmvecarr<code_sen*>));
@@ -2834,6 +2928,13 @@ public:
 						}
 
 						set_codesen(cs, cbs);
+
+						while (codeLineVec_Word.at(clwi) <= StartI + codeLineVec_Word.at(currentLine) && codeLineVec_Word.size() > clwi) {
+							clwi += 1;
+						}
+						clwi -= 1;
+						cs->codeline = clwi + 1;
+
 						fm->_tempPopLayer();
 						senarr->push_back(cs);
 						if (icldetail) dbg_codesen(cs, false);
@@ -2865,6 +2966,13 @@ public:
 						}
 
 						set_codesen(cs, cbs);
+
+						while (codeLineVec_Word.at(clwi) <= i + codeLineVec_Word.at(currentLine) && codeLineVec_Word.size() > clwi) {
+							clwi += 1;
+						}
+						clwi -= 1;
+						cs->codeline = clwi + 1;
+
 						fm->_tempPopLayer();
 						senarr->push_back(cs);
 						if (icldetail) dbg_codesen(cs, false);
@@ -2899,6 +3007,12 @@ public:
 							}
 
 							set_codesen(cs, cbs);
+							while (codeLineVec_Word.at(clwi) <= i + codeLineVec_Word.at(currentLine) && codeLineVec_Word.size() > clwi) {
+								clwi += 1;
+							}
+							clwi -= 1;
+							cs->codeline = clwi + 1;
+
 							fm->_tempPopLayer();
 							senarr->push_back(cs);
 							if (icldetail) dbg_codesen(cs, false);
@@ -2919,6 +3033,12 @@ public:
 							// �׳� else�� ���
 							cbs.push_back(allcodesen[i]);
 							set_codesen(cs, cbs);
+							while (codeLineVec_Word.at(clwi) <= i + codeLineVec_Word.at(currentLine) && codeLineVec_Word.size() > clwi) {
+								clwi += 1;
+							}
+							clwi -= 1;
+							cs->codeline = clwi + 1;
+
 							fm->_tempPopLayer();
 							senarr->push_back(cs);
 							if (icldetail) dbg_codesen(cs, false);
@@ -2947,6 +3067,12 @@ public:
 							cbs.push_back(allcodesen[i + h]);
 						}
 						set_codesen(cs, cbs);
+						while (codeLineVec_Word.at(clwi) <= i + codeLineVec_Word.at(currentLine) && codeLineVec_Word.size() > clwi) {
+							clwi += 1;
+						}
+						clwi -= 1;
+						cs->codeline = clwi + 1;
+
 						fm->_tempPopLayer();
 						senarr->push_back(cs);
 						if (icldetail) dbg_codesen(cs, false);
@@ -2970,6 +3096,12 @@ public:
 							h++;
 						}
 						set_codesen(cs, cbs);
+						while (codeLineVec_Word.at(clwi) <= i + codeLineVec_Word.at(currentLine) && codeLineVec_Word.size() > clwi) {
+							clwi += 1;
+						}
+						clwi -= 1;
+						cs->codeline = clwi + 1;
+
 						fm->_tempPopLayer();
 						senarr->push_back(cs);
 						if (icldetail) dbg_codesen(cs, false);
@@ -2993,6 +3125,12 @@ public:
 							h++;
 						}
 						set_codesen(cs, cbs);
+						while (codeLineVec_Word.at(clwi) <= i + codeLineVec_Word.at(currentLine) && codeLineVec_Word.size() > clwi) {
+							clwi += 1;
+						}
+						clwi -= 1;
+						cs->codeline = clwi + 1;
+
 						fm->_tempPopLayer();
 						senarr->push_back(cs);
 						if (icldetail) dbg_codesen(cs, false);
@@ -3011,6 +3149,12 @@ public:
 						cbs.Init(3, false, false);
 						cbs.push_back(allcodesen[i]);
 						set_codesen(cs, cbs);
+						while (codeLineVec_Word.at(clwi) <= i + codeLineVec_Word.at(currentLine) && codeLineVec_Word.size() > clwi) {
+							clwi += 1;
+						}
+						clwi -= 1;
+						cs->codeline = clwi + 1;
+
 						fm->_tempPopLayer();
 						senarr->push_back(cs);
 						if (icldetail) dbg_codesen(cs, false);
@@ -3028,6 +3172,12 @@ public:
 						cbs.Init(3, false, false);
 						cbs.push_back(allcodesen[i]);
 						set_codesen(cs, cbs);
+						while (codeLineVec_Word.at(clwi) <= i + codeLineVec_Word.at(currentLine) && codeLineVec_Word.size() > clwi) {
+							clwi += 1;
+						}
+						clwi -= 1;
+						cs->codeline = clwi + 1;
+
 						fm->_tempPopLayer();
 						senarr->push_back(cs);
 						if (icldetail) dbg_codesen(cs, false);
@@ -3109,7 +3259,7 @@ public:
 						}
 
 						if (icldetail) icl << "BakeCode_ScanStructTypes : add struct member code block...";
-						fmvecarr<code_sen*>* cbv = AddCodeFromBlockData(bd, "none");
+						fmvecarr<code_sen*>* cbv = AddCodeFromBlockData(bd, "none", clwi);
 						if (icldetail) icl << "finish" << endl;
 
 						cs->codeblocks = (fmvecarr<int*> *)fm->_New(sizeof(fmvecarr<int*>), true);
@@ -7209,6 +7359,7 @@ public:
 	{
 		bool icldetail = GetICLFlag(ICL_FLAG::BakeCode_CompileCodes);
 		cs->start_line = writeup;
+		currentCodeLine = cs->codeline;
 		if (icldetail && cs->ck != codeKind::ck_blocks)
 		{
 			icl << "BakeCode_CompileCodes__";
@@ -7342,7 +7493,7 @@ public:
 		icl << "finish" << endl;
 
 		icl << "ICB[" << this << "] BakeCode_ScanCodes...";
-		senptr = AddCodeFromBlockData(allcode_sen, "none");
+		senptr = AddCodeFromBlockData(allcode_sen, "none", 0);
 		icl << "finish" << endl;
 		senptr->islocal = false;
 		csarr = senptr;
