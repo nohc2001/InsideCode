@@ -1,0 +1,152 @@
+Code Addressing Method : 
+A : Direct address: 
+  the instruction has no ModR/M byte; 
+  the address of the operand is encoded in the instruction. 
+  No base register, index register, or scaling factor can be applied 
+  (for example, far JMP (EA)).
+B : The VEX.vvvv field of the VEX prefix selects a general purpose register.
+C : The reg field of the ModR/M byte selects a control register 
+  (for example, MOV (0F20, 0F22)).
+D : The reg field of the ModR/M byte selects a debug register 
+  (for example, MOV (0F21,0F23)).
+E : ModR/M 바이트는 opcode를 따르고 피연산자를 지정합니다.
+  피연산자는 범용 레지스터 또는 메모리 주소입니다.
+  메모리 주소인 경우 해당 주소는 세그먼트 레지스터와 다음 값 중 하나에서 계산됩니다:
+  베이스레지스터, 인덱스레지스터, 스케일링팩터, 벡터레지스터.
+F : EFLAGS/RFLAGS Register.
+G : ModR/M 바이트의 reg 필드에서 일반 레지스터를 선택합니다. (예: AX(000))
+H : The VEX.vvvv field of the VEX prefix selects a 128-bit XMM register or a 256-bit YMM register, determined by operand type. 
+  For legacy SSE encodings this operand does not exist, 
+  changing the instruction to destructive form.
+I : Immediate data: 
+  the operand value is encoded in subsequent bytes of the instruction.
+J : The instruction contains a relative offset to be added to the instruction pointer register 
+  (for example, JMP(0E9), LOOP).
+L : The upper 4 bits of the 8-bit immediate selects a 128-bit XMM register or a 256-bit YMM register, determined by operand type. 
+  (the MSB is ignored in 32-bit mode)
+M : The ModR/M byte may refer only to memory 
+  (for example, BOUND, LES, LDS, LSS, LFS, LGS, CMPXCHG8B).
+N : The R/M field of the ModR/M byte selects a packed-quadword, MMX technology register.
+O : The instruction has no ModR/M byte. The offset of the operand is coded as a word or double word
+(depending on address size attribute) in the instruction. No base register, index register, or scaling factor
+can be applied (for example, MOV (A0–A3)).
+P : The reg field of the ModR/M byte selects a packed quadword MMX technology register.
+Q : A ModR/M byte follows the opcode and specifies the operand. The operand is either an MMX technology
+register or a memory address. If it is a memory address, the address is computed from a segment register
+and any of the following values: a base register, an index register, a scaling factor, and a displacement.
+R : The R/M field of the ModR/M byte may refer only to a general register (for example, MOV (0F20-0F23)).
+S : The reg field of the ModR/M byte selects a segment register (for example, MOV (8C,8E)).
+U : The R/M field of the ModR/M byte selects a 128-bit XMM register or a 256-bit YMM register, determined by
+operand type.
+V : The reg field of the ModR/M byte selects a 128-bit XMM register or a 256-bit YMM register, determined by
+operand type.
+W : A ModR/M byte follows the opcode and specifies the operand. The operand is either a 128-bit XMM register,
+a 256-bit YMM register (determined by operand type), or a memory address. If it is a memory address, the
+address is computed from a segment register and any of the following values: a base register, an index
+register, a scaling factor, and a displacement.
+X : Memory addressed by the DS:rSI register pair (for example, MOVS, CMPS, OUTS, or LODS).
+Y : Memory addressed by the ES:rDI register pair (for example, MOVS, CMPS, INS, STOS, or SCAS).
+
+A.2.2
+Codes for Operand Type
+The following abbreviations are used to document operand types:
+a: Two one-word operands in memory or two double-word operands in memory, depending on operand-size
+attribute (used only by the BOUND instruction).
+b: 연산자 크기 특성에 관계없이 바이트입니다.
+c: Byte or word, depending on operand-size attribute.
+d: Doubleword, regardless of operand-size attribute.
+dq: Double-quadword, regardless of operand-size attribute.
+p: 32-bit, 48-bit, or 80-bit pointer, depending on operand-size attribute.
+pd: 128-bit or 256-bit packed double-precision floating-point data.
+pi: Quadword MMX technology register (for example: mm0).
+ps: 128-bit or 256-bit packed single-precision floating-point data.
+q: Quadword, regardless of operand-size attribute.
+qq: Quad-Quadword (256-bits), regardless of operand-size attribute.
+s: 6-byte or 10-byte pseudo-descriptor.
+sd: Scalar element of a 128-bit double-precision floating data.
+ss: Scalar element of a 128-bit single-precision floating data.
+si: Doubleword integer register (for example: eax).
+v: 연산자 크기 특성에 따라 워드(2byte), 더블 워드(4byte) 또는 쿼드 워드(64비트 모드)(8byte).
+w: Word, regardless of operand-size attribute.
+x: dq or qq based on the operand-size attribute.
+y: Doubleword or quadword (in 64-bit mode), depending on operand-size attribute.
+z: Word for 16-bit operand-size or doubleword for 32 or 64-bit operand-size.
+
+1byte opcode map :
+ADD a, b : a += b;
+0000|0000 [00] : ADD Eb, Gb
+0000|0001 [01] : ADD Ev, Gv
+0000|0010 [02] : ADD Gb, Eb
+0000|0011 [03] : ADD Gv, Ev
+0000|0100 [04] : ADD AL, lb
+0000|0101 [05] : ADD rAX, lz
+
+PUSH data : sp -= datasiz; *sp = data //(스택에 값을 푸시하는 명령)
+0000|0110 [06] : PUSH ES
+0000|0111 [07] : POP ES
+0001|0110 [16] : PUSH SS
+0001|0111 [17] : POP SS
+
+OR a, b : 
+0000|1000 [08] : OR Eb, Gb
+0000|1001 [09] : OR Ev, Gv
+0000|1010 [0A] : OR Gb, Eb
+0000|1011 [0B] : OR Gv, Ev
+0000|1100 [0C] : OR AL, lb
+0000|1101 [0D] : OR rAX, lz
+
+>
+
+0001|0000 [10] : ADC Eb, Gb
+0001|0001 [11] : ADC Ev, Gv
+0001|0010 [12] : ADC Gb, Eb
+0001|0011 [13] : ADC Gv, Ev
+0001|0100 [14] : ADC AL, lb
+0001|0101 [15] : ADC rAX, lz
+
+0001|1000 [18] : SBB Eb, Gb
+0001|1001 [19] : SBB Ev, Gv
+0001|1010 [1A] : SBB Gb, Eb
+0001|1011 [1B] : SBB Gv, Ev
+0001|1100 [1C] : SBB AL, lb
+0001|1101 [1D] : SBB rAX, lz
+
+>
+
+0010|0000 [20] : AND Eb, Gb
+0010|0001 [21] : AND Ev, Gv
+0010|0010 [22] : AND Gb, Eb
+0010|0011 [23] : AND Gv, Ev
+0010|0100 [24] : AND AL, lb
+0010|0101 [25] : AND rAX, lz
+
+0010|0110 [26] : Prefix SEG=ES
+0010|0111 [27] : DAA
+
+0010|1000 [28] : SUB Eb, Gb
+0010|1001 [29] : SUB Ev, Gv
+0010|1010 [2A] : SUB Gb, Eb
+0010|1011 [2B] : SUB Gv, Ev
+0010|1100 [2C] : SUB AL, lb
+0010|1101 [2D] : SUB rAX, lz
+
+>
+
+0011|0000 [30] : XOR Eb, Gb
+0011|0001 [31] : XOR Ev, Gv
+0011|0010 [32] : XOR Gb, Eb
+0011|0011 [33] : XOR Gv, Ev
+0011|0100 [34] : XOR AL, lb
+0011|0101 [35] : XOR rAX, lz
+
+0010|0110 [26] : Prefix SEG=SS
+0010|0111 [27] : AAA
+
+0010|1000 [28] : CMP Eb, Gb
+0010|1001 [29] : CMP Ev, Gv
+0010|1010 [2A] : CMP Gb, Eb
+0010|1011 [2B] : CMP Gv, Ev
+0010|1100 [2C] : CMP AL, lb
+0010|1101 [2D] : CMP rAX, lz
+
+
