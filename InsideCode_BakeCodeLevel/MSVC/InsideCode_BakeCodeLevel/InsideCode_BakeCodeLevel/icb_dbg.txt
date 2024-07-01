@@ -1,11 +1,68 @@
 Inside Code Bake System Start
 ICB_StaticInit...finish
 Create_New_ICB_Extension_Init : exGeometry Initialization...finish
-Create_New_ICB[000000A4C71994B0] Initialization...finish
-ICB[000000A4C71994B0] BakeCode start. filename : [code.txt]
-ICB[000000A4C71994B0] BakeCode_GetCodeFromText...finish
-ICB[000000A4C71994B0] BakeCode_AddTextBlocks...finish
-ICB[000000A4C71994B0] BakeCode_ScanStructTypes...finish
-ICB[000000A4C71994B0] BakeCode_AddStructTypes...finish
-ICB[000000A4C71994B0] BakeCode_ScanCodes...finish
-ICB[000000A4C71994B0] BakeCode_GlobalMemoryInit...finish
+Create_New_ICB[00000054A1EF9190] Initialization...finish
+ICB[00000054A1EF9190] BakeCode start. filename : [code.txt]
+ICB[00000054A1EF9190] BakeCode_GetCodeFromText...finish
+ICB[00000054A1EF9190] BakeCode_AddTextBlocks...finish
+ICB[00000054A1EF9190] BakeCode_ScanStructTypes...finish
+ICB[00000054A1EF9190] BakeCode_AddStructTypes...finish
+ICB[00000054A1EF9190] BakeCode_ScanCodes...finish
+ICB[00000054A1EF9190] BakeCode_GlobalMemoryInit...finish
+ICB[00000054A1EF9190] BakeCode_CompileCodes...adsetvar: float PI = 3.141592 
+addfunc : int main ( ) 
+block__ : {
+adsetvar: vec2f pos1 = _vec2f ( 10 , 20 ) 
+adsetvar: vec2f pos2 = _vec2f ( 3 , 4 * ( pos1 . y - pos1 . x ) / 10 ) 
+usefunc : dbg ( "pos1 : (" , po1 . x , ", " , pos1 . y , ")\n" ) 
+usefunc : dbg ( "pos2 : (" , pos2 . x , ", " , pos2 . y , ")\n" ) 
+adsetvar: line2d line1 = _line2d ( pos1 , pos2 ) 
+usefunc : dbg ( "line1 : fp (" , line1 . fp . x , ", " , line1 . fp . y , "), lp(" , line1 . lp . x , ", " , line1 . lp . y , ")\n" ) 
+adsetvar: float len = get_distance2d ( line1 ) 
+usefunc : dbg ( "len : " , len , "\n" ) 
+adsetvar: circle cir1 = _circle ( pos1 , len ) 
+usefunc : dbg ( "cir1 : center(" , cir1 . center . x , ", " , cir1 . center . y , "), radius(" , cir1 . radius , ")\n" ) 
+adsetvar: vec2f ratePos = get_pos_in_LineAndRatioAB ( line1 , 2 , 1 ) 
+usefunc : dbg ( "ratePos : (" , ratePos . x , ", " , ratePos . y , ")\n" ) 
+adsetvar: angle2d ang1 = _angle2d_delta ( pos1 . x - pos2 . x , pos1 . y - pos2 . y ) 
+usefunc : dbg ( "angle1( rad : " , ang1 . radian , ", delta : (" , ang1 . delta . x , ", " , ang1 . delta . y , "))\n" ) 
+adsetvar: angle2d ang2 = _angle2d ( PI / 3 ) 
+usefunc : dbg ( "angle2( rad : " , ang2 . radian , ", delta : (" , ang2 . delta . x , ", " , ang2 . delta . y , "))\n" ) 
+adsetvar: angle2d rang = addAngle ( ang1 , ang2 ) 
+usefunc : dbg ( "rang( rad : " , rang . radian , ", delta : (" , rang . delta . x , ", " , rang . delta . y , "))\n" ) 
+set_var : pos1 = _vec2f ( pos1 . x + rang . delta . x * 30 , pos1 . y + rang . delta . y * 30 ) 
+usefunc : dbg ( "pos1 : (" , pos1 . x , ", " , pos1 . y , ")\n" ) 
+adsetvar: vec2f cross = get_cross_line ( _line2d ( pos1 , _vec2f ( 10 , 0 ) ) , _line2d ( pos2 , cir1 . center ) ) 
+usefunc : dbg ( "cross : (" , cross . x , ", " , cross . y , ")\n" ) 
+adsetvar: vec2f [ 2 ] circross = get_cross_CircleAndLine ( cir1 , _line2d ( cross , _vec2f ( 20 , 0 ) ) ) 
+usefunc : dbg ( "circross[0] : (" , circross [ 0 ] . x , ", " , circross [ 0 ] . y , ")\n" ) 
+usefunc : dbg ( "circross[1] : (" , circross [ 1 ] . x , ", " , circross [ 1 ] . y , ")\n" ) 
+adsetvar: vec2f enableCross = _vec2f ( 0 , 0 ) 
+if__sen : if ( isNAN ( circross [ 0 ] . x ) ) 
+block__ : {
+usefunc : dbg ( "cross 0 is nan!!\n" ) 
+set_var : enableCross = circross [ 1 ] 
+closed_ : }
+
+if__sen : if ( isNAN ( circross [ 1 ] . x ) ) 
+block__ : {
+usefunc : dbg ( "cross 1 is nan!!\n" ) 
+set_var : enableCross = circross [ 0 ] 
+closed_ : }
+
+usefunc : dbg ( "enableCross : (" , enableCross . x , ", " , enableCross . y , ")\n" ) 
+adsetvar: int bSiz = 100 
+adsetvar: vec2f [ 100 ] bezierCurve = get_poses_in_Bezier1F ( pos1 , cross , pos2 , bSiz ) 
+adsetvar: int i = 0 
+while__ : while ( i < bSiz ) 
+block__ : {
+usefunc : dbg ( "pos[" , i , "] : (" , bezierCurve [ i ] . x , ", " , bezierCurve [ i ] . y , ")\n" ) 
+set_var : i += 1 
+closed_ : }
+
+return_ : return 0 
+closed_ : }
+
+adsetvar: vec2f pos1 = _vec2f ( 10 , 20 ) 
+adsetvar: vec2f pos2 = _vec2f ( 3 , 4 * ( pos1 . y - pos1 . x ) / 10 ) 
+usefunc : dbg ( "pos1 : (" , po1 . x , ", " , pos1 . y , ")\n" ) 

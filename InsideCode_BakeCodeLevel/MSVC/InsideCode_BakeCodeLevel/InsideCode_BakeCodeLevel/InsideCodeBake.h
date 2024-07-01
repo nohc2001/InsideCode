@@ -2622,7 +2622,7 @@ public:
 		senarr->NULLState();
 		senarr->Init(10, false, true);
 
-		unsigned int clwi = currentLine;
+		unsigned int clwi = currentLine+1;
 
 		bool readytoStart = true;
 		int StartI = 0;
@@ -2875,6 +2875,11 @@ public:
 						// cbs.pop_back();
 						// cbs.erase(0);
 
+						while (codeLineVec_Word.at(clwi) <= i + codeLineVec_Word.at(currentLine) && codeLineVec_Word.size() > clwi) {
+							clwi += 1;
+						}
+						//clwi -= 1;
+
 						fmvecarr<code_sen*>* cbv = AddCodeFromBlockData(cbs, "none", clwi);
 						cbs.release();
 						cbs.NULLState();
@@ -2888,12 +2893,8 @@ public:
 						{
 							cs->codeblocks->push_back(reinterpret_cast<int*>((*cbv)[u]));
 						}
-
-						while (codeLineVec_Word.at(clwi) <= i + codeLineVec_Word.at(currentLine) && codeLineVec_Word.size() > clwi) {
-							clwi += 1;
-						}
-						clwi -= 1;
-						cs->codeline = clwi + 1;
+						
+						cs->codeline = clwi;
 
 						cbv->release();
 						fm->_Delete((byte8*)cbv, sizeof(fmvecarr<code_sen*>));
@@ -7360,6 +7361,7 @@ public:
 		bool icldetail = GetICLFlag(ICL_FLAG::BakeCode_CompileCodes);
 		cs->start_line = writeup;
 		currentCodeLine = cs->codeline;
+		dbg_codesen(cs, false); icl << endl;
 		if (icldetail && cs->ck != codeKind::ck_blocks)
 		{
 			icl << "BakeCode_CompileCodes__";
