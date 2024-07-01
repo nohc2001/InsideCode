@@ -1,1 +1,141 @@
-ddd
+REX 접두사
+64 비트 모드에서의 명령어들의 경우 REX 접두사로 구분됩니다. REX 접두사의 역할로
+GPR 과 SSE 레지스터들을 나타냄
+64 비트 피연산자의 크기를 나타냄
+Extended control 레지스터를 나타냄
+를 들 수 있습니다.
+참고로 모든 명령어들이 64 비트 모드에서 실행시키기 위해 REX 접두사를 사용해야 하는 것은 아닙니다. REX 접두사가 필요한 경우는 명령어에서 64 비트 레지스터들을 참조하던지, 피연산자의 크기가 64 비트 이던지 등의 경우 밖에 없습니다. 참고로 불필요하게 추가된 REX 접두사는 그냥 무시됩니다.
+REX 접두사의 경우 명령어 Opcode 바로 앞에 위치해야 합니다. 이전에 말했듯이 일부 Opcode 들의 경우 필수적으로 와야 하는 접두사들이 있었는데, 이들 역시 REX 접두사 바로 앞에 와야 합니다. 예를 들어서 CVTDQ2PD 명령어의 경우 REX 접두사가 F3 과 0F E6 사이에 와야겠죠.
+
+16bit addressing form with the mod r/m byte
+				r8	AL	CL	DL	BL	AH	CH	DH	BH
+				r16	AX	CX	DX	BX	SP	BP	SI	DI
+				r32	EAX	ECX	EDX	EBX	ESP	EBP	ESI	EDI
+				mm	MM0	MM1	MM2	MM3	MM4	MM5	MM6	MM7
+				xmm	XMM0	XMM1	XMM2	XMM3	XMM4	XMM5	XMM6	XMM7
+				opcode	0	1	2	3	4	5	6	7
+				reg	000	001	010	011	100	101	110	111
+Effective Address	Mod	R/M	Value Of Mod R/M Byte (In Hexadecimel)
+[BX+SI]			00	000	00	08	10	18	20	28	30	38
+[BX+DI]				001	01	09	11	19	21	29	31	39
+[BP+SI]				010	02	0A	12	1A	22	2A	32	3A
+[BP+DI]				011	03	0B	13	1B	23	2B	33	3B
+[SI]				100	04	0C	14	1C	24	2C	34	3C
+[DI]				101	05	0D	15	1D	25	2D	35	3D
+disp16 2			110	06	0E	16	1E	26	2E	36	3E
+[BX]				111	07	0F	17	1F	27	2F	37	3F
+//////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+[BX+SI]+disp8 3		01	000	40	48
+[BX+DI]+disp8			001	41	49
+[BP+SI]+disp8			010	42	4A
+[BP+DI]+disp8			011	43	4B
+[SI]+disp8			100	44	4C
+[DI]+disp8			101	45	4D
+[BP]+disp8			110	46	4E
+[BX]+disp8			111	47	4F .. 이거 그냥 두개 표 합한거임.
+//////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+[BX+SI]+disp16		10	000
+[BX+DI]+disp16			001
+[BP+SI]+disp16			010
+[BP+DI]+disp16			011
+[SI]+disp16			100
+[DI]+disp16			101
+[BP]+disp16			110
+[BX]+disp16			111
+//////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+EAX/AX/AL/MM0/XMM0	11	000
+ECX/CX/CL/MM1/XMM1		001
+EDX/DX/DL/MM2/XMM2		010
+EBX/BX/BL/MM3/XMM3		011
+ESP/SP/AHMM4/XMM4		100
+EBP/BP/CH/MM5/XMM5		101
+ESI/SI/DH/MM6/XMM6		110
+EDI/DI/BH/MM7/XMM7		111
+//////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+
+32bit addressing form with the mod r/m byte
+r8	AL	CL	DL	BL	AH	CH	DH	BH
+r16	AX	CX	DX	BX	SP	BP	SI	DI
+r32	EAX	ECX	EDX	EBX	ESP	EBP	ESI	EDI
+mm	MM0	MM1	MM2	MM3	MM4	MM5	MM6	MM7
+xmm	XMM0	XMM1	XMM2	XMM3	XMM4	XMM5	XMM6	XMM7
+reg	000	001	010	011	100	101	110	111
+
+Effective Address	Mod	R/M
+[EAX]			00	000
+[ECX]				001
+[EDX]				010
+[EBX]				011
+[--][--] 1			100
+disp32 2			101
+[ESI]				110
+[EDI]				111
+
+[EAX]+disp8 3		01	000
+[ECX]+disp8			001
+[EDX]+disp8			010
+[EBX]+disp8			011
+[--][--]+disp8			100
+[EBP]+disp8			101
+[ESI]+disp8			110
+[EDI]+disp8			111
+
+[EAX]+disp32		10	000
+[ECX]+disp32			001
+[EDX]+disp32			010
+[EBX]+disp32			011
+[--][--]+disp32			100
+[EBP]+disp32			101
+[ESI]+disp32			110
+[EDI]+disp32			111
+
+EAX/AX/AL/MM0/XMM0	11	000
+ECX/CX/CL/MM/XMM1		001
+EDX/DX/DL/MM2/XMM2		010
+EBX/BX/BL/MM3/XMM3		011
+ESP/SP/AH/MM4/XMM4		100
+EBP/BP/CH/MM5/XMM5		101
+ESI/SI/DH/MM6/XMM6		110
+EDI/DI/BH/MM7/XMM7		111
+////////////////////////////////////////////////////////////////////////////////////////////////////
+
+32-Bit Addressing Forms with the SIB Byte
+r32	EAX	ECX	EDX	EBX	ESP	[*]	ESI	EDI
+base	000	001	010	011	100	101	110	111
+
+Effective Address	Scale	Index
+[EAX]			00	000
+[ECX]				001
+[EDX]				010
+[EBX]				011
+none				100
+[EBP]				101
+[ESI]				110
+[EDI]				111
+
+[EAX*2]			01	000
+[ECX*2]				001
+[EDX*2]				010
+[EBX*2]				011
+none				100
+[EBP*2]				101
+[ESI*2]				110
+[EDI*2]				111
+	
+[EAX*4]			10	000
+[ECX*4]				001
+[EDX*4]				010
+[EBX*4]				011
+none				100
+[EBP*4]				101
+[ESI*4]				110
+[EDI*4]				111
+
+[EAX*8]			11	000
+[ECX*8]				001
+[EDX*8]				010
+[EBX*8]				011
+none				100
+[EBP*8]				101
+[ESI*8]				110
+[EDI*8]				111
