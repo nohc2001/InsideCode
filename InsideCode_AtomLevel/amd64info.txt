@@ -394,6 +394,12 @@ NN + 6 : NEMONIC rSI/r14
 NN + 7 : NEMONIC rDI/r15
 };
 
+type3{
+NN : NEMONIC
+NN + 0 : NEMONIC Eb, Gb
+NN + 1 : NEMONIC Ev, Gv
+};
+
 ///////////////////////////////////////////////////////
 2] operations
 type0] 00 : ADD
@@ -447,5 +453,53 @@ type2] 58 : POP^d64 (general register)
 6E : (OUTS / OUTSB) DX, Xb
 6F : (OUTS / OUTSW / OUTSD) DX, Xz
 
+//short displacement jump on condition.
+70 : (Jcc^f64, Jb) O
+71 : (Jcc^f64, Jb) NO
+72 : (Jcc^f64, Jb) B/NAE/C
+73 : (Jcc^f64, Jb) NB/AE/NC
+74 : (Jcc^f64, Jb) Z/E
+75 : (Jcc^f64, Jb) NZ/NE
+76 : (Jcc^f64, Jb) BE/NA
+77 : (Jcc^f64, Jb) NBE/A
+78 : (Jcc^f64, Jb) S
+79 : (Jcc^f64, Jb) NS
+7A : (Jcc^f64, Jb) P/PE
+7B : (Jcc^f64, Jb) NP/PO
+7C : (Jcc^f64, Jb) L/NGE
+7D : (Jcc^f64, Jb) NL/GE
+7E : (Jcc^f64, Jb) LE/NG
+7F : (Jcc^f64, Jb) NLE/G
+
+//Immediate Grp 1^1A
+80 : (Immediate Grp 1^1A) Eb, lb
+81 : (Immediate Grp 1^1A) Ev, lz
+82 : (Immediate Grp 1^1A) Eb, lb^i64
+83 : (Immediate Grp 1^1A) Ev, lb
+
+type3] 84 : TEST
+type3] 86 : XCHG
+
+88 : MOV Eb, Gb
+89 : MOV Ev, Gv
+8A : MOV Gb, Eb
+8B : MOV Gv, Ev
+8C : MOV Ev, Sw
+8D : LEA Gv, M
+8E : MOV Sw, Ew
+8F : Grp 1A^1A POP^d64
+
+90 : NOP / PAUSE(F3)
+// word, double word or quad word register with rAX
+type2] 90 : XCHG
+
+98 : CBW / CWDE / CDQE
+99 : CWD / CDQ / CQO
+9A : far CALL^i64 Ap
+9B : FWAIT / WAIT
+9C : PUSHF / D / Q^d64 / Fv
+9D : POPF / D / Q^d64 / Fv
+9E : SAHF
+9F : LAHF
 
 
