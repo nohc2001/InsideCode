@@ -357,3 +357,95 @@ none				100
 [EBP*8]				101
 [ESI*8]				110
 [EDI*8]				111
+
+opcode list
+1] nemonic types
+type0 {
+NN : NEMONIC
+NN + 0 : NEMONIC Eb, Gb
+NN + 1 : NEMONIC Ev, Gv
+NN + 2 : NEMONIC Gb, Eb
+NN + 3 : NEMONIC Gv, Ev
+NN + 4 : NEMONIC AL, lb
+NN + 5 : NEMONIC rAX, lz
+};
+
+type1 {
+NN : NEMONIC
+NN + 0 : NEMONIC eAX
+NN + 1 : NEMONIC eCX
+NN + 2 : NEMONIC eDX
+NN + 3 : NEMONIC eBX
+NN + 4 : NEMONIC eSP
+NN + 5 : NEMONIC eBP
+NN + 6 : NEMONIC eSI
+NN + 7 : NEMONIC eDI
+};
+
+type2 {
+NN : NEMONIC
+NN + 0 : NEMONIC rAX/r8
+NN + 1 : NEMONIC rCX/r9
+NN + 2 : NEMONIC rDX/r10
+NN + 3 : NEMONIC rBX/r11
+NN + 4 : NEMONIC rSP/r12
+NN + 5 : NEMONIC rBP/r13
+NN + 6 : NEMONIC rSI/r14
+NN + 7 : NEMONIC rDI/r15
+};
+
+///////////////////////////////////////////////////////
+2] operations
+type0] 00 : ADD
+type0] 08 : OR
+type0] 10 : ADC
+type0] 18 : SBB
+type0] 20 : AND
+type0] 28 : SUB
+type0] 30 : XOR
+type0] 38 : CMP
+
+06 : PUSH ES^i64
+07 : POP ES^i64
+0E : PUSH CS^i64
+0F : 2byte Escape (??)
+16 : PUSH SS^i64
+17 : POP SS^i64
+1E : PUSH DS^i64
+1F : POP DS^i64
+
+26 : SEG=ES(Prefix)
+2E : SEG=CS(Prefix)
+36 : SEG=SS(Prefix)
+3E : SEG=DS(Prefix)
+64 : SEG=FS(Prefix)
+65 : SEG=GS(Prefix)
+66 : Operand Size(Prefix)
+67 : Address Size(Prefix)
+
+27 : DAA^i64
+2F : DAS^i64
+37 : AAA^i64
+3F : AAS^i64
+
+type1] 40 : INC^i64 (general register)
+type1] 48 : DEC^i64 (general register)
+
+type2] 50 : PUSH^d64 (general register)
+type2] 58 : POP^d64 (general register)
+
+60 : PUSHA^i64 / PUSHAD^i64
+61 : POPA^i64 / POPAD^i64
+62 : BOUND^i64 Gv, Ma
+63 : ARPL^i64 Ew, Gw / MOVSXD^o64 Gv, Ev
+68 : PUSH^d64 lz
+69 : IMUL Gv, Ev, lz
+6A : PUSH^d64 lb
+6B : IMUL Gv, Ev, lb
+6C : (INS / INSB) Yb, DX
+6D : (INS / INSW / INSD) Yz, DX
+6E : (OUTS / OUTSB) DX, Xb
+6F : (OUTS / OUTSW / OUTSD) DX, Xz
+
+
+
