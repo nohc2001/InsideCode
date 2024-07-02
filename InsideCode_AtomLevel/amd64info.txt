@@ -400,6 +400,20 @@ NN + 0 : NEMONIC Eb, Gb
 NN + 1 : NEMONIC Ev, Gv
 };
 
+type4(s){
+if s == v, sA == rAX, ls = lv
+if s == b, sA = AL, ls = lb
+NN : NEMONIC
+NN + 0 : NEMONIC sA/sr8, ls
+NN + 1 : NEMONIC sC/sr9, ls
+NN + 2 : NEMONIC sD/sr10, ls
+NN + 3 : NEMONIC sB/sr11, ls
+NN + 4 : NEMONIC sSP/sr12, ls
+NN + 5 : NEMONIC sBP/sr13, ls
+NN + 6 : NEMONIC sSI/sr14, ls
+NN + 7 : NEMONIC sDI/sr15, ls
+}
+
 ///////////////////////////////////////////////////////
 2] operations
 type0] 00 : ADD
@@ -501,5 +515,64 @@ type2] 90 : XCHG
 9D : POPF / D / Q^d64 / Fv
 9E : SAHF
 9F : LAHF
+
+A0 : MOV AL, Ob
+A1 : MOV rAX, Ov
+A2 : MOV Ob, AL
+A3 : MOV Ov, rAX
+
+A4 : MOVS/B Yb, Xb
+A5 : MOVS/W/D/Q Yv, Xv
+
+A6 : CMPS/B Xb, Yb
+A7 : CMPS/W/D Xv, Yv
+
+A8 : TEST AL, lb
+A9 : TEST rAX, lz
+
+AA : STOS/B Yb, AL
+AB : STOS/W/D/Q Yv, rAX
+
+AC : LODS/B AL, Xb
+AD : LODS/W/D/Q rAX, Xv
+
+AE : SCAS/B AL, Yb
+AF : SCAS/W/D/Q rAx, Yv
+
+type4(b)] B0 : MOV
+type4(v)] B8 : MOV
+
+C0 : (Shift Grp 2^1A) Eb, lb
+C1 : (Shift Grp 2^1A) Ev, lv
+
+C2 : near RET^f64 lw
+C3 : near RET^f64
+
+C4 : LES^i64 Gz, Mp   / VEX+2byte
+C5 : LDS^i64 GZ, Mp   / VEX+1byte
+
+C6 : (Grp 11^1A - MOV) Eb, lb
+C7 : (Grp 11^1A - MOV) Eb, lb
+
+C8 : ENTER lw, lb
+C9 : LEAVE^d64
+CA : far RET lw
+CB : far RET
+CC : INT3
+CD : INT lb
+CE : INTO^i64
+CF : IRET/D/Q
+
+D0 : (Shift Grp 2^1A) Eb, 1
+D1 : (Shift Grp 2^1A) Ev, 1
+D2 : (Shift Grp 2^1A) Eb, CL
+D3 : (Shift Grp 2^1A) Ev, CL
+
+D4 : AAM^i64 lb
+D5 : AAD^i64 lb
+
+D6 : Unallocated
+D7 : XLAT / XLATB
+D8~DF : ESC (Escape to coprocessor instruction set)
 
 
