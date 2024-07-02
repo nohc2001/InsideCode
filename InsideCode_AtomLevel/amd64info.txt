@@ -442,6 +442,9 @@ type0] 38 : CMP
 65 : SEG=GS(Prefix)
 66 : Operand Size(Prefix)
 67 : Address Size(Prefix)
+F0 : LOCK (Prefix)
+F2 : REPNEXACQUIRE (Prefix)
+F3 : REP/REPEXRELEASE (Prefix)
 
 27 : DAA^i64
 2F : DAS^i64
@@ -574,5 +577,41 @@ D5 : AAD^i64 lb
 D6 : Unallocated
 D7 : XLAT / XLATB
 D8~DF : ESC (Escape to coprocessor instruction set)
+
+E0 : (LOOPNE^f64 / LOOPNZ^f64) Jb
+E1 : (LOOPE^f64 / LOOPZ^f64) Jb
+E2 : LOOP^f64 Jb
+E3 : JrCXZ^f64 Jb
+
+E4 : IN AL, lb
+E5 : IN eAX, lb
+E6 : OUT lb, AL
+E7 : OUT lb, eAX
+
+E8 : near CALL^f64 Jz
+
+E9 : near JMP^f64 Jz
+EA : far JMP^i64 Ap
+EB : short JMP^f64 Jb
+
+EC : IN AL, DX
+ED : IN eAX, DX
+
+EE : OUT DX, AL
+EF : OUT DX, eAX
+
+F1 : INT1
+F4 : HLT
+F5 : CMC
+F6 : (Unary Grp 3^1A) Eb
+F7 : (Unary Grp 3^1A) Ev
+F8 : CLC
+F9 : STC
+FA : CLI
+FB : STI
+FC : CLD
+FD : STD
+FE : INC/DEC Grp 4^1A
+FF : INC/DEC Grp 5^1A
 
 
