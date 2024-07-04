@@ -416,19 +416,19 @@ NN + 7 : NEMONIC sDI/sr15, ls
 
 ///////////////////////////////////////////////////////
 2] operations
-type0] 00 : ADD
-type0] 08 : OR
-type0] 10 : ADC
-type0] 18 : SBB
-type0] 20 : AND
-type0] 28 : SUB
-type0] 30 : XOR
-type0] 38 : CMP
+type0] 00 : ADD		// ADD a, b : 	a += b;
+type0] 08 : OR		// OR a, b : 	a = a | b;
+type0] 10 : ADC		// ADC a, b : 	a = a + b + carryFlag
+type0] 18 : SBB		// SBB a, b : 	a = a - b - carryFlag
+type0] 20 : AND		// AND a, b : 	a = a & b;
+type0] 28 : SUB		// SUB a, b : 	a -= b;
+type0] 30 : XOR		// XOR a, b : 	a = a ^ b;
+type0] 38 : CMP		// CMP a, b : 	(a-b) -> update Flags
 
-06 : PUSH ES^i64
-07 : POP ES^i64
+06 : PUSH ES^i64	// PUSH a :	push a data to stack 	
+07 : POP ES^i64		// POP a : 	pop a data to stack
 0E : PUSH CS^i64
-0F : 2byte Escape (??)
+0F : 2byte Escape (??)	// goto 2byte opcode map
 16 : PUSH SS^i64
 17 : POP SS^i64
 1E : PUSH DS^i64
@@ -446,26 +446,37 @@ F0 : LOCK (Prefix)
 F2 : REPNEXACQUIRE (Prefix)
 F3 : REP/REPEXRELEASE (Prefix)
 
-27 : DAA^i64
+27 : DAA^i64	// decimel
 2F : DAS^i64
-37 : AAA^i64
+37 : AAA^i64	// ascii
 3F : AAS^i64
 
-type1] 40 : INC^i64 (general register)
-type1] 48 : DEC^i64 (general register)
+type1] 40 : INC^i64 (general register)	// INC a : 	++a;
+type1] 48 : DEC^i64 (general register)	// DEC a : 	--a;
 
 type2] 50 : PUSH^d64 (general register)
 type2] 58 : POP^d64 (general register)
 
-60 : PUSHA^i64 / PUSHAD^i64
-61 : POPA^i64 / POPAD^i64
-62 : BOUND^i64 Gv, Ma
-63 : ARPL^i64 Ew, Gw / MOVSXD^o64 Gv, Ev
+60 : PUSHA^i64 / PUSHAD^i64	// PUSHA :	push all register in stack.
+61 : POPA^i64 / POPAD^i64	// POPA : 	pop all register in stack and save value to registers. 
+62 : BOUND^i64 Gv, Ma		// BOUND a, b : if(64bitmod) UD=1; else if(a < (first16bit of b) || (last16bitof b) < a) BR=1;
+
+63 : ARPL^i64 Ew, Gw / MOVSXD^o64 Gv, Ev	
+//0x63 a, b : 	RPL = (lowest 2 bit of segment selector(SS))
+		if(64bitmod){ 
+			/*MOVSXD*/ 
+			a = signExtension(b) }
+		else {
+			/*ARPL*/
+			if (a[RPL] < b[RPL]) {ZF=1; a[RPL] = b[RPL]}
+			else{ ZF=0;}
+		}
+
 68 : PUSH^d64 lz
-69 : IMUL Gv, Ev, lz
+69 : IMUL Gv, Ev, lz	// IMUL a, b, c : 	a = a * b; // signed multiply c는 절단되어 a에 저장됨? > 부호?
 6A : PUSH^d64 lb
 6B : IMUL Gv, Ev, lb
-6C : (INS / INSB) Yb, DX
+6C : (INS / INSB) Yb, DX 	// Input from Port to String
 6D : (INS / INSW / INSD) Yz, DX
 6E : (OUTS / OUTSB) DX, Xb
 6F : (OUTS / OUTSW / OUTSD) DX, Xz
@@ -615,3 +626,88 @@ FE : INC/DEC Grp 4^1A
 FF : INC/DEC Grp 5^1A
 
 
+의사 코드 해석
+//BOUND
+//BOUND a, b : 
+if(64bitmod) UD=1; else if(a < (first16bit of b) || (last16bit of b) < a) BR=1
+
+//ARPL / MOVSXD
+//0x63 a, b : 	
+RPL = (lowest 2 bit of segment selector(SS))
+if(64bitmod){ /*MOVSXD*/ 
+	a = signExtension(b);
+}
+else { /*ARPL*/
+	if (a[RPL] < b[RPL]) {ZF=1; a[RPL] = b[RPL]}
+	else{ ZF=0;}
+}
+
+//INS
+//INS a, b
+if(64bitmod){
+	if ((PE = 1) && ((CPL > IOPL) || (VM = 1)))
+	{
+		(* Protected mode with CPL > IOPL or virtual-8086 mode *)
+		if (Any I/O Permission Bit for I/O port being accessed = 1)
+	        {
+			(* I/O operation is not allowed *)
+	                #GP(0);
+		}
+	        else (* I/O operation is allowed *)
+		{
+	                DEST <- SRC; (* Read from I/O port *)
+	        }
+	}
+	else (Real Mode or Protected Mode with CPL IOPL *)
+	{
+		DEST <- SRC; (* Read from I/O port *)
+	}
+}
+else{
+if (Byte transfer)
+{ 
+	if (DF = 0)
+	{
+		(E)DI <- (E)DI + 1; 
+	}
+	else 
+	{
+		(E)DI <- (E)DI - 1;
+	}
+}
+else if (Word transfer)
+{
+	if (DF = 0)
+	{
+		(E)DI <- (E)DI + 2; 
+        }
+	else (E)
+	{
+		DI <- (E)DI - 2;;
+	}
+}
+else (* Doubleword transfer *)
+{
+	if (DF = 0)
+	{
+		(E)DI <- (E)DI + 4; 
+        }
+	else
+	{
+		(E)DI <- (E)DI - 4; FI;
+        }
+}
+
+IF -> if (
+ELSEIF -> } else if (
+ELSE } else 
+THEN -> ) { 
+FI -> }
+Variables : instruction description tell us which variable is which operand.
+See NIMONIC -> goto that instuction.
+#NN -> throw execption.
+	#BR : bound test fail
+	#UD : Undefined
+
+>> 의사코드를 일반 c 언어로 바꾸는 컨버터를 만들어서 에뮬레이션을 해도 될듯?
+https://www.intel.com/content/www/us/en/docs/intrinsics-guide/index.html#ig_expand=0
