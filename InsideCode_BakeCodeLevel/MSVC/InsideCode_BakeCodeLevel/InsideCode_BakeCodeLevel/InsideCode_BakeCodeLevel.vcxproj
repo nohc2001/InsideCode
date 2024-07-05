@@ -140,6 +140,7 @@
     <ClInclude Include="InsideCodeBake.h" />
     <ClInclude Include="multifor.h" />
     <ClInclude Include="sen_tr.h" />
+    <ClInclude Include="time_rdtsc.h" />
     <ClInclude Include="Utill_FreeMemory.h" />
   </ItemGroup>
   <ItemGroup>

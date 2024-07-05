@@ -6,6 +6,8 @@
 #include <string>
 #include "infArray_fm_v0.h"
 #include "sen_tr.h"
+#include "time_rdtsc.h"
+
 using namespace std;
 using namespace freemem;
 
@@ -2125,7 +2127,7 @@ public:
 		}
 	}
 
-	void init()
+	void init(int codemem_siz)
 	{
 		icl << "Create_New_ICB[" << this << "] Initialization...";
 		allcode_sen.NULLState();
@@ -2146,6 +2148,7 @@ public:
 		bd->variable_data.NULLState();
 		bd->variable_data.Init(10, false, true);
 
+		max_mem_byte = codemem_siz;
 		mem = (byte8*)fm->_New(max_mem_byte, true);
 		for (int i = 0; i < max_mem_byte; ++i)
 		{
@@ -8067,6 +8070,7 @@ class ICB_Context{
 #define shiftB0(delta) bpivot = (bpivot + (delta)) & percent16
 
 fmvecarr<ICB_Context *> icbarr;
+int icbindex_cxt = 0;
 
 bool isBreaking = false;
 int stopnum = -1;
@@ -8106,9 +8110,12 @@ int code_control(fmvecarr<ICB_Context *> *icbarr)
 }
 
 void execute_switch(fmvecarr<ICB_Context*> icbarr, int execodenum,
-	int (*control_func)(fmvecarr<ICB_Context*>*), bool init)
+	int (*control_func)(fmvecarr<ICB_Context*>*), float exerate, int cxtindex)
 {
 	constexpr unsigned int percent16 = 15;
+
+	unsigned int ftime = getticks();
+	unsigned int etime = ftime;
 
 	byte8* tmptr_b;
 	ushort* tmptr_s;
@@ -8180,6 +8187,15 @@ void execute_switch(fmvecarr<ICB_Context*> icbarr, int execodenum,
 	goto CONTEXT_SWITCH;
 
 CONTEXT_SWITCH:
+
+	etime = getticks();
+	float delta = getDeltaTime_per60(ftime, etime);
+	//dbg << "time : " << delta << endl;
+	if (delta > exerate)
+	{
+		goto PROGRAMQUIT;
+	}
+
 	if (n == maxo)
 	{
 		// control code
@@ -8243,6 +8259,7 @@ CONTEXT_SWITCH:
 	goto INST_SWITCH;
 
 PROGRAMQUIT:
+	icbindex_cxt = (n + 1) % icbarr.size();
 	return;
 
 CAST_SWITCH:
@@ -8343,33 +8360,65 @@ CAST_SWITCH:
 DBG_SWITCH:
 	switch (dbg_type) {
 	case dbgtype::DBG_A_BYTE:
-		printf("%c", (char)registerA0);
-		break;
+	{
+		char c = (char)registerA0;
+		InsideCode_Bake::icl << c;
+	}
+	//printf("%c", (char)registerA0);
+	break;
 	case dbgtype::DBG_A_UBYTE:
-		printf("%d", (byte8)registerA0);
-		break;
+	{
+		unsigned char c = (unsigned char)registerA0;
+		InsideCode_Bake::icl << (int)c;
+	}
+	//printf("%d", (byte8)registerA0);
+	break;
 	case dbgtype::DBG_A_SHORT:
-		printf("%d", (short)registerA0);
-		break;
+	{
+		short c = (short)registerA0;
+		InsideCode_Bake::icl << (int)c;
+	}
+	//printf("%d", (short)registerA0);
+	break;
 	case dbgtype::DBG_A_USHORT:
-		printf("%d", (ushort)registerA0);
-		break;
+	{
+		unsigned short c = (unsigned short)registerA0;
+		InsideCode_Bake::icl << (int)c;
+	}
+	//printf("%d", (ushort)registerA0);
+	break;
 	case dbgtype::DBG_A_INT:
-		printf("%d", (int)registerA0);
-		break;
+	{
+		int c = (int)registerA0;
+		InsideCode_Bake::icl << c;
+	}
+	//printf("%d", (int)registerA0);
+	break;
 	case dbgtype::DBG_A_UINT:
-		printf("%d", (uint)registerA0);
-		break;
+	{
+		unsigned int c = (unsigned int)registerA0;
+		InsideCode_Bake::icl << c;
+	}
+	//printf("%d", (uint)registerA0);
+	break;
 	case dbgtype::DBG_A_FLOAT:
 		*reinterpret_cast<uint*>(&fmem) = (uint)registerA0;
-		printf("%lf", fmem);
+		InsideCode_Bake::icl << fmem;
+		//printf("%lf", fmem);
 		break;
 	case dbgtype::DBG_A_BOOL:
-		printf((bool)registerA0 ? "true" : "false");
-		break;
+	{
+		InsideCode_Bake::icl << ((bool)registerA0 ? "true" : "false");
+	}
+	//printf((bool)registerA0 ? "true" : "false");
+	break;
 	case dbgtype::DBG_A_STRING:
-		printf("%s", reinterpret_cast<char*>(mem + (unsigned long long)registerA0));
-		break;
+	{
+		char* c = reinterpret_cast<char*>(mem + (unsigned long long)registerA0);
+		InsideCode_Bake::icl << c;
+	}
+	//printf("%s", reinterpret_cast<char*>(mem + (unsigned long long)registerA0));
+	break;
 	}
 
 	++ * pc;
@@ -9251,13 +9300,13 @@ INST_SWITCH:
 		++*pc;
 		goto INST_SWITCH;
 	case insttype::IT_PARAM_1:
-		**sp = (byte8)registerA0;
 		--*sp;
+		**sp = (byte8)registerA0;
 		++*pc;
 		goto INST_SWITCH;
 	case insttype::IT_PARAM_2:
-		**sps = (ushort)registerA0;
 		--*sps;
+		**sps = (ushort)registerA0;
 		++*pc;
 		goto INST_SWITCH;
 	case insttype::IT_PARAM_4:

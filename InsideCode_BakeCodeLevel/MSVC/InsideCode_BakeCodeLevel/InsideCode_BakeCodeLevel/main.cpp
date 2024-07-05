@@ -58,7 +58,7 @@ int main() {
     ICB_Extension* ext = Init_exGeometry();
 
     InsideCode_Bake icb;
-    icb.init();
+    icb.init(40960);
     icb.extension.push_back(ext);
 
     fmlcstr errorcode;
@@ -78,7 +78,7 @@ int main() {
     exectxs.NULLState();
     exectxs.Init(2, false, true);
     exectxs.push_back(ctx);
-    execute_switch(exectxs, 1, code_control, true);
+    execute_switch(exectxs, 1, code_control, 10000, 0);
 
     fm->_tempPopLayer();
 
