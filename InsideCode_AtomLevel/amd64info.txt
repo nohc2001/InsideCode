@@ -482,22 +482,23 @@ type2] 58 : POP^d64 (general register)
 6F : (OUTS / OUTSW / OUTSD) DX, Xz
 
 //short displacement jump on condition.
-70 : (Jcc^f64, Jb) O // Jump if Condition Is Met
-71 : (Jcc^f64, Jb) NO
-72 : (Jcc^f64, Jb) B/NAE/C
-73 : (Jcc^f64, Jb) NB/AE/NC
-74 : (Jcc^f64, Jb) Z/E
-75 : (Jcc^f64, Jb) NZ/NE
-76 : (Jcc^f64, Jb) BE/NA
-77 : (Jcc^f64, Jb) NBE/A
-78 : (Jcc^f64, Jb) S
-79 : (Jcc^f64, Jb) NS
-7A : (Jcc^f64, Jb) P/PE
-7B : (Jcc^f64, Jb) NP/PO
-7C : (Jcc^f64, Jb) L/NGE
-7D : (Jcc^f64, Jb) NL/GE
-7E : (Jcc^f64, Jb) LE/NG
-7F : (Jcc^f64, Jb) NLE/G
+// Jump if Condition Is Met
+70 : (Jcc^f64, Jb) O 		// if overflow (OF=1), JUMP short
+71 : (Jcc^f64, Jb) NO		// if not overflow (OF=0), JUMP short
+72 : (Jcc^f64, Jb) B/NAE/C	// if Below / Carry / Not Above or Equal (CF=1), JUMP short
+73 : (Jcc^f64, Jb) NB/AE/NC	// if Above or Equal / NotBelow / NotCarry (CF=0), JUMP short
+74 : (Jcc^f64, Jb) Z/E		// if Equal / Zero (ZF=1), JUMP short
+75 : (Jcc^f64, Jb) NZ/NE	// if NotZero / NotEqual (ZF=0), JUMP short
+76 : (Jcc^f64, Jb) BE/NA	// if Below or Equal / Not Above (CF=1 or ZF=1), JUMP short
+77 : (Jcc^f64, Jb) NBE/A	// if Not Below or Equal / Above (CF=0 and ZF=0), JUMP short
+78 : (Jcc^f64, Jb) S		// if Sign (SF=1), JUMP short
+79 : (Jcc^f64, Jb) NS		// if NotSign (SF=0), JUMP short
+7A : (Jcc^f64, Jb) P/PE		// if Parity / Parity Even (PF=1), JUMP short
+7B : (Jcc^f64, Jb) NP/PO	// if NotParity / Parity Odd (PF=0), JUMP short
+7C : (Jcc^f64, Jb) L/NGE	// if Less / Not Greater or Equal (SF!=OF), JUMP short
+7D : (Jcc^f64, Jb) NL/GE	// if NotLess / Greater or Equal (SF=OF), JUMP short
+7E : (Jcc^f64, Jb) LE/NG	// if Less or Equal / Not Greater (ZF=1 or SF!=OF), JUMP short
+7F : (Jcc^f64, Jb) NLE/G	// if NotLess or Equal / Greater (ZF=0 abd SF=OF), JUMP short
 
 //Immediate Grp 1^1A
 80 : (Immediate Grp 1^1A) Eb, lb // Opcode에 해당하는 명령어가 바로 나오지 않고 뒤에 나오는 ModR/M에 따라 instruction을 결정한다. 
@@ -519,24 +520,24 @@ type3] 86 : XCHG 	// Register/Memory Swap using Register
 
 90 : NOP / PAUSE(F3)	// NOP		: no operation
 // word, double word or quad word register with rAX
-type2] 90 : XCHG
+type2] 90 : XCHG	// Register/Memory Swap using Register
 
 98 : CBW / CWDE / CDQE	// convert byte to word, word to double word, double word to quad word.
 99 : CWD / CDQ / CQO	// Convert Word to Doubleword, Doubleword to Quadword
 9A : far CALL^i64 Ap 	// call procesure
 9B : FWAIT / WAIT	// WAIT? thread?
-9C : PUSHF / D / Q^d64 / Fv // Push EFLAGS Register onto the Stack
-9D : POPF / D / Q^d64 / Fv // POP EFLAGS Register onto the Stack
-9E : SAHF	// FlagData = AL;
-9F : LAHF	// AL = FlagData;
+9C : PUSHF / D / Q^d64 / Fv 		// Push EFLAGS Register onto the Stack
+9D : POPF / D / Q^d64 / Fv 		// POP EFLAGS Register onto the Stack
+9E : SAHF				// FlagData = AL;
+9F : LAHF				// AL = FlagData;
 
 A0 : MOV AL, Ob
 A1 : MOV rAX, Ov
 A2 : MOV Ob, AL
 A3 : MOV Ov, rAX
 
-A4 : MOVS/B Yb, Xb
-A5 : MOVS/W/D/Q Yv, Xv
+A4 : (MOVS / MOVSB) Yb, Xb
+A5 : (MOVS / MOVSW / MOVSD / MOVSQ) Yv, Xv
 
 A6 : CMPS/B Xb, Yb
 A7 : CMPS/W/D Xv, Yv
