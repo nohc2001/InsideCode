@@ -2169,6 +2169,8 @@ public:
 		nextbd.continuepoints->NULLState();
 		nextbd.continuepoints->Init(2, false, true);
 
+		nextsd = nullptr;
+
 		functions.NULLState();
 		functions.Init(2, false, true);
 
